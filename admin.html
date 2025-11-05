@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin – The Footballer’s Sister</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="robots" content="noindex, nofollow" />
+  <style>
+    /* Optional subtle reveal animation */
+    .fade-in { animation: fade .25s ease-out; }
+    @keyframes fade { from {opacity:0; transform:translateY(4px)} to {opacity:1; transform:none} }
+  </style>
+</head>
+<body class="bg-pink-50 text-black font-sans min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="fixed top-0 w-full flex justify-between items-center px-6 py-4 bg-pink-100 shadow z-50">
+    <h1 class="text-xl font-bold uppercase text-rose-600">Admin • The Footballer’s Sister</h1>
+    <nav class="space-x-6">
+      <a href="index.html" class="hover:underline text-rose-600">Home</a>
+    </nav>
+  </header>
+
+  <!-- Gate (Password Prompt) -->
+  <main id="gate" class="flex-grow pt-32 px-6 pb-20">
+    <div class="max-w-sm mx-auto bg-white rounded-xl shadow p-6 fade-in">
+      <h2 class="text-2xl font-bold text-rose-700 mb-2">Admin Access</h2>
+      <p class="text-sm text-gray-600 mb-4">Enter the admin password to continue.</p>
+      <input id="pw" type="password" placeholder="Password"
+             class="w-full border rounded-full px-4 py-2 mb-3 focus:outline-none focus:ring-2 focus:ring-rose-500"/>
+      <button id="enter"
+              class="w-full bg-rose-600 hover:bg-rose-700 text-white rounded-full px-4 py-2 font-semibold">
+        Enter
+      </button>
+      <p id="err" class="text-red-600 text-sm mt-3 hidden">Incorrect password. Try again.</p>
+
+      <!-- Optional helper to clear session if needed -->
+      <button id="resetSession" class="mt-4 text-xs text-gray-500 hover:underline">Reset session</button>
+
+      <!-- Dev hint (safe to leave, does nothing unless used) -->
+      <!-- To generate a SHA-256 hash, see instructions above this file. -->
+    </div>
+  </main>
+
+  <!-- Admin Panel (Hidden until unlocked) -->
+  <section id="admin-content" class="hidden flex-grow pt-32 px-6 pb-20 max-w-5xl mx-auto fade-in">
+
+    <!-- Tabs -->
+    <div class="flex flex-wrap gap-3 mb-6">
+      <button data-tab="support" class="tab-btn bg-rose-600 text-white px-4 py-2 rounded-full">Support Wall</button>
+      <button data-tab="qa" class="tab-btn bg-gray-200 text-gray-900 px-4 py-2 rounded-full">Q&A</button>
+      <button data-tab="tools" class="tab-btn bg-gray-200 text-gray-900 px-4 py-2 rounded-full">Quick Tools</button>
+    </div>
+
+    <!-- SUPPORT WALL -->
+    <div id="tab-support">
+      <h2 class="text-2xl font-bold text-rose-700 mb-3">Support Wall – Moderate</h2>
+      <p class="text-sm text-gray-600 mb-4">This is a placeholder area. You can paste your moderation code here
+        (e.g., buttons that call your existing delete endpoints, or Firebase code if you later choose to use it).
+      </p>
+
+      <!-- Example actions (no backend required; replace with your real actions) -->
+      <div class="grid gap-3">
+        <div class="bg-white border rounded-2xl p-4 shadow">
+          <div class="flex items-start gap-3">
+            <div class="w-12 h-12 rounded-full bg-pink-100"></div>
+            <div class="flex-1">
+              <div class="text-sm text-gray-500">Preview card</div>
+              <p class="text-gray-700">Your real messages will display here once you wire this panel to your data source.</p>
+              <div class="mt-2 flex gap-2">
+                <button class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">Delete</button>
+                <button class="bg-gray-200 text-gray-900 px-3 py-1 rounded hover:bg-gray-300">Hide</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Q&A -->
+    <div id="tab-qa" class="hidden">
+      <h2 class="text-2xl font-bold text-rose-700 mb-3">Q&A – Answer & Moderate</h2>
+      <p class="text-sm text-gray-600 mb-4">Add your own logic here to load questions and post answers (e.g., via an API or future backend).</p>
+
+      <div class="bg-white border rounded-2xl p-4 shadow">
+        <div class="flex items-start gap-3">
+          <div class="w-12 h-12 rounded-full bg-pink-100"></div>
+          <div class="flex-1">
+            <div class="text-sm text-gray-500">Preview question</div>
+            <p class="text-gray-700">“How do you capture game-day energy?”</p>
+            <form class="mt-3 flex gap-2" onsubmit="event.preventDefault(); alert('Pretend answer posted!');">
+              <input type="text" placeholder="Type answer…" class="flex-1 px-3 py-2 border rounded"/>
+              <button class="bg-rose-600 text-white px-3 py-2 rounded hover:bg-rose-700">Post</button>
+            </form>
+            <div class="mt-2">
+              <button class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- QUICK TOOLS -->
+    <div id="tab-tools" class="hidden">
+      <h2 class="text-2xl font-bold text-rose-700 mb-3">Quick Tools</h2>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="bg-white border rounded-2xl p-4 shadow">
+          <h3 class="font-semibold text-gray-900">Copy page link</h3>
+          <p class="text-sm text-gray-600 mb-3">Quickly copy the public Support Wall URL.</p>
+          <button class="bg-gray-200 text-gray-900 px-3 py-2 rounded hover:bg-gray-300"
+                  onclick="navigator.clipboard.writeText(location.origin + '/support-wall.html'); alert('Link copied!');">
+            Copy Support Wall Link
+          </button>
+        </div>
+        <div class="bg-white border rounded-2xl p-4 shadow">
+          <h3 class="font-semibold text-gray-900">Toggle dark mode</h3>
+          <p class="text-sm text-gray-600 mb-3">Client-side only (for preview).</p>
+          <button class="bg-gray-200 text-gray-900 px-3 py-2 rounded hover:bg-gray-300"
+                  onclick="document.documentElement.classList.toggle('dark'); alert('Toggled');">
+            Toggle
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <footer class="bg-pink-900 text-white text-center py-6">
+    <p>&copy; <span id="year"></span> The Footballer’s Sister. All rights reserved.</p>
+  </footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+
+  <!-- Password Gate + Tabs Script -->
+  <script>
+    // 👉 Replace with your password's SHA-256 hex:
+    const ADMIN_PW_HASH = "PASTE_SHA256_HEX_HERE";
+    const STORAGE_KEY = "admin-ok";
+
+    async function sha256Hex(str) {
+      const enc = new TextEncoder().encode(str);
+      const buf = await crypto.subtle.digest("SHA-256", enc);
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+    }
+    async function tryUnlock(pw) {
+      const hash = await sha256Hex(pw.trim());
+      if (hash === ADMIN_PW_HASH) {
+        sessionStorage.setItem(STORAGE_KEY, "1");
+        document.getElementById('gate').classList.add('hidden');
+        document.getElementById('admin-content').classList.remove('hidden');
+      } else {
+        const err = document.getElementById('err');
+        err.classList.remove('hidden');
+        setTimeout(() => err.classList.add('hidden'), 1500);
+      }
+    }
+    // Existing session?
+    if (sessionStorage.getItem(STORAGE_KEY) === "1") {
+      document.getElementById('gate').classList.add('hidden');
+      document.getElementById('admin-content').classList.remove('hidden');
+    } else {
+      document.getElementById('enter').addEventListener('click', async () => {
+        const pw = document.getElementById('pw').value;
+        await tryUnlock(pw);
+      });
+      document.getElementById('pw').addEventListener('keydown', async (e) => {
+        if (e.key === 'Enter') await tryUnlock(e.target.value);
+      });
+    }
+    // Reset session helper
+    document.getElementById('resetSession').addEventListener('click', () => {
+      sessionStorage.removeItem(STORAGE_KEY);
+      location.reload();
+    });
+
+    // Tabs
+    const tabs = document.querySelectorAll('.tab-btn');
+    const tabPanels = {
+      support: document.getElementById('tab-support'),
+      qa: document.getElementById('tab-qa'),
+      tools: document.getElementById('tab-tools')
+    };
+    tabs.forEach(btn => btn.addEventListener('click', () => {
+      tabs.forEach(b => {
+        b.classList.remove('bg-rose-600','text-white');
+        b.classList.add('bg-gray-200','text-gray-900');
+      });
+      btn.classList.add('bg-rose-600','text-white');
+      Object.values(tabPanels).forEach(p => p.classList.add('hidden'));
+      tabPanels[btn.dataset.tab].classList.remove('hidden');
+    }));
+  </script>
+</body>
+</html>
