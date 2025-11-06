@@ -94,7 +94,7 @@
       query, orderBy
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    /* ✅ Your admin UID (only this user can moderate) */
+    /* ✅ Only this UID can moderate */
     const ADMIN_UID = "pDokgebzpTZWzmn9dW50kaDAqRT2";
 
     /* ✅ Your Firebase config */
@@ -114,10 +114,13 @@
 
     /* Candidate paths (covers current + legacy) */
     const APP_IDS = ["football-site-c3aa9", "default-app-id"];
-    const PATHS = (type, appId) => [
-      `/artifacts/${appId}/public/data/${type}`,
-      `/${type}`
-    ];
+    const QUESTION_NAMES = ["questions","Questions","qna","QnA","qa","ask","askMeAnything","ama","Q&A"];
+    const SUPPORT_NAMES  = ["supportMessages","support","wall","messages"];
+
+    const makePaths = (names, appId) => names.flatMap(name => ([
+      `/artifacts/${appId}/public/data/${name}`,
+      `/${name}`
+    ]));
 
     /* UI refs */
     const loginSection = document.getElementById('loginSection');
@@ -168,12 +171,14 @@
     logoutBtn?.addEventListener('click', () => signOut(auth));
     logoutNo?.addEventListener('click', () => signOut(auth));
 
-    /* ---------- Rendering (merge & show) ---------- */
+    /* ---------- Rendering ---------- */
     function renderSupport(items) {
       // de-dup by path+id, newest first
       const map = new Map();
       items.forEach(x => map.set(`${x._path}::${x.id}`, x));
-      const data = [...map.values()].sort((a,b) => (b.data.timestamp?.seconds ?? 0) - (a.data.timestamp?.seconds ?? 0));
+      const data = [...map.values()].sort((a,b) =>
+        (b.data.timestamp?.seconds ?? 0) - (a.data.timestamp?.seconds ?? 0)
+      );
 
       supportList.innerHTML = '';
       if (!data.length) return supportList.innerHTML = '<p class="text-gray-500">No support messages yet.</p>';
@@ -213,7 +218,9 @@
     function renderQuestions(items) {
       const map = new Map();
       items.forEach(x => map.set(`${x._path}::${x.id}`, x));
-      const data = [...map.values()].sort((a,b) => (b.data.timestamp?.seconds ?? 0) - (a.data.timestamp?.seconds ?? 0));
+      const data = [...map.values()].sort((a,b) =>
+        (b.data.timestamp?.seconds ?? 0) - (a.data.timestamp?.seconds ?? 0)
+      );
 
       qaList.innerHTML = '';
       if (!data.length) return qaList.innerHTML = '<p class="text-gray-500">No questions yet.</p>';
@@ -255,21 +262,18 @@
           </div>
         `;
 
-        // Save answer back to the SAME path
+        // Save answer back to original path
         const saveBtn = card.querySelector('.save');
         if (saveBtn) {
           saveBtn.onclick = async () => {
             const answerEl = card.querySelector('.ans');
             const answer = (answerEl?.value || '').trim();
             if (!answer) return alert('Please write an answer before saving.');
-            await updateDoc(doc(db, _path, id), {
-              answer,
-              answeredAt: serverTimestamp()
-            });
+            await updateDoc(doc(db, _path, id), { answer, answeredAt: serverTimestamp() });
           };
         }
 
-        // Delete question at SAME path
+        // Delete (original path)
         card.querySelectorAll('.delete').forEach(btn => {
           btn.onclick = async () => {
             if (confirm('Delete this question?')) {
@@ -282,33 +286,45 @@
       });
     }
 
-    /* ---------- Subscriptions (listen to all paths and merge) ---------- */
-    function subscribeMerged(type, renderFn) {
+    /* ---------- Subscriptions (listen to all candidate paths and merge) ---------- */
+    function subscribeMerged(namesArray, renderFn) {
       const collected = [];
       APP_IDS.forEach(appId => {
-        PATHS(type, appId).forEach(path => {
+        const paths = makePaths(namesArray, appId);
+        paths.forEach(path => {
           try {
+            // Try ordered listener first; if index/field missing, fall back
             const qRef = query(collection(db, path), orderBy('timestamp','desc'));
-            onSnapshot(qRef, snap => {
-              // Remove previous entries from this path
-              for (let i = collected.length - 1; i >= 0; i--) {
-                if (collected[i]._path === path) collected.splice(i, 1);
-              }
-              // Add latest entries
-              snap.forEach(d => collected.push({ id: d.id, data: d.data(), _path: path }));
-              renderFn(collected.slice());
-            });
+            onSnapshot(qRef, snap => handleSnap(path, snap));
             console.log("[Admin] Listening:", path);
           } catch (e) {
-            console.warn("[Admin] Failed to listen:", path, e);
+            // Fallback: plain collection listener
+            try {
+              onSnapshot(collection(db, path), snap => handleSnap(path, snap));
+              console.log("[Admin] Listening (no orderBy):", path);
+            } catch (err) {
+              console.warn("[Admin] Failed to listen:", path, err.message || err);
+            }
           }
         });
       });
+
+      function handleSnap(path, snap) {
+        // Remove previous docs from this path
+        for (let i = collected.length - 1; i >= 0; i--) {
+          if (collected[i]._path === path) collected.splice(i, 1);
+        }
+        // Add latest
+        snap.forEach(d => collected.push({ id: d.id, data: d.data(), _path: path }));
+        // Hand off to renderer
+        renderFn(collected.slice());
+        console.log(`[Admin] ${path} → ${snap.size} docs`);
+      }
     }
 
     function startListeners() {
-      subscribeMerged('supportMessages', renderSupport);
-      subscribeMerged('questions',       renderQuestions);
+      subscribeMerged(SUPPORT_NAMES,  renderSupport);
+      subscribeMerged(QUESTION_NAMES, renderQuestions);
     }
 
     /* Tabs */
