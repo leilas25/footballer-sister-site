@@ -7,7 +7,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <meta name="robots" content="noindex, nofollow" />
   <style>
-    /* Optional subtle reveal animation */
     .fade-in { animation: fade .25s ease-out; }
     @keyframes fade { from {opacity:0; transform:translateY(4px)} to {opacity:1; transform:none} }
   </style>
@@ -35,11 +34,7 @@
       </button>
       <p id="err" class="text-red-600 text-sm mt-3 hidden">Incorrect password. Try again.</p>
 
-      <!-- Optional helper to clear session if needed -->
       <button id="resetSession" class="mt-4 text-xs text-gray-500 hover:underline">Reset session</button>
-
-      <!-- Dev hint (safe to leave, does nothing unless used) -->
-      <!-- To generate a SHA-256 hash, see instructions above this file. -->
     </div>
   </main>
 
@@ -56,11 +51,9 @@
     <!-- SUPPORT WALL -->
     <div id="tab-support">
       <h2 class="text-2xl font-bold text-rose-700 mb-3">Support Wall – Moderate</h2>
-      <p class="text-sm text-gray-600 mb-4">This is a placeholder area. You can paste your moderation code here
-        (e.g., buttons that call your existing delete endpoints, or Firebase code if you later choose to use it).
+      <p class="text-sm text-gray-600 mb-4">
+        This is a placeholder area. Add your moderation code here (e.g., Firebase delete actions or API calls).
       </p>
-
-      <!-- Example actions (no backend required; replace with your real actions) -->
       <div class="grid gap-3">
         <div class="bg-white border rounded-2xl p-4 shadow">
           <div class="flex items-start gap-3">
@@ -82,7 +75,7 @@
     <!-- Q&A -->
     <div id="tab-qa" class="hidden">
       <h2 class="text-2xl font-bold text-rose-700 mb-3">Q&A – Answer & Moderate</h2>
-      <p class="text-sm text-gray-600 mb-4">Add your own logic here to load questions and post answers (e.g., via an API or future backend).</p>
+      <p class="text-sm text-gray-600 mb-4">Add logic here to load questions and post answers.</p>
 
       <div class="bg-white border rounded-2xl p-4 shadow">
         <div class="flex items-start gap-3">
@@ -135,8 +128,8 @@
 
   <!-- Password Gate + Tabs Script -->
   <script>
-    // 👉 Replace with your password's SHA-256 hex:
-    const ADMIN_PW_HASH = "LeilaSono1234!";
+    // ✅ Your SHA-256 hash (64 hex chars)
+    const ADMIN_PW_HASH = "d332b6fe4139a460effa3794c3130efa1670317640093960bd7da6c087618161";
     const STORAGE_KEY = "admin-ok";
 
     async function sha256Hex(str) {
@@ -144,9 +137,10 @@
       const buf = await crypto.subtle.digest("SHA-256", enc);
       return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
     }
+
     async function tryUnlock(pw) {
       const hash = await sha256Hex(pw.trim());
-      if (hash === ADMIN_PW_HASH) {
+      if (hash.toLowerCase() === ADMIN_PW_HASH.toLowerCase()) {
         sessionStorage.setItem(STORAGE_KEY, "1");
         document.getElementById('gate').classList.add('hidden');
         document.getElementById('admin-content').classList.remove('hidden');
@@ -156,6 +150,7 @@
         setTimeout(() => err.classList.add('hidden'), 1500);
       }
     }
+
     // Existing session?
     if (sessionStorage.getItem(STORAGE_KEY) === "1") {
       document.getElementById('gate').classList.add('hidden');
@@ -169,6 +164,7 @@
         if (e.key === 'Enter') await tryUnlock(e.target.value);
       });
     }
+
     // Reset session helper
     document.getElementById('resetSession').addEventListener('click', () => {
       sessionStorage.removeItem(STORAGE_KEY);
