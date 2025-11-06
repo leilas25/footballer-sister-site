@@ -33,7 +33,6 @@
         Enter
       </button>
       <p id="err" class="text-red-600 text-sm mt-3 hidden">Incorrect password. Try again.</p>
-
       <button id="resetSession" class="mt-4 text-xs text-gray-500 hover:underline">Reset session</button>
     </div>
   </main>
@@ -51,49 +50,17 @@
     <!-- SUPPORT WALL -->
     <div id="tab-support">
       <h2 class="text-2xl font-bold text-rose-700 mb-3">Support Wall – Moderate</h2>
-      <p class="text-sm text-gray-600 mb-4">
-        This is a placeholder area. Add your moderation code here (e.g., Firebase delete actions or API calls).
-      </p>
-      <div class="grid gap-3">
-        <div class="bg-white border rounded-2xl p-4 shadow">
-          <div class="flex items-start gap-3">
-            <div class="w-12 h-12 rounded-full bg-pink-100"></div>
-            <div class="flex-1">
-              <div class="text-sm text-gray-500">Preview card</div>
-              <p class="text-gray-700">Your real messages will display here once you wire this panel to your data source.</p>
-              <div class="mt-2 flex gap-2">
-                <button class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">Delete</button>
-                <button class="bg-gray-200 text-gray-900 px-3 py-1 rounded hover:bg-gray-300">Hide</button>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div id="supportList" class="space-y-3">
+        <p class="text-gray-500">Loading messages…</p>
       </div>
-
     </div>
 
     <!-- Q&A -->
     <div id="tab-qa" class="hidden">
       <h2 class="text-2xl font-bold text-rose-700 mb-3">Q&A – Answer & Moderate</h2>
-      <p class="text-sm text-gray-600 mb-4">Add logic here to load questions and post answers.</p>
-
-      <div class="bg-white border rounded-2xl p-4 shadow">
-        <div class="flex items-start gap-3">
-          <div class="w-12 h-12 rounded-full bg-pink-100"></div>
-          <div class="flex-1">
-            <div class="text-sm text-gray-500">Preview question</div>
-            <p class="text-gray-700">“How do you capture game-day energy?”</p>
-            <form class="mt-3 flex gap-2" onsubmit="event.preventDefault(); alert('Pretend answer posted!');">
-              <input type="text" placeholder="Type answer…" class="flex-1 px-3 py-2 border rounded"/>
-              <button class="bg-rose-600 text-white px-3 py-2 rounded hover:bg-rose-700">Post</button>
-            </form>
-            <div class="mt-2">
-              <button class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">Delete</button>
-            </div>
-          </div>
-        </div>
+      <div id="qaList" class="space-y-3">
+        <p class="text-gray-500">Loading questions…</p>
       </div>
-
     </div>
 
     <!-- QUICK TOOLS -->
@@ -101,11 +68,11 @@
       <h2 class="text-2xl font-bold text-rose-700 mb-3">Quick Tools</h2>
       <div class="grid md:grid-cols-2 gap-4">
         <div class="bg-white border rounded-2xl p-4 shadow">
-          <h3 class="font-semibold text-gray-900">Copy page link</h3>
+          <h3 class="font-semibold text-gray-900">Copy Support Wall link</h3>
           <p class="text-sm text-gray-600 mb-3">Quickly copy the public Support Wall URL.</p>
           <button class="bg-gray-200 text-gray-900 px-3 py-2 rounded hover:bg-gray-300"
                   onclick="navigator.clipboard.writeText(location.origin + '/support-wall.html'); alert('Link copied!');">
-            Copy Support Wall Link
+            Copy Link
           </button>
         </div>
         <div class="bg-white border rounded-2xl p-4 shadow">
@@ -128,7 +95,7 @@
 
   <!-- Password Gate + Tabs Script -->
   <script>
-    // ✅ Your SHA-256 hash (64 hex chars)
+    // ✅ Your SHA-256 hash (64 hex chars). This is for the password you will type to unlock.
     const ADMIN_PW_HASH = "d332b6fe4139a460effa3794c3130efa1670317640093960bd7da6c087618161";
     const STORAGE_KEY = "admin-ok";
 
@@ -144,6 +111,8 @@
         sessionStorage.setItem(STORAGE_KEY, "1");
         document.getElementById('gate').classList.add('hidden');
         document.getElementById('admin-content').classList.remove('hidden');
+        // Kick off Firebase after unlock
+        if (window.startAdminFirebase) window.startAdminFirebase();
       } else {
         const err = document.getElementById('err');
         err.classList.remove('hidden');
@@ -187,6 +156,169 @@
       Object.values(tabPanels).forEach(p => p.classList.add('hidden'));
       tabPanels[btn.dataset.tab].classList.remove('hidden');
     }));
+  </script>
+
+  <!-- Firebase Admin Logic (starts AFTER unlock) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import {
+      getAuth, signInAnonymously, onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import {
+      getFirestore, collection, onSnapshot, doc, deleteDoc, updateDoc, serverTimestamp, query, orderBy
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // SAME appId used across your site
+    const appId = "football-site-c3aa9";
+
+    // Your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
+      authDomain: "football-site-c3aa9.firebaseapp.com",
+      projectId: "football-site-c3aa9",
+      storageBucket: "football-site-c3aa9.appspot.com",
+      messagingSenderId: "65396604482",
+      appId: "1:65396604482:web:0f31625a714aa8352337db",
+    };
+
+    // Simple sanitizer
+    const esc = s => String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+
+    let _initialized = false;
+
+    function startListeners(db) {
+      const supportList = document.getElementById('supportList');
+      const qaList      = document.getElementById('qaList');
+
+      function renderSupport(items) {
+        supportList.innerHTML = '';
+        if (!items.length) {
+          supportList.innerHTML = '<p class="text-gray-500">No support messages yet.</p>';
+          return;
+        }
+        items.forEach(item => {
+          const dateText = item.timestamp?.seconds ? new Date(item.timestamp.seconds*1000).toLocaleString() : 'Just now';
+          const handle   = item.userId ? `@user_${item.userId.slice(0,8)}` : '@anonymous';
+
+          const wrap = document.createElement('div');
+          wrap.className = "bg-white border rounded-2xl p-4 shadow";
+          wrap.innerHTML = `
+            <div class="flex items-start gap-3">
+              <div class="w-12 h-12 rounded-full bg-pink-100"></div>
+              <div class="flex-1">
+                <div class="flex items-center gap-2 text-sm">
+                  <strong class="text-gray-900">${esc(item.name || 'Anonymous')}</strong>
+                  <span class="text-gray-400">${handle}</span>
+                  <span class="text-gray-400">· ${dateText}</span>
+                </div>
+                <p class="mt-1 text-gray-700 break-words">${esc(item.message || '')}</p>
+                <div class="mt-2 flex gap-2">
+                  <button class="del bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">Delete</button>
+                </div>
+              </div>
+            </div>
+          `;
+          wrap.querySelector('.del').onclick = async () => {
+            if (confirm('Delete this message?')) {
+              await deleteDoc(doc(db, `/artifacts/${appId}/public/data/supportMessages`, item.id));
+            }
+          };
+          supportList.appendChild(wrap);
+        });
+      }
+
+      function renderQa(items) {
+        qaList.innerHTML = '';
+        if (!items.length) {
+          qaList.innerHTML = '<p class="text-gray-500">No questions yet.</p>';
+          return;
+        }
+        items.forEach(item => {
+          const dateText = item.timestamp?.seconds ? new Date(item.timestamp.seconds*1000).toLocaleString() : 'Just now';
+          const handle   = item.userId ? `@user_${item.userId.slice(0,8)}` : '@anonymous';
+
+          const wrap = document.createElement('div');
+          wrap.className = "bg-white border rounded-2xl p-4 shadow";
+          wrap.innerHTML = `
+            <div class="flex items-start gap-3">
+              <div class="w-12 h-12 rounded-full bg-pink-100"></div>
+              <div class="flex-1">
+                <div class="flex items-center gap-2 text-sm">
+                  <strong class="text-gray-900">${esc(item.name || 'Anonymous')}</strong>
+                  <span class="text-gray-400">${handle}</span>
+                  <span class="text-gray-400">· ${dateText}</span>
+                </div>
+                <p class="mt-1 text-gray-700 break-words">${esc(item.question || '')}</p>
+                ${
+                  item.answer
+                  ? `<div class="mt-2 bg-rose-50 rounded-lg p-3"><strong class="text-rose-700">Answer:</strong> ${esc(item.answer)}</div>`
+                  : `<form class="mt-3 flex gap-2 answer-form" data-id="${item.id}">
+                       <input type="text" placeholder="Type your answer…" required
+                              class="flex-1 px-3 py-2 border rounded"/>
+                       <button class="bg-rose-600 text-white px-3 py-2 rounded hover:bg-rose-700">Post</button>
+                     </form>`
+                }
+                <div class="mt-2">
+                  <button class="del bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">Delete</button>
+                </div>
+              </div>
+            </div>
+          `;
+          const form = wrap.querySelector('.answer-form');
+          if (form) {
+            form.onsubmit = async (e) => {
+              e.preventDefault();
+              const id = form.getAttribute('data-id');
+              const answer = form.querySelector('input').value.trim();
+              if (!answer) return;
+              await updateDoc(doc(db, `/artifacts/${appId}/public/data/questions`, id), {
+                answer,
+                answeredAt: serverTimestamp()
+              });
+            };
+          }
+          wrap.querySelector('.del').onclick = async () => {
+            if (confirm('Delete this question?')) {
+              await deleteDoc(doc(db, `/artifacts/${appId}/public/data/questions`, item.id));
+            }
+          };
+          qaList.appendChild(wrap);
+        });
+      }
+
+      const supportCol = query(collection(db, `/artifacts/${appId}/public/data/supportMessages`), orderBy('timestamp','desc'));
+      const qaCol      = query(collection(db, `/artifacts/${appId}/public/data/questions`),       orderBy('timestamp','desc'));
+
+      onSnapshot(supportCol, snap => {
+        const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderSupport(items);
+      });
+
+      onSnapshot(qaCol, snap => {
+        const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderQa(items);
+      });
+    }
+
+    // Expose a starter that runs after the password gate unlocks
+    window.startAdminFirebase = async function() {
+      if (_initialized) return;
+      _initialized = true;
+      const app = initializeApp(firebaseConfig);
+      const db  = getFirestore(app);
+      const auth = getAuth(app);
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+          await signInAnonymously(auth);
+        }
+        startListeners(db);
+      });
+    };
+
+    // If already unlocked (session), start immediately
+    if (sessionStorage.getItem("admin-ok") === "1") {
+      window.startAdminFirebase();
+    }
   </script>
 </body>
 </html>
