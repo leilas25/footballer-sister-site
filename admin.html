@@ -84,6 +84,7 @@
     <!-- FIXTURES -->
     <div id="tab-fixtures" class="hidden">
       <h2 class="text-2xl font-bold text-rose-700 mb-4">Fixtures – Add / Update</h2>
+
       <form id="fxForm" class="grid md:grid-cols-2 gap-3 bg-white p-4 rounded-xl border shadow mb-6">
         <input type="hidden" id="fxId" />
         <div>
@@ -117,24 +118,28 @@
           <input id="fxComp" class="w-full border rounded px-3 py-2" placeholder="e.g. GDL League"/>
         </div>
 
-        <!-- NEW: Logos -->
+        <!-- NEW: Logo uploads -->
         <div>
-          <label class="text-sm">Jomo Cosmos Logo URL (auto)</label>
-          <input id="fxHomeLogoUrl" class="w-full border rounded px-3 py-2" placeholder="/images/jc-u14.png"/>
+          <label class="text-sm">Jomo Cosmos Logo (auto by level; you can replace)</label>
+          <input id="fxHomeLogoFile" type="file" accept="image/*" class="w-full border rounded px-3 py-2 bg-white"/>
+          <p class="text-xs text-gray-500 mt-1">Leave empty to use default U14/U19 logo, or pick an image from your device.</p>
         </div>
         <div>
-          <label class="text-sm">Opponent Logo URL</label>
-          <input id="fxAwayLogoUrl" class="w-full border rounded px-3 py-2" placeholder="https://… or /images/opponent.png"/>
+          <label class="text-sm">Opponent Logo</label>
+          <input id="fxAwayLogoFile" type="file" accept="image/*" class="w-full border rounded px-3 py-2 bg-white"/>
+          <p class="text-xs text-gray-500 mt-1">Pick an image from your device.</p>
         </div>
 
         <div class="md:col-span-2">
           <label class="text-sm">Stream URL</label>
           <input id="fxStream" class="w-full border rounded px-3 py-2" placeholder="https://…"/>
         </div>
+
         <div class="flex gap-2 md:col-span-2">
           <button id="fxSave" type="submit" class="bg-rose-600 text-white px-4 py-2 rounded hover:bg-rose-700">Save</button>
           <button type="button" id="fxReset" class="bg-gray-200 text-gray-900 px-4 py-2 rounded">Reset</button>
         </div>
+        <p id="fxMsg" class="md:col-span-2 text-xs text-gray-600"></p>
       </form>
 
       <div id="fxList" class="space-y-3"></div>
@@ -152,8 +157,11 @@
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import {
       getFirestore, collection, onSnapshot, doc, deleteDoc, updateDoc, addDoc,
-      serverTimestamp, Timestamp
+      serverTimestamp, Timestamp, getDoc
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import {
+      getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
     /* Only this UID can moderate */
     const ADMIN_UID = "pDokgebzpTZWzmn9dW50kaDAqRT2";
@@ -174,14 +182,16 @@
     const SUPPORT_PATH   = `artifacts/${APP_ID}/public/data/supportMessages`;
     const FIXTURES_PATH  = `artifacts/${APP_ID}/public/data/fixtures`;
 
-    /* JC logo defaults (make sure these files exist) */
-    const JC_LOGO_U14 = "/images/jc-u14.png";
-    const JC_LOGO_U19 = "/images/jc-u19.png";
+    /* JC logo defaults (used if no upload) */
+    const JC_LOGO_U14_DEFAULT = "/images/jc-u14.png";
+    const JC_LOGO_U19_DEFAULT = "/images/jc-u19.png";
+    const OPP_FALLBACK = "/images/opponent.png";
 
     /* Init */
     const app  = initializeApp(firebaseConfig);
     const db   = getFirestore(app);
     const auth = getAuth(app);
+    const storage = getStorage(app);
 
     /* UI refs */
     const loginSection = document.getElementById('loginSection');
@@ -207,8 +217,11 @@
     const fxDateTime = document.getElementById('fxDateTime');
     const fxStream   = document.getElementById('fxStream');
     const fxComp     = document.getElementById('fxComp');
-    const fxHomeLogoUrl = document.getElementById('fxHomeLogoUrl');
-    const fxAwayLogoUrl = document.getElementById('fxAwayLogoUrl');
+    const fxMsg      = document.getElementById('fxMsg');
+
+    // NEW: file inputs (upload from device)
+    const fxHomeLogoFile = document.getElementById('fxHomeLogoFile');
+    const fxAwayLogoFile = document.getElementById('fxAwayLogoFile');
 
     let qaItems = [];
     let qaFilter = 'all';
@@ -327,7 +340,8 @@
       });
     }
 
-    /* ---------------- Fixtures ---------------- */
+    /* ---------------- Fixtures (with Storage uploads) ---------------- */
+
     // Live listener
     onSnapshot(collection(db, FIXTURES_PATH), snap => {
       fixtures = snap.docs.map(d=>({id:d.id, ...d.data()}))
@@ -335,30 +349,78 @@
       renderFixtures();
     });
 
-    // Auto JC logo when Level changes
-    fxLevel.addEventListener('change', () => {
-      const def = fxLevel.value === 'U14' ? JC_LOGO_U14 : JC_LOGO_U19;
-      if (!fxHomeLogoUrl.value || fxHomeLogoUrl.value === JC_LOGO_U14 || fxHomeLogoUrl.value === JC_LOGO_U19) {
-        fxHomeLogoUrl.value = def;
-      }
-    });
+    document.getElementById('fxReset').addEventListener('click', (e)=>{ e.preventDefault(); fxForm.reset(); fxId.value=''; fxMsg.textContent=''; });
 
     fxForm.addEventListener('submit', async (e)=>{
       e.preventDefault();
-      const payload = readForm();
-      if (!payload.opponent || !payload.kickoffTs) return alert('Please add opponent and date/time');
-      if (fxId.value) {
-        await updateDoc(doc(db, FIXTURES_PATH, fxId.value), payload);
-      } else {
-        await addDoc(collection(db, FIXTURES_PATH), {...payload, createdAt: serverTimestamp(), status:'scheduled'});
-      }
-      fxForm.reset(); fxId.value='';
-    });
-    document.getElementById('fxReset').addEventListener('click', (e)=>{ e.preventDefault(); fxForm.reset(); fxId.value=''; });
+      fxMsg.textContent = '';
+      const basePayload = readFormBase();
+      if (!basePayload.opponent || !basePayload.kickoffTs) return alert('Please add opponent and date/time');
 
-    function readForm(){
+      const homeFile = fxHomeLogoFile.files[0] || null;
+      const awayFile = fxAwayLogoFile.files[0] || null;
+
+      try {
+        if (fxId.value) {
+          // UPDATE EXISTING
+          const id = fxId.value;
+          let updates = {...basePayload};
+
+          // Upload new files if picked
+          if (homeFile) {
+            const url = await uploadLogoFile(homeFile, `fixtures/${id}/home`);
+            updates.homeLogoUrl = url;
+          } else if (!basePayload.homeLogoUrl) {
+            // keep existing if present; if not, use default per level
+            const def = basePayload.level === 'U14' ? JC_LOGO_U14_DEFAULT : JC_LOGO_U19_DEFAULT;
+            updates.homeLogoUrl = def;
+          }
+
+          if (awayFile) {
+            const url = await uploadLogoFile(awayFile, `fixtures/${id}/away`);
+            updates.awayLogoUrl = url;
+          } else if (!basePayload.awayLogoUrl) {
+            // keep existing if present; otherwise fallback
+            updates.awayLogoUrl = OPP_FALLBACK;
+          }
+
+          await updateDoc(doc(db, FIXTURES_PATH, id), updates);
+          fxMsg.textContent = 'Fixture updated.';
+        } else {
+          // CREATE NEW to get docId
+          const defHome = basePayload.level === 'U14' ? JC_LOGO_U14_DEFAULT : JC_LOGO_U19_DEFAULT;
+          let createPayload = {
+            ...basePayload,
+            homeLogoUrl: defHome,           // defaults first
+            awayLogoUrl: OPP_FALLBACK,
+            createdAt: serverTimestamp(),
+            status: 'scheduled'
+          };
+          const docRef = await addDoc(collection(db, FIXTURES_PATH), createPayload);
+
+          // Uploads (optional)
+          const updates = {};
+          if (homeFile) {
+            updates.homeLogoUrl = await uploadLogoFile(homeFile, `fixtures/${docRef.id}/home`);
+          }
+          if (awayFile) {
+            updates.awayLogoUrl = await uploadLogoFile(awayFile, `fixtures/${docRef.id}/away`);
+          }
+          if (Object.keys(updates).length) {
+            await updateDoc(docRef, updates);
+          }
+          fxMsg.textContent = 'Fixture created.';
+        }
+
+        fxForm.reset(); fxId.value='';
+      } catch (err) {
+        console.error(err);
+        alert('Failed to save fixture.');
+      }
+    });
+
+    function readFormBase(){
       const dt = fxDateTime.value ? new Date(fxDateTime.value) : null;
-      const defHome = fxLevel.value === 'U14' ? JC_LOGO_U14 : JC_LOGO_U19;
       return {
         level: fxLevel.value,
         opponent: fxOpponent.value.trim(),
@@ -367,9 +429,27 @@
         competition: fxComp.value.trim() || null,
         streamUrl: fxStream.value.trim() || null,
         kickoffTs: dt ? Timestamp.fromDate(dt) : null,
-        homeLogoUrl: (fxHomeLogoUrl.value.trim() || defHome),
-        awayLogoUrl: fxAwayLogoUrl.value.trim() || null
+        // If no file chosen, keep existing values on edit; on create we override with defaults above
+        homeLogoUrl: null,
+        awayLogoUrl: null
       };
+    }
+
+    async function uploadLogoFile(file, pathBase){
+      // pathBase like 'fixtures/{id}/home' → we'll keep original extension if available
+      const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+      const sref = storageRef(storage, `${pathBase}.${ext}`);
+      const task = uploadBytesResumable(sref, file);
+      return await new Promise((resolve, reject)=>{
+        task.on('state_changed',
+          snap => {
+            const pct = Math.round((snap.bytesTransferred/snap.totalBytes)*100);
+            fxMsg.textContent = `Uploading logo… ${pct}%`;
+          },
+          reject,
+          async ()=> resolve(await getDownloadURL(task.snapshot.ref))
+        );
+      });
     }
 
     function renderFixtures() {
@@ -381,8 +461,8 @@
       fixtures.forEach(f => {
         const when = f.kickoffTs?.toDate ? f.kickoffTs.toDate().toLocaleString() : '';
         const sc = (f.status==='live' || f.status==='finished') ? ` ${f.scoreHome ?? 0} : ${f.scoreAway ?? 0}` : '';
-        const homeLogo = f.homeLogoUrl || (f.level === 'U14' ? JC_LOGO_U14 : JC_LOGO_U19);
-        const awayLogo = f.awayLogoUrl || '/images/opponent.png';
+        const homeLogo = f.homeLogoUrl || (f.level === 'U14' ? JC_LOGO_U14_DEFAULT : JC_LOGO_U19_DEFAULT);
+        const awayLogo = f.awayLogoUrl || OPP_FALLBACK;
 
         const card = document.createElement('div');
         card.className = 'bg-white border rounded-xl p-4 shadow';
@@ -447,8 +527,10 @@
       });
     }
 
-    function fillForm(id){
-      const f = fixtures.find(x=>x.id===id); if (!f) return;
+    async function fillForm(id){
+      const snap = await getDoc(doc(db, FIXTURES_PATH, id));
+      if (!snap.exists()) return;
+      const f = snap.data();
       fxId.value = id;
       fxLevel.value = f.level || 'U14';
       fxOpponent.value = f.opponent || '';
@@ -456,8 +538,9 @@
       fxVenue.value = f.venue || '';
       fxComp.value = f.competition || '';
       fxStream.value = f.streamUrl || '';
-      fxHomeLogoUrl.value = f.homeLogoUrl || (fxLevel.value === 'U14' ? JC_LOGO_U14 : JC_LOGO_U19);
-      fxAwayLogoUrl.value = f.awayLogoUrl || '';
+      // Clear previous chosen files (if any)
+      fxHomeLogoFile.value = '';
+      fxAwayLogoFile.value = '';
       if (f.kickoffTs?.toDate){
         const d = f.kickoffTs.toDate();
         fxDateTime.value = d.toISOString().slice(0,16);
@@ -468,6 +551,7 @@
       document.querySelector('[data-tab="fixtures"]').classList.add('bg-rose-600','text-white');
       Object.values(panels).forEach(p=>p.classList.add('hidden'));
       panels['fixtures'].classList.remove('hidden');
+      fxMsg.textContent = 'Editing existing fixture. Choose files to replace logos.';
     }
 
     /* Start listeners after auth */
