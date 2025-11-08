@@ -116,23 +116,27 @@
           <label class="text-sm">Competition</label>
           <input id="fxComp" class="w-full border rounded px-3 py-2" placeholder="e.g. GDL League"/>
         </div>
+
+        <!-- NEW: Logos -->
         <div>
           <label class="text-sm">Jomo Cosmos Logo URL (auto)</label>
           <input id="fxHomeLogoUrl" class="w-full border rounded px-3 py-2" placeholder="/images/jc-u14.png"/>
         </div>
         <div>
           <label class="text-sm">Opponent Logo URL</label>
-          <input id="fxAwayLogoUrl" class="w-full border rounded px-3 py-2" placeholder="https://... or /images/opponent.png"/>
+          <input id="fxAwayLogoUrl" class="w-full border rounded px-3 py-2" placeholder="https://… or /images/opponent.png"/>
         </div>
+
         <div class="md:col-span-2">
           <label class="text-sm">Stream URL</label>
-          <input id="fxStream" class="w-full border rounded px-3 py-2" placeholder="https://..."/>
+          <input id="fxStream" class="w-full border rounded px-3 py-2" placeholder="https://…"/>
         </div>
         <div class="flex gap-2 md:col-span-2">
           <button id="fxSave" type="submit" class="bg-rose-600 text-white px-4 py-2 rounded hover:bg-rose-700">Save</button>
           <button type="button" id="fxReset" class="bg-gray-200 text-gray-900 px-4 py-2 rounded">Reset</button>
         </div>
       </form>
+
       <div id="fxList" class="space-y-3"></div>
     </div>
   </section>
@@ -170,7 +174,7 @@
     const SUPPORT_PATH   = `artifacts/${APP_ID}/public/data/supportMessages`;
     const FIXTURES_PATH  = `artifacts/${APP_ID}/public/data/fixtures`;
 
-    /* JC logo defaults */
+    /* JC logo defaults (make sure these files exist) */
     const JC_LOGO_U14 = "/images/jc-u14.png";
     const JC_LOGO_U19 = "/images/jc-u19.png";
 
@@ -331,6 +335,7 @@
       renderFixtures();
     });
 
+    // Auto JC logo when Level changes
     fxLevel.addEventListener('change', () => {
       const def = fxLevel.value === 'U14' ? JC_LOGO_U14 : JC_LOGO_U19;
       if (!fxHomeLogoUrl.value || fxHomeLogoUrl.value === JC_LOGO_U14 || fxHomeLogoUrl.value === JC_LOGO_U19) {
@@ -376,7 +381,7 @@
       fixtures.forEach(f => {
         const when = f.kickoffTs?.toDate ? f.kickoffTs.toDate().toLocaleString() : '';
         const sc = (f.status==='live' || f.status==='finished') ? ` ${f.scoreHome ?? 0} : ${f.scoreAway ?? 0}` : '';
-        const homeLogo = f.homeLogoUrl || '/images/jc-default.png';
+        const homeLogo = f.homeLogoUrl || (f.level === 'U14' ? JC_LOGO_U14 : JC_LOGO_U19);
         const awayLogo = f.awayLogoUrl || '/images/opponent.png';
 
         const card = document.createElement('div');
