@@ -6,29 +6,47 @@
   <title>Fixtures & Live Scores – The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .logo { width: 36px; height: 36px; border-radius: 9999px; object-fit: cover; background:#f1f5f9 }
+    .logo { width:36px; height:36px; border-radius:9999px; object-fit:cover; background:#f1f5f9 }
     .chip { font-size:.75rem; padding:.15rem .5rem; border-radius:9999px }
     .chip-blue { background:#e0f2fe; color:#075985 }
     .chip-green{ background:#dcfce7; color:#166534 }
     .chip-gray { background:#e5e7eb; color:#374151 }
+    .dropdown-open { opacity:1!important; transform:scale(1)!important; }
   </style>
 </head>
 <body class="bg-pink-50 text-black font-sans min-h-screen">
 
-  <!-- Header -->
-  <header class="fixed top-0 w-full flex justify-between items-center px-6 py-4 bg-pink-100 shadow z-50">
-    <h1 class="text-xl font-bold uppercase text-rose-600">The Footballer’s Sister</h1>
-    <nav class="space-x-6">
-      <a href="index.html" class="hover:underline text-rose-600">Home</a>
-      <a href="bts.html" class="hover:underline text-rose-600">Behind the Game</a>
-      <a href="leila.html" class="hover:underline text-rose-600">Meet Leila</a>
-      <a href="questions.html" class="hover:underline text-rose-600">Q&amp;A</a>
-      <a href="support-wall.html" class="hover:underline text-rose-600">Support Wall</a>
-      <a href="fixtures.html" class="font-semibold underline text-rose-600">Fixtures</a>
-    </nav>
-  </header>
+  <!-- Smart animated dropdown header -->
+  <header class="fixed top-0 w-full bg-pink-100 shadow z-50">
+    <div class="flex justify-between items-center px-6 py-4">
+      <h1 class="text-xl font-bold uppercase text-rose-600">THE FOOTBALLER’S SISTER</h1>
 
-  <main class="pt-32 px-6 max-w-3xl mx-auto pb-24">
+      <div class="relative inline-block text-left">
+        <button id="navButton"
+          class="inline-flex justify-center w-full rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
+          Loading...
+          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
+          </svg>
+        </button>
+
+        <div id="dropdownMenu"
+          class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
+          <div class="py-1">
+            <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
+            <a href="bts.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
+            <a href="leila.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Meet Leila</a>
+            <a href="questions.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Q&A</a>
+            <a href="support-wall.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Support Wall</a>
+            <a href="fixtures.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Fixtures & Live Scores</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="pt-24"></div>
+
+  <main class="px-6 max-w-3xl mx-auto pb-24">
     <h2 class="text-4xl font-extrabold text-center text-rose-700">Fixtures & Live Scores</h2>
     <p class="text-center text-gray-600 mt-1">U14 &amp; U19 • Jomo Cosmos</p>
 
@@ -57,6 +75,36 @@
     <p>&copy; <span id="year"></span> The Footballer’s Sister. All rights reserved.</p>
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+
+  <!-- Smart header JS -->
+  <script>
+    const navButton = document.getElementById('navButton');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    const navItems = document.querySelectorAll('.nav-item');
+    const currentPage = window.location.pathname.split('/').pop();
+    const pageTitles = {
+      "index.html": "Home",
+      "bts.html": "Behind the Game",
+      "leila.html": "Meet Leila",
+      "questions.html": "Q&A",
+      "support-wall.html": "Support Wall",
+      "fixtures.html": "Fixtures & Live Scores"
+    };
+    navButton.firstChild.textContent = pageTitles[currentPage] || "Menu";
+    navItems.forEach(link => {
+      if (link.getAttribute('href') === currentPage) link.classList.add("font-semibold", "text-rose-600");
+    });
+    navButton.addEventListener('click', () => {
+      const isHidden = dropdownMenu.classList.contains('hidden');
+      if (isHidden) { dropdownMenu.classList.remove('hidden'); setTimeout(()=>dropdownMenu.classList.add('dropdown-open'),10); }
+      else { dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'),200); }
+    });
+    document.addEventListener('click', (e) => {
+      if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+        dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'),200);
+      }
+    });
+  </script>
 
   <!-- Firebase + Page Logic -->
   <script type="module">

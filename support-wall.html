@@ -1,3 +1,4 @@
+<!-- support-wall.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,79 +6,122 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>The Support Wall</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="icon" href="data:,">
   <style>
     .tweet-card {
-      background: #ffffff;
-      border: 1px solid #e0e0e0;
-      border-radius: 16px;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      display: flex;
-      align-items: flex-start;
-      gap: 1rem;
+      background: #ffffff; border: 1px solid #e0e0e0; border-radius: 16px;
+      padding: 1rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease, box-shadow 0.2s ease; display: flex; align-items: flex-start; gap: 1rem;
     }
-    .tweet-card:hover { background:#f7f7f7; transform:translateY(-2px); box-shadow:0 2px 5px rgba(0,0,0,0.15); }
-    .tweet-avatar { width:48px; height:48px; border-radius:9999px; background:#fce7f3; flex-shrink:0; display:grid; place-items:center; color:#be185d; font-weight:700; }
-    .tweet-header { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
-    .tweet-name { font-weight:700; color:#111827; }
-    .tweet-handle { font-size:.875rem; color:#9ca3af; }
-    .tweet-content { margin-top:.25rem; font-size:.95rem; color:#374151; }
-    .tweet-timestamp { font-size:.75rem; color:#6b7280; }
-    .delete-button { margin-left:auto; align-self:center; color:#e53e3e; border-radius:9999px; padding:.25rem; }
-    .delete-button:hover { color:#c53030; background:#fff5f5; }
-    .emoji-reactions { display:flex; gap:.5rem; margin-top:.5rem; align-items:center; flex-wrap:wrap; }
-    .emoji-btn { background:#fce7f3; border:none; border-radius:9999px; padding:.25rem .5rem; cursor:pointer; font-size:1rem; display:flex; align-items:center; gap:.25rem; transition:background .2s; }
-    .emoji-btn.selected, .emoji-btn:hover { background:#fbb6ce; }
-    .emoji-count { font-size:.9em; color:#be185d; margin-left:.15rem; }
+    .tweet-card:hover { background: #f7f7f7; transform: translateY(-2px); box-shadow: 0 2px 5px rgba(0,0,0,0.15); }
+    .tweet-avatar { width: 48px; height: 48px; border-radius: 9999px; background-color: #fce7f3; flex-shrink: 0; }
+    .tweet-header { display: flex; align-items: center; gap: 0.5rem; }
+    .tweet-name { font-weight: bold; color: #1a202c; }
+    .tweet-handle { font-size: 0.875rem; color: #a0aec0; }
+    .tweet-content { margin-top: 0.25rem; font-size: 0.875rem; color: #4a5568; }
+    .tweet-timestamp { font-size: 0.75rem; color: #718096; }
+    .delete-button { margin-left: auto; align-self: center; color: #e53e3e; border-radius: 9999px; padding: 0.25rem; }
+    .delete-button:hover { color: #c53030; background-color: #fff5f5; }
+    .dropdown-open { opacity: 1 !important; transform: scale(1) !important; }
   </style>
 </head>
 <body class="bg-pink-50 text-black font-sans min-h-screen flex flex-col">
 
-  <!-- Header -->
-  <header class="fixed top-0 w-full flex justify-between items-center px-6 py-4 bg-pink-100 shadow z-50">
-    <h1 class="text-xl font-bold uppercase text-rose-600">The Footballer’s Sister</h1>
-    <nav class="space-x-6">
-      <a href="index.html" class="hover:underline text-rose-600">Home</a>
-      <a href="bts.html" class="hover:underline text-rose-600">Behind the Game</a>
-      <a href="leila.html" class="hover:underline text-rose-600">Meet Leila</a>
-      <a href="questions.html" class="hover:underline text-rose-600">Q&amp;A</a>
-      <a href="support-wall.html" class="font-semibold underline text-rose-600">Support Wall</a>
-      <a href="fixtures.html" class="hover:underline text-rose-600">Fixtures</a>
+  <!-- Smart animated dropdown header -->
+  <header class="fixed top-0 w-full bg-pink-100 shadow z-50">
+    <div class="flex justify-between items-center px-6 py-4">
+      <h1 class="text-xl font-bold uppercase text-rose-600">THE FOOTBALLER’S SISTER</h1>
 
-    </nav>
+      <div class="relative inline-block text-left">
+        <button id="navButton"
+          class="inline-flex justify-center w-full rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
+          Loading...
+          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
+          </svg>
+        </button>
+
+        <div id="dropdownMenu"
+          class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
+          <div class="py-1">
+            <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
+            <a href="bts.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
+            <a href="leila.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Meet Leila</a>
+            <a href="questions.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Q&A</a>
+            <a href="support-wall.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Support Wall</a>
+            <a href="fixtures.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Fixtures & Live Scores</a>
+          </div>
+        </div>
+      </div>
+    </div>
   </header>
+  <div class="pt-24"></div>
 
-  <!-- Main -->
-  <main class="flex-grow pt-32 px-6 pb-20 text-center max-w-2xl mx-auto">
+  <!-- Main Content -->
+  <main class="flex-grow px-6 pb-20 text-center max-w-2xl mx-auto">
     <h2 class="text-4xl font-bold mb-4 text-rose-700">The Support Wall ❤️</h2>
     <p class="text-sm text-center text-gray-600 mb-6">
       Thank you for your message! Here you can see all the messages from the community.
       <br>Your user ID is <span id="user-id" class="font-mono text-xs text-pink-700 break-all">Loading...</span>
     </p>
 
-    <!-- Messages -->
     <div id="messages-container" class="mt-8 space-y-4 max-h-96 overflow-y-auto text-left">
       <p id="loading-indicator" class="text-gray-500 text-center">Loading messages...</p>
     </div>
   </main>
-
-  <!-- Footer -->
+  
   <footer class="bg-pink-900 text-white text-center py-6">
     <p>&copy; <span id="copyright-year"></span> The Footballer’s Sister. All rights reserved.</p>
     <script>document.getElementById('copyright-year').textContent = new Date().getFullYear();</script>
   </footer>
 
-  <!-- Firebase + Logic -->
+  <!-- Smart header JS -->
+  <script>
+    const navButton = document.getElementById('navButton');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    const navItems = document.querySelectorAll('.nav-item');
+    const currentPage = window.location.pathname.split('/').pop();
+    const pageTitles = {
+      "index.html": "Home",
+      "bts.html": "Behind the Game",
+      "leila.html": "Meet Leila",
+      "questions.html": "Q&A",
+      "support-wall.html": "Support Wall",
+      "fixtures.html": "Fixtures & Live Scores"
+    };
+    const title = pageTitles[currentPage] || "Menu";
+    navButton.firstChild.textContent = title;
+    navItems.forEach(link => {
+      if (link.getAttribute('href') === currentPage) {
+        link.classList.add("font-semibold", "text-rose-600");
+      }
+    });
+    navButton.addEventListener('click', () => {
+      const isHidden = dropdownMenu.classList.contains('hidden');
+      if (isHidden) {
+        dropdownMenu.classList.remove('hidden');
+        setTimeout(() => dropdownMenu.classList.add('dropdown-open'), 10);
+      } else {
+        dropdownMenu.classList.remove('dropdown-open');
+        setTimeout(() => dropdownMenu.classList.add('hidden'), 200);
+      }
+    });
+    document.addEventListener('click', (event) => {
+      if (!navButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+        dropdownMenu.classList.remove('dropdown-open');
+        setTimeout(() => dropdownMenu.classList.add('hidden'), 200);
+      }
+    });
+  </script>
+
+  <!-- Firebase SDKs and Support Wall Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, deleteDoc, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import {
+      getFirestore, collection, onSnapshot, deleteDoc, doc
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    /* --- CONFIG (short appId; matches admin & questions) --- */
-    const appId = "1:65396604482:web:0f31625a714aa8352337db";
+    const appId = '1:65396604482:web:0f31625a714aa8352337db';
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
@@ -86,12 +130,9 @@
       messagingSenderId: "65396604482",
       appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
-    const SUPPORT_PATH = `artifacts/${appId}/public/data/supportMessages`;
-    const ADMIN_USER_ID = "pDokgebzpTZWzmn9dW50kaDAqRT2"; // you only
 
-    /* --- INIT --- */
     const app = initializeApp(firebaseConfig);
-    const db  = getFirestore(app);
+    const db = getFirestore(app);
     const auth = getAuth(app);
 
     let userId = null;
@@ -99,92 +140,45 @@
     const messagesContainer = document.getElementById('messages-container');
     const loadingIndicator = document.getElementById('loading-indicator');
 
-    const EMOJIS = ['❤️','👏','🎉','🔥','😊'];
-    const esc = s => String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        userId = user.uid;
+        userIdEl.textContent = userId;
 
-    /* --- Emoji reaction toggle --- */
-    async function toggleReaction(msgId, emoji) {
-      const ref = doc(db, SUPPORT_PATH, msgId);
-      const snap = await getDoc(ref);
-      if (!snap.exists() || !userId) return;
-      const data = snap.data();
-      const reactions = (data.reactions && typeof data.reactions === 'object') ? { ...data.reactions } : {};
-      const users = Array.isArray(reactions[emoji]) ? reactions[emoji] : [];
-      const idx = users.indexOf(userId);
-      if (idx >= 0) users.splice(idx, 1); else users.push(userId);
-      reactions[emoji] = users;
-      await updateDoc(ref, { reactions });
-    }
-    window.__toggleReaction = toggleReaction;
-
-    /* --- auth + realtime listener --- */
-    signInAnonymously(auth).catch(console.error);
-
-    onAuthStateChanged(auth, (user) => {
-      if (!user) return;
-      userId = user.uid;
-      userIdEl.textContent = userId;
-
-      onSnapshot(collection(db, SUPPORT_PATH), (snapshot) => {
-        loadingIndicator.style.display = 'none';
-        messagesContainer.innerHTML = '';
-
-        if (snapshot.empty) {
-          messagesContainer.innerHTML = '<p class="text-gray-600 text-center">No messages yet. Be the first to post!</p>';
-          return;
-        }
-
-        const items = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-        items.sort((a,b) => (b.timestamp?.seconds ?? 0) - (a.timestamp?.seconds ?? 0));
-
-        items.forEach(msg => {
-          const when = msg.timestamp?.seconds ? new Date(msg.timestamp.seconds*1000).toLocaleDateString() : 'Just now';
-          const handle = msg.userId ? `@user_${esc(msg.userId).slice(0,8)}` : '@anonymous';
-          const reactions = (msg.reactions && typeof msg.reactions === 'object') ? msg.reactions : {};
-
-          const card = document.createElement('div');
-          card.className = 'tweet-card';
-          card.innerHTML = `
-            <div class="tweet-avatar">❤️</div>
-            <div class="flex-1">
-              <div class="tweet-header">
-                <span class="tweet-name">${esc(msg.name || 'Anonymous')}</span>
-                <span class="tweet-handle">${handle}</span>
-                <span class="tweet-timestamp">· ${when}</span>
+        onSnapshot(collection(db, `/artifacts/${appId}/public/data/supportMessages`), (snapshot) => {
+          messagesContainer.innerHTML = '';
+          loadingIndicator.style.display = 'none';
+          const messages = [];
+          snapshot.forEach(docSnap => { messages.push({ id: docSnap.id, ...docSnap.data() }); });
+          messages.sort((a,b)=> (a.timestamp?.seconds ?? 0) - (b.timestamp?.seconds ?? 0)).reverse();
+          if (!messages.length) messagesContainer.innerHTML = '<p class="text-gray-500 text-center">No messages yet.</p>';
+          messages.forEach(msg => {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'tweet-card';
+            messageDiv.innerHTML = `
+              <svg class="tweet-avatar" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#be185d">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.38 0 2.5 1.12 2.5 2.5S13.38 10 12 10s-2.5-1.12-2.5-2.5S10.62 5 12 5zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+              </svg>
+              <div>
+                <div class="tweet-header">
+                  <p class="tweet-name">${msg.name || 'Anonymous'}</p>
+                  <p class="tweet-handle">@user_${(msg.userId || '').substring(0, 8)}</p>
+                  <p class="tweet-timestamp">· ${
+                    msg.timestamp?.seconds
+                      ? new Date(msg.timestamp.seconds * 1000).toLocaleDateString()
+                      : 'Just now'
+                  }</p>
+                </div>
+                <p class="tweet-content break-words">${msg.message || ''}</p>
               </div>
-              <p class="tweet-content break-words">${esc(msg.message || '')}</p>
-              <div class="emoji-reactions">
-                ${EMOJIS.map(e => {
-                  const arr = Array.isArray(reactions[e]) ? reactions[e] : [];
-                  const selected = arr.includes(userId) ? ' selected' : '';
-                  const count = arr.length ? `<span class="emoji-count">${arr.length}</span>` : '';
-                  return `<button type="button" class="emoji-btn${selected}" onclick="__toggleReaction('${msg.id}','${e}')">${e}${count}</button>`;
-                }).join('')}
-              </div>
-            </div>
-          `;
-
-          // Delete button (only for you)
-          if (userId === ADMIN_USER_ID) {
-            const del = document.createElement('button');
-            del.className = 'delete-button';
-            del.title = 'Delete Message';
-            del.textContent = '🗑️';
-            del.onclick = async () => {
-              if (confirm('Delete this message?')) {
-                await deleteDoc(doc(db, SUPPORT_PATH, msg.id));
-              }
-            };
-            card.appendChild(del);
-          }
-
-          messagesContainer.appendChild(card);
+            `;
+            messagesContainer.appendChild(messageDiv);
+          });
         });
-      }, (err) => {
-        loadingIndicator.style.display = 'none';
-        messagesContainer.innerHTML = `<p class="text-red-600 text-center">Failed to load: ${esc(err.message || err)}</p>`;
-        console.error('[Support Wall]', err);
-      });
+
+      } else {
+        try { await signInAnonymously(auth); } catch (error) { console.error("Error signing in:", error); }
+      }
     });
   </script>
 </body>
