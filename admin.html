@@ -6,6 +6,8 @@
   <title>Admin – The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <meta name="robots" content="noindex, nofollow" />
+  <!-- Silence favicon 404 -->
+  <link rel="icon" href="data:,">
   <style>
     .fade-in { animation: fade .25s ease-out; }
     @keyframes fade { from {opacity:0; transform:translateY(4px)} to {opacity:1; transform:none} }
@@ -52,12 +54,18 @@
 
   <!-- ADMIN DASHBOARD -->
   <section id="adminPanel" class="hidden flex-grow pt-32 px-6 pb-20 max-w-5xl mx-auto fade-in">
+    <!-- Error banner -->
+    <div id="errBanner" class="hidden mb-4 p-3 rounded-lg bg-red-100 text-red-800 text-sm"></div>
+
     <div class="flex items-center justify-between mb-6">
       <div class="flex flex-wrap gap-3">
         <button data-tab="support" class="tab-btn bg-rose-600 text-white px-4 py-2 rounded-full">Support Wall</button>
         <button data-tab="qa" class="tab-btn bg-gray-200 text-gray-900 px-4 py-2 rounded-full">Q&A</button>
       </div>
-      <button id="logoutBtn" class="bg-rose-600 text-white px-4 py-2 rounded-full hover:bg-rose-700">Log out</button>
+      <div class="flex gap-2">
+        <button id="refreshBtn" class="bg-gray-200 text-gray-900 px-4 py-2 rounded-full hover:bg-gray-300">Refresh now</button>
+        <button id="logoutBtn" class="bg-rose-600 text-white px-4 py-2 rounded-full hover:bg-rose-700">Log out</button>
+      </div>
     </div>
 
     <!-- Support Wall -->
@@ -86,11 +94,14 @@
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- FIREBASE ADMIN -->
+  <!-- FIREBASE ADMIN (with diagnostics) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, doc, deleteDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import {
+      getFirestore, collection, onSnapshot, doc, getDocs,
+      deleteDoc, updateDoc, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     /* ✅ Admin UID */
     const ADMIN_UID = "pDokgebzpTZWzmn9dW50kaDAqRT2";
@@ -105,7 +116,7 @@
       appId: "1:65396604482:web:0f31625a714aa8352337db",
     };
 
-    /* ✅ Firestore paths */
+    /* ✅ Firestore paths (correct) */
     const QUESTIONS_PATH = "artifacts/1:653966044482:web:0f31625a714aa8352337db/public/data/questions";
     const SUPPORT_PATH   = "artifacts/1:653966044482:web:0f31625a714aa8352337db/public/data/supportMessages";
 
@@ -125,6 +136,8 @@
     const supportList  = document.getElementById('supportList');
     const qaList       = document.getElementById('qaList');
     const qaCountsEl   = document.getElementById('qaCounts');
+    const errBanner    = document.getElementById('errBanner');
+    const refreshBtn   = document.getElementById('refreshBtn');
 
     /* State */
     let qaItems = [];
@@ -137,6 +150,15 @@
       adminPanel.classList.toggle('hidden', v !== 'admin');
       noAccess.classList.toggle('hidden', v !== 'noaccess');
     }
+    function showError(msg) {
+      console.error(msg);
+      errBanner.textContent = msg;
+      errBanner.classList.remove('hidden');
+    }
+    function clearError() {
+      errBanner.classList.add('hidden');
+      errBanner.textContent = '';
+    }
 
     /* Auth */
     onAuthStateChanged(auth, user => {
@@ -148,8 +170,12 @@
     loginForm.addEventListener('submit', async e => {
       e.preventDefault();
       loginError.classList.add('hidden');
-      try { await signInWithEmailAndPassword(auth, email.value.trim(), password.value); }
-      catch (err) { loginError.textContent = err.message; loginError.classList.remove('hidden'); }
+      try {
+        await signInWithEmailAndPassword(auth, email.value.trim(), password.value);
+      } catch (err) {
+        loginError.textContent = err.message;
+        loginError.classList.remove('hidden');
+      }
     });
 
     logoutBtn.onclick = () => signOut(auth);
@@ -214,16 +240,48 @@
       alert('Answer saved!');
     };
 
-    /* Listeners */
+    /* Listeners with error handling */
     function startListeners() {
-      onSnapshot(collection(db, SUPPORT_PATH), snap => {
-        renderSupport(snap.docs.map(d=>({id:d.id,data:d.data()})));
-      });
-      onSnapshot(collection(db, QUESTIONS_PATH), snap => {
-        qaItems = snap.docs.map(d=>({id:d.id,data:d.data()}));
-        renderQuestions();
-      });
+      clearError();
+
+      onSnapshot(
+        collection(db, SUPPORT_PATH),
+        snap => {
+          const arr = snap.docs.map(d=>({id:d.id,data:d.data()}));
+          console.log('[Admin] Support docs:', arr.length);
+          renderSupport(arr);
+        },
+        err => showError('[Support] ' + (err.message || String(err)))
+      );
+
+      onSnapshot(
+        collection(db, QUESTIONS_PATH),
+        snap => {
+          qaItems = snap.docs.map(d=>({id:d.id,data:d.data()}));
+          console.log('[Admin] Questions docs:', qaItems.length);
+          renderQuestions();
+        },
+        err => showError('[Questions] ' + (err.message || String(err)))
+      );
     }
+
+    /* One-off refresh (diagnostic) */
+    refreshBtn.addEventListener('click', async () => {
+      try {
+        clearError();
+        const [q1, q2] = await Promise.all([
+          getDocs(collection(db, QUESTIONS_PATH)),
+          getDocs(collection(db, SUPPORT_PATH)),
+        ]);
+        console.log('[Refresh] Questions count:', q1.size);
+        console.log('[Refresh] Support count:', q2.size);
+        qaItems = q1.docs.map(d=>({id:d.id,data:d.data()}));
+        renderQuestions();
+        renderSupport(q2.docs.map(d=>({id:d.id,data:d.data()})));
+      } catch (e) {
+        showError('[Refresh] ' + (e.message || String(e)));
+      }
+    });
 
     /* Filters */
     const filterBtns = document.querySelectorAll('.qa-filter');
