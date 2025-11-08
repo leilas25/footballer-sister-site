@@ -13,7 +13,6 @@
 </head>
 
 <body class="bg-pink-50 text-black font-sans min-h-screen flex flex-col">
-
   <!-- Header -->
   <header class="fixed top-0 w-full flex justify-between items-center px-6 py-4 bg-pink-100 shadow z-50">
     <h1 class="text-xl font-bold uppercase text-rose-600">Admin • The Footballer’s Sister</h1>
@@ -64,17 +63,21 @@
     <!-- Support Wall -->
     <div id="tab-support">
       <h2 class="text-2xl font-bold text-rose-700 mb-3">Support Wall – Moderate</h2>
-      <div id="supportList" class="space-y-3">
-        <p class="text-gray-500">Loading messages…</p>
-      </div>
+      <div id="supportList" class="space-y-3"><p class="text-gray-500">Loading…</p></div>
     </div>
 
     <!-- Q&A -->
     <div id="tab-qa" class="hidden">
-      <h2 class="text-2xl font-bold text-rose-700 mb-3">Q&A – Answer & Moderate</h2>
-      <div id="qaList" class="space-y-3">
-        <p class="text-gray-500">Loading questions…</p>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-2xl font-bold text-rose-700">Q&A – Answer & Moderate</h2>
+        <div class="flex gap-2">
+          <button data-filter="all" class="qa-filter px-3 py-1 rounded-full bg-rose-600 text-white">All</button>
+          <button data-filter="unanswered" class="qa-filter px-3 py-1 rounded-full bg-gray-200 text-gray-900">Unanswered</button>
+          <button data-filter="answered" class="qa-filter px-3 py-1 rounded-full bg-gray-200 text-gray-900">Answered</button>
+        </div>
       </div>
+      <p id="qaCounts" class="text-xs text-gray-500 mb-2">Totals: —</p>
+      <div id="qaList" class="space-y-3"><p class="text-gray-500">Loading…</p></div>
     </div>
   </section>
 
@@ -83,16 +86,11 @@
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- FIREBASE ADMIN (Email/Password; multi-path merge; answer saving) -->
+  <!-- FIREBASE ADMIN -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import {
-      getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut
-    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import {
-      getFirestore, collection, onSnapshot, doc, deleteDoc, updateDoc, serverTimestamp,
-      query, orderBy
-    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, onSnapshot, doc, deleteDoc, updateDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     /* ✅ Only this UID can moderate */
     const ADMIN_UID = "pDokgebzpTZWzmn9dW50kaDAqRT2";
@@ -107,20 +105,14 @@
       appId: "1:65396604482:web:0f31625a714aa8352337db",
     };
 
+    /* Paths detected from your console screenshot */
+    const QUESTIONS_PATH = "artifacts/1:653966044482:web:0f31625a714aa8352337db/public/data/questions";
+    const SUPPORT_PATH   = "artifacts/1:653966044482:web:0f31625a714aa8352337db/public/data/supportMessages";
+
     /* Init */
     const app  = initializeApp(firebaseConfig);
     const db   = getFirestore(app);
     const auth = getAuth(app);
-
-    /* Candidate paths (covers current + legacy) */
-    const APP_IDS = ["football-site-c3aa9", "default-app-id"];
-    const QUESTION_NAMES = ["questions","Questions","qna","QnA","qa","ask","askMeAnything","ama","Q&A"];
-    const SUPPORT_NAMES  = ["supportMessages","support","wall","messages"];
-
-    const makePaths = (names, appId) => names.flatMap(name => ([
-      `/artifacts/${appId}/public/data/${name}`,
-      `/${name}`
-    ]));
 
     /* UI refs */
     const loginSection = document.getElementById('loginSection');
@@ -132,213 +124,128 @@
     const logoutNo     = document.getElementById('logoutNoAccess');
     const supportList  = document.getElementById('supportList');
     const qaList       = document.getElementById('qaList');
+    const qaCountsEl   = document.getElementById('qaCounts');
+    const filterBtns   = document.querySelectorAll('.qa-filter');
+
+    /* State */
+    let qaItems = [];          // raw items from Firestore
+    let qaFilter = 'all';      // all | unanswered | answered
 
     /* Helpers */
     const esc = s => String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 
-    function setView(view) {
-      loginSection.classList.toggle('hidden', view !== 'login');
-      adminPanel.classList.toggle('hidden', view !== 'admin');
-      noAccess.classList.toggle('hidden', view !== 'noaccess');
+    function setView(v) {
+      loginSection.classList.toggle('hidden', v !== 'login');
+      adminPanel.classList.toggle('hidden', v !== 'admin');
+      noAccess.classList.toggle('hidden', v !== 'noaccess');
     }
 
-    /* Auth state → gate by UID */
-    onAuthStateChanged(auth, (user) => {
+    /* Auth */
+    onAuthStateChanged(auth, user => {
       if (!user) return setView('login');
-      if (user.uid === ADMIN_UID) {
-        setView('admin');
-        startListeners();
-      } else {
-        setView('noaccess');
-      }
+      if (user.uid === ADMIN_UID) { setView('admin'); startListeners(); }
+      else setView('noaccess');
     });
 
-    /* Login form */
-    loginForm.addEventListener('submit', async (e) => {
+    loginForm.addEventListener('submit', async e => {
       e.preventDefault();
       loginError.classList.add('hidden');
-      try {
-        const email = (document.getElementById('email').value || '').trim();
-        const password = document.getElementById('password').value;
-        await signInWithEmailAndPassword(auth, email, password);
-      } catch (err) {
-        loginError.textContent = err.message || "Login failed.";
-        loginError.classList.remove('hidden');
-      }
+      try { await signInWithEmailAndPassword(auth, email.value.trim(), password.value); }
+      catch (err) { loginError.textContent = err.message; loginError.classList.remove('hidden'); }
     });
 
-    /* Logout */
-    logoutBtn?.addEventListener('click', () => signOut(auth));
-    logoutNo?.addEventListener('click', () => signOut(auth));
+    logoutBtn.onclick = () => signOut(auth);
+    logoutNo.onclick  = () => signOut(auth);
 
-    /* ---------- Rendering ---------- */
-    function renderSupport(items) {
-      // de-dup by path+id, newest first
-      const map = new Map();
-      items.forEach(x => map.set(`${x._path}::${x.id}`, x));
-      const data = [...map.values()].sort((a,b) =>
-        (b.data.timestamp?.seconds ?? 0) - (a.data.timestamp?.seconds ?? 0)
-      );
-
+    /* Support Wall */
+    function renderSupport(list) {
       supportList.innerHTML = '';
-      if (!data.length) return supportList.innerHTML = '<p class="text-gray-500">No support messages yet.</p>';
-
-      data.forEach(({ id, data, _path }) => {
-        const dateText = data.timestamp?.seconds ? new Date(data.timestamp.seconds*1000).toLocaleString() : 'Just now';
-        const handle   = data.userId ? `@user_${data.userId.slice(0,8)}` : '@anonymous';
-
-        const card = document.createElement('div');
-        card.className = "bg-white border rounded-2xl p-4 shadow";
-        card.innerHTML = `
-          <div class="flex items-start gap-3">
-            <div class="w-12 h-12 rounded-full bg-pink-100"></div>
-            <div class="flex-1">
-              <div class="flex items-center gap-2 text-sm">
-                <strong class="text-gray-900">${esc(data.name || 'Anonymous')}</strong>
-                <span class="text-gray-400">${handle}</span>
-                <span class="text-gray-400">· ${dateText}</span>
-              </div>
-              <p class="mt-1 text-gray-700 break-words">${esc(data.message || '')}</p>
-              <div class="mt-2">
-                <button class="del bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">Delete</button>
-              </div>
-              <p class="text-[10px] text-gray-400 mt-1">${esc(_path)}</p>
-            </div>
-          </div>
-        `;
-        card.querySelector('.del').onclick = async () => {
-          if (confirm('Delete this message?')) {
-            await deleteDoc(doc(db, _path, id));
-          }
-        };
-        supportList.appendChild(card);
+      if (!list.length) return supportList.innerHTML = '<p class="text-gray-500">No messages yet.</p>';
+      list.forEach(({ id, data }) => {
+        supportList.innerHTML += `
+          <div class="bg-white border rounded-2xl p-4 shadow">
+            <strong>${esc(data.name||'Anonymous')}</strong>
+            <p class="text-gray-700">${esc(data.message||'')}</p>
+            <button class="mt-2 bg-red-600 text-white px-3 py-1 rounded" onclick="deleteSupport('${id}')">Delete</button>
+          </div>`;
       });
     }
+    window.deleteSupport = async id => {
+      if (confirm('Delete message?')) await deleteDoc(doc(db, SUPPORT_PATH, id));
+    };
 
-    function renderQuestions(items) {
-      const map = new Map();
-      items.forEach(x => map.set(`${x._path}::${x.id}`, x));
-      const data = [...map.values()].sort((a,b) =>
-        (b.data.timestamp?.seconds ?? 0) - (a.data.timestamp?.seconds ?? 0)
-      );
+    /* Q&A with filter */
+    function applyFilter(items, filter) {
+      if (filter === 'answered')   return items.filter(x => !!x.data.answer);
+      if (filter === 'unanswered') return items.filter(x => !x.data.answer);
+      return items;
+    }
+    function renderQACounts(items) {
+      const total = items.length;
+      const answered = items.filter(x => !!x.data.answer).length;
+      const unanswered = total - answered;
+      qaCountsEl.textContent = `Totals: All ${total} • Unanswered ${unanswered} • Answered ${answered}`;
+    }
+    function renderQuestions() {
+      const items = applyFilter(qaItems, qaFilter);
+      renderQACounts(qaItems);
 
       qaList.innerHTML = '';
-      if (!data.length) return qaList.innerHTML = '<p class="text-gray-500">No questions yet.</p>';
+      if (!items.length) return qaList.innerHTML = '<p class="text-gray-500">No questions yet.</p>';
 
-      data.forEach(({ id, data, _path }) => {
-        const dateText = data.timestamp?.seconds ? new Date(data.timestamp.seconds*1000).toLocaleString() : 'Just now';
-        const handle   = data.userId ? `@user_${data.userId.slice(0,8)}` : '@anonymous';
-
-        const card = document.createElement('div');
-        card.className = "bg-white border rounded-2xl p-4 shadow";
-        card.innerHTML = `
-          <div class="flex items-start gap-3">
-            <div class="w-12 h-12 rounded-full bg-pink-100"></div>
-            <div class="flex-1">
-              <div class="flex items-center gap-2 text-sm">
-                <strong class="text-gray-900">${esc(data.name || 'Anonymous')}</strong>
-                <span class="text-gray-400">${handle}</span>
-                <span class="text-gray-400">· ${dateText}</span>
-              </div>
-              <p class="mt-1 text-gray-800">${esc(data.question || '')}</p>
-
-              ${data.answer
-                ? `<div class="mt-3 bg-rose-50 border border-rose-200 rounded p-3 text-rose-700">
-                     <strong>Answer:</strong> ${esc(data.answer)}
-                   </div>
-                   <div class="mt-2">
-                     <button class="delete bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">Delete</button>
-                   </div>`
-                : `<div class="mt-3">
-                     <textarea class="ans border w-full p-2 rounded" rows="2" placeholder="Type your answer..."></textarea>
-                     <div class="flex gap-2 mt-2">
-                       <button class="save bg-rose-600 text-white px-3 py-1 rounded hover:bg-rose-700">Save</button>
-                       <button class="delete bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">Delete</button>
-                     </div>
-                   </div>`
-              }
-              <p class="text-[10px] text-gray-400 mt-1">${esc(_path)}</p>
-            </div>
-          </div>
-        `;
-
-        // Save answer back to original path
-        const saveBtn = card.querySelector('.save');
-        if (saveBtn) {
-          saveBtn.onclick = async () => {
-            const answerEl = card.querySelector('.ans');
-            const answer = (answerEl?.value || '').trim();
-            if (!answer) return alert('Please write an answer before saving.');
-            await updateDoc(doc(db, _path, id), { answer, answeredAt: serverTimestamp() });
-          };
-        }
-
-        // Delete (original path)
-        card.querySelectorAll('.delete').forEach(btn => {
-          btn.onclick = async () => {
-            if (confirm('Delete this question?')) {
-              await deleteDoc(doc(db, _path, id));
-            }
-          };
-        });
-
-        qaList.appendChild(card);
+      items.forEach(({ id, data }) => {
+        qaList.innerHTML += `
+          <div class="bg-white border rounded-2xl p-4 shadow">
+            <strong>${esc(data.name||'Anonymous')}</strong>
+            <p class="text-gray-800">${esc(data.question||'')}</p>
+            ${data.answer ? 
+              `<div class="bg-pink-50 mt-2 p-2 rounded"><strong>Answer:</strong> ${esc(data.answer)}</div>` :
+              `<textarea id="ans-${id}" class="border w-full p-2 mt-2 rounded" placeholder="Type your answer"></textarea>
+               <button class="bg-rose-600 text-white px-3 py-1 mt-2 rounded" onclick="saveAnswer('${id}')">Save Answer</button>`}
+            <button class="mt-2 bg-red-600 text-white px-3 py-1 rounded" onclick="deleteQuestion('${id}')">Delete</button>
+          </div>`;
       });
     }
+    window.deleteQuestion = async id => {
+      if (confirm('Delete question?')) await deleteDoc(doc(db, QUESTIONS_PATH, id));
+    };
+    window.saveAnswer = async id => {
+      const ans = document.getElementById('ans-'+id)?.value.trim();
+      if (!ans) return alert('Please write an answer.');
+      await updateDoc(doc(db, QUESTIONS_PATH, id), { answer: ans, answeredAt: serverTimestamp() });
+      alert('Answer saved!');
+    };
 
-    /* ---------- Subscriptions (listen to all candidate paths and merge) ---------- */
-    function subscribeMerged(namesArray, renderFn) {
-      const collected = [];
-      APP_IDS.forEach(appId => {
-        const paths = makePaths(namesArray, appId);
-        paths.forEach(path => {
-          try {
-            // Try ordered listener first; if index/field missing, fall back
-            const qRef = query(collection(db, path), orderBy('timestamp','desc'));
-            onSnapshot(qRef, snap => handleSnap(path, snap));
-            console.log("[Admin] Listening:", path);
-          } catch (e) {
-            // Fallback: plain collection listener
-            try {
-              onSnapshot(collection(db, path), snap => handleSnap(path, snap));
-              console.log("[Admin] Listening (no orderBy):", path);
-            } catch (err) {
-              console.warn("[Admin] Failed to listen:", path, err.message || err);
-            }
-          }
-        });
-      });
-
-      function handleSnap(path, snap) {
-        // Remove previous docs from this path
-        for (let i = collected.length - 1; i >= 0; i--) {
-          if (collected[i]._path === path) collected.splice(i, 1);
-        }
-        // Add latest
-        snap.forEach(d => collected.push({ id: d.id, data: d.data(), _path: path }));
-        // Hand off to renderer
-        renderFn(collected.slice());
-        console.log(`[Admin] ${path} → ${snap.size} docs`);
-      }
-    }
-
+    /* Listeners */
     function startListeners() {
-      subscribeMerged(SUPPORT_NAMES,  renderSupport);
-      subscribeMerged(QUESTION_NAMES, renderQuestions);
+      onSnapshot(query(collection(db, SUPPORT_PATH), orderBy('timestamp','desc')), snap => {
+        renderSupport(snap.docs.map(d=>({id:d.id,data:d.data()})));
+      });
+      onSnapshot(query(collection(db, QUESTIONS_PATH), orderBy('timestamp','desc')), snap => {
+        qaItems = snap.docs.map(d=>({id:d.id,data:d.data()}));
+        renderQuestions();
+      });
     }
+
+    /* Filter buttons */
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => { b.classList.remove('bg-rose-600','text-white'); b.classList.add('bg-gray-200','text-gray-900'); });
+        btn.classList.add('bg-rose-600','text-white');
+        qaFilter = btn.dataset.filter;
+        renderQuestions();
+      });
+    });
 
     /* Tabs */
     const tabs = document.querySelectorAll('.tab-btn');
-    const tabPanels = {
-      support: document.getElementById('tab-support'),
-      qa:      document.getElementById('tab-qa')
-    };
-    tabs.forEach(btn => btn.addEventListener('click', () => {
+    const panels = {support: document.getElementById('tab-support'), qa: document.getElementById('tab-qa')};
+    tabs.forEach(btn => btn.onclick = () => {
       tabs.forEach(b => { b.classList.remove('bg-rose-600','text-white'); b.classList.add('bg-gray-200','text-gray-900'); });
       btn.classList.add('bg-rose-600','text-white');
-      Object.values(tabPanels).forEach(p => p.classList.add('hidden'));
-      tabPanels[btn.dataset.tab].classList.remove('hidden');
-    }));
+      Object.values(panels).forEach(p=>p.classList.add('hidden'));
+      panels[btn.dataset.tab].classList.remove('hidden');
+    });
   </script>
 </body>
 </html>
