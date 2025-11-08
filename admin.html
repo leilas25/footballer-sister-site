@@ -14,6 +14,7 @@
 </head>
 
 <body class="bg-pink-50 text-black font-sans min-h-screen flex flex-col">
+  <!-- Header -->
   <header class="fixed top-0 w-full flex justify-between items-center px-6 py-4 bg-pink-100 shadow z-50">
     <h1 class="text-xl font-bold uppercase text-rose-600">Admin • The Footballer’s Sister</h1>
     <nav class="space-x-6">
@@ -54,8 +55,9 @@
   <section id="adminPanel" class="hidden flex-grow pt-32 px-6 pb-20 max-w-5xl mx-auto fade-in">
     <div class="flex items-center justify-between mb-6">
       <div class="flex flex-wrap gap-3">
-        <button data-tab="support" class="tab-btn bg-rose-600 text-white px-4 py-2 rounded-full">Support Wall</button>
-        <button data-tab="qa" class="tab-btn bg-gray-200 text-gray-900 px-4 py-2 rounded-full">Q&A</button>
+        <button data-tab="support"  class="tab-btn bg-rose-600 text-white px-4 py-2 rounded-full">Support Wall</button>
+        <button data-tab="qa"       class="tab-btn bg-gray-200 text-gray-900 px-4 py-2 rounded-full">Q&A</button>
+        <button data-tab="fixtures" class="tab-btn bg-gray-200 text-gray-900 px-4 py-2 rounded-full">Fixtures</button>
       </div>
       <button id="logoutBtn" class="bg-rose-600 text-white px-4 py-2 rounded-full hover:bg-rose-700">Log out</button>
     </div>
@@ -71,13 +73,64 @@
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-2xl font-bold text-rose-700">Q&A – Answer & Moderate</h2>
         <div class="flex gap-2">
-          <button data-filter="all" class="qa-filter px-3 py-1 rounded-full bg-rose-600 text-white">All</button>
-          <button data-filter="unanswered" class="qa-filter px-3 py-1 rounded-full bg-gray-200 text-gray-900">Unanswered</button>
-          <button data-filter="answered" class="qa-filter px-3 py-1 rounded-full bg-gray-200 text-gray-900">Answered</button>
+          <button data-filter="all"         class="qa-filter px-3 py-1 rounded-full bg-rose-600 text-white">All</button>
+          <button data-filter="unanswered"  class="qa-filter px-3 py-1 rounded-full bg-gray-200 text-gray-900">Unanswered</button>
+          <button data-filter="answered"    class="qa-filter px-3 py-1 rounded-full bg-gray-200 text-gray-900">Answered</button>
         </div>
       </div>
       <p id="qaCounts" class="text-xs text-gray-500 mb-2">Totals: —</p>
       <div id="qaList" class="space-y-3"><p class="text-gray-500">Loading…</p></div>
+    </div>
+
+    <!-- FIXTURES -->
+    <div id="tab-fixtures" class="hidden">
+      <h2 class="text-2xl font-bold text-rose-700 mb-4">Fixtures – Add / Update</h2>
+
+      <!-- Create / Edit form -->
+      <form id="fxForm" class="grid md:grid-cols-2 gap-3 bg-white p-4 rounded-xl border shadow mb-6">
+        <input type="hidden" id="fxId" />
+        <div>
+          <label class="text-sm">Team Level</label>
+          <select id="fxLevel" class="w-full border rounded px-3 py-2">
+            <option>U14</option>
+            <option>U19</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-sm">Opponent</label>
+          <input id="fxOpponent" class="w-full border rounded px-3 py-2" placeholder="e.g. Kaizer Chiefs U14"/>
+        </div>
+        <div>
+          <label class="text-sm">Home/Away</label>
+          <select id="fxHa" class="w-full border rounded px-3 py-2">
+            <option value="home">Home</option>
+            <option value="away">Away</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-sm">Venue</label>
+          <input id="fxVenue" class="w-full border rounded px-3 py-2" placeholder="e.g. Rand Stadium"/>
+        </div>
+        <div>
+          <label class="text-sm">Date & Time</label>
+          <input id="fxDateTime" type="datetime-local" class="w-full border rounded px-3 py-2"/>
+        </div>
+        <div>
+          <label class="text-sm">Competition (optional)</label>
+          <input id="fxComp" class="w-full border rounded px-3 py-2" placeholder="e.g. GDL League"/>
+        </div>
+        <div class="md:col-span-2">
+          <label class="text-sm">Stream URL (optional)</label>
+          <input id="fxStream" class="w-full border rounded px-3 py-2" placeholder="https://…"/>
+        </div>
+        <div class="flex gap-2 md:col-span-2">
+          <button id="fxSave" type="submit" class="bg-rose-600 text-white px-4 py-2 rounded hover:bg-rose-700">Save</button>
+          <button type="button" id="fxReset" class="bg-gray-200 text-gray-900 px-4 py-2 rounded">Reset</button>
+        </div>
+      </form>
+
+      <!-- List -->
+      <div id="fxList" class="space-y-3"></div>
     </div>
   </section>
 
@@ -90,7 +143,10 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, doc, deleteDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import {
+      getFirestore, collection, onSnapshot, doc, deleteDoc, updateDoc, addDoc,
+      serverTimestamp, Timestamp
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     /* Only this UID can moderate */
     const ADMIN_UID = "pDokgebzpTZWzmn9dW50kaDAqRT2";
@@ -105,16 +161,18 @@
       appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
 
-    /* Firestore paths (SHORT appId, matches questions.html right now) */
-    const QUESTIONS_PATH = "artifacts/1:65396604482:web:0f31625a714aa8352337db/public/data/questions";
-    const SUPPORT_PATH   = "artifacts/1:65396604482:web:0f31625a714aa8352337db/public/data/supportMessages";
+    /* Firestore paths (SHORT appId) */
+    const APP_ID_SHORT   = "1:65396604482:web:0f31625a714aa8352337db";
+    const QUESTIONS_PATH = `artifacts/${APP_ID_SHORT}/public/data/questions`;
+    const SUPPORT_PATH   = `artifacts/${APP_ID_SHORT}/public/data/supportMessages`;
+    const FIXTURES_PATH  = `artifacts/${APP_ID_SHORT}/public/data/fixtures`;
 
     /* Init */
     const app  = initializeApp(firebaseConfig);
     const db   = getFirestore(app);
     const auth = getAuth(app);
 
-    /* UI */
+    /* UI refs */
     const loginSection = document.getElementById('loginSection');
     const adminPanel   = document.getElementById('adminPanel');
     const noAccess     = document.getElementById('noAccess');
@@ -122,13 +180,33 @@
     const loginError   = document.getElementById('loginError');
     const logoutBtn    = document.getElementById('logoutBtn');
     const logoutNo     = document.getElementById('logoutNoAccess');
+
     const supportList  = document.getElementById('supportList');
     const qaList       = document.getElementById('qaList');
     const qaCountsEl   = document.getElementById('qaCounts');
 
+    // Fixtures refs
+    const fxList     = document.getElementById('fxList');
+    const fxForm     = document.getElementById('fxForm');
+    const fxId       = document.getElementById('fxId');
+    const fxLevel    = document.getElementById('fxLevel');
+    const fxOpponent = document.getElementById('fxOpponent');
+    const fxHa       = document.getElementById('fxHa');
+    const fxVenue    = document.getElementById('fxVenue');
+    const fxDateTime = document.getElementById('fxDateTime');
+    const fxStream   = document.getElementById('fxStream');
+    const fxComp     = document.getElementById('fxComp');
+    const fxSave     = document.getElementById('fxSave');
+    const fxReset    = document.getElementById('fxReset');
+
     let qaItems = [];
     let qaFilter = 'all';
+    let fixtures = [];
+
     const esc = s => String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+    const badgeClass = st => st==='live' ? 'bg-green-100 text-green-700'
+                         : st==='finished' ? 'bg-gray-100 text-gray-700'
+                         : 'bg-blue-100 text-blue-700';
 
     function setView(v) {
       loginSection.classList.toggle('hidden', v !== 'login');
@@ -136,22 +214,30 @@
       noAccess.classList.toggle('hidden', v !== 'noaccess');
     }
 
+    /* Auth state */
     onAuthStateChanged(auth, user => {
       if (!user) return setView('login');
       if (user.uid === ADMIN_UID) { setView('admin'); startListeners(); }
       else setView('noaccess');
     });
 
+    /* Login */
     loginForm.addEventListener('submit', async e => {
       e.preventDefault();
       loginError.classList.add('hidden');
-      try { await signInWithEmailAndPassword(auth, email.value.trim(), password.value); }
-      catch (err) { loginError.textContent = err.message; loginError.classList.remove('hidden'); }
+      try {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (err) {
+        loginError.textContent = err.message;
+        loginError.classList.remove('hidden');
+      }
     });
-
     logoutBtn.onclick = () => signOut(auth);
     logoutNo.onclick  = () => signOut(auth);
 
+    /* ---------------- Support Wall ---------------- */
     function renderSupport(list) {
       supportList.innerHTML = '';
       if (!list.length) return supportList.innerHTML = '<p class="text-gray-500">No messages yet.</p>';
@@ -168,6 +254,7 @@
       if (confirm('Delete message?')) await deleteDoc(doc(db, SUPPORT_PATH, id));
     };
 
+    /* ---------------- Q&A ---------------- */
     function applyFilter(items, filter) {
       if (filter === 'answered')   return items.filter(x => !!x.data.answer);
       if (filter === 'unanswered') return items.filter(x => !x.data.answer);
@@ -209,6 +296,122 @@
       alert('Answer saved!');
     };
 
+    /* ---------------- Fixtures ---------------- */
+    // Live listener
+    onSnapshot(collection(db, FIXTURES_PATH), snap => {
+      fixtures = snap.docs.map(d=>({id:d.id, ...d.data()}))
+        .sort((a,b)=> (a.kickoffTs?.seconds ?? 0) - (b.kickoffTs?.seconds ?? 0));
+      renderFixtures();
+    });
+
+    function renderFixtures() {
+      fxList.innerHTML = '';
+      if (!fixtures.length) {
+        fxList.innerHTML = `<p class="text-gray-500">No fixtures yet. Add one above.</p>`;
+        return;
+      }
+      fixtures.forEach(f => {
+        const when = f.kickoffTs?.toDate ? f.kickoffTs.toDate().toLocaleString() : (f.date || '')+' '+(f.time||'');
+        const sc = (f.status==='live' || f.status==='finished') ? ` ${f.scoreHome ?? 0} : ${f.scoreAway ?? 0}` : '';
+        const card = document.createElement('div');
+        card.className = 'bg-white border rounded-xl p-4 shadow';
+        card.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <div class="text-sm text-gray-500">${when} • ${esc(f.venue||'')}</div>
+              <div class="text-lg font-semibold">
+                Jomo Cosmos ${esc(f.level||'')} ${f.homeAway==='home'?'(Home)':'(Away)'} vs ${esc(f.opponent||'')}
+                ${f.status ? ` <span class="ml-1 text-xs px-2 py-0.5 rounded-full ${badgeClass(f.status)}">${f.status.toUpperCase()}</span>`:''}
+                ${sc ? `<span class="ml-1 font-bold">${sc}</span>` : ''}
+              </div>
+              <div class="text-sm text-gray-600">${esc(f.competition||'')}</div>
+              ${f.streamUrl ? `<a target="_blank" href="${esc(f.streamUrl)}" class="inline-block mt-2 px-3 py-1 rounded-full text-sm bg-rose-600 text-white hover:bg-rose-700">Watch link</a>`:''}
+            </div>
+            <div class="flex gap-2">
+              <button class="px-3 py-1 rounded bg-gray-200" data-edit="${f.id}">Edit</button>
+              <button class="px-3 py-1 rounded bg-red-600 text-white" data-del="${f.id}">Delete</button>
+            </div>
+          </div>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <button class="px-3 py-1 rounded bg-green-600 text-white" data-live="${f.id}">Go LIVE</button>
+            <button class="px-3 py-1 rounded bg-gray-200" data-ft="${f.id}">Mark FT</button>
+            <input class="w-20 border rounded px-2 py-1" placeholder="Home" value="${f.scoreHome ?? ''}" data-h="${f.id}">
+            <input class="w-20 border rounded px-2 py-1" placeholder="Away" value="${f.scoreAway ?? ''}" data-a="${f.id}">
+            <button class="px-3 py-1 rounded bg-rose-600 text-white" data-saveScore="${f.id}">Save Score</button>
+          </div>
+        `;
+        fxList.appendChild(card);
+      });
+
+      // wire actions
+      fxList.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>fillForm(b.dataset.edit));
+      fxList.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>delFixture(b.dataset.del));
+      fxList.querySelectorAll('[data-live]').forEach(b=>b.onclick=()=>setStatus(b.dataset.live,'live'));
+      fxList.querySelectorAll('[data-ft]').forEach(b=>b.onclick=()=>setStatus(b.dataset.ft,'finished'));
+      fxList.querySelectorAll('[data-saveScore]').forEach(b=>b.onclick=()=>saveScore(b.dataset.saveScore));
+    }
+
+    fxForm.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const payload = readForm();
+      if (!payload.opponent || !payload.kickoffTs) return alert('Please add opponent and date/time');
+      if (fxId.value) {
+        await updateDoc(doc(db, FIXTURES_PATH, fxId.value), payload);
+      } else {
+        await addDoc(collection(db, FIXTURES_PATH), {...payload, createdAt: serverTimestamp(), status:'scheduled'});
+      }
+      fxForm.reset(); fxId.value='';
+    });
+    fxReset.addEventListener('click', (e)=>{ e.preventDefault(); fxForm.reset(); fxId.value=''; });
+
+    function readForm(){
+      const dt = fxDateTime.value ? new Date(fxDateTime.value) : null;
+      return {
+        level: fxLevel.value,
+        opponent: fxOpponent.value.trim(),
+        homeAway: fxHa.value,
+        venue: fxVenue.value.trim(),
+        competition: fxComp.value.trim() || null,
+        streamUrl: fxStream.value.trim() || null,
+        kickoffTs: dt ? Timestamp.fromDate(dt) : null
+      };
+    }
+    function fillForm(id){
+      const f = fixtures.find(x=>x.id===id); if (!f) return;
+      fxId.value = id;
+      fxLevel.value = f.level || 'U14';
+      fxOpponent.value = f.opponent || '';
+      fxHa.value = f.homeAway || 'home';
+      fxVenue.value = f.venue || '';
+      fxComp.value = f.competition || '';
+      fxStream.value = f.streamUrl || '';
+      if (f.kickoffTs?.toDate){
+        const d = f.kickoffTs.toDate();
+        fxDateTime.value = d.toISOString().slice(0,16);
+      }
+      // switch to fixtures tab if not visible
+      tabs.forEach(b=>b.classList.remove('bg-rose-600','text-white'));
+      tabs.forEach(b=>b.classList.add('bg-gray-200','text-gray-900'));
+      document.querySelector('[data-tab="fixtures"]').classList.add('bg-rose-600','text-white');
+      Object.values(panels).forEach(p=>p.classList.add('hidden'));
+      panels['fixtures'].classList.remove('hidden');
+    }
+    async function delFixture(id){
+      if (!confirm('Delete this fixture?')) return;
+      await deleteDoc(doc(db, FIXTURES_PATH, id));
+    }
+    async function setStatus(id, status){
+      await updateDoc(doc(db, FIXTURES_PATH, id), { status });
+    }
+    async function saveScore(id){
+      const h = fxList.querySelector(`[data-h="${id}"]`)?.value ?? '';
+      const a = fxList.querySelector(`[data-a="${id}"]`)?.value ?? '';
+      const home = Number(h); const away = Number(a);
+      if (Number.isNaN(home) || Number.isNaN(away)) return alert('Scores must be numbers');
+      await updateDoc(doc(db, FIXTURES_PATH, id), { scoreHome: home, scoreAway: away });
+    }
+
+    /* Start listeners after auth */
     function startListeners() {
       onSnapshot(collection(db, SUPPORT_PATH), snap => {
         renderSupport(snap.docs.map(d=>({id:d.id,data:d.data()})));
@@ -217,8 +420,10 @@
         qaItems = snap.docs.map(d=>({id:d.id,data:d.data()}));
         renderQuestions();
       });
+      // Fixtures listener is already attached above
     }
 
+    /* Filters (Q&A) */
     const filterBtns = document.querySelectorAll('.qa-filter');
     filterBtns.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -230,8 +435,13 @@
       });
     });
 
+    /* Tabs */
     const tabs = document.querySelectorAll('.tab-btn');
-    const panels = {support: document.getElementById('tab-support'), qa: document.getElementById('tab-qa')};
+    const panels = {
+      support:  document.getElementById('tab-support'),
+      qa:       document.getElementById('tab-qa'),
+      fixtures: document.getElementById('tab-fixtures')
+    };
     tabs.forEach(btn => btn.onclick = () => {
       tabs.forEach(b => b.classList.remove('bg-rose-600','text-white'));
       tabs.forEach(b => b.classList.add('bg-gray-200','text-gray-900'));
