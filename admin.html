@@ -90,12 +90,12 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, doc, deleteDoc, updateDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, doc, deleteDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    /* ✅ Only this UID can moderate */
+    /* ✅ Admin UID */
     const ADMIN_UID = "pDokgebzpTZWzmn9dW50kaDAqRT2";
 
-    /* ✅ Your Firebase config */
+    /* ✅ Firebase config */
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
@@ -105,7 +105,7 @@
       appId: "1:65396604482:web:0f31625a714aa8352337db",
     };
 
-    /* Paths detected from your console screenshot */
+    /* ✅ Firestore paths */
     const QUESTIONS_PATH = "artifacts/1:653966044482:web:0f31625a714aa8352337db/public/data/questions";
     const SUPPORT_PATH   = "artifacts/1:653966044482:web:0f31625a714aa8352337db/public/data/supportMessages";
 
@@ -125,13 +125,11 @@
     const supportList  = document.getElementById('supportList');
     const qaList       = document.getElementById('qaList');
     const qaCountsEl   = document.getElementById('qaCounts');
-    const filterBtns   = document.querySelectorAll('.qa-filter');
 
     /* State */
-    let qaItems = [];          // raw items from Firestore
-    let qaFilter = 'all';      // all | unanswered | answered
+    let qaItems = [];
+    let qaFilter = 'all';
 
-    /* Helpers */
     const esc = s => String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 
     function setView(v) {
@@ -174,7 +172,7 @@
       if (confirm('Delete message?')) await deleteDoc(doc(db, SUPPORT_PATH, id));
     };
 
-    /* Q&A with filter */
+    /* Q&A */
     function applyFilter(items, filter) {
       if (filter === 'answered')   return items.filter(x => !!x.data.answer);
       if (filter === 'unanswered') return items.filter(x => !x.data.answer);
@@ -218,19 +216,21 @@
 
     /* Listeners */
     function startListeners() {
-      onSnapshot(query(collection(db, SUPPORT_PATH), orderBy('timestamp','desc')), snap => {
+      onSnapshot(collection(db, SUPPORT_PATH), snap => {
         renderSupport(snap.docs.map(d=>({id:d.id,data:d.data()})));
       });
-      onSnapshot(query(collection(db, QUESTIONS_PATH), orderBy('timestamp','desc')), snap => {
+      onSnapshot(collection(db, QUESTIONS_PATH), snap => {
         qaItems = snap.docs.map(d=>({id:d.id,data:d.data()}));
         renderQuestions();
       });
     }
 
-    /* Filter buttons */
+    /* Filters */
+    const filterBtns = document.querySelectorAll('.qa-filter');
     filterBtns.forEach(btn => {
       btn.addEventListener('click', () => {
-        filterBtns.forEach(b => { b.classList.remove('bg-rose-600','text-white'); b.classList.add('bg-gray-200','text-gray-900'); });
+        filterBtns.forEach(b => b.classList.remove('bg-rose-600','text-white'));
+        filterBtns.forEach(b => b.classList.add('bg-gray-200','text-gray-900'));
         btn.classList.add('bg-rose-600','text-white');
         qaFilter = btn.dataset.filter;
         renderQuestions();
@@ -241,7 +241,8 @@
     const tabs = document.querySelectorAll('.tab-btn');
     const panels = {support: document.getElementById('tab-support'), qa: document.getElementById('tab-qa')};
     tabs.forEach(btn => btn.onclick = () => {
-      tabs.forEach(b => { b.classList.remove('bg-rose-600','text-white'); b.classList.add('bg-gray-200','text-gray-900'); });
+      tabs.forEach(b => b.classList.remove('bg-rose-600','text-white'));
+      tabs.forEach(b => b.classList.add('bg-gray-200','text-gray-900'));
       btn.classList.add('bg-rose-600','text-white');
       Object.values(panels).forEach(p=>p.classList.add('hidden'));
       panels[btn.dataset.tab].classList.remove('hidden');
