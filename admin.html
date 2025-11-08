@@ -6,7 +6,6 @@
   <title>Admin – The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <meta name="robots" content="noindex, nofollow" />
-  <!-- Silence favicon 404 -->
   <link rel="icon" href="data:,">
   <style>
     .fade-in { animation: fade .25s ease-out; }
@@ -15,7 +14,6 @@
 </head>
 
 <body class="bg-pink-50 text-black font-sans min-h-screen flex flex-col">
-  <!-- Header -->
   <header class="fixed top-0 w-full flex justify-between items-center px-6 py-4 bg-pink-100 shadow z-50">
     <h1 class="text-xl font-bold uppercase text-rose-600">Admin • The Footballer’s Sister</h1>
     <nav class="space-x-6">
@@ -54,18 +52,12 @@
 
   <!-- ADMIN DASHBOARD -->
   <section id="adminPanel" class="hidden flex-grow pt-32 px-6 pb-20 max-w-5xl mx-auto fade-in">
-    <!-- Error banner -->
-    <div id="errBanner" class="hidden mb-4 p-3 rounded-lg bg-red-100 text-red-800 text-sm"></div>
-
     <div class="flex items-center justify-between mb-6">
       <div class="flex flex-wrap gap-3">
         <button data-tab="support" class="tab-btn bg-rose-600 text-white px-4 py-2 rounded-full">Support Wall</button>
         <button data-tab="qa" class="tab-btn bg-gray-200 text-gray-900 px-4 py-2 rounded-full">Q&A</button>
       </div>
-      <div class="flex gap-2">
-        <button id="refreshBtn" class="bg-gray-200 text-gray-900 px-4 py-2 rounded-full hover:bg-gray-300">Refresh now</button>
-        <button id="logoutBtn" class="bg-rose-600 text-white px-4 py-2 rounded-full hover:bg-rose-700">Log out</button>
-      </div>
+      <button id="logoutBtn" class="bg-rose-600 text-white px-4 py-2 rounded-full hover:bg-rose-700">Log out</button>
     </div>
 
     <!-- Support Wall -->
@@ -94,38 +86,35 @@
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- FIREBASE ADMIN (with diagnostics) -->
+  <!-- FIREBASE ADMIN -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import {
-      getFirestore, collection, onSnapshot, doc, getDocs,
-      deleteDoc, updateDoc, serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, doc, deleteDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    /* ✅ Admin UID */
+    /* Only this UID can moderate */
     const ADMIN_UID = "pDokgebzpTZWzmn9dW50kaDAqRT2";
 
-    /* ✅ Firebase config */
+    /* Firebase config */
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
       projectId: "football-site-c3aa9",
       storageBucket: "football-site-c3aa9.appspot.com",
       messagingSenderId: "65396604482",
-      appId: "1:65396604482:web:0f31625a714aa8352337db",
+      appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
 
-    /* ✅ Firestore paths (correct) */
-    const QUESTIONS_PATH = "artifacts/1:653966044482:web:0f31625a714aa8352337db/public/data/questions";
-    const SUPPORT_PATH   = "artifacts/1:653966044482:web:0f31625a714aa8352337db/public/data/supportMessages";
+    /* Firestore paths (SHORT appId, matches questions.html right now) */
+    const QUESTIONS_PATH = "artifacts/1:65396604482:web:0f31625a714aa8352337db/public/data/questions";
+    const SUPPORT_PATH   = "artifacts/1:65396604482:web:0f31625a714aa8352337db/public/data/supportMessages";
 
     /* Init */
     const app  = initializeApp(firebaseConfig);
     const db   = getFirestore(app);
     const auth = getAuth(app);
 
-    /* UI refs */
+    /* UI */
     const loginSection = document.getElementById('loginSection');
     const adminPanel   = document.getElementById('adminPanel');
     const noAccess     = document.getElementById('noAccess');
@@ -136,13 +125,9 @@
     const supportList  = document.getElementById('supportList');
     const qaList       = document.getElementById('qaList');
     const qaCountsEl   = document.getElementById('qaCounts');
-    const errBanner    = document.getElementById('errBanner');
-    const refreshBtn   = document.getElementById('refreshBtn');
 
-    /* State */
     let qaItems = [];
     let qaFilter = 'all';
-
     const esc = s => String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 
     function setView(v) {
@@ -150,17 +135,7 @@
       adminPanel.classList.toggle('hidden', v !== 'admin');
       noAccess.classList.toggle('hidden', v !== 'noaccess');
     }
-    function showError(msg) {
-      console.error(msg);
-      errBanner.textContent = msg;
-      errBanner.classList.remove('hidden');
-    }
-    function clearError() {
-      errBanner.classList.add('hidden');
-      errBanner.textContent = '';
-    }
 
-    /* Auth */
     onAuthStateChanged(auth, user => {
       if (!user) return setView('login');
       if (user.uid === ADMIN_UID) { setView('admin'); startListeners(); }
@@ -170,18 +145,13 @@
     loginForm.addEventListener('submit', async e => {
       e.preventDefault();
       loginError.classList.add('hidden');
-      try {
-        await signInWithEmailAndPassword(auth, email.value.trim(), password.value);
-      } catch (err) {
-        loginError.textContent = err.message;
-        loginError.classList.remove('hidden');
-      }
+      try { await signInWithEmailAndPassword(auth, email.value.trim(), password.value); }
+      catch (err) { loginError.textContent = err.message; loginError.classList.remove('hidden'); }
     });
 
     logoutBtn.onclick = () => signOut(auth);
     logoutNo.onclick  = () => signOut(auth);
 
-    /* Support Wall */
     function renderSupport(list) {
       supportList.innerHTML = '';
       if (!list.length) return supportList.innerHTML = '<p class="text-gray-500">No messages yet.</p>';
@@ -198,7 +168,6 @@
       if (confirm('Delete message?')) await deleteDoc(doc(db, SUPPORT_PATH, id));
     };
 
-    /* Q&A */
     function applyFilter(items, filter) {
       if (filter === 'answered')   return items.filter(x => !!x.data.answer);
       if (filter === 'unanswered') return items.filter(x => !x.data.answer);
@@ -240,50 +209,16 @@
       alert('Answer saved!');
     };
 
-    /* Listeners with error handling */
     function startListeners() {
-      clearError();
-
-      onSnapshot(
-        collection(db, SUPPORT_PATH),
-        snap => {
-          const arr = snap.docs.map(d=>({id:d.id,data:d.data()}));
-          console.log('[Admin] Support docs:', arr.length);
-          renderSupport(arr);
-        },
-        err => showError('[Support] ' + (err.message || String(err)))
-      );
-
-      onSnapshot(
-        collection(db, QUESTIONS_PATH),
-        snap => {
-          qaItems = snap.docs.map(d=>({id:d.id,data:d.data()}));
-          console.log('[Admin] Questions docs:', qaItems.length);
-          renderQuestions();
-        },
-        err => showError('[Questions] ' + (err.message || String(err)))
-      );
+      onSnapshot(collection(db, SUPPORT_PATH), snap => {
+        renderSupport(snap.docs.map(d=>({id:d.id,data:d.data()})));
+      });
+      onSnapshot(collection(db, QUESTIONS_PATH), snap => {
+        qaItems = snap.docs.map(d=>({id:d.id,data:d.data()}));
+        renderQuestions();
+      });
     }
 
-    /* One-off refresh (diagnostic) */
-    refreshBtn.addEventListener('click', async () => {
-      try {
-        clearError();
-        const [q1, q2] = await Promise.all([
-          getDocs(collection(db, QUESTIONS_PATH)),
-          getDocs(collection(db, SUPPORT_PATH)),
-        ]);
-        console.log('[Refresh] Questions count:', q1.size);
-        console.log('[Refresh] Support count:', q2.size);
-        qaItems = q1.docs.map(d=>({id:d.id,data:d.data()}));
-        renderQuestions();
-        renderSupport(q2.docs.map(d=>({id:d.id,data:d.data()})));
-      } catch (e) {
-        showError('[Refresh] ' + (e.message || String(e)));
-      }
-    });
-
-    /* Filters */
     const filterBtns = document.querySelectorAll('.qa-filter');
     filterBtns.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -295,7 +230,6 @@
       });
     });
 
-    /* Tabs */
     const tabs = document.querySelectorAll('.tab-btn');
     const panels = {support: document.getElementById('tab-support'), qa: document.getElementById('tab-qa')};
     tabs.forEach(btn => btn.onclick = () => {

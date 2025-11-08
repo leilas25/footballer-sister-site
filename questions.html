@@ -3,86 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Q&A – The Footballer’s Sister</title>
+  <title>Ask a Question | The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="robots" content="index,follow" />
+  <link rel="icon" href="data:,">
   <style>
-    .tweet-card {
-      background: #fff;
-      border: 1px solid #e0e0e0;
-      border-radius: 16px;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      display: flex;
-      align-items: flex-start;
-      gap: 1rem;
-    }
-    .tweet-avatar {
-      width: 48px;
-      height: 48px;
-      border-radius: 9999px;
-      background-color: #fce7f3;
-      flex-shrink: 0;
-    }
-    .tweet-header {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .tweet-name {
-      font-weight: bold;
-      color: #1a202c;
-    }
-    .tweet-handle {
-      font-size: 0.875rem;
-      color: #a0aec0;
-    }
-    .tweet-timestamp {
-      font-size: 0.75rem;
-      color: #718096;
-    }
-    .delete-button {
-      margin-left: auto;
-      align-self: center;
-      color: #e53e3e;
-      border-radius: 9999px;
-      padding: 0.25rem;
-      transition: color 0.2s ease, background-color 0.2s ease;
-    }
-    .delete-button:hover {
-      color: #c53030;
-      background-color: #fff5f5;
-    }
-    .answer-box {
-      margin-top: 0.5rem;
-      padding: 0.5rem;
-      background: #fce7f3;
-      border-radius: 8px;
-      display: flex;
-      gap: 0.5rem;
-      align-items: flex-start;
-    }
-    .answer-textarea {
-      flex-grow: 1;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      padding: 0.4rem 0.6rem;
-    }
-    .answer-btn {
-      background: #be185d;
-      color: #fff;
-      border-radius: 6px;
-      padding: 0.4rem 1.2rem;
-      font-weight: bold;
-      border: none;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .answer-btn:hover {
-      background: #a31545;
-    }
+    .fade-in { animation: fade .3s ease-out; }
+    @keyframes fade { from {opacity:0; transform:translateY(4px)} to {opacity:1; transform:none} }
   </style>
 </head>
+
 <body class="bg-pink-50 text-black font-sans min-h-screen flex flex-col">
 
   <!-- Header -->
@@ -91,42 +21,48 @@
     <nav class="space-x-6">
       <a href="index.html" class="hover:underline text-rose-600">Home</a>
       <a href="bts.html" class="hover:underline text-rose-600">Behind the Game</a>
-      <a href="leila.html" class="hover:underline text-rose-600">Meet Leila</a>
-      <a href="questions.html" class="font-semibold underline text-rose-600">Q&amp;A</a>
       <a href="support-wall.html" class="hover:underline text-rose-600">Support Wall</a>
     </nav>
   </header>
 
-  <main class="flex-grow pt-32 px-6 pb-20 text-center max-w-2xl mx-auto">
-    <h2 class="text-4xl font-bold mb-4 text-rose-700">Ask Me Anything Q&amp;A</h2>
+  <!-- Main Content -->
+  <main class="flex-grow pt-32 px-6 pb-20 text-center max-w-2xl mx-auto fade-in">
+    <h2 class="text-4xl font-bold mb-4 text-rose-700">Ask Me Anything 💬</h2>
     <p class="text-sm text-gray-600 mb-6">
-      Here are your questions and my answers!<br>
-      <span id="user-id" class="font-mono text-xs text-pink-700 break-all"></span>
+      Submit your questions about football life, behind-the-scenes moments, or my perspective as a footballer’s sister.
     </p>
-    <div id="qa-container" class="mt-8 space-y-4 max-h-[600px] overflow-y-auto text-left">
-      <p id="loading-indicator" class="text-gray-500 text-center">Loading questions...</p>
-    </div>
-  </main>
-  
-  <footer class="bg-pink-900 text-white text-center py-6">
-    <p>&copy; 2025 The Footballer’s Sister. All rights reserved.</p>
-  </footer>
 
-  <!-- Firebase SDK and Q&A Logic -->
+    <!-- Question Form -->
+    <form id="questionForm" class="space-y-4">
+      <input id="name" type="text" placeholder="Your name (optional)" class="w-full border rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-400"/>
+      <textarea id="question" placeholder="Type your question..." class="w-full border rounded-2xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-rose-400"></textarea>
+      <button type="submit" class="bg-rose-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-rose-700 transition">Submit Question</button>
+    </form>
+
+    <p id="successMessage" class="hidden mt-4 text-green-600 font-medium">Thank you! Your question has been sent 🎉</p>
+    <p id="errorMessage" class="hidden mt-4 text-red-600 font-medium">Something went wrong. Try again later.</p>
+
+    <!-- Display Questions -->
+    <section id="questionsSection" class="mt-12 text-left">
+      <h3 class="text-2xl font-bold mb-4 text-rose-700 text-center">Community Questions 💭</h3>
+      <div id="questionsList" class="space-y-4">
+        <p class="text-gray-500 text-center">Loading questions...</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-pink-900 text-white text-center py-6">
+    <p>&copy; <span id="year"></span> The Footballer’s Sister. All rights reserved.</p>
+  </footer>
+  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+
+  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import {
-      getFirestore,
-      collection,
-      onSnapshot,
-      deleteDoc,
-      doc,
-      updateDoc,
-      serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    const appId = '1:65396604482:web:0f31625a714aa8352337db';
+    // ✅ Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
@@ -135,131 +71,85 @@
       messagingSenderId: "65396604482",
       appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
-    const ADMIN_USER_ID = 'QI9BHJqqqibPKlQFNSlDRCgvZ5t2'; // your admin UID
 
-    // Firebase
+    // ✅ Initialize Firebase
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
     const auth = getAuth(app);
-    window.getAuth = () => auth;
+    const db = getFirestore(app);
 
-    let userId = null;
-    const userIdEl = document.getElementById('user-id');
-    const qaContainer = document.getElementById('qa-container');
-    const loadingIndicator = document.getElementById('loading-indicator');
+    // ✅ App ID (SHORT one — same as admin.html)
+    const appId = "1:65396604482:web:0f31625a714aa8352337db";
 
-    function escapeHtml(text) {
-      if (!text) return '';
-      return text.replace(/[&<>"']/g, function(m) {
-        return ({
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#039;'
-        })[m];
+    // Firestore Path
+    const QUESTIONS_PATH = `artifacts/${appId}/public/data/questions`;
+
+    // Elements
+    const form = document.getElementById("questionForm");
+    const nameInput = document.getElementById("name");
+    const questionInput = document.getElementById("question");
+    const successMessage = document.getElementById("successMessage");
+    const errorMessage = document.getElementById("errorMessage");
+    const questionsList = document.getElementById("questionsList");
+
+    // Authenticate anonymously
+    signInAnonymously(auth).catch(console.error);
+
+    onAuthStateChanged(auth, user => {
+      if (user) console.log("Anonymous user:", user.uid);
+    });
+
+    // Handle Form Submit
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = nameInput.value.trim();
+      const question = questionInput.value.trim();
+
+      if (!question) {
+        errorMessage.textContent = "Please enter a question.";
+        errorMessage.classList.remove("hidden");
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, QUESTIONS_PATH), {
+          name: name || "Anonymous",
+          question,
+          timestamp: serverTimestamp()
+        });
+
+        successMessage.classList.remove("hidden");
+        errorMessage.classList.add("hidden");
+        form.reset();
+
+        setTimeout(() => successMessage.classList.add("hidden"), 3000);
+      } catch (err) {
+        console.error("Error adding question:", err);
+        errorMessage.classList.remove("hidden");
+      }
+    });
+
+    // Display Questions in Real Time
+    onSnapshot(collection(db, QUESTIONS_PATH), (snapshot) => {
+      questionsList.innerHTML = "";
+
+      if (snapshot.empty) {
+        questionsList.innerHTML = `<p class="text-gray-500 text-center">No questions yet. Be the first to ask!</p>`;
+        return;
+      }
+
+      const questions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      questions.sort((a, b) => b.timestamp?.seconds - a.timestamp?.seconds);
+
+      questions.forEach((q) => {
+        questionsList.innerHTML += `
+          <div class="bg-white border rounded-2xl p-4 shadow">
+            <strong>${q.name || "Anonymous"}</strong>
+            <p class="text-gray-800 mt-1">${q.question}</p>
+            ${q.answer ? `<div class="bg-pink-50 mt-2 p-2 rounded"><strong>Answer:</strong> ${q.answer}</div>` : ""}
+          </div>
+        `;
       });
-    }
-
-    // Listen for auth and load questions
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) await signInAnonymously(auth);
-      userId = auth.currentUser?.uid || null;
-      userIdEl.textContent = userId ? `Your user ID is ${userId}` : "";
-
-      onSnapshot(
-        collection(db, `/artifacts/${appId}/public/data/questions`),
-        (snapshot) => {
-          qaContainer.innerHTML = '';
-          loadingIndicator.style.display = 'none';
-          const questions = [];
-          snapshot.forEach(docSnap => {
-            questions.push({ id: docSnap.id, ...docSnap.data() });
-          });
-          // Sort newest first
-          questions.sort((a, b) => {
-            const tA = a.timestamp?.seconds ?? 0;
-            const tB = b.timestamp?.seconds ?? 0;
-            return tB - tA;
-          });
-          if (questions.length === 0) {
-            qaContainer.innerHTML = '<p class="text-gray-600 text-center">No questions yet. Ask Leila anything!</p>';
-          }
-          questions.forEach(q => {
-            const card = document.createElement('div');
-            card.className = 'tweet-card';
-            card.innerHTML = `
-              <svg class="tweet-avatar" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#be185d">
-                <circle cx="12" cy="12" r="10" fill="#fce7f3"/>
-                <text x="12" y="17" text-anchor="middle" font-size="13" fill="#be185d" font-family="Arial" font-weight="bold">Q</text>
-              </svg>
-              <div class="flex-grow">
-                <div class="tweet-header">
-                  <p class="tweet-name">${escapeHtml(q.name || 'Anonymous')}</p>
-                  <p class="tweet-handle">@user_${(q.userId || '').substring(0, 8)}</p>
-                  <p class="tweet-timestamp">· ${
-                    q.timestamp?.seconds
-                      ? new Date(q.timestamp.seconds * 1000).toLocaleDateString()
-                      : 'Just now'
-                  }</p>
-                </div>
-                <p class="tweet-content break-words mb-2">${escapeHtml(q.question)}</p>
-                ${
-                  q.answer
-                    ? `<div class="mt-2 bg-rose-50 rounded-lg p-3 text-left">
-                        <strong class="text-rose-700">Leila’s Answer:</strong><br>
-                        <span>${escapeHtml(q.answer)}</span>
-                        <div class="text-xs text-gray-500 mt-1">${q.answeredAt?.seconds ? "Answered: " + new Date(q.answeredAt.seconds * 1000).toLocaleDateString() : ""}</div>
-                      </div>`
-                    : userId === ADMIN_USER_ID
-                      ? `<form class="answer-box" data-id="${q.id}">
-                          <textarea class="answer-textarea" placeholder="Type your answer..." required></textarea>
-                          <button type="submit" class="answer-btn">Post Answer</button>
-                        </form>`
-                      : `<div class="mt-2 text-gray-500 italic text-sm">Leila will answer soon!</div>`
-                }
-              </div>
-            `;
-            // Admin can delete any question
-            if (userId === ADMIN_USER_ID) {
-              const deleteBtn = document.createElement('button');
-              deleteBtn.className = 'delete-button';
-              deleteBtn.innerHTML = `🗑️`;
-              deleteBtn.title = 'Delete Question';
-              deleteBtn.onclick = async () => {
-                try {
-                  await deleteDoc(doc(db, `/artifacts/${appId}/public/data/questions`, q.id));
-                } catch {
-                  alert('Failed to delete question.');
-                }
-              };
-              card.appendChild(deleteBtn);
-            }
-            qaContainer.appendChild(card);
-
-            // Attach answer handler if admin and not answered yet
-            if (userId === ADMIN_USER_ID && !q.answer) {
-              card.querySelector('form').onsubmit = async (e) => {
-                e.preventDefault();
-                const textarea = e.target.querySelector('.answer-textarea');
-                const answer = textarea.value.trim();
-                if (!answer) return;
-                try {
-                  await updateDoc(doc(db, `/artifacts/${appId}/public/data/questions`, q.id), {
-                    answer,
-                    answeredBy: userId,
-                    answeredAt: serverTimestamp()
-                  });
-                } catch {
-                  alert('Failed to post answer. Try again.');
-                }
-              };
-            }
-          });
-        }
-      );
     });
   </script>
-
 </body>
 </html>
