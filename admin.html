@@ -132,17 +132,15 @@
 
     <!-- GALLERY -->
     <div id="tab-gallery" class="hidden">
-      <div class="flex items-center justify-between">
-        <h2 class="text-2xl font-bold text-rose-700 mb-4">Gallery – Carousel Photos</h2>
-      </div>
+      <h2 class="text-2xl font-bold text-rose-700 mb-4">Gallery – Carousel Photos</h2>
 
       <!-- Add / Edit -->
       <form id="galForm" class="grid md:grid-cols-2 gap-3 bg-white p-4 rounded-xl border shadow mb-6">
         <input type="hidden" id="galId" />
         <div class="md:col-span-2">
-          <label class="text-sm">Image URL (temporarily required)</label>
-          <input id="galUrl" class="w-full border rounded px-3 py-2" placeholder="https://…"/>
-          <p class="text-xs text-gray-500 mt-1">Uploads from device will work after we enable Firebase Storage.</p>
+          <label class="text-sm">Choose image (from your device)</label>
+          <input id="galFile" type="file" accept="image/*" class="w-full border rounded px-3 py-2 bg-white"/>
+          <p id="galStorageNote" class="text-xs text-gray-500 mt-1"></p>
         </div>
         <div class="md:col-span-2">
           <label class="text-sm">Caption (small line under the image)</label>
@@ -176,11 +174,12 @@
       getFirestore, collection, onSnapshot, doc, deleteDoc, updateDoc, addDoc,
       serverTimestamp, Timestamp, query, orderBy
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import {
+      getStorage, ref as sRef, uploadBytes, getDownloadURL
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
-    /* Only this UID can moderate */
     const ADMIN_UID = "pDokgebzpTZWzmn9dW50kaDAqRT2";
 
-    /* Firebase config */
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
@@ -190,19 +189,20 @@
       appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
 
-    /* Firestore paths (SHORT appId) */
     const APP_ID_SHORT   = "1:65396604482:web:0f31625a714aa8352337db";
     const QUESTIONS_PATH = `artifacts/${APP_ID_SHORT}/public/data/questions`;
     const SUPPORT_PATH   = `artifacts/${APP_ID_SHORT}/public/data/supportMessages`;
     const FIXTURES_PATH  = `artifacts/${APP_ID_SHORT}/public/data/fixtures`;
     const GALLERY_PATH   = `artifacts/${APP_ID_SHORT}/public/data/gallery`;
 
-    /* Init */
     const app  = initializeApp(firebaseConfig);
     const db   = getFirestore(app);
     const auth = getAuth(app);
 
-    /* UI refs */
+    // Try Storage; if region/bucket is unavailable we’ll catch and disable upload UI
+    let storage = null;
+    try { storage = getStorage(app); } catch { storage = null; }
+
     const loginSection = document.getElementById('loginSection');
     const adminPanel   = document.getElementById('adminPanel');
     const noAccess     = document.getElementById('noAccess');
@@ -228,12 +228,13 @@
     const fxComp     = document.getElementById('fxComp');
 
     // Gallery refs
-    const galForm   = document.getElementById('galForm');
-    const galId     = document.getElementById('galId');
-    const galUrl    = document.getElementById('galUrl');
-    const galCaption= document.getElementById('galCaption');
-    const galOrder  = document.getElementById('galOrder');
-    const galList   = document.getElementById('galList');
+    const galForm    = document.getElementById('galForm');
+    const galId      = document.getElementById('galId');
+    const galFile    = document.getElementById('galFile');
+    const galCaption = document.getElementById('galCaption');
+    const galOrder   = document.getElementById('galOrder');
+    const galList    = document.getElementById('galList');
+    const galStorageNote = document.getElementById('galStorageNote');
 
     let qaItems = [];
     let qaFilter = 'all';
@@ -248,19 +249,17 @@
       noAccess.classList.toggle('hidden', v !== 'noaccess');
     }
 
-    /* Auth state */
     onAuthStateChanged(auth, user => {
       if (!user) return setView('login');
       if (user.uid === ADMIN_UID) { setView('admin'); startListeners(); }
       else setView('noaccess');
     });
 
-    /* Login */
     loginForm.addEventListener('submit', async e => {
       e.preventDefault();
       loginError.classList.add('hidden');
       try {
-        const email = /*** your admin email ***/ document.getElementById('email').value.trim();
+        const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
         await signInWithEmailAndPassword(auth, email, password);
       } catch (err) {
@@ -271,7 +270,7 @@
     logoutBtn.onclick = () => signOut(auth);
     logoutNo.onclick  = () => signOut(auth);
 
-    /* ---------------- Support Wall ---------------- */
+    /* Support Wall */
     function renderSupport(list) {
       supportList.innerHTML = '';
       if (!list.length) return supportList.innerHTML = '<p class="text-gray-500">No messages yet.</p>';
@@ -284,11 +283,9 @@
           </div>`;
       });
     }
-    window.deleteSupport = async id => {
-      if (confirm('Delete message?')) await deleteDoc(doc(db, SUPPORT_PATH, id));
-    };
+    window.deleteSupport = async id => { if (confirm('Delete message?')) await deleteDoc(doc(db, SUPPORT_PATH, id)); };
 
-    /* ---------------- Q&A ---------------- */
+    /* Q&A */
     function applyFilter(items, filter) {
       if (filter === 'answered')   return items.filter(x => !!x.data.answer);
       if (filter === 'unanswered') return items.filter(x => !x.data.answer);
@@ -303,10 +300,8 @@
     function renderQuestions() {
       const items = applyFilter(qaItems, qaFilter);
       renderQACounts(qaItems);
-
       qaList.innerHTML = '';
       if (!items.length) return qaList.innerHTML = '<p class="text-gray-500">No questions yet.</p>';
-
       items.forEach(({ id, data }) => {
         qaList.innerHTML += `
           <div class="bg-white border rounded-2xl p-4 shadow">
@@ -320,9 +315,7 @@
           </div>`;
       });
     }
-    window.deleteQuestion = async id => {
-      if (confirm('Delete question?')) await deleteDoc(doc(db, QUESTIONS_PATH, id));
-    };
+    window.deleteQuestion = async id => { if (confirm('Delete question?')) await deleteDoc(doc(db, QUESTIONS_PATH, id)); };
     window.saveAnswer = async id => {
       const ans = document.getElementById('ans-'+id)?.value.trim();
       if (!ans) return alert('Please write an answer.');
@@ -330,7 +323,7 @@
       alert('Answer saved!');
     };
 
-    /* ---------------- Fixtures ---------------- */
+    /* Fixtures */
     function renderFixtures() {
       fxList.innerHTML = '';
       if (!fixtures.length) {
@@ -370,7 +363,6 @@
         fxList.appendChild(card);
       });
 
-      // wire actions
       fxList.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>fillForm(b.dataset.edit));
       fxList.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>delFixture(b.dataset.del));
       fxList.querySelectorAll('[data-live]').forEach(b=>b.onclick=()=>setStatus(b.dataset.live,'live'));
@@ -380,7 +372,7 @@
 
     fxForm.addEventListener('submit', async (e)=>{
       e.preventDefault();
-      const dt = document.getElementById('fxDateTime').value ? new Date(document.getElementById('fxDateTime').value) : null;
+      const dt = fxDateTime.value ? new Date(fxDateTime.value) : null;
       const payload = {
         level: fxLevel.value,
         opponent: fxOpponent.value.trim(),
@@ -391,18 +383,15 @@
         kickoffTs: dt ? Timestamp.fromDate(dt) : null
       };
       if (!payload.opponent || !payload.kickoffTs) return alert('Please add opponent and date/time');
-      if (fxId.value) {
-        await updateDoc(doc(db, FIXTURES_PATH, fxId.value), payload);
-      } else {
-        await addDoc(collection(db, FIXTURES_PATH), {...payload, createdAt: serverTimestamp(), status:'scheduled'});
-      }
+      if (fxId.value) await updateDoc(doc(db, FIXTURES_PATH, fxId.value), payload);
+      else await addDoc(collection(db, FIXTURES_PATH), {...payload, createdAt: serverTimestamp(), status:'scheduled'});
       fxForm.reset(); fxId.value='';
     });
     document.getElementById('fxReset').addEventListener('click', (e)=>{ e.preventDefault(); fxForm.reset(); fxId.value=''; });
 
     function fillForm(id){
       const f = fixtures.find(x=>x.id===id); if (!f) return;
-      document.getElementById('fxId').value = id;
+      fxId.value = id;
       fxLevel.value = f.level || 'U14';
       fxOpponent.value = f.opponent || '';
       fxHa.value = f.homeAway || 'home';
@@ -411,14 +400,11 @@
       fxStream.value = f.streamUrl || '';
       if (f.kickoffTs?.toDate){
         const d = f.kickoffTs.toDate();
-        document.getElementById('fxDateTime').value = d.toISOString().slice(0,16);
+        fxDateTime.value = d.toISOString().slice(0,16);
       }
       switchTab('fixtures');
     }
-    async function delFixture(id){
-      if (!confirm('Delete this fixture?')) return;
-      await deleteDoc(doc(db, FIXTURES_PATH, id));
-    }
+    async function delFixture(id){ if (!confirm('Delete this fixture?')) return; await deleteDoc(doc(db, FIXTURES_PATH, id)); }
     async function setStatus(id, status){ await updateDoc(doc(db, FIXTURES_PATH, id), { status }); }
     async function saveScore(id){
       const h = fxList.querySelector(`[data-h="${id}"]`)?.value ?? '';
@@ -428,7 +414,7 @@
       await updateDoc(doc(db, FIXTURES_PATH, id), { scoreHome: home, scoreAway: away });
     }
 
-    /* ---------------- Gallery ---------------- */
+    /* Gallery */
     function renderGallery(){
       galList.innerHTML = '';
       if (!gallery.length) {
@@ -465,11 +451,10 @@
     function fillGalForm(id){
       const it = gallery.find(x=>x.id===id); if (!it) return;
       galId.value = it.id;
-      galUrl.value = it.imageUrl || '';
       galCaption.value = it.caption || '';
       galOrder.value = it.order ?? '';
       switchTab('gallery');
-      galUrl.scrollIntoView({behavior:'smooth', block:'center'});
+      galFile.scrollIntoView({behavior:'smooth', block:'center'});
     }
 
     async function delGallery(id){
@@ -483,51 +468,69 @@
       await updateDoc(doc(db, GALLERY_PATH, id), { order: newOrder });
     }
 
+    // Show Storage availability note
+    if (!storage) {
+      galStorageNote.textContent = "Uploads are disabled because Firebase Storage isn't active in your region yet. We'll enable this later — for now the button will show an error if used.";
+    } else {
+      galStorageNote.textContent = "Select an image to upload. It will appear in the BTS gallery.";
+    }
+
     galForm.addEventListener('submit', async (e)=>{
       e.preventDefault();
-      const url = galUrl.value.trim();
-      const cap = galCaption.value.trim();
-      const ord = galOrder.value ? Number(galOrder.value) : null;
-      if (!url) return alert('Please paste the Image URL for now.');
-      const payload = {
-        imageUrl: url,
-        caption: cap || '',
-        order: ord ?? (gallery.length ? Math.max(...gallery.map(g=>Number(g.order)||0))+1 : 1),
-        createdAt: serverTimestamp()
-      };
-      if (galId.value) {
-        await updateDoc(doc(db, GALLERY_PATH, galId.value), payload);
-      } else {
-        await addDoc(collection(db, GALLERY_PATH), payload);
+      if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return alert('Not authorized.');
+      const file = galFile.files && galFile.files[0];
+      if (!file) return alert('Please choose an image.');
+      if (!storage) { alert("Storage isn't available in this project/region yet."); return; }
+
+      try {
+        // 1) Upload
+        const path = `gallery/${Date.now()}_${file.name.replace(/[^a-z0-9.\-_]/gi,'_')}`;
+        const r = sRef(storage, path);
+        await uploadBytes(r, file);
+        const url = await getDownloadURL(r);
+
+        // 2) Save Firestore doc
+        const cap = galCaption.value.trim();
+        const ord = galOrder.value ? Number(galOrder.value) : null;
+        const payload = {
+          imageUrl: url,
+          caption: cap || '',
+          order: ord ?? (gallery.length ? Math.max(...gallery.map(g=>Number(g.order)||0))+1 : 1),
+          createdAt: serverTimestamp()
+        };
+
+        if (galId.value) await updateDoc(doc(db, GALLERY_PATH, galId.value), payload);
+        else await addDoc(collection(db, GALLERY_PATH), payload);
+
+        galForm.reset(); galId.value='';
+        alert('Image added to gallery!');
+      } catch (err) {
+        console.error(err);
+        alert('Upload failed. If Storage is not enabled in your Firebase project/region, we need to activate it first.');
       }
-      galForm.reset(); galId.value='';
     });
 
     document.getElementById('galReset').addEventListener('click', ()=>{
       galForm.reset(); galId.value='';
     });
 
-    /* Start listeners after auth */
+    /* Live listeners */
     function startListeners() {
-      // Support
       onSnapshot(collection(db, SUPPORT_PATH), snap => {
         renderSupport(snap.docs.map(d=>({id:d.id,data:d.data()})));
       });
 
-      // Q&A
       onSnapshot(collection(db, QUESTIONS_PATH), snap => {
         qaItems = snap.docs.map(d=>({id:d.id,data:d.data()}));
         renderQuestions();
       });
 
-      // Fixtures
       onSnapshot(collection(db, FIXTURES_PATH), snap => {
         fixtures = snap.docs.map(d=>({id:d.id, ...d.data()}))
           .sort((a,b)=> (a.kickoffTs?.seconds ?? 0) - (b.kickoffTs?.seconds ?? 0));
         renderFixtures();
       });
 
-      // Gallery (ordered)
       onSnapshot(query(collection(db, GALLERY_PATH), orderBy('order','asc'), orderBy('createdAt','asc')), snap=>{
         gallery = snap.docs.map(d=>({id:d.id, ...d.data()}));
         renderGallery();
