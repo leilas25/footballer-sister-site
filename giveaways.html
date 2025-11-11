@@ -12,7 +12,7 @@
 </head>
 <body class="bg-pink-50 text-black font-sans">
 
-  <!-- Smart dropdown header (same style as your site) -->
+  <!-- Smart dropdown header -->
   <header class="fixed top-0 w-full bg-pink-100 shadow z-50">
     <div class="flex justify-between items-center px-6 py-4">
       <h1 class="text-xl font-bold uppercase text-rose-600">THE FOOTBALLER’S SISTER</h1>
@@ -27,7 +27,7 @@
         </button>
 
         <div id="dropdownMenu"
-          class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
+          class="hidden origin-top-right absolute right-0 mt-2 w-64 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
           <div class="py-1">
             <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
             <a href="bts.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
@@ -36,6 +36,7 @@
             <a href="support-wall.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Support Wall</a>
             <a href="fixtures.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Fixtures & Live Scores</a>
             <a href="giveaways.html" class="nav-item block px-4 py-2 text-sm text-rose-600 font-semibold hover:bg-pink-50">Giveaways</a>
+            <a href="winners.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Winners</a>
           </div>
         </div>
       </div>
@@ -65,7 +66,7 @@
   <script>
     // smart header text
     const navButton=document.getElementById('navButton'),dropdownMenu=document.getElementById('dropdownMenu'),navItems=document.querySelectorAll('.nav-item');
-    const current=location.pathname.split('/').pop()||'index.html', titles={"index.html":"Home","bts.html":"Behind the Game","leila.html":"Meet Leila","questions.html":"Q&A","support-wall.html":"Support Wall","fixtures.html":"Fixtures & Live Scores","giveaways.html":"Giveaways"};
+    const current=location.pathname.split('/').pop()||'index.html', titles={"index.html":"Home","bts.html":"Behind the Game","leila.html":"Meet Leila","questions.html":"Q&A","support-wall.html":"Support Wall","fixtures.html":"Fixtures & Live Scores","giveaways.html":"Giveaways","winners.html":"Winners"};
     navButton.firstChild.textContent=titles[current]||'Menu';
     navItems.forEach(a=>{if(a.getAttribute('href')===current)a.classList.add('font-semibold','text-rose-600')});
     navButton.onclick=()=>{const h=dropdownMenu.classList.contains('hidden'); if(h){dropdownMenu.classList.remove('hidden'); setTimeout(()=>dropdownMenu.classList.add('dropdown-open'),10)} else{dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'),200)}};
@@ -127,7 +128,6 @@
       const d=Math.floor(diff/86400000), h=Math.floor(diff%86400000/3600000), m=Math.floor(diff%3600000/60000);
       return `${d}d ${pad2(h)}h ${pad2(m)}m`;
     }
-
     function pill(cls, text){ return `<span class="badge ${cls}">${text}</span>`; }
 
     async function hasEntered(gid){
@@ -143,12 +143,11 @@
       const handle = document.getElementById(`ig-${g.id}`).value.trim();
       const agree  = document.getElementById(`agree-${g.id}`).checked;
       if(!name || !email || !agree){ alert("Please fill your name, email and agree to rules."); return; }
-      // one entry per user per giveaway: doc id = uid
       await setDoc(doc(db, `${path}/${g.id}/entries`, uid), {
         name, email, handle, uid, createdAt: serverTimestamp()
       });
       alert("Entry submitted! Good luck 🍀");
-      render(); // refresh buttons
+      render();
     }
 
     async function render(){
@@ -157,7 +156,6 @@
         .map(g=>({g, s:statusOf(g)}))
         .filter(x=> currentFilter==='all' ? true : x.s===currentFilter)
         .sort((a,b)=>{
-          // Active first by soonest ending
           const ea=(a.g.endAt?.seconds||9999999999), eb=(b.g.endAt?.seconds||9999999999);
           return ea-eb;
         });
@@ -171,7 +169,6 @@
         const endMs = g.endAt?.seconds? g.endAt.seconds*1000 : null;
         const when  = endMs ? countdownText(endMs) : '—';
         const entered = await hasEntered(g.id);
-
         const rules = Array.isArray(g.rules) ? g.rules : (g.rules? String(g.rules).split('\n') : []);
 
         const card = document.createElement('div');
@@ -190,9 +187,9 @@
             ${g.prize ? `<div class="text-sm font-semibold mb-2">Prize: <span class="text-rose-700">${g.prize}</span></div>` : ''}
             ${rules.length ? `<ul class="text-sm text-gray-700 list-disc list-inside space-y-1 mb-3">${rules.slice(0,5).map(r=>`<li>${r}</li>`).join('')}</ul>` : ''}
 
-            <div class="mt-auto">
+            <div class="mt-auto space-y-2">
               ${s==='active' ? `
-                <div class="text-xs text-gray-500 mb-2">Ends in: <span class="font-semibold">${when}</span></div>
+                <div class="text-xs text-gray-500">Ends in: <span class="font-semibold">${when}</span></div>
                 ${entered ? `<button class="w-full bg-gray-200 text-gray-900 px-3 py-2 rounded-full" disabled>Already Entered</button>`
                           : `<div class="space-y-2">
                               <input id="name-${g.id}" class="w-full border rounded-full px-3 py-2" placeholder="Your name">
@@ -204,11 +201,14 @@
                               <button id="enter-${g.id}" class="w-full bg-rose-600 text-white px-3 py-2 rounded-full hover:bg-rose-700">Enter</button>
                             </div>`}
               ` : s==='upcoming' ? `
-                <div class="text-xs text-gray-500 mb-2">Starts soon</div>
+                <div class="text-xs text-gray-500">Starts soon</div>
                 <button class="w-full bg-gray-200 text-gray-900 px-3 py-2 rounded-full" disabled>Not open yet</button>
               ` : `
                 <button class="w-full bg-gray-200 text-gray-900 px-3 py-2 rounded-full" disabled>Ended</button>
               `}
+              ${(s==='ended' || (g.winners && g.winners.length)) ? `
+                <a href="winners.html?gid=${g.id}" class="block text-center text-rose-600 hover:underline text-sm">View winners</a>
+              `:''}
             </div>
           </div>
         `;
