@@ -5,11 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Winners – The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>.dropdown-open{opacity:1!important;transform:scale(1)!important}</style>
+  <style>
+    .dropdown-open { opacity:1!important; transform:scale(1)!important }
+    .pill{border-radius:9999px;padding:.5rem 1rem;font-weight:600}
+    .pill-active{background:#e11d48;color:#fff}
+    .pill-idle{background:#e5e7eb;color:#111827}
+  </style>
 </head>
 <body class="bg-pink-50 text-black font-sans">
 
-  <!-- Smart dropdown header -->
+  <!-- Header with smart dropdown (no Winners in the dropdown) -->
   <header class="fixed top-0 w-full bg-pink-100 shadow z-50">
     <div class="flex justify-between items-center px-6 py-4">
       <h1 class="text-xl font-bold uppercase text-rose-600">THE FOOTBALLER’S SISTER</h1>
@@ -17,22 +22,23 @@
       <div class="relative inline-block text-left">
         <button id="navButton"
           class="inline-flex justify-center w-full rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
-          Loading…
+          Winners
           <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd"/>
           </svg>
         </button>
+
         <div id="dropdownMenu"
-          class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
+             class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
           <div class="py-1">
-            <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
-            <a href="bts.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
-            <a href="leila.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Meet Leila</a>
-            <a href="questions.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Q&A</a>
-            <a href="support-wall.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Support Wall</a>
-            <a href="fixtures.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Fixtures & Live Scores</a>
-            <a href="giveaways.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Giveaways</a>
-            <a href="winners.html" class="nav-item block px-4 py-2 text-sm text-rose-600 font-semibold hover:bg-pink-50">Winners</a>
+            <a href="index.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
+            <a href="bts.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
+            <a href="leila.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Meet Leila</a>
+            <a href="questions.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Q&A</a>
+            <a href="support-wall.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Support Wall</a>
+            <a href="fixtures.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Fixtures & Live Scores</a>
+            <a href="giveaways.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Giveaways</a>
+            <!-- Winners intentionally NOT listed here -->
           </div>
         </div>
       </div>
@@ -40,40 +46,52 @@
   </header>
   <div class="pt-24"></div>
 
-  <section class="px-6 max-w-6xl mx-auto">
-    <h2 class="text-4xl font-bold text-center text-rose-700 mb-2">Giveaway Winners 🏆</h2>
-    <p class="text-center text-gray-600 mb-6">Congrats to everyone who took part! Winners are listed below.</p>
+  <!-- Hero -->
+  <section class="px-6 text-center max-w-3xl mx-auto">
+    <h2 class="text-4xl font-bold mb-3 text-rose-700">Recent Winners 🏆</h2>
+    <p class="text-gray-600 mb-6">
+      Congratulations to our community! Winners are verified and contacted directly.
+    </p>
 
-    <div id="filterBar" class="flex flex-wrap gap-3 justify-center mb-6">
-      <select id="sortSel" class="border rounded-full px-3 py-2 text-sm">
-        <option value="recent">Sort: Most recent first</option>
-        <option value="oldest">Sort: Oldest first</option>
-      </select>
+    <!-- Page pills: back to Giveaways + active Winners pill -->
+    <div class="flex items-center justify-center gap-3 mb-8">
+      <a href="giveaways.html" class="pill pill-idle hover:bg-rose-100">Giveaways</a>
+      <span class="pill pill-active">Winners</span>
     </div>
-
-    <div id="winList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
   </section>
 
-  <footer class="bg-pink-900 text-white text-center py-6 mt-12">
-    <p>&copy; 2025 The Footballer’s Sister. All rights reserved.</p>
-  </footer>
+  <!-- Winners grid -->
+  <main class="px-6 max-w-6xl mx-auto pb-20">
+    <div id="wGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    <p id="emptyState" class="text-center text-gray-500">No winners posted yet.</p>
+  </main>
 
+  <footer class="bg-pink-900 text-white text-center py-6">
+    <p>&copy; <span id="year"></span> The Footballer’s Sister. All rights reserved.</p>
+  </footer>
+  <script>document.getElementById('year').textContent=new Date().getFullYear();</script>
+
+  <!-- Dropdown JS -->
   <script>
-    // header active label
-    const navButton=document.getElementById('navButton'),dropdownMenu=document.getElementById('dropdownMenu'),navItems=document.querySelectorAll('.nav-item');
-    const current=location.pathname.split('/').pop()||'index.html', titles={"index.html":"Home","bts.html":"Behind the Game","leila.html":"Meet Leila","questions.html":"Q&A","support-wall.html":"Support Wall","fixtures.html":"Fixtures & Live Scores","giveaways.html":"Giveaways","winners.html":"Winners"};
-    navButton.firstChild.textContent=titles[current]||'Menu';
-    navItems.forEach(a=>{if(a.getAttribute('href')===current)a.classList.add('font-semibold','text-rose-600')});
-    navButton.onclick=()=>{const h=dropdownMenu.classList.contains('hidden'); if(h){dropdownMenu.classList.remove('hidden'); setTimeout(()=>dropdownMenu.classList.add('dropdown-open'),10)} else{dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'),200)}};
-    document.addEventListener('click',e=>{if(!navButton.contains(e.target)&&!dropdownMenu.contains(e.target)){dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'),200)}})
+    const navButton=document.getElementById('navButton');
+    const dropdownMenu=document.getElementById('dropdownMenu');
+    navButton.addEventListener('click',()=>{
+      const isHidden=dropdownMenu.classList.contains('hidden');
+      if(isHidden){dropdownMenu.classList.remove('hidden');setTimeout(()=>dropdownMenu.classList.add('dropdown-open'),10);}
+      else{dropdownMenu.classList.remove('dropdown-open');setTimeout(()=>dropdownMenu.classList.add('hidden'),200);}
+    });
+    document.addEventListener('click',(e)=>{
+      if(!navButton.contains(e.target)&&!dropdownMenu.contains(e.target)){
+        dropdownMenu.classList.remove('dropdown-open');setTimeout(()=>dropdownMenu.classList.add('hidden'),200);
+      }
+    });
   </script>
 
-  <!-- Firebase -->
+  <!-- Firestore render -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, collection, onSnapshot, getDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // same project/appId you already use
     const appId = "1:65396604482:web:0f31625a714aa8352337db";
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
@@ -87,66 +105,46 @@
     const app = initializeApp(firebaseConfig);
     const db  = getFirestore(app);
 
-    const winList = document.getElementById('winList');
-    const sortSel = document.getElementById('sortSel');
+    const GRID  = document.getElementById('wGrid');
+    const EMPTY = document.getElementById('emptyState');
 
-    // Optional filter by giveaway: winners.html?gid=ABC123
-    const params = new URLSearchParams(location.search);
-    const onlyGid = params.get('gid');
-
-    const PATH = `artifacts/${appId}/public/data/giveaways`;
-
-    let giveaways = [];
-    onSnapshot(collection(db, PATH), snap=>{
-      giveaways = snap.docs.map(d=>({id:d.id, ...d.data()}))
-        .filter(g => Array.isArray(g.winners) && g.winners.length > 0)
-        .filter(g => onlyGid ? g.id === onlyGid : true);
-      render();
+    // Winners live query (global winners collection)
+    const path = `artifacts/${appId}/public/data/winners`;
+    onSnapshot(query(collection(db, path), orderBy('announcedAt','desc')), snap=>{
+      const items = snap.docs.map(d=>({id:d.id, ...d.data()}));
+      render(items);
     });
 
-    sortSel.onchange = render;
+    function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
 
-    function render(){
-      const sort = sortSel.value;
-      winList.innerHTML = '';
-      const items = [...giveaways].sort((a,b)=>{
-        const ta = a.winnersPickedAt?.seconds || 0;
-        const tb = b.winnersPickedAt?.seconds || 0;
-        return sort==='recent' ? tb - ta : ta - tb;
-      });
+    function render(items){
+      GRID.innerHTML='';
+      if(!items.length){ EMPTY.classList.remove('hidden'); return; }
+      EMPTY.classList.add('hidden');
 
-      if(!items.length){
-        winList.innerHTML = `<p class="col-span-full text-center text-gray-600">No winners to display yet.</p>`;
-        return;
-      }
+      items.forEach(w=>{
+        const when = w.announcedAt?.seconds ? new Date(w.announcedAt.seconds*1000).toLocaleString() : '';
+        const card = document.createElement('article');
+        card.className = 'bg-white rounded-2xl shadow border overflow-hidden flex flex-col';
 
-      items.forEach(g=>{
-        const when = g.winnersPickedAt?.seconds ? new Date(g.winnersPickedAt.seconds*1000).toLocaleString() : '';
-        const card = document.createElement('div');
-        card.className = 'bg-white rounded-2xl border shadow overflow-hidden';
         card.innerHTML = `
-          ${g.imageUrl ? `<img src="${g.imageUrl}" class="w-full h-44 object-cover" alt="Giveaway image">` : ''}
-          <div class="p-4">
-            <h3 class="text-lg font-bold text-rose-700">${g.title || 'Giveaway'}</h3>
-            ${g.prize ? `<div class="text-sm"><span class="font-semibold">Prize:</span> ${g.prize}</div>` : ''}
-            ${when ? `<div class="text-xs text-gray-500">Winners picked: ${when}</div>` : ''}
-            <ul class="mt-3 space-y-2">
-              ${g.winners.map(w => `
-                <li class="border rounded-lg p-2 flex items-center justify-between">
-                  <div>
-                    <div class="font-medium">${w.name || 'Winner'}</div>
-                    <div class="text-xs text-gray-600">${w.email || ''} ${w.handle ? '• @'+w.handle : ''}</div>
-                  </div>
-                  ${w.uid ? `<span class="text-[10px] text-gray-400">ID: ${w.uid}</span>`:''}
-                </li>
-              `).join('')}
-            </ul>
-            <div class="mt-4">
-              <a href="giveaways.html" class="inline-block text-rose-600 hover:underline text-sm">Back to Giveaways</a>
-            </div>
+          ${w.proofUrl ? `<img src="${esc(w.proofUrl)}" alt="Winner proof" class="w-full h-44 object-cover">` : ``}
+          <div class="p-5 flex-1">
+            <h3 class="text-lg font-bold text-rose-700">${esc(w.name || 'Winner')}</h3>
+            ${w.handle ? `<p class="text-sm text-gray-600">@${esc(w.handle)}</p>`:''}
+            <p class="mt-2 text-gray-800"><strong>Prize:</strong> ${esc(w.prize || '—')}</p>
+            ${w.giveawayTitle ? `<p class="text-sm text-gray-600"><strong>Giveaway:</strong> ${esc(w.giveawayTitle)}</p>`:''}
+            ${when ? `<p class="text-xs text-gray-500 mt-2">Announced: ${when}</p>`:''}
           </div>
+          ${w.announceLink ? `
+            <div class="px-5 pb-5">
+              <a href="${esc(w.announceLink)}" target="_blank"
+                 class="inline-flex items-center justify-center w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold py-2 rounded-full">
+                Announcement Post
+              </a>
+            </div>` : ``}
         `;
-        winList.appendChild(card);
+        GRID.appendChild(card);
       });
     }
   </script>
