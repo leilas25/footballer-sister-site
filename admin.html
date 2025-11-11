@@ -1,26 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin – The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <meta name="robots" content="noindex,nofollow"/>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="data:,">
   <style>.fade-in{animation:fade .25s ease-out}@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}</style>
 </head>
 <body class="bg-pink-50 text-black font-sans min-h-screen flex flex-col">
+  <!-- Header -->
   <header class="fixed top-0 w-full flex justify-between items-center px-6 py-4 bg-pink-100 shadow z-50">
     <h1 class="text-xl font-bold uppercase text-rose-600">Admin • The Footballer’s Sister</h1>
-    <nav class="space-x-3">
-      <a href="index.html" class="hover:underline text-rose-600">Home</a>
-      <button id="logoutBtn" class="bg-rose-600 text-white px-4 py-2 rounded-full hover:bg-rose-700">Log out</button>
-    </nav>
+    <nav class="space-x-6"><a href="index.html" class="hover:underline text-rose-600">Home</a></nav>
   </header>
 
   <!-- LOGIN -->
   <main id="loginSection" class="flex-grow pt-32 px-6 pb-20">
     <div class="max-w-sm mx-auto bg-white rounded-xl shadow p-6 fade-in">
       <h2 class="text-2xl font-bold text-rose-700 mb-2">Admin Login</h2>
+      <p class="text-sm text-gray-600 mb-4">Sign in with your admin email & password.</p>
       <form id="loginForm" class="space-y-3">
         <input id="email" type="email" required placeholder="Email" class="w-full px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-rose-500"/>
         <input id="password" type="password" required placeholder="Password" class="w-full px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-rose-500"/>
@@ -33,230 +33,375 @@
   <!-- NO ACCESS -->
   <section id="noAccess" class="hidden flex-grow pt-32 px-6 pb-20 text-center">
     <h2 class="text-2xl font-bold text-rose-700 mb-2">No Access</h2>
-    <p class="text-gray-700">This account is not authorized.</p>
+    <p class="text-gray-700">This account is not authorized to use the admin panel.</p>
+    <button id="logoutNoAccess" class="mt-6 bg-gray-200 text-gray-900 px-4 py-2 rounded-full hover:bg-gray-300">Log out</button>
   </section>
 
-  <!-- DASHBOARD -->
-  <section id="adminPanel" class="hidden flex-grow pt-32 px-6 pb-20 max-w-6xl mx-auto fade-in">
-    <div class="flex flex-wrap gap-3 mb-6">
-      <button data-tab="support"  class="tab-btn bg-rose-600 text-white px-4 py-2 rounded-full">Support Wall</button>
-      <button data-tab="qa"       class="tab-btn bg-gray-200 text-gray-900 px-4 py-2 rounded-full">Q&A</button>
-      <button data-tab="fixtures" class="tab-btn bg-gray-200 text-gray-900 px-4 py-2 rounded-full">Fixtures</button>
-      <button data-tab="giveaways"class="tab-btn bg-gray-200 text-gray-900 px-4 py-2 rounded-full">Giveaways</button>
+  <!-- ADMIN -->
+  <section id="adminPanel" class="hidden flex-grow pt-32 px-6 pb-20 max-w-5xl mx-auto fade-in">
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex flex-wrap gap-3">
+        <button data-tab="support"  class="tab-btn bg-gray-200 text-gray-900 px-4 py-2 rounded-full">Support Wall</button>
+        <button data-tab="qa"       class="tab-btn bg-gray-200 text-gray-900 px-4 py-2 rounded-full">Q&A</button>
+        <button data-tab="fixtures" class="tab-btn bg-gray-200 text-gray-900 px-4 py-2 rounded-full">Fixtures</button>
+        <button data-tab="winners"  class="tab-btn bg-rose-600 text-white px-4 py-2 rounded-full">Winners</button>
+      </div>
+      <button id="logoutBtn" class="bg-rose-600 text-white px-4 py-2 rounded-full hover:bg-rose-700">Log out</button>
     </div>
 
-    <!-- Existing tabs you had (support / qa / fixtures) ... keep your previous content here -->
-    <div id="tab-support"><p class="text-gray-500">Support wall moderation (unchanged).</p></div>
-    <div id="tab-qa" class="hidden"><p class="text-gray-500">Q&A moderation (unchanged).</p></div>
-    <div id="tab-fixtures" class="hidden"><p class="text-gray-500">Fixtures management (unchanged).</p></div>
+    <!-- Support Wall -->
+    <div id="tab-support" class="hidden">
+      <h2 class="text-2xl font-bold text-rose-700 mb-3">Support Wall – Moderate</h2>
+      <div id="supportList" class="space-y-3"><p class="text-gray-500">Loading…</p></div>
+    </div>
 
-    <!-- GIVEAWAYS TAB -->
-    <div id="tab-giveaways" class="hidden">
-      <h2 class="text-2xl font-bold text-rose-700 mb-4">Giveaways – Create & Manage</h2>
+    <!-- Q&A -->
+    <div id="tab-qa" class="hidden">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-2xl font-bold text-rose-700">Q&A – Answer & Moderate</h2>
+        <div class="flex gap-2">
+          <button data-filter="all"         class="qa-filter px-3 py-1 rounded-full bg-rose-600 text-white">All</button>
+          <button data-filter="unanswered"  class="qa-filter px-3 py-1 rounded-full bg-gray-200 text-gray-900">Unanswered</button>
+          <button data-filter="answered"    class="qa-filter px-3 py-1 rounded-full bg-gray-200 text-gray-900">Answered</button>
+        </div>
+      </div>
+      <p id="qaCounts" class="text-xs text-gray-500 mb-2">Totals: —</p>
+      <div id="qaList" class="space-y-3"><p class="text-gray-500">Loading…</p></div>
+    </div>
 
-      <form id="gForm" class="grid md:grid-cols-2 gap-3 bg-white p-4 rounded-xl border shadow mb-6">
-        <input type="hidden" id="gId"/>
-        <div><label class="text-sm">Title</label><input id="gTitle" class="w-full border rounded px-3 py-2"/></div>
-        <div><label class="text-sm">Subtitle</label><input id="gSub" class="w-full border rounded px-3 py-2"/></div>
-        <div><label class="text-sm">Prize</label><input id="gPrize" class="w-full border rounded px-3 py-2" placeholder="e.g. Puma boots"/></div>
-        <div><label class="text-sm">Image URL</label><input id="gImg" class="w-full border rounded px-3 py-2" placeholder="https://…"/></div>
-        <div><label class="text-sm">Start</label><input id="gStart" type="datetime-local" class="w-full border rounded px-3 py-2"/></div>
-        <div><label class="text-sm">End</label><input id="gEnd" type="datetime-local" class="w-full border rounded px-3 py-2"/></div>
+    <!-- Fixtures (unchanged content you already have) -->
+    <div id="tab-fixtures" class="hidden">
+      <h2 class="text-2xl font-bold text-rose-700 mb-4">Fixtures – Add / Update</h2>
+      <!-- keep your existing fixtures form & list here -->
+      <p class="text-sm text-gray-500">Your fixtures controls remain here (unchanged).</p>
+      <div id="fxList" class="space-y-3"></div>
+    </div>
+
+    <!-- WINNERS -->
+    <div id="tab-winners">
+      <h2 class="text-2xl font-bold text-rose-700 mb-4">Winners – Add / Manage</h2>
+      <!-- Form -->
+      <form id="winForm" class="grid md:grid-cols-2 gap-3 bg-white p-4 rounded-xl border shadow mb-6">
+        <input type="hidden" id="winId" />
+        <div>
+          <label class="text-sm">Winner Name</label>
+          <input id="winName" class="w-full border rounded px-3 py-2" placeholder="e.g. Thandi M."/>
+        </div>
+        <div>
+          <label class="text-sm">Handle (IG/TikTok)</label>
+          <input id="winHandle" class="w-full border rounded px-3 py-2" placeholder="@thandi_m"/>
+        </div>
+        <div>
+          <label class="text-sm">Prize</label>
+          <input id="winPrize" class="w-full border rounded px-3 py-2" placeholder="e.g. Puma boots & kit"/>
+        </div>
+        <div>
+          <label class="text-sm">Announced At</label>
+          <input id="winDate" type="datetime-local" class="w-full border rounded px-3 py-2"/>
+        </div>
         <div class="md:col-span-2">
-          <label class="text-sm">Rules (one per line)</label>
-          <textarea id="gRules" rows="3" class="w-full border rounded px-3 py-2" placeholder="Follow @…&#10;Tag 2 friends&#10;…"></textarea>
+          <label class="text-sm block mb-1">Winner Photo</label>
+          <input id="winPhoto" type="file" accept="image/*" class="w-full border rounded px-3 py-2 bg-white"/>
+          <p class="text-xs text-gray-500 mt-1">Upload from your gallery. If Firebase Storage isn’t enabled, the image is saved inline as a data URL.</p>
         </div>
         <div class="flex gap-2 md:col-span-2">
-          <button class="bg-rose-600 text-white px-4 py-2 rounded hover:bg-rose-700">Save</button>
-          <button type="button" id="gReset" class="bg-gray-200 text-gray-900 px-4 py-2 rounded">Reset</button>
+          <button id="winSave" type="submit" class="bg-rose-600 text-white px-4 py-2 rounded hover:bg-rose-700">Save</button>
+          <button type="button" id="winReset" class="bg-gray-200 text-gray-900 px-4 py-2 rounded">Reset</button>
         </div>
       </form>
 
-      <div id="gList" class="space-y-4"></div>
+      <!-- Winners list -->
+      <div id="winList" class="grid sm:grid-cols-2 gap-4"></div>
     </div>
+
   </section>
 
   <footer class="bg-pink-900 text-white text-center py-6">
-    <p>&copy; 2025 The Footballer’s Sister. All rights reserved.</p>
+    <p>&copy; <span id="year"></span> The Footballer’s Sister. All rights reserved.</p>
   </footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- Firebase Admin -->
+  <!-- Firebase + Admin Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, deleteDoc, getDoc, getDocs, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import {
+      getFirestore, collection, onSnapshot, doc, deleteDoc, updateDoc, addDoc,
+      serverTimestamp, Timestamp
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import {
+      getStorage, ref, uploadBytes, getDownloadURL
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
+    /* Only this UID can moderate */
     const ADMIN_UID = "pDokgebzpTZWzmn9dW50kaDAqRT2";
-    const appId = "1:65396604482:web:0f31625a714aa8352337db";
 
+    /* Firebase config */
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
       projectId: "football-site-c3aa9",
       storageBucket: "football-site-c3aa9.appspot.com",
       messagingSenderId: "65396604482",
-      appId
+      appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db  = getFirestore(app);
-    const auth= getAuth(app);
+    /* Paths */
+    const APP_ID_SHORT = "1:65396604482:web:0f31625a714aa8352337db";
+    const QUESTIONS_PATH = `artifacts/${APP_ID_SHORT}/public/data/questions`;
+    const SUPPORT_PATH   = `artifacts/${APP_ID_SHORT}/public/data/supportMessages`;
+    const FIXTURES_PATH  = `artifacts/${APP_ID_SHORT}/public/data/fixtures`;
+    const WINNERS_PATH   = `artifacts/${APP_ID_SHORT}/public/data/winners`;
 
-    const loginSection=document.getElementById('loginSection');
-    const adminPanel  =document.getElementById('adminPanel');
-    const noAccess    =document.getElementById('noAccess');
-    const loginForm   =document.getElementById('loginForm');
-    const loginError  =document.getElementById('loginError');
-    const logoutBtn   =document.getElementById('logoutBtn');
+    /* Init */
+    const app  = initializeApp(firebaseConfig);
+    const db   = getFirestore(app);
+    const auth = getAuth(app);
 
-    function setView(v){
-      loginSection.classList.toggle('hidden', v!=='login');
-      adminPanel.classList.toggle('hidden', v!=='admin');
-      noAccess.classList.toggle('hidden', v!=='noaccess');
+    let storage;
+    try {
+      storage = getStorage(app);
+    } catch (e) {
+      storage = null; // if storage not available in region / not enabled
     }
 
-    onAuthStateChanged(auth, user=>{
-      if(!user) return setView('login');
-      if(user.uid===ADMIN_UID) setView('admin'); else setView('noaccess');
-    });
+    /* UI refs (only those we need for winners plus login/tabs) */
+    const loginSection = document.getElementById('loginSection');
+    const adminPanel   = document.getElementById('adminPanel');
+    const noAccess     = document.getElementById('noAccess');
+    const loginForm    = document.getElementById('loginForm');
+    const loginError   = document.getElementById('loginError');
+    const logoutBtn    = document.getElementById('logoutBtn');
+    document.getElementById('logoutNoAccess').onclick = () => signOut(auth);
 
-    loginForm.addEventListener('submit', async e=>{
-      e.preventDefault();
-      loginError.classList.add('hidden');
-      try{
-        const email=document.getElementById('email').value.trim();
-        const password=document.getElementById('password').value;
-        await signInWithEmailAndPassword(auth, email, password);
-      }catch(err){
-        loginError.textContent = err.message;
-        loginError.classList.remove('hidden');
-      }
-    });
-    logoutBtn.onclick=()=>signOut(auth);
-
-    // Tabs
-    const tabs=document.querySelectorAll('.tab-btn');
-    const panels={support:document.getElementById('tab-support'), qa:document.getElementById('tab-qa'),
-                  fixtures:document.getElementById('tab-fixtures'), giveaways:document.getElementById('tab-giveaways')};
-    tabs.forEach(btn=>btn.onclick=()=>{
-      tabs.forEach(b=>{b.classList.remove('bg-rose-600','text-white');b.classList.add('bg-gray-200','text-gray-900')});
+    const tabs = document.querySelectorAll('.tab-btn');
+    const panels = {
+      support:  document.getElementById('tab-support'),
+      qa:       document.getElementById('tab-qa'),
+      fixtures: document.getElementById('tab-fixtures'),
+      winners:  document.getElementById('tab-winners'),
+    };
+    tabs.forEach(btn => btn.onclick = () => {
+      tabs.forEach(b => b.classList.remove('bg-rose-600','text-white'));
+      tabs.forEach(b => b.classList.add('bg-gray-200','text-gray-900'));
       btn.classList.add('bg-rose-600','text-white');
       Object.values(panels).forEach(p=>p.classList.add('hidden'));
       panels[btn.dataset.tab].classList.remove('hidden');
     });
 
-    // ---------- GIVEAWAYS ----------
-    const gForm=document.getElementById('gForm');
-    const gId  =document.getElementById('gId');
-    const gTitle=document.getElementById('gTitle');
-    const gSub  =document.getElementById('gSub');
-    const gPrize=document.getElementById('gPrize');
-    const gImg  =document.getElementById('gImg');
-    const gStart=document.getElementById('gStart');
-    const gEnd  =document.getElementById('gEnd');
-    const gRules=document.getElementById('gRules');
-    const gReset=document.getElementById('gReset');
-    const gList =document.getElementById('gList');
+    function setView(v) {
+      loginSection.classList.toggle('hidden', v !== 'login');
+      adminPanel.classList.toggle('hidden', v !== 'admin');
+      noAccess.classList.toggle('hidden', v !== 'noaccess');
+    }
 
-    const G_PATH = `artifacts/${appId}/public/data/giveaways`;
-
-    onSnapshot(collection(db, G_PATH), snap=>{
-      const items = snap.docs.map(d=>({id:d.id, ...d.data()}))
-        .sort((a,b)=> (a.endAt?.seconds||9999999999)-(b.endAt?.seconds||9999999999));
-      renderGiveaways(items);
+    onAuthStateChanged(auth, user => {
+      if (!user) return setView('login');
+      if (user.uid === ADMIN_UID) { setView('admin'); startListeners(); }
+      else setView('noaccess');
     });
 
-    gForm.addEventListener('submit', async e=>{
+    loginForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      loginError.classList.add('hidden');
+      try {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (err) {
+        loginError.textContent = err.message;
+        loginError.classList.remove('hidden');
+      }
+    });
+    logoutBtn.onclick = () => signOut(auth);
+
+    /* ---------- Support & Q&A minimal loaders (keep existing logic if you had more) ---------- */
+    const supportList  = document.getElementById('supportList');
+    function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+    onSnapshot(collection(db, SUPPORT_PATH), snap => {
+      const items = snap.docs.map(d=>({id:d.id,data:d.data()}));
+      supportList.innerHTML = items.length? '' : '<p class="text-gray-500">No messages yet.</p>';
+      items.forEach(({id,data})=>{
+        const card = document.createElement('div');
+        card.className='bg-white border rounded-2xl p-4 shadow';
+        card.innerHTML = `
+          <strong>${esc(data.name||'Anonymous')}</strong>
+          <p class="text-gray-700">${esc(data.message||'')}</p>
+          <button class="mt-2 bg-red-600 text-white px-3 py-1 rounded">Delete</button>`;
+        card.querySelector('button').onclick = async ()=>{ if(confirm('Delete message?')) await deleteDoc(doc(db,SUPPORT_PATH,id)); };
+        supportList.appendChild(card);
+      });
+    });
+
+    const qaList = document.getElementById('qaList');
+    const qaCountsEl = document.getElementById('qaCounts');
+    let qaItems=[]; let qaFilter='all';
+    function renderQACounts(items){const t=items.length,a=items.filter(x=>!!x.data.answer).length,u=t-a; qaCountsEl.textContent=`Totals: All ${t} • Unanswered ${u} • Answered ${a}`;}
+    function applyFilter(items,f){if(f==='answered')return items.filter(x=>!!x.data.answer); if(f==='unanswered')return items.filter(x=>!x.data.answer); return items;}
+    function renderQuestions(){const items=applyFilter(qaItems,qaFilter); renderQACounts(qaItems); qaList.innerHTML=items.length?'':'<p class="text-gray-500">No questions yet.</p>';
+      items.forEach(({id,data})=>{
+        const div=document.createElement('div'); div.className='bg-white border rounded-2xl p-4 shadow';
+        div.innerHTML=`
+          <strong>${esc(data.name||'Anonymous')}</strong>
+          <p class="text-gray-800">${esc(data.question||'')}</p>
+          ${data.answer ? `<div class="bg-pink-50 mt-2 p-2 rounded"><strong>Answer:</strong> ${esc(data.answer)}</div>`
+          : `<textarea id="ans-${id}" class="border w-full p-2 mt-2 rounded" placeholder="Type your answer"></textarea>
+             <button class="bg-rose-600 text-white px-3 py-1 mt-2 rounded">Save Answer</button>`}
+          <button class="mt-2 bg-red-600 text-white px-3 py-1 rounded">Delete</button>`;
+        const [saveBtn, delBtn] = div.querySelectorAll('button');
+        if(!data.answer){ saveBtn.onclick = async ()=>{ const ans=div.querySelector('#ans-'+id).value.trim(); if(!ans)return alert('Please write an answer.'); await updateDoc(doc(db,QUESTIONS_PATH,id),{answer:ans,answeredAt:serverTimestamp()}); }; }
+        delBtn.onclick = async ()=>{ if(confirm('Delete question?')) await deleteDoc(doc(db,QUESTIONS_PATH,id)); };
+        qaList.appendChild(div);
+      });
+    }
+    document.querySelectorAll('.qa-filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.qa-filter').forEach(x=>x.classList.remove('bg-rose-600','text-white'));document.querySelectorAll('.qa-filter').forEach(x=>x.classList.add('bg-gray-200','text-gray-900'));b.classList.add('bg-rose-600','text-white');qaFilter=b.dataset.filter;renderQuestions();});
+    onSnapshot(collection(db, QUESTIONS_PATH), snap=>{qaItems=snap.docs.map(d=>({id:d.id,data:d.data()}));renderQuestions();});
+
+    /* ---------- Winners ---------- */
+    const winForm  = document.getElementById('winForm');
+    const winId    = document.getElementById('winId');
+    const winName  = document.getElementById('winName');
+    const winHandle= document.getElementById('winHandle');
+    const winPrize = document.getElementById('winPrize');
+    const winDate  = document.getElementById('winDate');
+    const winPhoto = document.getElementById('winPhoto');
+    const winReset = document.getElementById('winReset');
+    const winList  = document.getElementById('winList');
+
+    // default date-time now
+    const nowLocal = new Date(); winDate.value = new Date(nowLocal.getTime()-nowLocal.getTimezoneOffset()*60000).toISOString().slice(0,16);
+
+    let winners = [];
+    onSnapshot(collection(db, WINNERS_PATH), snap=>{
+      winners = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>{
+        const ta = a.announcedAt?.seconds ?? a.announcedAt?.toDate?.().getTime()/1000 ?? 0;
+        const tb = b.announcedAt?.seconds ?? b.announcedAt?.toDate?.().getTime()/1000 ?? 0;
+        return tb-ta; // newest first
+      });
+      renderWinners();
+    });
+
+    function photoSrc(w){
+      if (w.photoUrl) return w.photoUrl;
+      if (w.photoDataUrl) return w.photoDataUrl;
+      return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width=\"240\" height=\"160\"><rect width=\"100%\" height=\"100%\" fill=\"%23fce7f3\"/><text x=\"50%\" y=\"50%\" dominant-baseline=\"middle\" text-anchor=\"middle\" fill=\"%23be185d\" font-family=\"Arial\" font-size=\"16\">No Photo</text></svg>';
+    }
+
+    function renderWinners(){
+      winList.innerHTML = '';
+      if (!winners.length){ winList.innerHTML = '<p class="text-gray-500">No winners yet.</p>'; return; }
+      winners.forEach(w=>{
+        const when = w.announcedAt?.toDate ? w.announcedAt.toDate().toLocaleString() :
+                     (w.announcedAt?.seconds ? new Date(w.announcedAt.seconds*1000).toLocaleString() : '');
+        const card = document.createElement('div');
+        card.className = 'bg-white border rounded-xl p-4 shadow flex gap-4';
+        card.innerHTML = `
+          <img src="${photoSrc(w)}" alt="${esc(w.name||'Winner')}" class="w-28 h-28 object-cover rounded-lg bg-pink-100"/>
+          <div class="flex-1">
+            <div class="text-lg font-semibold">${esc(w.name||'')}</div>
+            <div class="text-sm text-gray-600">${esc(w.handle||'')}</div>
+            <div class="text-sm text-gray-700 mt-1"><strong>Prize:</strong> ${esc(w.prize||'')}</div>
+            <div class="text-xs text-gray-500">${when}</div>
+            <div class="mt-2 flex gap-2">
+              <button class="px-3 py-1 rounded bg-gray-200" data-edit="${w.id}">Edit</button>
+              <button class="px-3 py-1 rounded bg-red-600 text-white" data-del="${w.id}">Delete</button>
+            </div>
+          </div>`;
+        winList.appendChild(card);
+      });
+      winList.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>fillWinnerForm(b.dataset.edit));
+      winList.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>deleteWinner(b.dataset.del));
+    }
+
+    function fillWinnerForm(id){
+      const w = winners.find(x=>x.id===id); if (!w) return;
+      winId.value = id;
+      winName.value = w.name||'';
+      winHandle.value = w.handle||'';
+      winPrize.value = w.prize||'';
+      if (w.announcedAt?.toDate){
+        const d = w.announcedAt.toDate();
+        winDate.value = new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+      }
+      // switch to winners tab visibly
+      tabs.forEach(b=>b.classList.remove('bg-rose-600','text-white'));
+      tabs.forEach(b=>b.classList.add('bg-gray-200','text-gray-900'));
+      document.querySelector('[data-tab="winners"]').classList.add('bg-rose-600','text-white');
+      Object.values(panels).forEach(p=>p.classList.add('hidden'));
+      panels['winners'].classList.remove('hidden');
+    }
+
+    async function deleteWinner(id){
+      if (!confirm('Delete this winner?')) return;
+      await deleteDoc(doc(db, WINNERS_PATH, id));
+    }
+
+    async function fileToDataUrl(file){
+      return new Promise((resolve,reject)=>{
+        const reader = new FileReader();
+        reader.onload = ()=>resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function maybeUploadPhoto(docId, file){
+      if (!file) return { photoUrl: null, photoDataUrl: null };
+      try {
+        if (!storage) throw new Error('storage-not-available');
+        const r = ref(storage, `winners/${docId}.jpg`);
+        const snap = await uploadBytes(r, file);
+        const url = await getDownloadURL(snap.ref);
+        return { photoUrl: url, photoDataUrl: null };
+      } catch(e){
+        // Fallback: store inline data URL (works without Storage)
+        const dataUrl = await fileToDataUrl(file);
+        return { photoUrl: null, photoDataUrl: dataUrl };
+      }
+    }
+
+    winForm.addEventListener('submit', async (e)=>{
       e.preventDefault();
       const payload = {
-        title: gTitle.value.trim(),
-        subtitle: gSub.value.trim()||null,
-        prize: gPrize.value.trim()||null,
-        imageUrl: gImg.value.trim()||null,
-        rules: gRules.value ? gRules.value.split('\n').map(s=>s.trim()).filter(Boolean) : [],
-        startAt: gStart.value ? Timestamp.fromDate(new Date(gStart.value)) : null,
-        endAt:   gEnd.value   ? Timestamp.fromDate(new Date(gEnd.value))   : null,
-        updatedAt: serverTimestamp()
+        name:   winName.value.trim(),
+        handle: winHandle.value.trim(),
+        prize:  winPrize.value.trim(),
+        announcedAt: winDate.value ? Timestamp.fromDate(new Date(winDate.value)) : serverTimestamp()
       };
-      if(gId.value){
-        await updateDoc(doc(db, G_PATH, gId.value), payload);
-      }else{
-        await addDoc(collection(db, G_PATH), { ...payload, createdAt: serverTimestamp(), winners: [] });
+      if (!payload.name || !payload.prize){ alert('Please fill in name and prize.'); return; }
+
+      if (winId.value){
+        // editing
+        const id = winId.value;
+        const file = winPhoto.files[0];
+        if (file){
+          const { photoUrl, photoDataUrl } = await maybeUploadPhoto(id, file);
+          if (photoUrl) payload.photoUrl = photoUrl;
+          if (photoDataUrl) payload.photoDataUrl = photoDataUrl;
+        }
+        await updateDoc(doc(db, WINNERS_PATH, id), payload);
+      } else {
+        // create first to get ID
+        const refDoc = await addDoc(collection(db, WINNERS_PATH), { ...payload, createdAt: serverTimestamp() });
+        const file = winPhoto.files[0];
+        if (file){
+          const { photoUrl, photoDataUrl } = await maybeUploadPhoto(refDoc.id, file);
+          const extra = {};
+          if (photoUrl) extra.photoUrl = photoUrl;
+          if (photoDataUrl) extra.photoDataUrl = photoDataUrl;
+          if (Object.keys(extra).length) await updateDoc(refDoc, extra);
+        }
       }
-      gForm.reset(); gId.value='';
+
+      winForm.reset();
+      winId.value = '';
+      // reset default date to now again
+      const now = new Date(); winDate.value = new Date(now.getTime()-now.getTimezoneOffset()*60000).toISOString().slice(0,16);
     });
-    gReset.onclick=()=>{gForm.reset(); gId.value='';};
 
-    function renderGiveaways(items){
-      gList.innerHTML='';
-      if(!items.length){ gList.innerHTML='<p class="text-gray-500">No giveaways yet.</p>'; return; }
+    winReset.addEventListener('click', (e)=>{ e.preventDefault(); winForm.reset(); winId.value=''; });
 
-      items.forEach(g=>{
-        const card=document.createElement('div');
-        card.className='bg-white border rounded-xl p-4 shadow';
-        card.innerHTML=`
-          <div class="flex items-start gap-4">
-            ${g.imageUrl? `<img src="${g.imageUrl}" class="w-24 h-24 object-cover rounded-lg">` : `<div class="w-24 h-24 rounded-lg bg-pink-100 flex items-center justify-center text-rose-600">No image</div>`}
-            <div class="flex-1">
-              <div class="font-semibold text-rose-700">${g.title||'Untitled'}</div>
-              <div class="text-sm text-gray-600">${g.subtitle||''}</div>
-              ${g.prize? `<div class="text-sm"><span class="font-semibold">Prize:</span> ${g.prize}</div>`:''}
-              <div class="text-xs text-gray-500 mt-1">
-                ${g.startAt?.toDate? 'Start: '+g.startAt.toDate().toLocaleString()+' • ' : ''}${g.endAt?.toDate? 'End: '+g.endAt.toDate().toLocaleString():''}
-              </div>
-              <div class="mt-2 flex flex-wrap gap-2">
-                <button class="px-3 py-1 rounded bg-gray-200" data-edit="${g.id}">Edit</button>
-                <button class="px-3 py-1 rounded bg-red-600 text-white" data-del="${g.id}">Delete</button>
-                <button class="px-3 py-1 rounded bg-blue-600 text-white" data-entries="${g.id}">View Entries</button>
-                <button class="px-3 py-1 rounded bg-purple-600 text-white" data-winners="${g.id}">Pick Winners</button>
-              </div>
-              ${Array.isArray(g.winners)&&g.winners.length? `<div class="mt-2 text-sm"><span class="font-semibold">Winners:</span> ${g.winners.map(w=>w.name||w.email||w.uid).join(', ')}</div>`:''}
-            </div>
-          </div>
-        `;
-        gList.appendChild(card);
-      });
-
-      // wire actions
-      gList.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>fillForm(b.dataset.edit));
-      gList.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>delGiveaway(b.dataset.del));
-      gList.querySelectorAll('[data-entries]').forEach(b=>b.onclick=()=>showEntries(b.dataset.entries));
-      gList.querySelectorAll('[data-winners]').forEach(b=>b.onclick=()=>pickWinners(b.dataset.winners));
-    }
-
-    async function fillForm(id){
-      const d=await getDoc(doc(db, G_PATH, id)); if(!d.exists()) return;
-      const g=d.data(); gId.value=id;
-      gTitle.value=g.title||''; gSub.value=g.subtitle||''; gPrize.value=g.prize||''; gImg.value=g.imageUrl||'';
-      gRules.value=(Array.isArray(g.rules)?g.rules:[]).join('\n');
-      if(g.startAt?.toDate) gStart.value=g.startAt.toDate().toISOString().slice(0,16);
-      if(g.endAt?.toDate)   gEnd.value  =g.endAt.toDate().toISOString().slice(0,16);
-      // jump to tab if needed
-      tabs.forEach(b=>{b.classList.remove('bg-rose-600','text-white');b.classList.add('bg-gray-200','text-gray-900')});
-      document.querySelector('[data-tab="giveaways"]').classList.add('bg-rose-600','text-white');
-      Object.values(panels).forEach(p=>p.classList.add('hidden')); panels['giveaways'].classList.remove('hidden');
-    }
-    async function delGiveaway(id){
-      if(!confirm('Delete this giveaway?')) return;
-      await deleteDoc(doc(db, G_PATH, id));
-    }
-    async function showEntries(id){
-      const snap = await getDocs(collection(db, `${G_PATH}/${id}/entries`));
-      if(snap.empty){ alert('No entries yet.'); return; }
-      const lines=[]; snap.forEach(d=>{const e=d.data(); lines.push(`${e.name||'-'} • ${e.email||'-'} • ${e.handle||'-'} • ${d.id}`)});
-      alert(`Entries (${snap.size}):\n\n`+lines.join('\n'));
-    }
-    async function pickWinners(id){
-      const count = Number(prompt('How many winners?', '1'))||1;
-      const snap = await getDocs(collection(db, `${G_PATH}/${id}/entries`));
-      const entries=snap.docs.map(d=>({uid:d.id, ...d.data()}));
-      if(!entries.length){ alert('No entries to pick from.'); return; }
-      // shuffle
-      for(let i=entries.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [entries[i],entries[j]]=[entries[j],entries[i]]}
-      const winners=entries.slice(0,Math.min(count,entries.length));
-      await updateDoc(doc(db, G_PATH, id), { winners, winnersPickedAt: serverTimestamp() });
-      alert('Winners saved:\n'+winners.map(w=>w.name||w.email||w.uid).join(', '));
-    }
+    function startListeners(){ /* listeners are already attached above */ }
   </script>
 </body>
 </html>
