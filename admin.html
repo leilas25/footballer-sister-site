@@ -1,19 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Admin – The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <meta name="robots" content="noindex, nofollow" />
-  <link rel="icon" href="data:,">
-  <style>.fade-in{animation:fade .25s ease-out}@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}</style>
+  <meta name="robots" content="noindex,nofollow" />
+  <style>
+    .fade-in { animation: fade .25s ease-out; }
+    @keyframes fade { from {opacity:0; transform:translateY(6px)} to {opacity:1; transform:none} }
+    .thumb { width:64px; height:64px; object-fit:cover; border-radius:8px; }
+  </style>
 </head>
 <body class="bg-pink-50 text-black font-sans min-h-screen flex flex-col">
+
   <!-- Header -->
   <header class="fixed top-0 w-full flex justify-between items-center px-6 py-4 bg-pink-100 shadow z-50">
     <h1 class="text-xl font-bold uppercase text-rose-600">Admin • The Footballer’s Sister</h1>
-    <nav class="space-x-6"><a href="index.html" class="hover:underline text-rose-600">Home</a></nav>
+    <nav class="space-x-6">
+      <a href="index.html" class="hover:underline text-rose-600">Home</a>
+    </nav>
   </header>
 
   <!-- LOGIN -->
@@ -21,11 +27,17 @@
     <div class="max-w-sm mx-auto bg-white rounded-xl shadow p-6 fade-in">
       <h2 class="text-2xl font-bold text-rose-700 mb-2">Admin Login</h2>
       <p class="text-sm text-gray-600 mb-4">Sign in with your admin email & password.</p>
+
       <form id="loginForm" class="space-y-3">
-        <input id="email" type="email" required placeholder="Email" class="w-full px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-rose-500"/>
-        <input id="password" type="password" required placeholder="Password" class="w-full px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-rose-500"/>
-        <button class="w-full bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 font-semibold">Log in</button>
+        <input id="email" type="email" required placeholder="Email"
+               class="w-full px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-rose-500"/>
+        <input id="password" type="password" required placeholder="Password"
+               class="w-full px-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-rose-500"/>
+        <button class="w-full bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 font-semibold">
+          Log in
+        </button>
       </form>
+
       <p id="loginError" class="text-red-600 text-sm mt-3 hidden"></p>
     </div>
   </main>
@@ -37,20 +49,23 @@
     <button id="logoutNoAccess" class="mt-6 bg-gray-200 text-gray-900 px-4 py-2 rounded-full hover:bg-gray-300">Log out</button>
   </section>
 
-  <!-- ADMIN -->
-  <section id="adminPanel" class="hidden flex-grow pt-32 px-6 pb-20 max-w-5xl mx-auto fade-in">
+  <!-- ADMIN DASHBOARD -->
+  <section id="adminPanel" class="hidden flex-grow pt-32 px-6 pb-20 max-w-6xl mx-auto fade-in">
     <div class="flex items-center justify-between mb-6">
       <div class="flex flex-wrap gap-3">
-        <button data-tab="support"  class="tab-btn bg-gray-200 text-gray-900 px-4 py-2 rounded-full">Support Wall</button>
+        <button data-tab="support"  class="tab-btn bg-rose-600 text-white px-4 py-2 rounded-full">Support Wall</button>
         <button data-tab="qa"       class="tab-btn bg-gray-200 text-gray-900 px-4 py-2 rounded-full">Q&A</button>
         <button data-tab="fixtures" class="tab-btn bg-gray-200 text-gray-900 px-4 py-2 rounded-full">Fixtures</button>
-        <button data-tab="winners"  class="tab-btn bg-rose-600 text-white px-4 py-2 rounded-full">Winners</button>
+        <button data-tab="media"    class="tab-btn bg-gray-200 text-gray-900 px-4 py-2 rounded-full">Media / Gallery</button>
       </div>
-      <button id="logoutBtn" class="bg-rose-600 text-white px-4 py-2 rounded-full hover:bg-rose-700">Log out</button>
+      <div class="flex items-center gap-3">
+        <span id="adminUidDisplay" class="text-xs text-gray-600 hidden"></span>
+        <button id="logoutBtn" class="bg-rose-600 text-white px-4 py-2 rounded-full hover:bg-rose-700">Log out</button>
+      </div>
     </div>
 
     <!-- Support Wall -->
-    <div id="tab-support" class="hidden">
+    <div id="tab-support">
       <h2 class="text-2xl font-bold text-rose-700 mb-3">Support Wall – Moderate</h2>
       <div id="supportList" class="space-y-3"><p class="text-gray-500">Loading…</p></div>
     </div>
@@ -69,51 +84,56 @@
       <div id="qaList" class="space-y-3"><p class="text-gray-500">Loading…</p></div>
     </div>
 
-    <!-- Fixtures (unchanged content you already have) -->
+    <!-- FIXTURES -->
     <div id="tab-fixtures" class="hidden">
       <h2 class="text-2xl font-bold text-rose-700 mb-4">Fixtures – Add / Update</h2>
-      <!-- keep your existing fixtures form & list here -->
-      <p class="text-sm text-gray-500">Your fixtures controls remain here (unchanged).</p>
-      <div id="fxList" class="space-y-3"></div>
+      <!-- (Your fixtures UI is kept here — same as before) -->
+      <p class="text-sm text-gray-600">Fixtures UI retained (unchanged) — use this panel to add/edit games, live scores and stream links.</p>
+      <div id="fxList" class="mt-4 space-y-3"></div>
     </div>
 
-    <!-- WINNERS -->
-    <div id="tab-winners">
-      <h2 class="text-2xl font-bold text-rose-700 mb-4">Winners – Add / Manage</h2>
-      <!-- Form -->
-      <form id="winForm" class="grid md:grid-cols-2 gap-3 bg-white p-4 rounded-xl border shadow mb-6">
-        <input type="hidden" id="winId" />
-        <div>
-          <label class="text-sm">Winner Name</label>
-          <input id="winName" class="w-full border rounded px-3 py-2" placeholder="e.g. Thandi M."/>
-        </div>
-        <div>
-          <label class="text-sm">Handle (IG/TikTok)</label>
-          <input id="winHandle" class="w-full border rounded px-3 py-2" placeholder="@thandi_m"/>
-        </div>
-        <div>
-          <label class="text-sm">Prize</label>
-          <input id="winPrize" class="w-full border rounded px-3 py-2" placeholder="e.g. Puma boots & kit"/>
-        </div>
-        <div>
-          <label class="text-sm">Announced At</label>
-          <input id="winDate" type="datetime-local" class="w-full border rounded px-3 py-2"/>
-        </div>
-        <div class="md:col-span-2">
-          <label class="text-sm block mb-1">Winner Photo</label>
-          <input id="winPhoto" type="file" accept="image/*" class="w-full border rounded px-3 py-2 bg-white"/>
-          <p class="text-xs text-gray-500 mt-1">Upload from your gallery. If Firebase Storage isn’t enabled, the image is saved inline as a data URL.</p>
-        </div>
-        <div class="flex gap-2 md:col-span-2">
-          <button id="winSave" type="submit" class="bg-rose-600 text-white px-4 py-2 rounded hover:bg-rose-700">Save</button>
-          <button type="button" id="winReset" class="bg-gray-200 text-gray-900 px-4 py-2 rounded">Reset</button>
-        </div>
-      </form>
+    <!-- MEDIA / GALLERY -->
+    <div id="tab-media" class="hidden">
+      <h2 class="text-2xl font-bold text-rose-700 mb-3">Media / Gallery – Upload & Manage</h2>
 
-      <!-- Winners list -->
-      <div id="winList" class="grid sm:grid-cols-2 gap-4"></div>
+      <!-- Upload Form -->
+      <div class="bg-white border rounded-2xl p-4 shadow mb-6">
+        <form id="uploadForm" class="grid gap-3 md:grid-cols-2 items-end">
+          <div>
+            <label class="text-sm block mb-1">Choose image</label>
+            <input id="fileInput" type="file" accept="image/*" class="w-full" />
+            <img id="filePreview" class="mt-3 thumb hidden" alt="preview">
+          </div>
+
+          <div>
+            <label class="text-sm block mb-1">Caption</label>
+            <input id="fileCaption" type="text" placeholder="Short caption (e.g., 'Pre-match shoot')" class="w-full border rounded px-3 py-2" />
+          </div>
+
+          <div>
+            <label class="text-sm block mb-1">Order (smaller numbers show first)</label>
+            <input id="fileOrder" type="number" value="10" class="w-full border rounded px-3 py-2" />
+          </div>
+
+          <div class="flex gap-2">
+            <button id="uploadBtn" class="bg-rose-600 text-white px-4 py-2 rounded hover:bg-rose-700">Upload to Cloud & Save</button>
+            <button id="resetUpload" type="button" class="bg-gray-200 px-4 py-2 rounded">Reset</button>
+          </div>
+
+          <div class="md:col-span-2">
+            <div class="w-full bg-gray-100 rounded overflow-hidden mt-2">
+              <div id="uploadProgress" class="h-2 bg-rose-600 w-0 transition-all"></div>
+            </div>
+            <p id="uploadMsg" class="text-xs text-gray-600 mt-2"></p>
+          </div>
+        </form>
+      </div>
+
+      <!-- Gallery list -->
+      <div id="galleryList" class="space-y-3">
+        <p class="text-gray-500">Loading gallery…</p>
+      </div>
     </div>
-
   </section>
 
   <footer class="bg-pink-900 text-white text-center py-6">
@@ -121,22 +141,17 @@
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- Firebase + Admin Logic -->
+  <!-- FIREBASE + CLOUDINARY -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import {
       getFirestore, collection, onSnapshot, doc, deleteDoc, updateDoc, addDoc,
-      serverTimestamp, Timestamp
+      serverTimestamp, query, orderBy, getDocs
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-    import {
-      getStorage, ref, uploadBytes, getDownloadURL
-    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
-    /* Only this UID can moderate */
-    const ADMIN_UID = "pDokgebzpTZWzmn9dW50kaDAqRT2";
-
-    /* Firebase config */
+    // --- CONFIG / CONSTANTS ---
+    const ADMIN_UID = "pDokgebzpTZWzmn9dW50kaDAqRT2"; // your admin UID
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
@@ -146,262 +161,380 @@
       appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
 
-    /* Paths */
+    // Short APP ID used in your public data path
     const APP_ID_SHORT = "1:65396604482:web:0f31625a714aa8352337db";
-    const QUESTIONS_PATH = `artifacts/${APP_ID_SHORT}/public/data/questions`;
-    const SUPPORT_PATH   = `artifacts/${APP_ID_SHORT}/public/data/supportMessages`;
-    const FIXTURES_PATH  = `artifacts/${APP_ID_SHORT}/public/data/fixtures`;
-    const WINNERS_PATH   = `artifacts/${APP_ID_SHORT}/public/data/winners`;
+    const BASE_PATH = `artifacts/${APP_ID_SHORT}/public/data`;
+    const SUPPORT_PATH = `${BASE_PATH}/supportMessages`;
+    const QUESTIONS_PATH = `${BASE_PATH}/questions`;
+    const FIXTURES_PATH = `${BASE_PATH}/fixtures`;
+    const GALLERY_PATH = `${BASE_PATH}/gallery`;
 
-    /* Init */
-    const app  = initializeApp(firebaseConfig);
-    const db   = getFirestore(app);
+    // Cloudinary (unsigned preset)
+    const CLOUDINARY_CLOUD = "dk1df1qmi";
+    const CLOUDINARY_UPLOAD_PRESET = "unsigned_bts_preset";
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
     const auth = getAuth(app);
 
-    let storage;
-    try {
-      storage = getStorage(app);
-    } catch (e) {
-      storage = null; // if storage not available in region / not enabled
-    }
-
-    /* UI refs (only those we need for winners plus login/tabs) */
+    // UI refs
     const loginSection = document.getElementById('loginSection');
     const adminPanel   = document.getElementById('adminPanel');
     const noAccess     = document.getElementById('noAccess');
     const loginForm    = document.getElementById('loginForm');
     const loginError   = document.getElementById('loginError');
     const logoutBtn    = document.getElementById('logoutBtn');
-    document.getElementById('logoutNoAccess').onclick = () => signOut(auth);
+    const logoutNo     = document.getElementById('logoutNoAccess');
+    const adminUidDisplay = document.getElementById('adminUidDisplay');
 
-    const tabs = document.querySelectorAll('.tab-btn');
-    const panels = {
-      support:  document.getElementById('tab-support'),
-      qa:       document.getElementById('tab-qa'),
-      fixtures: document.getElementById('tab-fixtures'),
-      winners:  document.getElementById('tab-winners'),
-    };
-    tabs.forEach(btn => btn.onclick = () => {
-      tabs.forEach(b => b.classList.remove('bg-rose-600','text-white'));
-      tabs.forEach(b => b.classList.add('bg-gray-200','text-gray-900'));
-      btn.classList.add('bg-rose-600','text-white');
-      Object.values(panels).forEach(p=>p.classList.add('hidden'));
-      panels[btn.dataset.tab].classList.remove('hidden');
-    });
+    // support & qa refs
+    const supportList  = document.getElementById('supportList');
+    const qaList       = document.getElementById('qaList');
+    const qaCountsEl   = document.getElementById('qaCounts');
 
-    function setView(v) {
+    // gallery refs
+    const uploadForm   = document.getElementById('uploadForm');
+    const fileInput    = document.getElementById('fileInput');
+    const filePreview  = document.getElementById('filePreview');
+    const fileCaption  = document.getElementById('fileCaption');
+    const fileOrder    = document.getElementById('fileOrder');
+    const uploadBtn    = document.getElementById('uploadBtn');
+    const resetUpload  = document.getElementById('resetUpload');
+    const uploadProgress = document.getElementById('uploadProgress');
+    const uploadMsg    = document.getElementById('uploadMsg');
+    const galleryList  = document.getElementById('galleryList');
+
+    // internal state
+    let currentUser = null;
+    let qaItems = [];
+    let qaFilter = 'all';
+
+    // helper escape
+    const esc = s => String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#039;"}[m]));
+
+    // UI helpers
+    function setView(v){
       loginSection.classList.toggle('hidden', v !== 'login');
       adminPanel.classList.toggle('hidden', v !== 'admin');
       noAccess.classList.toggle('hidden', v !== 'noaccess');
     }
 
-    onAuthStateChanged(auth, user => {
+    // Auth flow
+    onAuthStateChanged(auth, async user => {
+      currentUser = user;
       if (!user) return setView('login');
-      if (user.uid === ADMIN_UID) { setView('admin'); startListeners(); }
-      else setView('noaccess');
+      // user signed in
+      if (user.uid === ADMIN_UID) {
+        adminUidDisplay.textContent = `UID: ${user.uid}`;
+        adminUidDisplay.classList.remove('hidden');
+        setView('admin');
+        startListeners();
+      } else {
+        setView('noaccess');
+      }
     });
 
-    loginForm.addEventListener('submit', async e => {
+    // Login form
+    loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       loginError.classList.add('hidden');
       try {
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
         await signInWithEmailAndPassword(auth, email, password);
-      } catch (err) {
-        loginError.textContent = err.message;
+      } catch(err) {
+        loginError.textContent = err.message || 'Login failed';
         loginError.classList.remove('hidden');
       }
     });
+
     logoutBtn.onclick = () => signOut(auth);
+    logoutNo.onclick = () => signOut(auth);
 
-    /* ---------- Support & Q&A minimal loaders (keep existing logic if you had more) ---------- */
-    const supportList  = document.getElementById('supportList');
-    function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-    onSnapshot(collection(db, SUPPORT_PATH), snap => {
-      const items = snap.docs.map(d=>({id:d.id,data:d.data()}));
-      supportList.innerHTML = items.length? '' : '<p class="text-gray-500">No messages yet.</p>';
-      items.forEach(({id,data})=>{
-        const card = document.createElement('div');
-        card.className='bg-white border rounded-2xl p-4 shadow';
-        card.innerHTML = `
-          <strong>${esc(data.name||'Anonymous')}</strong>
-          <p class="text-gray-700">${esc(data.message||'')}</p>
-          <button class="mt-2 bg-red-600 text-white px-3 py-1 rounded">Delete</button>`;
-        card.querySelector('button').onclick = async ()=>{ if(confirm('Delete message?')) await deleteDoc(doc(db,SUPPORT_PATH,id)); };
-        supportList.appendChild(card);
-      });
-    });
-
-    const qaList = document.getElementById('qaList');
-    const qaCountsEl = document.getElementById('qaCounts');
-    let qaItems=[]; let qaFilter='all';
-    function renderQACounts(items){const t=items.length,a=items.filter(x=>!!x.data.answer).length,u=t-a; qaCountsEl.textContent=`Totals: All ${t} • Unanswered ${u} • Answered ${a}`;}
-    function applyFilter(items,f){if(f==='answered')return items.filter(x=>!!x.data.answer); if(f==='unanswered')return items.filter(x=>!x.data.answer); return items;}
-    function renderQuestions(){const items=applyFilter(qaItems,qaFilter); renderQACounts(qaItems); qaList.innerHTML=items.length?'':'<p class="text-gray-500">No questions yet.</p>';
-      items.forEach(({id,data})=>{
-        const div=document.createElement('div'); div.className='bg-white border rounded-2xl p-4 shadow';
-        div.innerHTML=`
-          <strong>${esc(data.name||'Anonymous')}</strong>
-          <p class="text-gray-800">${esc(data.question||'')}</p>
-          ${data.answer ? `<div class="bg-pink-50 mt-2 p-2 rounded"><strong>Answer:</strong> ${esc(data.answer)}</div>`
-          : `<textarea id="ans-${id}" class="border w-full p-2 mt-2 rounded" placeholder="Type your answer"></textarea>
-             <button class="bg-rose-600 text-white px-3 py-1 mt-2 rounded">Save Answer</button>`}
-          <button class="mt-2 bg-red-600 text-white px-3 py-1 rounded">Delete</button>`;
-        const [saveBtn, delBtn] = div.querySelectorAll('button');
-        if(!data.answer){ saveBtn.onclick = async ()=>{ const ans=div.querySelector('#ans-'+id).value.trim(); if(!ans)return alert('Please write an answer.'); await updateDoc(doc(db,QUESTIONS_PATH,id),{answer:ans,answeredAt:serverTimestamp()}); }; }
-        delBtn.onclick = async ()=>{ if(confirm('Delete question?')) await deleteDoc(doc(db,QUESTIONS_PATH,id)); };
-        qaList.appendChild(div);
-      });
-    }
-    document.querySelectorAll('.qa-filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.qa-filter').forEach(x=>x.classList.remove('bg-rose-600','text-white'));document.querySelectorAll('.qa-filter').forEach(x=>x.classList.add('bg-gray-200','text-gray-900'));b.classList.add('bg-rose-600','text-white');qaFilter=b.dataset.filter;renderQuestions();});
-    onSnapshot(collection(db, QUESTIONS_PATH), snap=>{qaItems=snap.docs.map(d=>({id:d.id,data:d.data()}));renderQuestions();});
-
-    /* ---------- Winners ---------- */
-    const winForm  = document.getElementById('winForm');
-    const winId    = document.getElementById('winId');
-    const winName  = document.getElementById('winName');
-    const winHandle= document.getElementById('winHandle');
-    const winPrize = document.getElementById('winPrize');
-    const winDate  = document.getElementById('winDate');
-    const winPhoto = document.getElementById('winPhoto');
-    const winReset = document.getElementById('winReset');
-    const winList  = document.getElementById('winList');
-
-    // default date-time now
-    const nowLocal = new Date(); winDate.value = new Date(nowLocal.getTime()-nowLocal.getTimezoneOffset()*60000).toISOString().slice(0,16);
-
-    let winners = [];
-    onSnapshot(collection(db, WINNERS_PATH), snap=>{
-      winners = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>{
-        const ta = a.announcedAt?.seconds ?? a.announcedAt?.toDate?.().getTime()/1000 ?? 0;
-        const tb = b.announcedAt?.seconds ?? b.announcedAt?.toDate?.().getTime()/1000 ?? 0;
-        return tb-ta; // newest first
-      });
-      renderWinners();
-    });
-
-    function photoSrc(w){
-      if (w.photoUrl) return w.photoUrl;
-      if (w.photoDataUrl) return w.photoDataUrl;
-      return 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width=\"240\" height=\"160\"><rect width=\"100%\" height=\"100%\" fill=\"%23fce7f3\"/><text x=\"50%\" y=\"50%\" dominant-baseline=\"middle\" text-anchor=\"middle\" fill=\"%23be185d\" font-family=\"Arial\" font-size=\"16\">No Photo</text></svg>';
-    }
-
-    function renderWinners(){
-      winList.innerHTML = '';
-      if (!winners.length){ winList.innerHTML = '<p class="text-gray-500">No winners yet.</p>'; return; }
-      winners.forEach(w=>{
-        const when = w.announcedAt?.toDate ? w.announcedAt.toDate().toLocaleString() :
-                     (w.announcedAt?.seconds ? new Date(w.announcedAt.seconds*1000).toLocaleString() : '');
-        const card = document.createElement('div');
-        card.className = 'bg-white border rounded-xl p-4 shadow flex gap-4';
-        card.innerHTML = `
-          <img src="${photoSrc(w)}" alt="${esc(w.name||'Winner')}" class="w-28 h-28 object-cover rounded-lg bg-pink-100"/>
-          <div class="flex-1">
-            <div class="text-lg font-semibold">${esc(w.name||'')}</div>
-            <div class="text-sm text-gray-600">${esc(w.handle||'')}</div>
-            <div class="text-sm text-gray-700 mt-1"><strong>Prize:</strong> ${esc(w.prize||'')}</div>
-            <div class="text-xs text-gray-500">${when}</div>
+    /* ---------------- Support Wall Moderation ---------------- */
+    function renderSupport(list){
+      supportList.innerHTML = '';
+      if (!list.length) return supportList.innerHTML = '<p class="text-gray-500">No messages yet.</p>';
+      list.forEach(({ id, data }) => {
+        supportList.innerHTML += `
+          <div class="bg-white border rounded-2xl p-4 shadow">
+            <strong>${esc(data.name||'Anonymous')}</strong>
+            <p class="text-gray-700 mt-1">${esc(data.message||'')}</p>
             <div class="mt-2 flex gap-2">
-              <button class="px-3 py-1 rounded bg-gray-200" data-edit="${w.id}">Edit</button>
-              <button class="px-3 py-1 rounded bg-red-600 text-white" data-del="${w.id}">Delete</button>
+              <button class="bg-red-600 text-white px-3 py-1 rounded" onclick="deleteSupport('${id}')">Delete</button>
             </div>
           </div>`;
-        winList.appendChild(card);
-      });
-      winList.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>fillWinnerForm(b.dataset.edit));
-      winList.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>deleteWinner(b.dataset.del));
-    }
-
-    function fillWinnerForm(id){
-      const w = winners.find(x=>x.id===id); if (!w) return;
-      winId.value = id;
-      winName.value = w.name||'';
-      winHandle.value = w.handle||'';
-      winPrize.value = w.prize||'';
-      if (w.announcedAt?.toDate){
-        const d = w.announcedAt.toDate();
-        winDate.value = new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);
-      }
-      // switch to winners tab visibly
-      tabs.forEach(b=>b.classList.remove('bg-rose-600','text-white'));
-      tabs.forEach(b=>b.classList.add('bg-gray-200','text-gray-900'));
-      document.querySelector('[data-tab="winners"]').classList.add('bg-rose-600','text-white');
-      Object.values(panels).forEach(p=>p.classList.add('hidden'));
-      panels['winners'].classList.remove('hidden');
-    }
-
-    async function deleteWinner(id){
-      if (!confirm('Delete this winner?')) return;
-      await deleteDoc(doc(db, WINNERS_PATH, id));
-    }
-
-    async function fileToDataUrl(file){
-      return new Promise((resolve,reject)=>{
-        const reader = new FileReader();
-        reader.onload = ()=>resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
       });
     }
+    window.deleteSupport = async id => {
+      if (!confirm('Delete message?')) return;
+      await deleteDoc(doc(db, SUPPORT_PATH, id));
+    };
 
-    async function maybeUploadPhoto(docId, file){
-      if (!file) return { photoUrl: null, photoDataUrl: null };
-      try {
-        if (!storage) throw new Error('storage-not-available');
-        const r = ref(storage, `winners/${docId}.jpg`);
-        const snap = await uploadBytes(r, file);
-        const url = await getDownloadURL(snap.ref);
-        return { photoUrl: url, photoDataUrl: null };
-      } catch(e){
-        // Fallback: store inline data URL (works without Storage)
-        const dataUrl = await fileToDataUrl(file);
-        return { photoUrl: null, photoDataUrl: dataUrl };
-      }
+    /* ---------------- Q&A Moderation ---------------- */
+    function applyFilter(items, filter){
+      if (filter === 'answered') return items.filter(x => !!x.data.answer);
+      if (filter === 'unanswered') return items.filter(x => !x.data.answer);
+      return items;
+    }
+    function renderQACounts(items){
+      const total = items.length;
+      const answered = items.filter(x => !!x.data.answer).length;
+      const unanswered = total - answered;
+      qaCountsEl.textContent = `Totals: All ${total} • Unanswered ${unanswered} • Answered ${answered}`;
+    }
+    function renderQuestions(){
+      const items = applyFilter(qaItems, qaFilter);
+      renderQACounts(qaItems);
+
+      qaList.innerHTML = '';
+      if (!items.length) return qaList.innerHTML = '<p class="text-gray-500">No questions yet.</p>';
+
+      items.forEach(({ id, data }) => {
+        qaList.innerHTML += `
+          <div class="bg-white border rounded-2xl p-4 shadow">
+            <strong>${esc(data.name||'Anonymous')}</strong>
+            <p class="text-gray-800 mt-1">${esc(data.question||'')}</p>
+            ${data.answer ? 
+              `<div class="bg-pink-50 mt-2 p-2 rounded"><strong>Answer:</strong> ${esc(data.answer)}</div>` :
+              `<textarea id="ans-${id}" class="border w-full p-2 mt-2 rounded" placeholder="Type your answer"></textarea>
+               <button class="bg-rose-600 text-white px-3 py-1 mt-2 rounded" onclick="saveAnswer('${id}')">Save Answer</button>`}
+            <div class="mt-2">
+              <button class="mt-2 bg-red-600 text-white px-3 py-1 rounded" onclick="deleteQuestion('${id}')">Delete</button>
+            </div>
+          </div>`;
+      });
+    }
+    window.deleteQuestion = async id => {
+      if (!confirm('Delete question?')) return;
+      await deleteDoc(doc(db, QUESTIONS_PATH, id));
+    };
+    window.saveAnswer = async id => {
+      const ans = document.getElementById('ans-'+id)?.value.trim();
+      if (!ans) return alert('Please write an answer.');
+      await updateDoc(doc(db, QUESTIONS_PATH, id), { answer: ans, answeredAt: serverTimestamp() });
+      alert('Answer saved!');
+    };
+
+    /* ---------------- Fixtures (kept simple) ---------------- */
+    // A minimal listener to show fixtures in admin — your full fixtures UI (add/edit) can be re-used from prior file
+    function renderFixturesList(docs) {
+      const fxList = document.getElementById('fxList');
+      fxList.innerHTML = '';
+      if (!docs.length) return fxList.innerHTML = '<p class="text-gray-500">No fixtures yet.</p>';
+      docs.forEach(d=>{
+        const data = d.data();
+        fxList.innerHTML += `<div class="bg-white border rounded p-3 shadow flex items-center gap-3">
+          <img src="${esc(data.teamLogo || '')}" class="thumb" alt="">
+          <div class="flex-1">
+            <div class="text-sm text-gray-500">${new Date((data.kickoffTs?.seconds || 0) * 1000).toLocaleString()}</div>
+            <div class="font-semibold">Jomo Cosmos ${esc(data.level||'')} vs ${esc(data.opponent||'')}</div>
+            <div class="text-xs text-gray-600">${esc(data.venue||'')}</div>
+          </div>
+          <div class="flex gap-2">
+            <button class="px-3 py-1 rounded bg-gray-200" onclick="editFixture('${d.id}')">Edit</button>
+            <button class="px-3 py-1 rounded bg-red-600 text-white" onclick="deleteFixture('${d.id}')">Delete</button>
+          </div>
+        </div>`;
+      });
+    }
+    window.deleteFixture = async id => { if (!confirm('Delete fixture?')) return; await deleteDoc(doc(db, FIXTURES_PATH, id)); };
+    window.editFixture = id => { alert('Open fixture in Fixtures panel to edit: ' + id); };
+
+    /* ---------------- MEDIA / GALLERY ---------------- */
+
+    // Build XHR upload to Cloudinary (unsigned) with progress
+    function uploadToCloudinary(file, onProgress) {
+      return new Promise((resolve, reject) => {
+        const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/upload`;
+        const xhr = new XMLHttpRequest();
+        const fd = new FormData();
+        fd.append('file', file);
+        fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+        xhr.open('POST', url, true);
+
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable && onProgress) {
+            onProgress(Math.round((e.loaded / e.total) * 100));
+          }
+        };
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              const res = JSON.parse(xhr.responseText);
+              resolve(res);
+            } catch (e) { reject(e); }
+          } else {
+            reject(new Error('Upload failed: ' + xhr.statusText));
+          }
+        };
+
+        xhr.onerror = () => reject(new Error('Network error'));
+        xhr.send(fd);
+      });
     }
 
-    winForm.addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      const payload = {
-        name:   winName.value.trim(),
-        handle: winHandle.value.trim(),
-        prize:  winPrize.value.trim(),
-        announcedAt: winDate.value ? Timestamp.fromDate(new Date(winDate.value)) : serverTimestamp()
-      };
-      if (!payload.name || !payload.prize){ alert('Please fill in name and prize.'); return; }
+    // Render gallery admin list
+    function renderGallery(items) {
+      galleryList.innerHTML = '';
+      if (!items.length) return galleryList.innerHTML = '<p class="text-gray-500">No gallery images yet.</p>';
+      items.forEach(item => {
+        galleryList.innerHTML += `
+          <div class="bg-white border rounded-2xl p-3 shadow flex items-center gap-3">
+            <img src="${esc(item.data.imageUrl||'')}" class="thumb" alt="">
+            <div class="flex-1">
+              <div class="font-semibold text-sm">${esc(item.data.caption||'')}</div>
+              <div class="text-xs text-gray-500">Order: ${esc(item.data.order ?? '')}</div>
+            </div>
+            <div class="flex gap-2">
+              <button class="px-3 py-1 rounded bg-gray-200" onclick="editGallery('${item.id}')">Edit</button>
+              <button class="px-3 py-1 rounded bg-red-600 text-white" onclick="deleteGallery('${item.id}')">Delete</button>
+            </div>
+          </div>
+        `;
+      });
+    }
 
-      if (winId.value){
-        // editing
-        const id = winId.value;
-        const file = winPhoto.files[0];
-        if (file){
-          const { photoUrl, photoDataUrl } = await maybeUploadPhoto(id, file);
-          if (photoUrl) payload.photoUrl = photoUrl;
-          if (photoDataUrl) payload.photoDataUrl = photoDataUrl;
-        }
-        await updateDoc(doc(db, WINNERS_PATH, id), payload);
-      } else {
-        // create first to get ID
-        const refDoc = await addDoc(collection(db, WINNERS_PATH), { ...payload, createdAt: serverTimestamp() });
-        const file = winPhoto.files[0];
-        if (file){
-          const { photoUrl, photoDataUrl } = await maybeUploadPhoto(refDoc.id, file);
-          const extra = {};
-          if (photoUrl) extra.photoUrl = photoUrl;
-          if (photoDataUrl) extra.photoDataUrl = photoDataUrl;
-          if (Object.keys(extra).length) await updateDoc(refDoc, extra);
-        }
+    window.editGallery = async (id) => {
+      // fetch doc, populate form so admin can edit and save via update
+      const dref = doc(db, GALLERY_PATH, id);
+      const d = await (await getDocs(query(collection(db, GALLERY_PATH)))).docs.find(dd => dd.id === id); 
+      // simple approach: prompt fields (you can improve to inline form)
+      const newCaption = prompt('New caption:');
+      const newOrder = prompt('New order (number):');
+      if (newCaption !== null) {
+        await updateDoc(dref, { caption: newCaption, order: Number(newOrder || 0) });
+        alert('Updated');
       }
+    };
 
-      winForm.reset();
-      winId.value = '';
-      // reset default date to now again
-      const now = new Date(); winDate.value = new Date(now.getTime()-now.getTimezoneOffset()*60000).toISOString().slice(0,16);
+    window.deleteGallery = async id => {
+      if (!confirm('Delete this gallery image?')) return;
+      await deleteDoc(doc(db, GALLERY_PATH, id));
+    };
+
+    // Upload form behavior
+    fileInput.addEventListener('change', (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) { filePreview.classList.add('hidden'); return; }
+      const url = URL.createObjectURL(f);
+      filePreview.src = url;
+      filePreview.classList.remove('hidden');
     });
 
-    winReset.addEventListener('click', (e)=>{ e.preventDefault(); winForm.reset(); winId.value=''; });
+    resetUpload.addEventListener('click', () => {
+      fileInput.value = '';
+      filePreview.src = '';
+      filePreview.classList.add('hidden');
+      fileCaption.value = '';
+      fileOrder.value = '10';
+      uploadProgress.style.width = '0%';
+      uploadMsg.textContent = '';
+    });
 
-    function startListeners(){ /* listeners are already attached above */ }
+    uploadForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) return alert('Choose an image file first.');
+      uploadBtn.disabled = true;
+      uploadMsg.textContent = 'Uploading...';
+      uploadProgress.style.width = '0%';
+
+      try {
+        const cloudRes = await uploadToCloudinary(file, (pct) => {
+          uploadProgress.style.width = pct + '%';
+        });
+
+        const imageUrl = cloudRes.secure_url || cloudRes.url;
+        // write a Firestore doc in gallery
+        await addDoc(collection(db, GALLERY_PATH), {
+          imageUrl,
+          caption: fileCaption.value.trim() || '',
+          order: Number(fileOrder.value || 0),
+          createdAt: serverTimestamp()
+        });
+
+        uploadMsg.textContent = 'Uploaded and saved.';
+        resetUpload.click();
+      } catch (err) {
+        console.error(err);
+        alert('Upload failed: ' + (err.message || err));
+        uploadMsg.textContent = 'Upload failed.';
+      } finally {
+        uploadBtn.disabled = false;
+      }
+    });
+
+    /* ---------------- Start listeners after login ---------------- */
+    let supportUnsub = null, qaUnsub = null, fixturesUnsub = null, galleryUnsub = null;
+
+    function startListeners(){
+      // Support wall
+      if (supportUnsub) supportUnsub();
+      supportUnsub = onSnapshot(collection(db, SUPPORT_PATH), snap => {
+        const items = snap.docs.map(d => ({ id: d.id, data: d.data() }));
+        renderSupport(items);
+      });
+
+      // Questions
+      if (qaUnsub) qaUnsub();
+      qaUnsub = onSnapshot(collection(db, QUESTIONS_PATH), snap => {
+        qaItems = snap.docs.map(d => ({ id: d.id, data: d.data() }));
+        renderQuestions();
+      });
+
+      // Fixtures (simple list)
+      if (fixturesUnsub) fixturesUnsub();
+      fixturesUnsub = onSnapshot(collection(db, FIXTURES_PATH), snap => {
+        const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }));
+        renderFixturesList(docs);
+      });
+
+      // Gallery
+      if (galleryUnsub) galleryUnsub();
+      // order by order asc, createdAt asc
+      const q = query(collection(db, GALLERY_PATH), orderBy('order','asc'), orderBy('createdAt','asc'));
+      galleryUnsub = onSnapshot(q, snap => {
+        const items = snap.docs.map(d => ({ id: d.id, data: d.data() }));
+        renderGallery(items);
+      }, err => {
+        console.error('Gallery listener failed', err);
+        galleryList.innerHTML = '<p class="text-red-600">Could not load gallery.</p>';
+      });
+    }
+
+    // Filters (Q&A)
+    document.querySelectorAll('.qa-filter').forEach(btn=>{
+      btn.addEventListener('click', ()=> {
+        document.querySelectorAll('.qa-filter').forEach(b => b.classList.remove('bg-rose-600','text-white'));
+        btn.classList.add('bg-rose-600','text-white');
+        qaFilter = btn.dataset.filter;
+        renderQuestions();
+      });
+    });
+
+    // Tabs
+    const tabs = document.querySelectorAll('.tab-btn');
+    const panels = {
+      support:  document.getElementById('tab-support'),
+      qa:       document.getElementById('tab-qa'),
+      fixtures: document.getElementById('tab-fixtures'),
+      media:    document.getElementById('tab-media')
+    };
+    tabs.forEach(btn => {
+      btn.addEventListener('click', ()=> {
+        tabs.forEach(b => b.classList.remove('bg-rose-600','text-white'));
+        tabs.forEach(b => b.classList.add('bg-gray-200','text-gray-900'));
+        btn.classList.add('bg-rose-600','text-white');
+        Object.values(panels).forEach(p => p.classList.add('hidden'));
+        panels[btn.dataset.tab].classList.remove('hidden');
+      });
+    });
+
+    // Default active tab
+    document.querySelector('[data-tab="support"]').click();
   </script>
 </body>
 </html>

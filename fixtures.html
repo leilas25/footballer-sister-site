@@ -1,119 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Fixtures & Live Scores – The Footballer’s Sister</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fixtures & Live Scores — The Footballer's Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .logo { width:36px; height:36px; border-radius:9999px; object-fit:cover; background:#f1f5f9 }
-    .chip { font-size:.75rem; padding:.15rem .5rem; border-radius:9999px }
-    .chip-blue { background:#e0f2fe; color:#075985 }
-    .chip-green{ background:#dcfce7; color:#166534 }
-    .chip-gray { background:#e5e7eb; color:#374151 }
-    .dropdown-open { opacity:1!important; transform:scale(1)!important; }
-  </style>
 </head>
-<body class="bg-pink-50 text-black font-sans min-h-screen">
+<body class="bg-pink-50 text-black font-sans">
 
-  <!-- Smart animated dropdown header -->
   <header class="fixed top-0 w-full bg-pink-100 shadow z-50">
-    <div class="flex justify-between items-center px-6 py-4">
-      <h1 class="text-xl font-bold uppercase text-rose-600">THE FOOTBALLER’S SISTER</h1>
-
-      <div class="relative inline-block text-left">
-        <button id="navButton"
-          class="inline-flex justify-center w-full rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
-          Loading...
-          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
-          </svg>
-        </button>
-
-        <div id="dropdownMenu"
-          class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
-          <div class="py-1">
-            <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
-            <a href="bts.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
-            <a href="leila.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Meet Leila</a>
-            <a href="questions.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Q&A</a>
-            <a href="support-wall.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Support Wall</a>
-            <a href="fixtures.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Fixtures & Live Scores</a>
-            <a href="giveaways.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Giveaways</a>
-
-          </div>
-        </div>
-      </div>
+    <div class="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
+      <h1 class="text-xl font-bold text-rose-600">THE FOOTBALLER’S SISTER</h1>
+      <nav class="flex gap-4">
+        <a href="index.html" class="text-rose-600">Home</a>
+        <a href="bts.html" class="text-rose-600">Behind the Game</a>
+        <a href="fixtures.html" class="font-semibold text-rose-700">Fixtures</a>
+        <a href="giveaways.html" class="text-rose-600">Giveaways</a>
+      </nav>
     </div>
   </header>
-  <div class="pt-24"></div>
 
-  <main class="px-6 max-w-3xl mx-auto pb-24">
-    <h2 class="text-4xl font-extrabold text-center text-rose-700">Fixtures & Live Scores</h2>
-    <p class="text-center text-gray-600 mt-1">U14 &amp; U19 • Jomo Cosmos</p>
+  <main class="pt-28 pb-20">
+    <section class="max-w-3xl mx-auto text-center mb-8">
+      <h2 class="text-4xl font-bold text-rose-700">Fixtures & Live Scores</h2>
+      <p class="text-gray-600 mt-2">U14 & U19 • Jomo Cosmos</p>
+    </section>
 
-    <!-- Filters -->
-    <div class="mt-6 flex gap-3 justify-center">
-      <select id="levelFilter" class="border rounded px-3 py-2 bg-white">
-        <option value="all">All Levels</option>
-        <option value="U14">U14</option>
-        <option value="U19">U19</option>
-      </select>
-      <select id="statusFilter" class="border rounded px-3 py-2 bg-white">
-        <option value="all">All Status</option>
-        <option value="scheduled">Scheduled</option>
-        <option value="live">Live</option>
-        <option value="finished">Finished</option>
-      </select>
-    </div>
+    <section class="max-w-3xl mx-auto px-6">
+      <div class="flex gap-3 justify-center mb-6">
+        <select id="levelFilter" class="px-4 py-2 rounded border bg-white">
+          <option value="all">All Levels</option>
+          <option value="U14">U14</option>
+          <option value="U19">U19</option>
+        </select>
+        <select id="statusFilter" class="px-4 py-2 rounded border bg-white">
+          <option value="all">All Status</option>
+          <option value="scheduled">Scheduled</option>
+          <option value="live">Live</option>
+          <option value="finished">Finished</option>
+        </select>
+      </div>
 
-    <!-- List -->
-    <div id="fxList" class="mt-6 space-y-4">
-      <p class="text-center text-gray-500">Loading fixtures…</p>
-    </div>
+      <div id="fixturesList" class="space-y-4">
+        <p class="text-center text-gray-500">Loading fixtures…</p>
+      </div>
+    </section>
   </main>
 
   <footer class="bg-pink-900 text-white text-center py-6">
-    <p>&copy; <span id="year"></span> The Footballer’s Sister. All rights reserved.</p>
+    <p>&copy; <span id="year"></span> The Footballer’s Sister</p>
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- Smart header JS -->
-  <script>
-    const navButton = document.getElementById('navButton');
-    const dropdownMenu = document.getElementById('dropdownMenu');
-    const navItems = document.querySelectorAll('.nav-item');
-    const currentPage = window.location.pathname.split('/').pop();
-    const pageTitles = {
-      "index.html": "Home",
-      "bts.html": "Behind the Game",
-      "leila.html": "Meet Leila",
-      "questions.html": "Q&A",
-      "support-wall.html": "Support Wall",
-      "fixtures.html": "Fixtures & Live Scores"
-    };
-    navButton.firstChild.textContent = pageTitles[currentPage] || "Menu";
-    navItems.forEach(link => {
-      if (link.getAttribute('href') === currentPage) link.classList.add("font-semibold", "text-rose-600");
-    });
-    navButton.addEventListener('click', () => {
-      const isHidden = dropdownMenu.classList.contains('hidden');
-      if (isHidden) { dropdownMenu.classList.remove('hidden'); setTimeout(()=>dropdownMenu.classList.add('dropdown-open'),10); }
-      else { dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'),200); }
-    });
-    document.addEventListener('click', (e) => {
-      if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
-        dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'),200);
-      }
-    });
-  </script>
-
-  <!-- Firebase + Page Logic -->
+  <!-- Firestore + rendering -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // CONFIG — must match admin.html
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
@@ -122,96 +65,69 @@
       messagingSenderId: "65396604482",
       appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
-    const APP_ID = "1:65396604482:web:0f31625a714aa8352337db";
-    const FIXTURES_PATH = `artifacts/${APP_ID}/public/data/fixtures`;
-
-    // Local fallbacks (add these files to /images/)
-    const JC_U14 = "/images/jc-u14.png";
-    const JC_U19 = "/images/jc-u19.png";
-    const OPP    = "/images/opponent.png";
-
     const app = initializeApp(firebaseConfig);
-    const db  = getFirestore(app);
+    const db = getFirestore(app);
 
-    const fxList       = document.getElementById('fxList');
-    const levelFilter  = document.getElementById('levelFilter');
+    const APP_PATH = 'artifacts/1:65396604482:web:0f31625a714aa8352337db/public/data';
+    const FIXTURES_PATH = `${APP_PATH}/fixtures`;
+
+    const fixturesList = document.getElementById('fixturesList');
+    const levelFilter = document.getElementById('levelFilter');
     const statusFilter = document.getElementById('statusFilter');
 
     let fixtures = [];
 
-    const esc = s => String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-    const chip = (s) => s==='live' ? 'chip chip-green' : (s==='finished' ? 'chip chip-gray' : 'chip chip-blue');
+    function esc(s){ return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#039;"}[m])); }
 
     function render() {
-      const level  = levelFilter.value;
+      const level = levelFilter.value;
       const status = statusFilter.value;
+      const items = fixtures.filter(f => (level==='all' || (f.level||'').toUpperCase()===level.toUpperCase()))
+                            .filter(f => (status==='all' || (f.status||'').toLowerCase()===status));
 
-      const rows = fixtures
-        .filter(f => level==='all'  ? true : (f.level===level))
-        .filter(f => status==='all' ? true : (f.status===status));
-
-      fxList.innerHTML = '';
-      if (!rows.length) {
-        fxList.innerHTML = '<p class="text-center text-gray-500">No fixtures found.</p>';
+      if (!items.length) {
+        fixturesList.innerHTML = '<p class="text-center text-gray-500">No fixtures found.</p>';
         return;
       }
 
-      rows.forEach(f => {
-        const when = f.kickoffTs?.toDate ? f.kickoffTs.toDate().toLocaleString() : '';
-        const badge = f.status ? `<span class="${chip(f.status)} ml-2">${f.status.toUpperCase()}</span>` : '';
-        const comp  = f.competition ? esc(f.competition) : '';
-        const score = (f.status==='live' || f.status==='finished') ? ` <strong>${f.scoreHome ?? 0} : ${f.scoreAway ?? 0}</strong>` : '';
-
-        // Choose logos with fallbacks
-        const homeLogo = f.homeLogoUrl || (f.level==='U14' ? JC_U14 : JC_U19);
-        const awayLogo = f.awayLogoUrl || OPP;
-
-        const card = document.createElement('div');
-        card.className = 'bg-white rounded-2xl shadow border p-4';
-
-        card.innerHTML = `
-          <div class="text-sm text-gray-600">${esc(when)} • ${esc(f.venue||'')}</div>
-
-          <div class="flex items-center justify-between gap-3 mt-2">
-            <div class="flex items-center gap-2">
-              <img class="logo" src="${esc(homeLogo)}" alt="Jomo Cosmos logo"
-                   onerror="this.onerror=null;this.src='${f.level==='U14'?JC_U14:JC_U19}'"/>
-              <div class="text-gray-900">
-                Jomo Cosmos ${esc(f.level||'')} ${f.homeAway==='home' ? '(Home)' : '(Away)'}
+      fixturesList.innerHTML = '';
+      items.forEach(f => {
+        const kickoff = f.kickoffTs?.toDate ? f.kickoffTs.toDate() : (f.kickoffRaw ? new Date(f.kickoffRaw) : null);
+        const when = kickoff ? kickoff.toLocaleString() : (f.date || 'TBA');
+        const jomo = f.jomoLogoUrl || 'images/jomo-default.png';
+        const opp  = f.opponentLogoUrl || 'images/team-placeholder.png';
+        const score = (f.status==='live' || f.status==='finished') ? ` — ${f.scoreHome ?? 0} : ${f.scoreAway ?? 0}` : '';
+        fixturesList.innerHTML += `
+          <div class="bg-white rounded-xl p-4 shadow flex items-center gap-4">
+            <div class="w-16 flex-shrink-0">
+              <img src="${esc(jomo)}" alt="Jomo" class="w-16 h-16 object-contain rounded"/>
+            </div>
+            <div class="flex-1">
+              <div class="text-sm text-gray-500">${esc(when)} • ${esc(f.venue||'')}</div>
+              <div class="mt-1 font-semibold text-lg text-gray-800">
+                Jomo Cosmos ${esc(f.level||'')} ${f.homeAway === 'home' ? '(Home)' : '(Away)'} vs ${esc(f.opponent||'')}
+                <span class="ml-2 text-xs px-2 py-0.5 rounded-full ${f.status==='live' ? 'bg-green-100 text-green-700' : f.status==='finished' ? 'bg-gray-100 text-gray-700' : 'bg-blue-100 text-blue-700'}">${(f.status||'scheduled').toUpperCase()}</span>
+                <span class="ml-2 font-bold">${esc(score)}</span>
               </div>
+              <div class="text-sm text-gray-500 mt-1">${esc(f.competition||'')}</div>
             </div>
-
-            <div class="text-xs text-gray-400">vs</div>
-
-            <div class="flex items-center gap-2">
-              <div class="text-gray-900">${esc(f.opponent||'')}</div>
-              <img class="logo" src="${esc(awayLogo)}" alt="Opponent logo"
-                   onerror="this.onerror=null;this.src='${OPP}'"/>
+            <div class="w-16 text-center">
+              <img src="${esc(opp)}" alt="Opp" class="w-16 h-16 object-contain rounded"/>
             </div>
           </div>
-
-          <div class="mt-2 text-sm text-gray-700">
-            ${comp} ${badge} ${score}
-          </div>
-
-          ${f.streamUrl ? `
-            <a class="inline-block mt-2 px-3 py-1 rounded-full text-sm bg-rose-600 text-white hover:bg-rose-700"
-               target="_blank" rel="noopener" href="${esc(f.streamUrl)}">Watch link</a>` : ``}
         `;
-
-        fxList.appendChild(card);
       });
     }
 
-    // Live updates
-    onSnapshot(collection(db, FIXTURES_PATH), snap => {
-      fixtures = snap.docs.map(d=>({id:d.id, ...d.data()}))
-                .sort((a,b)=> (a.kickoffTs?.seconds ?? 0) - (b.kickoffTs?.seconds ?? 0));
+    // fetch realtime fixtures
+    const q = query(collection(db, FIXTURES_PATH), orderBy('kickoffTs', 'asc'));
+    onSnapshot(q, snap => {
+      fixtures = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       render();
     });
 
-    levelFilter.addEventListener('change', render);
-    statusFilter.addEventListener('change', render);
+    [levelFilter, statusFilter].forEach(el => el.addEventListener('change', render));
   </script>
+
 </body>
 </html>

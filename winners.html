@@ -1,70 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Winners – The Footballer’s Sister</title>
+  <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Winners — The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>.dropdown-open{opacity:1!important;transform:scale(1)!important}</style>
 </head>
 <body class="bg-pink-50 text-black font-sans">
-
-  <!-- Header with dropdown -->
   <header class="fixed top-0 w-full bg-pink-100 shadow z-50">
-    <div class="flex justify-between items-center px-6 py-4">
-      <h1 class="text-xl font-bold uppercase text-rose-600">THE FOOTBALLER’S SISTER</h1>
-      <div class="relative inline-block text-left">
-        <button id="navButton" class="inline-flex justify-center w-full rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
-          Winners
-          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd"/></svg>
-        </button>
-        <div id="dropdownMenu" class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
-          <div class="py-1">
-            <a href="index.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
-            <a href="bts.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
-            <a href="leila.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Meet Leila</a>
-            <a href="questions.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Q&A</a>
-            <a href="support-wall.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Support Wall</a>
-            <a href="fixtures.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Fixtures & Live Scores</a>
-            <a href="giveaways.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Giveaways</a>
-            <a href="winners.html" class="block px-4 py-2 text-sm font-semibold text-rose-600 hover:bg-pink-50">Winners</a>
-          </div>
-        </div>
-      </div>
+    <div class="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
+      <h1 class="text-xl font-bold text-rose-600">THE FOOTBALLER’S SISTER</h1>
+      <nav class="flex gap-4">
+        <a href="giveaways.html" class="text-rose-600">Giveaways</a>
+        <a href="winners.html" class="font-semibold text-rose-700">Winners</a>
+      </nav>
     </div>
   </header>
-  <div class="pt-24"></div>
 
-  <section class="px-6 max-w-5xl mx-auto mb-16 text-center">
-    <h2 class="text-4xl font-bold mb-3 text-rose-700">Giveaway Winners 🎉</h2>
-    <p class="text-gray-600">Congrats to everyone who took part! Winners are contacted via email/IG DM.</p>
-  </section>
+  <main class="pt-28 pb-20">
+    <section class="max-w-4xl mx-auto text-center mb-8 px-6">
+      <h2 class="text-3xl font-bold text-rose-700">Giveaway Winners 🎉</h2>
+      <p class="text-gray-600 mt-2">All official winners and their prizes (as announced).</p>
+    </section>
 
-  <main class="px-6 max-w-5xl mx-auto pb-16">
-    <div id="winGrid" class="grid sm:grid-cols-2 md:grid-cols-3 gap-5">
-      <p class="text-gray-500">Loading winners…</p>
-    </div>
+    <section class="max-w-4xl mx-auto px-6">
+      <div id="winnersGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <p class="text-gray-500 col-span-full text-center">Loading winners…</p>
+      </div>
+    </section>
   </main>
 
   <footer class="bg-pink-900 text-white text-center py-6">
-    <p>&copy; <span id="year"></span> The Footballer’s Sister. All rights reserved.</p>
+    <p>&copy; <span id="year"></span> The Footballer’s Sister</p>
   </footer>
-  <script>document.getElementById('year').textContent=new Date().getFullYear();</script>
-
-  <script>
-    const navButton=document.getElementById('navButton');
-    const dropdownMenu=document.getElementById('dropdownMenu');
-    navButton.addEventListener('click',()=>{
-      const hidden=dropdownMenu.classList.contains('hidden');
-      if(hidden){dropdownMenu.classList.remove('hidden');setTimeout(()=>dropdownMenu.classList.add('dropdown-open'),10);}
-      else{dropdownMenu.classList.remove('dropdown-open');setTimeout(()=>dropdownMenu.classList.add('hidden'),200);}
-    });
-    document.addEventListener('click',(e)=>{if(!navButton.contains(e.target)&&!dropdownMenu.contains(e.target)){dropdownMenu.classList.remove('dropdown-open');setTimeout(()=>dropdownMenu.classList.add('hidden'),200);}});
-  </script>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
@@ -74,41 +46,30 @@
       messagingSenderId: "65396604482",
       appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
-    const APP_ID_SHORT = "1:65396604482:web:0f31625a714aa8352337db";
-    const WINNERS_PATH = `artifacts/${APP_ID_SHORT}/public/data/winners`;
-
     const app = initializeApp(firebaseConfig);
-    const db  = getFirestore(app);
+    const db = getFirestore(app);
 
-    const winGrid = document.getElementById('winGrid');
-    const esc = s=>String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-    const fallback = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="240" height="160"><rect width="100%" height="100%" fill="%23fce7f3"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="%23be185d" font-family="Arial" font-size="16">No Photo</text></svg>';
+    const APP_PATH = 'artifacts/1:65396604482:web:0f31625a714aa8352337db/public/data';
+    const WINNERS_PATH = `${APP_PATH}/winners`;
 
-    onSnapshot(collection(db, WINNERS_PATH), snap=>{
-      const items = snap.docs.map(d=>({id:d.id, ...d.data()}))
-        .sort((a,b)=>{
-          const ta=a.announcedAt?.seconds ?? a.announcedAt?.toDate?.().getTime()/1000 ?? 0;
-          const tb=b.announcedAt?.seconds ?? b.announcedAt?.toDate?.().getTime()/1000 ?? 0;
-          return tb-ta;
-        });
-      if (!items.length){ winGrid.innerHTML='<p class="text-gray-500">No winners yet.</p>'; return; }
-      winGrid.innerHTML='';
-      items.forEach(w=>{
-        const when = w.announcedAt?.toDate ? w.announcedAt.toDate().toLocaleDateString()
-                   : (w.announcedAt?.seconds ? new Date(w.announcedAt.seconds*1000).toLocaleDateString() : '');
-        const src = w.photoUrl || w.photoDataUrl || fallback;
-        const card = document.createElement('div');
-        card.className='bg-white border rounded-xl shadow overflow-hidden';
-        card.innerHTML=`
-          <img src="${src}" alt="${esc(w.name||'Winner')}" class="w-full h-40 object-cover bg-pink-100"/>
-          <div class="p-4">
-            <div class="font-semibold">${esc(w.name||'')}</div>
-            <div class="text-sm text-gray-600">${esc(w.handle||'')}</div>
-            <div class="text-sm text-gray-700 mt-1"><strong>Prize:</strong> ${esc(w.prize||'')}</div>
-            <div class="text-xs text-gray-500 mt-1">${when}</div>
-          </div>`;
-        winGrid.appendChild(card);
-      });
+    const grid = document.getElementById('winnersGrid');
+
+    function esc(s){ return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#039;"}[m])); }
+
+    const q = query(collection(db, WINNERS_PATH), orderBy('announcedAt','desc'));
+    onSnapshot(q, snap => {
+      const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      if (!docs.length) { grid.innerHTML = '<p class="text-center text-gray-500 col-span-full">No winners yet.</p>'; return; }
+      grid.innerHTML = docs.map(w => `
+        <div class="bg-white p-4 rounded-xl shadow flex gap-4 items-center">
+          <img src="${esc(w.photoUrl||'images/winner-placeholder.png')}" class="w-24 h-24 object-cover rounded-full"/>
+          <div>
+            <div class="font-semibold text-lg">${esc(w.name||'Winner')}</div>
+            <div class="text-sm text-gray-600">${esc(w.prize||'Prize')}</div>
+            <div class="text-xs text-gray-500 mt-1">${w.announcedAt?.toDate ? w.announcedAt.toDate().toLocaleDateString() : ''}</div>
+          </div>
+        </div>
+      `).join('');
     });
   </script>
 </body>

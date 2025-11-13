@@ -5,7 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Behind the Game – The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>.dropdown-open{opacity:1!important;transform:scale(1)!important}</style>
+  <style>
+    .dropdown-open { opacity: 1 !important; transform: scale(1) !important; }
+    /* carousel track */
+    #photo-slides-container { display:flex; transition: transform 0.45s ease; will-change: transform; }
+    #photo-slides-container > figure { flex: 0 0 100%; margin:0; position:relative; min-height:220px; }
+    .carousel-dot { width:10px; height:10px; border-radius:9999px; background:rgba(255,255,255,0.6); border:1px solid rgba(0,0,0,0.06); }
+    .carousel-dot.active { background:white; }
+    /* fullscreen preview */
+    #previewModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:60; align-items:center; justify-content:center; padding:1.5rem; }
+    #previewModal img { max-width:100%; max-height:100%; border-radius:0.5rem; box-shadow:0 6px 30px rgba(0,0,0,0.6); }
+  </style>
 </head>
 <body class="bg-pink-50 text-black font-sans">
 
@@ -14,8 +24,11 @@
     <div class="flex justify-between items-center px-6 py-4">
       <h1 class="text-xl font-bold uppercase text-rose-600">THE FOOTBALLER’S SISTER</h1>
       <div class="relative inline-block text-left">
-        <button id="navButton" class="inline-flex justify-center w-full rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50">Loading…
-          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd"/></svg>
+        <button id="navButton" class="inline-flex justify-center w-full rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50">
+          Loading…
+          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd"/>
+          </svg>
         </button>
         <div id="dropdownMenu" class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
           <div class="py-1">
@@ -36,7 +49,7 @@
   <!-- Hero -->
   <section class="pt-8 px-6 text-center max-w-3xl mx-auto">
     <h2 class="text-4xl font-bold mb-4 text-rose-700">Behind the Game 📸⚽</h2>
-    <p class="text-lg text-gray-600 mb-10">From pre-match rituals to post-match reflections, Skills on the field and creative vlogs — Welcome to the real story. This is football, sister-style.</p>
+    <p class="text-lg text-gray-600 mb-10">From pre-match rituals to post-match reflections — vlogs, shoots and collabs. This is football, sister-style.</p>
   </section>
 
   <!-- Player profiles (unchanged) -->
@@ -111,11 +124,13 @@
 
       <!-- Photo carousel (from Firestore) -->
       <div>
-        <div id="photo-carousel" class="relative overflow-hidden rounded-lg shadow-lg mx-auto w-full md:max-w-sm">
-          <div id="photo-slides-container" class="flex transition-transform duration-500 ease-in-out"></div>
-          <button id="prevPhoto" class="hidden absolute top-1/2 left-4 -translate-y-1/2 bg-white/60 text-gray-900 p-2 rounded-full hover:bg-white shadow">‹</button>
-          <button id="nextPhoto" class="hidden absolute top-1/2 right-4 -translate-y-1/2 bg-white/60 text-gray-900 p-2 rounded-full hover:bg-white shadow">›</button>
-          <div id="photoDots" class="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2"></div>
+        <div id="photo-carousel" class="relative overflow-hidden rounded-lg shadow-lg mx-auto w-full md:max-w-sm bg-white">
+          <div id="photo-slides-container" class="touch-pan-y"></div>
+
+          <!-- controls & dots -->
+          <button id="prevPhoto" class="absolute top-1/2 left-4 -translate-y-1/2 bg-white/60 text-gray-900 p-2 rounded-full hover:bg-white shadow hidden" aria-label="Previous photo">‹</button>
+          <button id="nextPhoto" class="absolute top-1/2 right-4 -translate-y-1/2 bg-white/60 text-gray-900 p-2 rounded-full hover:bg-white shadow hidden" aria-label="Next photo">›</button>
+          <div id="photoDots" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2"></div>
         </div>
         <p id="galleryEmpty" class="hidden text-center text-gray-500 mt-3">No photos yet — check back soon!</p>
       </div>
@@ -148,7 +163,7 @@
 
   <script async src="https://www.tiktok.com/embed.js"></script>
 
-  <!-- Smart header JS -->
+  <!-- Smart header JS (unchanged) -->
   <script>
     const navButton=document.getElementById('navButton');
     const dropdownMenu=document.getElementById('dropdownMenu');
@@ -157,8 +172,8 @@
     const pageTitles={"index.html":"Home","bts.html":"Behind the Game","leila.html":"Meet Leila","questions.html":"Q&A","support-wall.html":"Support Wall","fixtures.html":"Fixtures & Live Scores","giveaways.html":"Giveaways"};
     navButton.firstChild.textContent=pageTitles[currentPage]||"Menu";
     navItems.forEach(l=>{if(l.getAttribute('href')===currentPage){l.classList.add("font-semibold","text-rose-600");}});
-    navButton.addEventListener('click',()=>{const h=dropdownMenu.classList.contains('hidden');if(h){dropdownMenu.classList.remove('hidden');setTimeout(()=>dropdownMenu.classList.add('dropdown-open'),10);}else{dropdownMenu.classList.remove('dropdown-open');setTimeout(()=>dropdownMenu.classList.add('hidden'),200);}});
-    document.addEventListener('click',(e)=>{if(!navButton.contains(e.target)&&!dropdownMenu.contains(e.target)){dropdownMenu.classList.remove('dropdown-open');setTimeout(()=>dropdownMenu.classList.add('hidden'),200);}});
+    navButton.addEventListener('click',()=>{const h=dropdownMenu.classList.contains('hidden'); if(h){dropdownMenu.classList.remove('hidden'); setTimeout(()=>dropdownMenu.classList.add('dropdown-open'),10);} else {dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'),200);} });
+    document.addEventListener('click',(e)=>{ if(!navButton.contains(e.target) && !dropdownMenu.contains(e.target)){ dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'),200); }});
   </script>
 
   <!-- Firebase: support wall + gallery loader -->
@@ -181,6 +196,7 @@
     const db  = getFirestore(app);
     const auth= getAuth(app);
 
+    // Support wall auth + submit
     let userId=null;
     const userIdEl=document.getElementById('user-id');
     const form=document.getElementById('support-form');
@@ -196,25 +212,37 @@
       e.preventDefault();
       if (!userId) return;
       const name=nameInput.value.trim(), message=messageInput.value.trim();
-      if (name && message){
-        try{
-          await addDoc(collection(db, `/artifacts/${appId}/public/data/supportMessages`), {name, message, userId, timestamp: serverTimestamp()});
-          window.location.href='support-wall.html';
-        }catch(e){ console.error(e); }
-      }
+      if (!name || !message) return;
+      try{
+        await addDoc(collection(db, `/artifacts/${appId}/public/data/supportMessages`), { name, message, userId, timestamp: serverTimestamp() });
+        window.location.href='support-wall.html';
+      } catch(err){ console.error(err); alert('Could not post message.'); }
     });
 
-    /* Load gallery slides from Firestore and render carousel */
+    /* Gallery / carousel logic */
     const photoWrap = document.getElementById('photo-slides-container');
     const prevBtn = document.getElementById('prevPhoto');
     const nextBtn = document.getElementById('nextPhoto');
-    const dotsWrap= document.getElementById('photoDots');
-    const emptyMsg= document.getElementById('galleryEmpty');
-    let idx=0, slides=[], startX=0, autoplay;
+    const dotsWrap = document.getElementById('photoDots');
+    const emptyMsg = document.getElementById('galleryEmpty');
+    const previewModal = document.createElement('div');
+    previewModal.id = 'previewModal';
+    previewModal.innerHTML = '<button id="closePreview" class="absolute top-6 right-6 text-white text-2xl">✕</button><div id="previewInner" class="max-w-full max-h-full flex items-center justify-center"></div>';
+    document.body.appendChild(previewModal);
+    document.getElementById('closePreview').addEventListener('click', ()=> previewModal.style.display='none');
+    previewModal.addEventListener('click', (e)=> { if (e.target === previewModal) previewModal.style.display='none'; });
+
+    let idx = 0;
+    let slides = [];
+    let autoplay = null;
+    const APP_PATH = `/artifacts/${appId}/public/data`;
+    const GALLERY_PATH = `${APP_PATH}/gallery`;
+
+    function esc(s){ return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#039;"}[m])); }
 
     function renderSlides(items){
-      photoWrap.innerHTML='';
-      dotsWrap.innerHTML='';
+      photoWrap.innerHTML = '';
+      dotsWrap.innerHTML = '';
       if (!items.length){
         emptyMsg.classList.remove('hidden');
         prevBtn.classList.add('hidden');
@@ -225,54 +253,75 @@
       prevBtn.classList.remove('hidden');
       nextBtn.classList.remove('hidden');
 
-      items.forEach((it,i)=>{
-        const fig=document.createElement('figure');
-        fig.className='w-full flex-shrink-0 relative aspect-[9/16] bg-white';
-        fig.innerHTML=`
-          <img src="${(it.imageUrl||'')}" alt="" class="absolute inset-0 w-full h-full object-cover" loading="lazy">
-          <figcaption class="absolute bottom-0 left-0 right-0 bg-black/40 text-white text-xs md:text-sm p-2">${(it.caption||'')}</figcaption>
+      items.forEach((it, i) => {
+        const fig = document.createElement('figure');
+        fig.innerHTML = `
+          <img src="${esc(it.imageUrl||'')}" alt="${esc(it.caption||'')}" class="absolute inset-0 w-full h-full object-cover" loading="lazy">
+          <figcaption class="absolute bottom-0 left-0 right-0 bg-black/40 text-white text-xs md:text-sm p-2">${esc(it.caption||'')}</figcaption>
         `;
+        fig.className = 'relative';
+        fig.style.minHeight = '220px';
         photoWrap.appendChild(fig);
 
-        const d=document.createElement('button');
-        d.className='w-2.5 h-2.5 rounded-full bg-white/50 hover:bg-white/80';
-        d.title=`Slide ${i+1}`;
-        d.onclick=()=>{ idx=i; show(); };
-        dotsWrap.appendChild(d);
-      });
-      slides=[...photoWrap.children];
-      show(); startAutoplay();
-    }
-    function show(){
-      photoWrap.style.transform=`translateX(-${idx*100}%)`;
-      [...dotsWrap.children].forEach((b,i)=> b.className='w-2.5 h-2.5 rounded-full ' + (i===idx?'bg-white':'bg-white/50 hover:bg-white/80'));
-    }
-    function next(){ idx=(idx+1)%slides.length; show(); }
-    function prev(){ idx=(idx-1+slides.length)%slides.length; show(); }
-    function startAutoplay(){ stopAutoplay(); autoplay=setInterval(next,5000); }
-    function stopAutoplay(){ if (autoplay) clearInterval(autoplay); }
+        const dot = document.createElement('button');
+        dot.className = 'carousel-dot';
+        dot.setAttribute('aria-label','Go to slide '+(i+1));
+        dot.addEventListener('click', ()=> { idx = i; show(); startAutoplay(); });
+        dotsWrap.appendChild(dot);
 
-    prevBtn.addEventListener('click', ()=>{ prev(); startAutoplay(); });
-    nextBtn.addEventListener('click', ()=>{ next(); startAutoplay(); });
+        // preview on click
+        fig.addEventListener('click', ()=> {
+          const inner = document.getElementById('previewInner');
+          inner.innerHTML = `<img src="${esc(it.imageUrl||'')}" alt="${esc(it.caption||'')}"><div class="mt-2 text-white text-sm">${esc(it.caption||'')}</div>`;
+          previewModal.style.display = 'flex';
+        });
+      });
+
+      slides = Array.from(photoWrap.children);
+      idx = 0;
+      show();
+      startAutoplay();
+    }
+
+    function show(){
+      if (!slides || slides.length === 0) return;
+      // clamp idx
+      idx = (idx + slides.length) % slides.length;
+      photoWrap.style.transform = `translateX(-${idx * 100}%)`;
+      Array.from(dotsWrap.children).forEach((b,i)=> b.classList.toggle('active', i===idx));
+    }
+
+    function next(){ if (slides.length) idx = (idx + 1) % slides.length; show(); }
+    function prev(){ if (slides.length) idx = (idx - 1 + slides.length) % slides.length; show(); }
+    function startAutoplay(){ stopAutoplay(); autoplay = setInterval(next, 5000); }
+    function stopAutoplay(){ if (autoplay) clearInterval(autoplay); autoplay = null; }
+
+    prevBtn.addEventListener('click', ()=> { prev(); startAutoplay(); });
+    nextBtn.addEventListener('click', ()=> { next(); startAutoplay(); });
     photoWrap.parentElement.addEventListener('mouseenter', stopAutoplay);
     photoWrap.parentElement.addEventListener('mouseleave', startAutoplay);
-    photoWrap.parentElement.addEventListener('touchstart', e=> startX=e.touches[0].clientX, {passive:true});
-    photoWrap.parentElement.addEventListener('touchend',   e=>{
-      const dx = e.changedTouches[0].clientX - startX;
+
+    // touch support for swipe
+    let touchStartX = 0;
+    photoWrap.parentElement.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, {passive:true});
+    photoWrap.parentElement.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
       if (dx < -50) next();
-      if (dx >  50) prev();
+      if (dx > 50) prev();
       startAutoplay();
     });
 
-    const q = query(
-      collection(db, `/artifacts/${appId}/public/data/gallery`),
-      orderBy('order','asc'),
-      orderBy('createdAt','asc')
-    );
-    onSnapshot(q, snap=>{
-      const items = snap.docs.map(d=>({id:d.id, ...d.data()}));
+    // realtime query
+    const q = query(collection(db, GALLERY_PATH), orderBy('order','asc'), orderBy('createdAt','asc'));
+    onSnapshot(q, snap => {
+      const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderSlides(items);
+    }, err => {
+      console.error('Gallery snapshot failed:', err);
+      emptyMsg.classList.remove('hidden');
+      emptyMsg.textContent = 'Could not load gallery.';
     });
+
   </script>
 
   <!-- Video carousel basic logic -->
@@ -282,15 +331,16 @@
       const prev=document.getElementById('prevBtn');
       const next=document.getElementById('nextBtn');
       if (!wrap) return;
-      let i=0, sx=0; const slides=wrap.children;
-      const show=()=>wrap.style.transform=`translateX(-${i*100}%)`;
-      next.addEventListener('click',()=>{i=(i+1)%slides.length;show();});
-      prev.addEventListener('click',()=>{i=(i-1+slides.length)%slides.length;show();});
-      wrap.parentElement.addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});
-      wrap.parentElement.addEventListener('touchend',e=>{
-        const dx=e.changedTouches[0].clientX-sx;
-        if(dx<-50)i=(i+1)%slides.length;
-        if(dx>50) i=(i-1+slides.length)%slides.length;
+      let i=0, sx=0;
+      const slides = wrap.children;
+      function show(){ wrap.style.transform = `translateX(-${i*100}%)`; }
+      next.addEventListener('click', ()=>{ i = (i+1) % slides.length; show(); });
+      prev.addEventListener('click', ()=>{ i = (i-1 + slides.length) % slides.length; show(); });
+      wrap.parentElement.addEventListener('touchstart', e=> sx = e.touches[0].clientX, {passive:true});
+      wrap.parentElement.addEventListener('touchend', e=>{
+        const dx = e.changedTouches[0].clientX - sx;
+        if (dx < -50) i = (i+1) % slides.length;
+        if (dx > 50) i = (i-1 + slides.length) % slides.length;
         show();
       });
     })();
