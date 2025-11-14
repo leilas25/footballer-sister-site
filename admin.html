@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -6,151 +6,117 @@
   <title>ADMIN • The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Replaced @apply rules with plain CSS so the file works directly in the browser. */
-    .btn {
-      padding-left: 1rem;
-      padding-right: 1rem;
-      padding-top: .5rem;
-      padding-bottom: .5rem;
-      border-radius: 9999px;
-      font-weight: 600;
-    }
-    .card {
-      background: white;
-      border-radius: 0.75rem;
-      padding: 1.5rem;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-    }
-    .small-muted {
-      font-size: 0.85rem;
-      color: #7a7a7a;
-    }
-
-    /* small responsive helpers used in the page */
-    .hidden { display: none !important; }
+    /* small helper CSS (no @apply so works in-browser) */
+    .card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+    .btn { padding: .6rem 1rem; border-radius: 9999px; font-weight:600; }
+    .small-muted { font-size:.9rem; color:#7a7a7a; }
+    .hidden-el { display:none !important; }
   </style>
 </head>
-<body class="bg-pink-50 text-black font-sans">
-  <header class="bg-pink-100 sticky top-0 z-50 shadow">
+<body class="bg-pink-50 font-sans text-black">
+
+  <!-- header -->
+  <header class="bg-pink-100 sticky top-0 z-40 shadow">
     <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
       <h1 class="text-xl font-bold uppercase text-rose-600">ADMIN • THE FOOTBALLER’S SISTER</h1>
-      <nav class="flex items-center gap-3">
-        <a href="index.html" class="text-rose-600 hover:underline">Home</a>
-      </nav>
+      <a href="index.html" class="text-rose-600 hover:underline">Home</a>
     </div>
   </header>
 
-  <main class="max-w-6xl mx-auto px-6 py-8">
-    <!-- top nav / sections -->
-    <div class="flex flex-wrap items-center gap-3 mb-6">
-      <button id="btnSupport" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Support Wall</button>
-      <button id="btnQA" class="rounded-full bg-rose-600 text-white px-4 py-2 shadow-sm">Q&A</button>
-      <button id="btnFixtures" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Fixtures</button>
-      <button id="btnMedia" class="rounded-full bg-rose-600 text-white px-4 py-2 shadow-sm">Media / Gallery</button>
-      <button id="btnGiveaways" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Giveaways</button>
-      <button id="btnWinners" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Winners</button>
+  <!-- MAIN -->
+  <main class="max-w-6xl mx-auto px-6 py-8" id="appRoot">
 
-      <div class="ml-auto flex items-center gap-4">
-        <div id="authSection" class="text-sm small-muted"></div>
-        <button id="signOutBtn" class="btn bg-rose-600 text-white hidden">Log out</button>
-      </div>
-    </div>
-
-    <!-- AUTH + ADMIN NOTICE -->
-    <section id="authCard" class="card mb-8">
+    <!-- LOGIN CARD: Visible by default -->
+    <section id="loginSection" class="card mb-6">
       <h2 class="text-2xl font-bold text-rose-700 mb-2">Admin sign-in</h2>
+      <p class="small-muted mb-4">You must sign in with the admin account to view and manage content. This device will not show anything until the correct admin signs in.</p>
 
-      <div id="notSignedInUI" class="space-y-3">
-        <p class="small-muted">Sign in with email & password to access admin write features.</p>
-        <form id="loginForm" class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
-          <input id="email" type="email" placeholder="Email" required class="p-3 rounded-lg border"/>
-          <input id="password" type="password" placeholder="Password" required class="p-3 rounded-lg border"/>
-          <div class="flex gap-3">
-            <button id="loginBtn" class="btn bg-rose-600 text-white">Sign in</button>
-            <button id="createBtn" type="button" class="btn bg-white border">Create account</button>
-          </div>
-        </form>
-      </div>
+      <form id="loginForm" class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+        <input id="email" type="email" placeholder="Admin email" required class="p-3 rounded-lg border" />
+        <input id="password" type="password" placeholder="Password" required class="p-3 rounded-lg border" />
+        <div class="flex gap-3">
+          <button id="signInBtn" class="btn bg-rose-600 text-white" type="submit">Sign in</button>
+          <button id="createBtn" type="button" class="btn bg-white border">Create account</button>
+        </div>
+      </form>
 
-      <div id="signedInUI" class="hidden">
-        <p class="text-sm">Signed in as <span id="userEmail" class="font-medium"></span></p>
-        <p class="text-xs small-muted">UID: <span id="userUid"></span></p>
-        <p id="adminNotice" class="mt-2 text-sm"></p>
-      </div>
+      <p id="loginMessage" class="mt-4 small-muted"></p>
     </section>
 
-    <!-- Quick forms for media / winners / giveaways / fixtures -->
-    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- ADMIN UI: hidden until admin authenticated -->
+    <section id="adminUI" class="hidden-el" aria-hidden="true">
+      <div class="flex gap-3 items-center mb-6">
+        <button id="navSupport" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Support Wall</button>
+        <button id="navQA" class="rounded-full bg-rose-600 text-white px-4 py-2 shadow-sm">Q&A</button>
+        <button id="navFixtures" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Fixtures</button>
+        <button id="navMedia" class="rounded-full bg-rose-600 text-white px-4 py-2 shadow-sm">Media / Gallery</button>
+        <button id="navGiveaways" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Giveaways</button>
+        <button id="navWinners" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Winners</button>
 
-      <!-- Media / Gallery -->
-      <div class="card">
-        <h3 class="text-xl font-bold text-rose-700 mb-3">Media / Gallery — Upload & Manage</h3>
+        <div class="ml-auto text-sm small-muted">
+          Signed in as <span id="adminEmailDisplay"></span> • UID: <span id="adminUidDisplay"></span>
+          <button id="signOutBtn" class="btn bg-rose-600 text-white ml-4">Log out</button>
+        </div>
+      </div>
 
-        <form id="mediaForm" class="grid grid-cols-1 gap-3">
-          <label class="small-muted">Choose image (will upload to Cloudinary then save metadata into Firestore)</label>
-          <input id="mediaFile" type="file" accept="image/*" />
-          <input id="mediaCaption" placeholder="Short caption (e.g., 'Pre-match shoot')" class="p-2 rounded-lg border" />
-          <input id="mediaOrder" type="number" placeholder="Order (smaller shows first)" value="1" class="p-2 rounded-lg border" />
-          <div class="flex gap-3">
+      <!-- Admin cards -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- MEDIA -->
+        <div class="card">
+          <h3 class="text-xl font-bold text-rose-700 mb-4">Media / Gallery — Upload & Manage</h3>
+          <label class="small-muted">Image (uploads to Cloudinary — then Firestore)</label>
+          <input id="mediaFile" type="file" accept="image/*" class="mt-2" />
+          <input id="mediaCaption" placeholder="Short caption" class="w-full p-2 rounded border mt-3" />
+          <input id="mediaOrder" type="number" value="1" class="w-full p-2 rounded border mt-3" />
+          <div class="flex gap-3 mt-4">
             <button id="uploadMediaBtn" class="btn bg-rose-600 text-white">Upload to Cloud & Save</button>
-            <button id="resetMediaBtn" type="button" class="btn bg-white border">Reset</button>
+            <button id="resetMediaBtn" class="btn bg-white border">Reset</button>
           </div>
-        </form>
 
-        <div id="galleryList" class="mt-6 space-y-3">
-          <h4 class="font-semibold">Gallery Items</h4>
-          <div id="galleryItemsWrapper" class="space-y-2 small-muted">Loading gallery...</div>
-        </div>
-      </div>
-
-      <!-- Winners / Giveaways / Fixtures -->
-      <div class="space-y-6">
-
-        <div class="card">
-          <h3 class="text-xl font-bold text-rose-700 mb-3">Winners — Add / Manage</h3>
-          <form id="winnerForm" class="grid gap-3">
-            <input id="winnerName" placeholder="Winner Name" class="p-2 rounded-lg border" />
-            <input id="winnerHandle" placeholder="Handle (IG/TikTok)" class="p-2 rounded-lg border" />
-            <input id="winnerPrize" placeholder="Prize" class="p-2 rounded-lg border" />
-            <input id="winnerImage" type="file" accept="image/*" />
-            <div class="flex gap-3">
-              <button id="addWinnerBtn" class="btn bg-rose-600 text-white">Add Winner</button>
-              <button id="resetWinnerBtn" type="button" class="btn bg-white border">Reset</button>
-            </div>
-          </form>
-          <div id="winnersList" class="mt-4 small-muted">Loading winners...</div>
+          <div id="galleryItems" class="mt-6 small-muted">Loading gallery...</div>
         </div>
 
+        <!-- WINNERS -->
         <div class="card">
-          <h3 class="text-xl font-bold text-rose-700 mb-3">Fixtures — Manage</h3>
-          <form id="fixtureForm" class="grid gap-3">
-            <input id="fixtureLevel" placeholder="Level (U13, U17)" class="p-2 rounded-lg border" />
-            <input id="fixtureOpponent" placeholder="Opponent / Match" class="p-2 rounded-lg border" />
-            <input id="fixtureDate" type="datetime-local" class="p-2 rounded-lg border" />
-            <div class="flex gap-3">
-              <button id="addFixtureBtn" class="btn bg-rose-600 text-white">Add / Save Fixture</button>
-              <button id="resetFixtureBtn" type="button" class="btn bg-white border">Reset</button>
-            </div>
-          </form>
-          <div id="fixturesList" class="mt-4 small-muted">Loading fixtures...</div>
+          <h3 class="text-xl font-bold text-rose-700 mb-4">Winners — Add / Manage</h3>
+          <input id="winnerName" placeholder="Winner Name" class="w-full p-2 rounded border mb-3" />
+          <input id="winnerHandle" placeholder="Handle (IG/TikTok)" class="w-full p-2 rounded border mb-3" />
+          <input id="winnerPrize" placeholder="Prize" class="w-full p-2 rounded border mb-3" />
+          <input id="winnerImage" type="file" accept="image/*" class="mb-3" />
+          <div class="flex gap-3">
+            <button id="addWinnerBtn" class="btn bg-rose-600 text-white">Add Winner</button>
+            <button id="resetWinnerBtn" class="btn bg-white border">Reset</button>
+          </div>
+
+          <div id="winnersList" class="mt-6 small-muted">Loading winners...</div>
         </div>
 
       </div>
+
+      <!-- FIXTURES card below -->
+      <div class="card mt-6">
+        <h3 class="text-xl font-bold text-rose-700 mb-4">Fixtures — Add / Manage</h3>
+        <input id="fixtureLevel" placeholder="Level (U13, U17)" class="w-full p-2 rounded border mb-3" />
+        <input id="fixtureOpponent" placeholder="Opponent / Match" class="w-full p-2 rounded border mb-3" />
+        <input id="fixtureDate" type="datetime-local" class="w-full p-2 rounded border mb-3" />
+        <div class="flex gap-3">
+          <button id="addFixtureBtn" class="btn bg-rose-600 text-white">Add / Save Fixture</button>
+          <button id="resetFixtureBtn" class="btn bg-white border">Reset</button>
+        </div>
+        <div id="fixturesList" class="mt-4 small-muted">Loading fixtures...</div>
+      </div>
     </section>
 
-    <section class="mt-8 small-muted">
-      <p>Note: admin write access is only enabled when you are signed in AND your UID matches the admin UID in the app (configured to the account that your Firestore rules expect).</p>
-    </section>
   </main>
 
   <footer class="bg-pink-900 text-white text-center py-6">
     <p>&copy; 2025 The Footballer’s Sister. All rights reserved.</p>
   </footer>
 
-  <!-- Firebase + Cloudinary config & app logic -->
+  <!-- Firebase + Cloudinary logic -->
   <script type="module">
-    // === CONFIG (replace only if you want different values) ===
-    const ADMIN_UID = 'pDokgebzpTZWzmn9dW50kaDAqRT2'; // YOUR admin UID (keeps writes permitted only for this user)
+    // ====== CONFIG ======
+    const ADMIN_UID = 'pDokgebzpTZWzmn9dW50kaDAqRT2'; // your admin UID (readonly here)
     const appId = '1:65396604482:web:0f31625a714aa8352337db';
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
@@ -161,90 +127,84 @@
       appId: appId
     };
 
-    // Cloudinary (unsigned preset)
-    const CLOUDINARY_CLOUD = 'dk1df1qmi'; // your cloud name
-    const CLOUDINARY_UPLOAD_PRESET = 'unsigned_bts_preset'; // unsigned preset name
+    // Cloudinary unsigned preset (unchanged from your earlier values)
+    const CLOUDINARY_CLOUD = 'dk1df1qmi';
+    const CLOUDINARY_UPLOAD_PRESET = 'unsigned_bts_preset';
 
-    // === Firebase imports ===
+    // ====== FIREBASE IMPORTS ======
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // --- UI elements
+    // ====== UI ELEMENTS ======
+    const loginSection = document.getElementById('loginSection');
     const loginForm = document.getElementById('loginForm');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
-    const loginBtn = document.getElementById('loginBtn');
+    const signInBtn = document.getElementById('signInBtn');
     const createBtn = document.getElementById('createBtn');
+    const loginMessage = document.getElementById('loginMessage');
+
+    const adminUI = document.getElementById('adminUI');
+    const adminEmailDisplay = document.getElementById('adminEmailDisplay');
+    const adminUidDisplay = document.getElementById('adminUidDisplay');
     const signOutBtn = document.getElementById('signOutBtn');
-    const notSignedInUI = document.getElementById('notSignedInUI');
-    const signedInUI = document.getElementById('signedInUI');
-    const userEmailEl = document.getElementById('userEmail');
-    const userUidEl = document.getElementById('userUid');
-    const adminNoticeEl = document.getElementById('adminNotice');
-    const authSection = document.getElementById('authSection');
 
-    const galleryItemsWrapper = document.getElementById('galleryItemsWrapper');
-    const galleryList = document.getElementById('galleryList');
-
-    const uploadMediaBtn = document.getElementById('uploadMediaBtn');
+    // media form elements
     const mediaFile = document.getElementById('mediaFile');
     const mediaCaption = document.getElementById('mediaCaption');
     const mediaOrder = document.getElementById('mediaOrder');
+    const uploadMediaBtn = document.getElementById('uploadMediaBtn');
+    const galleryItems = document.getElementById('galleryItems');
 
-    const winnersList = document.getElementById('winnersList');
-    const addWinnerBtn = document.getElementById('addWinnerBtn');
+    // winners
     const winnerName = document.getElementById('winnerName');
     const winnerHandle = document.getElementById('winnerHandle');
     const winnerPrize = document.getElementById('winnerPrize');
     const winnerImage = document.getElementById('winnerImage');
+    const addWinnerBtn = document.getElementById('addWinnerBtn');
+    const winnersList = document.getElementById('winnersList');
 
-    const fixturesList = document.getElementById('fixturesList');
-    const addFixtureBtn = document.getElementById('addFixtureBtn');
+    // fixtures
     const fixtureLevel = document.getElementById('fixtureLevel');
     const fixtureOpponent = document.getElementById('fixtureOpponent');
     const fixtureDate = document.getElementById('fixtureDate');
+    const addFixtureBtn = document.getElementById('addFixtureBtn');
+    const fixturesList = document.getElementById('fixturesList');
 
-    // Helper show/hide
-    function setSignedInState(user) {
-      if (user) {
-        notSignedInUI.classList.add('hidden');
-        signedInUI.classList.remove('hidden');
-        signOutBtn.classList.remove('hidden');
-        userEmailEl.textContent = user.email || '(no email)';
-        userUidEl.textContent = user.uid;
-        authSection.textContent = `UID: ${user.uid}`;
+    // Firestore paths
+    const galleryColl = `/artifacts/${appId}/public/data/gallery`;
+    const winnersColl = `/artifacts/${appId}/public/data/winners`;
+    const fixturesColl = `/artifacts/${appId}/public/data/fixtures`;
 
-        if (user.uid === ADMIN_UID) {
-          adminNoticeEl.textContent = "You are signed in as the admin account. Writes are enabled.";
-          adminNoticeEl.className = "text-sm text-green-700";
-        } else {
-          adminNoticeEl.textContent = "You are signed in but not as the admin account. Writes will be blocked by rules unless your UID matches the admin UID.";
-          adminNoticeEl.className = "text-sm text-amber-700";
-        }
-      } else {
-        notSignedInUI.classList.remove('hidden');
-        signedInUI.classList.add('hidden');
-        signOutBtn.classList.add('hidden');
-        userEmailEl.textContent = '';
-        userUidEl.textContent = '';
-        authSection.textContent = '';
-      }
+    // Helper - show login only until admin verified
+    function showLoginOnly(msg = '') {
+      loginSection.classList.remove('hidden-el');
+      adminUI.classList.add('hidden-el');
+      loginMessage.textContent = msg;
+    }
+    function showAdminUI(user) {
+      loginSection.classList.add('hidden-el');
+      adminUI.classList.remove('hidden-el');
+      adminEmailDisplay.textContent = user.email || '(no email)';
+      adminUidDisplay.textContent = user.uid;
     }
 
-    // Wire authentication
-    loginForm.addEventListener('submit', async (ev) => {
-      ev.preventDefault();
+    // Sign-in form handling (email + pass)
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
       const email = emailInput.value.trim();
       const password = passwordInput.value;
+      loginMessage.textContent = 'Signing in...';
       try {
         await signInWithEmailAndPassword(auth, email, password);
+        loginMessage.textContent = '';
       } catch (err) {
-        alert("Sign-in failed: " + err.message);
+        loginMessage.textContent = 'Sign-in failed: ' + err.message;
         console.error(err);
       }
     });
@@ -252,12 +212,12 @@
     createBtn.addEventListener('click', async () => {
       const email = emailInput.value.trim();
       const password = passwordInput.value;
-      if (!email || !password) { alert('Enter email & password to create account'); return; }
+      if (!email || !password) { loginMessage.textContent = 'Enter email & password first'; return; }
       try {
         await createUserWithEmailAndPassword(auth, email, password);
-        alert('Account created and signed in (remember the credentials).');
+        loginMessage.textContent = 'Account created and signed in.';
       } catch (err) {
-        alert('Create account failed: ' + err.message);
+        loginMessage.textContent = 'Create failed: ' + err.message;
         console.error(err);
       }
     });
@@ -266,236 +226,209 @@
       await signOut(auth);
     });
 
-    onAuthStateChanged(auth, (user) => {
-      setSignedInState(user);
-    });
-
-    // ===== Firestore collections paths
-    const galleryCollPath = `/artifacts/${appId}/public/data/gallery`;
-    const winnersCollPath = `/artifacts/${appId}/public/data/winners`;
-    const fixturesCollPath = `/artifacts/${appId}/public/data/fixtures`;
-
-    // Utility: create a document only if current user is admin UID (client-side check for UX)
-    function isAdminUser() {
-      const user = auth.currentUser;
-      return user && user.uid === ADMIN_UID;
-    }
-
-    // === Media upload to Cloudinary (unsigned) and save to Firestore ===
+    // Cloudinary uploader (unsigned preset)
     async function uploadToCloudinary(file) {
-      if (!file) throw new Error('No file provided');
       const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/upload`;
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-      const res = await fetch(url, { method: 'POST', body: formData });
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+      const res = await fetch(url, { method: 'POST', body: fd });
       if (!res.ok) throw new Error('Cloudinary upload failed: ' + res.statusText);
       return res.json();
     }
 
-    uploadMediaBtn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      if (!isAdminUser()) { alert('Only the admin account can upload media.'); return; }
-      const file = mediaFile.files[0];
-      if (!file) { alert('Please choose a file first'); return; }
-      try {
-        uploadMediaBtn.disabled = true;
-        uploadMediaBtn.textContent = 'Uploading...';
+    // Only initialize Firestore listeners & buttons when the correct admin is signed in
+    let galleryUnsub = null, winnersUnsub = null, fixturesUnsub = null;
 
-        const cloud = await uploadToCloudinary(file);
-        const doc = {
-          caption: mediaCaption.value || '',
-          imageUrl: cloud.secure_url || cloud.url || '',
-          publicId: cloud.public_id || '',
-          order: parseInt(mediaOrder.value || '1', 10),
-          createdAt: serverTimestamp()
-        };
-        await addDoc(collection(db, galleryCollPath), doc);
-        mediaCaption.value = '';
-        mediaOrder.value = '1';
-        mediaFile.value = '';
-        alert('Uploaded and saved to gallery.');
-      } catch (err) {
-        console.error(err);
-        alert('Upload failed: ' + (err.message || err));
-      } finally {
-        uploadMediaBtn.disabled = false;
-        uploadMediaBtn.textContent = 'Upload to Cloud & Save';
-      }
-    });
-
-    // === WINS ===
-    addWinnerBtn.addEventListener('click', async (ev) => {
-      ev.preventDefault();
-      if (!isAdminUser()) { alert('Only admin can add winners.'); return; }
-      const name = winnerName.value.trim();
-      if (!name) { alert('Enter winner name'); return; }
+    function attachListeners() {
+      // GALLERY listener
       try {
-        let imageUrl = '';
-        if (winnerImage.files && winnerImage.files[0]) {
-          const cloud = await uploadToCloudinary(winnerImage.files[0]);
-          imageUrl = cloud.secure_url || cloud.url || '';
-        }
-        const doc = {
-          name,
-          handle: winnerHandle.value.trim() || '',
-          prize: winnerPrize.value.trim() || '',
-          imageUrl,
-          announcedAt: serverTimestamp()
-        };
-        await addDoc(collection(db, winnersCollPath), doc);
-        winnerName.value = winnerHandle.value = winnerPrize.value = '';
-        winnerImage.value = '';
-        alert('Winner added.');
-      } catch (err) {
-        console.error(err);
-        alert('Failed to add winner: ' + err.message);
-      }
-    });
-
-    // === FIXTURES ===
-    addFixtureBtn.addEventListener('click', async (ev) => {
-      ev.preventDefault();
-      if (!isAdminUser()) { alert('Only admin can add fixtures.'); return; }
-      try {
-        const doc = {
-          level: fixtureLevel.value || '',
-          opponent: fixtureOpponent.value || '',
-          date: fixtureDate.value ? new Date(fixtureDate.value).toISOString() : '',
-          createdAt: serverTimestamp()
-        };
-        await addDoc(collection(db, fixturesCollPath), doc);
-        fixtureLevel.value = fixtureOpponent.value = fixtureDate.value = '';
-        alert('Fixture added.');
-      } catch (err) {
-        console.error(err);
-        alert('Failed to add fixture: ' + err.message);
-      }
-    });
-
-    // === Live listeners for lists (read-only allowed to all in your rules) ===
-    function listenGallery() {
-      try {
-        const q = query(collection(db, galleryCollPath), orderBy('order', 'asc'));
-        onSnapshot(q, snap => {
-          if (snap.empty) {
-            galleryItemsWrapper.innerHTML = '<div class="small-muted">No gallery items yet.</div>';
-            return;
-          }
-          galleryItemsWrapper.innerHTML = '';
-          snap.forEach(doc => {
-            const d = doc.data();
-            const html = document.createElement('div');
-            html.className = 'flex items-center gap-3 p-2 border rounded';
-            html.innerHTML = `
-              <div class="w-20 h-12 bg-gray-100 overflow-hidden rounded"><img src="${d.imageUrl||''}" class="w-full h-full object-cover" /></div>
+        const q = query(collection(db, galleryColl), orderBy('order', 'asc'));
+        galleryUnsub = onSnapshot(q, snap => {
+          if (snap.empty) { galleryItems.innerHTML = '<div class="small-muted">No items yet.</div>'; return; }
+          galleryItems.innerHTML = '';
+          snap.forEach(docSnap => {
+            const d = docSnap.data();
+            const el = document.createElement('div');
+            el.className = 'flex items-center gap-3 p-2 border rounded mb-2';
+            el.innerHTML = `<div class="w-20 h-12 overflow-hidden rounded"><img src="${d.imageUrl||''}" class="w-full h-full object-cover"></div>
               <div class="flex-1"><div class="font-semibold">${d.caption||'(no caption)'}</div><div class="small-muted">order: ${d.order||0}</div></div>
-              <div><button class="btn bg-white border small-muted" data-id="${doc.id}">Delete</button></div>
-            `;
-            galleryItemsWrapper.appendChild(html);
-
-            html.querySelector('button')?.addEventListener('click', async (e) => {
-              if (!isAdminUser()) { alert('Only admin may delete.'); return; }
+              <div><button class="btn bg-white border" data-id="${docSnap.id}">Delete</button></div>`;
+            const btn = el.querySelector('button');
+            btn.addEventListener('click', async () => {
               if (!confirm('Delete this gallery item?')) return;
               try {
-                const mod = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
-                await mod.deleteDoc(mod.doc(db, `${galleryCollPath}/${doc.id}`));
-                alert('Deleted.');
+                await deleteDoc(doc(db, `${galleryColl}/${docSnap.id}`));
+                alert('Deleted');
               } catch (err) {
-                console.error(err);
                 alert('Delete failed: ' + err.message);
               }
             });
+            galleryItems.appendChild(el);
           });
-        }, err => {
-          galleryItemsWrapper.innerHTML = `<div class="text-red-600">Could not load gallery: ${err.message}</div>`;
-          console.error('gallery listener error', err);
-        });
-      } catch (err) {
-        galleryItemsWrapper.innerHTML = `<div class="text-red-600">Could not initialize gallery listener: ${err.message}</div>`;
-      }
-    }
+        }, err => { galleryItems.innerHTML = `<div class="text-red-600">Gallery load failed: ${err.message}</div>`; });
+      } catch (err) { galleryItems.innerHTML = `<div class="text-red-600">${err.message}</div>`; }
 
-    function listenWinners() {
+      // WINNERS
       try {
-        const q = query(collection(db, winnersCollPath), orderBy('announcedAt', 'desc'));
-        onSnapshot(q, snap => {
-          if (snap.empty) { winnersList.innerHTML = '<div class="small-muted">No winners yet.</div>'; return; }
+        const q = query(collection(db, winnersColl), orderBy('announcedAt', 'desc'));
+        winnersUnsub = onSnapshot(q, snap => {
           winnersList.innerHTML = '';
-          snap.forEach(doc => {
-            const d = doc.data();
+          if (snap.empty) { winnersList.innerHTML = '<div class="small-muted">No winners yet.</div>'; return; }
+          snap.forEach(docSnap => {
+            const d = docSnap.data();
             const el = document.createElement('div');
-            el.className = 'p-3 border rounded flex items-center gap-4';
-            el.innerHTML = `
-              <div class="w-16 h-12 bg-gray-100 overflow-hidden rounded"><img src="${d.imageUrl||''}" class="w-full h-full object-cover" /></div>
-              <div class="flex-1"><div class="font-semibold">${d.name||'(no name)'}</div><div class="small-muted">${d.prize||''} ${d.handle? '• ' + d.handle : ''}</div></div>
-              <div><button class="btn bg-white border" data-id="${doc.id}">Delete</button></div>
-            `;
-            winnersList.appendChild(el);
-            el.querySelector('button')?.addEventListener('click', async () => {
-              if (!isAdminUser()) { alert('Only admin may delete.'); return; }
+            el.className = 'p-3 border rounded mb-2 flex items-center gap-3';
+            el.innerHTML = `<div class="w-16 h-12 overflow-hidden rounded"><img src="${d.imageUrl||''}" class="w-full h-full object-cover"></div>
+              <div class="flex-1"><div class="font-semibold">${d.name||'(no name)'}</div><div class="small-muted">${d.prize||''} ${d.handle? '• ' + d.handle: ''}</div></div>
+              <div><button class="btn bg-white border" data-id="${docSnap.id}">Delete</button></div>`;
+            const btn = el.querySelector('button');
+            btn.addEventListener('click', async () => {
               if (!confirm('Delete this winner?')) return;
               try {
-                const mod = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
-                await mod.deleteDoc(mod.doc(db, `${winnersCollPath}/${doc.id}`));
-                alert('Deleted.');
+                await deleteDoc(doc(db, `${winnersColl}/${docSnap.id}`));
+                alert('Deleted');
               } catch (err) {
-                console.error(err);
                 alert('Delete failed: ' + err.message);
               }
             });
+            winnersList.appendChild(el);
           });
-        }, err => {
-          winnersList.innerHTML = `<div class="text-red-600">Could not load winners: ${err.message}</div>`;
-        });
-      } catch (err) {
-        winnersList.innerHTML = `<div class="text-red-600">Could not init winners: ${err.message}</div>`;
-      }
-    }
+        }, err => { winnersList.innerHTML = `<div class="text-red-600">Winners load failed: ${err.message}</div>`; });
+      } catch (err) { winnersList.innerHTML = `<div class="text-red-600">${err.message}</div>`; }
 
-    function listenFixtures() {
+      // FIXTURES
       try {
-        const q = query(collection(db, fixturesCollPath), orderBy('createdAt', 'desc'));
-        onSnapshot(q, snap => {
-          if (snap.empty) { fixturesList.innerHTML = '<div class="small-muted">No fixtures yet.</div>'; return; }
+        const q = query(collection(db, fixturesColl), orderBy('createdAt', 'desc'));
+        fixturesUnsub = onSnapshot(q, snap => {
           fixturesList.innerHTML = '';
-          snap.forEach(doc => {
-            const d = doc.data();
+          if (snap.empty) { fixturesList.innerHTML = '<div class="small-muted">No fixtures yet.</div>'; return; }
+          snap.forEach(docSnap => {
+            const d = docSnap.data();
             const el = document.createElement('div');
-            el.className = 'p-3 border rounded flex items-center justify-between gap-4';
-            el.innerHTML = `<div><div class="font-semibold">${d.level||''} • ${d.opponent||''}</div><div class="small-muted">${d.date||''}</div></div>
-              <div><button class="btn bg-white border" data-id="${doc.id}">Delete</button></div>`;
-            fixturesList.appendChild(el);
-
-            el.querySelector('button')?.addEventListener('click', async () => {
-              if (!isAdminUser()) { alert('Only admin may delete.'); return; }
+            el.className = 'p-3 border rounded mb-2 flex items-center justify-between';
+            el.innerHTML = `<div><div class="font-semibold">${d.level||''} • ${d.opponent||''}</div><div class="small-muted">${d.date||''}</div></div><div><button class="btn bg-white border" data-id="${docSnap.id}">Delete</button></div>`;
+            const btn = el.querySelector('button');
+            btn.addEventListener('click', async () => {
               if (!confirm('Delete this fixture?')) return;
               try {
-                const mod = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
-                await mod.deleteDoc(mod.doc(db, `${fixturesCollPath}/${doc.id}`));
-                alert('Deleted.');
+                await deleteDoc(doc(db, `${fixturesColl}/${docSnap.id}`));
+                alert('Deleted');
               } catch (err) {
-                console.error(err);
                 alert('Delete failed: ' + err.message);
               }
             });
+            fixturesList.appendChild(el);
           });
-        }, err => {
-          fixturesList.innerHTML = `<div class="text-red-600">Could not load fixtures: ${err.message}</div>`;
-        });
-      } catch (err) {
-        fixturesList.innerHTML = `<div class="text-red-600">Could not init fixtures: ${err.message}</div>`;
+        }, err => { fixturesList.innerHTML = `<div class="text-red-600">Fixtures load failed: ${err.message}</div>`; });
+      } catch (err) { fixturesList.innerHTML = `<div class="text-red-600">${err.message}</div>`; }
+
+      // wire upload/add buttons (writes allowed only for admin UID — Firestore rules also must match)
+      uploadMediaBtn.addEventListener('click', async (ev) => {
+        ev.preventDefault();
+        const file = mediaFile.files[0];
+        if (!file) { alert('Choose a file'); return; }
+        try {
+          uploadMediaBtn.disabled = true;
+          uploadMediaBtn.textContent = 'Uploading...';
+          const cloud = await uploadToCloudinary(file);
+          await addDoc(collection(db, galleryColl), {
+            caption: mediaCaption.value || '',
+            imageUrl: cloud.secure_url || cloud.url || '',
+            publicId: cloud.public_id || '',
+            order: parseInt(mediaOrder.value || '1', 10),
+            createdAt: serverTimestamp()
+          });
+          mediaCaption.value = ''; mediaOrder.value = '1'; mediaFile.value = '';
+          alert('Uploaded and saved.');
+        } catch (err) {
+          alert('Upload failed: ' + err.message);
+          console.error(err);
+        } finally {
+          uploadMediaBtn.disabled = false;
+          uploadMediaBtn.textContent = 'Upload to Cloud & Save';
+        }
+      });
+
+      addWinnerBtn.addEventListener('click', async (ev) => {
+        ev.preventDefault();
+        if (!winnerName.value.trim()) { alert('Enter winner name'); return; }
+        try {
+          let url = '';
+          if (winnerImage.files && winnerImage.files[0]) {
+            const r = await uploadToCloudinary(winnerImage.files[0]);
+            url = r.secure_url || r.url || '';
+          }
+          await addDoc(collection(db, winnersColl), {
+            name: winnerName.value.trim(),
+            handle: winnerHandle.value.trim(),
+            prize: winnerPrize.value.trim(),
+            imageUrl: url,
+            announcedAt: serverTimestamp()
+          });
+          winnerName.value = winnerHandle.value = winnerPrize.value = '';
+          winnerImage.value = '';
+          alert('Winner added.');
+        } catch (err) { alert('Add winner failed: ' + err.message); console.error(err); }
+      });
+
+      addFixtureBtn.addEventListener('click', async (ev) => {
+        ev.preventDefault();
+        try {
+          await addDoc(collection(db, fixturesColl), {
+            level: fixtureLevel.value || '',
+            opponent: fixtureOpponent.value || '',
+            date: fixtureDate.value ? new Date(fixtureDate.value).toISOString() : '',
+            createdAt: serverTimestamp()
+          });
+          fixtureLevel.value = fixtureOpponent.value = fixtureDate.value = '';
+          alert('Fixture added.');
+        } catch (err) { alert('Add fixture failed: ' + err.message); console.error(err); }
+      });
+    } // end attachListeners
+
+    // onAuthStateChanged - require admin UID to allow viewing
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        // not signed in -> show login only
+        showLoginOnly('');
+        // detach any existing listeners if present
+        if (galleryUnsub) { galleryUnsub(); galleryUnsub = null; }
+        if (winnersUnsub) { winnersUnsub(); winnersUnsub = null; }
+        if (fixturesUnsub) { fixturesUnsub(); fixturesUnsub = null; }
+        return;
       }
+
+      // user signed in -> check UID
+      if (user.uid === ADMIN_UID) {
+        // correct admin -> reveal admin UI and attach listeners
+        showAdminUI(user);
+        try {
+          attachListeners();
+        } catch (err) {
+          console.error('Attach listeners error', err);
+        }
+      } else {
+        // signed in but not admin -> do NOT reveal admin UI
+        showLoginOnly('Signed in as non-admin. You must sign in with the admin account to view content.');
+        // optional: keep the sign-in session but do not grant access
+      }
+    });
+
+    // Cloudinary upload helper
+    async function uploadToCloudinary(file) {
+      const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/upload`;
+      const fd = new FormData();
+      fd.append('file', file);
+      fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+      const res = await fetch(url, { method: 'POST', body: fd });
+      if (!res.ok) throw new Error('Cloudinary upload failed: ' + res.statusText);
+      return res.json();
     }
 
-    // start listeners (reads should be allowed by your Firestore rules)
-    listenGallery();
-    listenWinners();
-    listenFixtures();
+    // On load: show login-only by default
+    showLoginOnly('');
 
-    // If Firestore rules deny reads or writes, you'll see permission errors in the console.
-    // Make sure your Firestore rules permit reads for the public collections and writes for
-    // the admin UID (the one stored in ADMIN_UID).
   </script>
 </body>
 </html>
