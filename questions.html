@@ -1,106 +1,31 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Q&A – The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .tweet-card { background:#fff; border:1px solid #e0e0e0; border-radius:16px; padding:1rem; margin-bottom:1rem; box-shadow:0 1px 3px rgba(0,0,0,.1); display:flex; align-items:flex-start; gap:1rem; }
-    .tweet-avatar { width:48px; height:48px; border-radius:9999px; background-color:#fce7f3; flex-shrink:0; }
-    .tweet-header { display:flex; align-items:center; gap:.5rem; }
-    .tweet-name { font-weight:bold; color:#1a202c; }
-    .tweet-handle { font-size:.875rem; color:#a0aec0; }
-    .tweet-timestamp { font-size:.75rem; color:#718096; }
-    .dropdown-open { opacity:1!important; transform:scale(1)!important; }
-  </style>
 </head>
-<body class="bg-pink-50 text-black font-sans min-h-screen flex flex-col">
-
-  <!-- Smart animated dropdown header -->
-  <header class="fixed top-0 w-full bg-pink-100 shadow z-50">
-    <div class="flex justify-between items-center px-6 py-4">
-      <h1 class="text-xl font-bold uppercase text-rose-600">THE FOOTBALLER’S SISTER</h1>
-
-      <div class="relative inline-block text-left">
-        <button id="navButton"
-          class="inline-flex justify-center w-full rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
-          Loading...
-          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
-          </svg>
-        </button>
-
-        <div id="dropdownMenu"
-          class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
-          <div class="py-1">
-            <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
-            <a href="bts.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
-            <a href="leila.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Meet Leila</a>
-            <a href="questions.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Q&A</a>
-            <a href="support-wall.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Support Wall</a>
-            <a href="fixtures.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Fixtures & Live Scores</a>
-            <a href="giveaways.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Giveaways</a>
-
-          </div>
-        </div>
-      </div>
+<body class="bg-pink-50">
+  <header class="bg-pink-100 fixed top-0 left-0 right-0 z-40">
+    <div class="max-w-6xl mx-auto px-6 py-4">
+      <h1 class="text-xl font-bold text-rose-600">THE FOOTBALLER’S SISTER</h1>
     </div>
   </header>
-  <div class="pt-24"></div>
 
-  <!-- Main Content -->
-  <main class="flex-grow px-6 pb-20 text-center max-w-2xl mx-auto">
-    <h2 class="text-4xl font-bold mb-4 text-rose-700">Ask Leila Anything 💬</h2>
-    <p id="user-id" class="text-xs text-gray-500 mb-4"></p>
+  <main class="pt-28 max-w-4xl mx-auto px-6">
+    <h2 class="text-3xl font-bold text-rose-700 mb-4">Q&A</h2>
+    <p class="text-gray-600 mb-6">Send a question and it will appear on the Q&A wall.</p>
 
-    <div id="qa-container" class="mt-6 space-y-4 text-left">
-      <p id="loading-indicator" class="text-gray-500 text-center">Loading questions…</p>
-    </div>
+    <div id="questionsList" class="space-y-4"></div>
   </main>
-  
-  <footer class="bg-pink-900 text-white text-center py-6">
-    <p>&copy; <span id="year"></span> The Footballer’s Sister. All rights reserved.</p>
-  </footer>
-  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- Smart header JS -->
-  <script>
-    const navButton = document.getElementById('navButton');
-    const dropdownMenu = document.getElementById('dropdownMenu');
-    const navItems = document.querySelectorAll('.nav-item');
-    const currentPage = window.location.pathname.split('/').pop();
-    const pageTitles = {
-      "index.html": "Home",
-      "bts.html": "Behind the Game",
-      "leila.html": "Meet Leila",
-      "questions.html": "Q&A",
-      "support-wall.html": "Support Wall",
-      "fixtures.html": "Fixtures & Live Scores"
-    };
-    navButton.firstChild.textContent = pageTitles[currentPage] || "Menu";
-    navItems.forEach(link => {
-      if (link.getAttribute('href') === currentPage) link.classList.add("font-semibold", "text-rose-600");
-    });
-    navButton.addEventListener('click', () => {
-      const isHidden = dropdownMenu.classList.contains('hidden');
-      if (isHidden) { dropdownMenu.classList.remove('hidden'); setTimeout(()=>dropdownMenu.classList.add('dropdown-open'),10); }
-      else { dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'),200); }
-    });
-    document.addEventListener('click', (e) => {
-      if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
-        dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'),200);
-      }
-    });
-  </script>
+  <footer class="mt-12 bg-pink-900 text-white text-center py-6">© 2025 The Footballer’s Sister</footer>
 
-  <!-- Firebase: public Q&A feed -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    const appId = '1:65396604482:web:0f31625a714aa8352337db';
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
@@ -109,79 +34,22 @@
       messagingSenderId: "65396604482",
       appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
-
+    const ARTIFACT_ID = "1:65396604482:web:0f31625a714aa8352337db";
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const auth = getAuth(app);
 
-    let userId = null;
-    const userIdEl = document.getElementById('user-id');
-    const qaContainer = document.getElementById('qa-container');
-    const loadingIndicator = document.getElementById('loading-indicator');
-
-    function escapeHtml(text) {
-      if (!text) return '';
-      return text.replace(/[&<>"']/g, (m) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-    }
-
-    // Listen for auth and load questions
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) await signInAnonymously(auth);
-      userId = auth.currentUser?.uid || null;
-      userIdEl.textContent = userId ? `Your user ID is ${userId}` : "";
-
-      onSnapshot(
-        collection(db, `/artifacts/${appId}/public/data/questions`),
-        (snapshot) => {
-          qaContainer.innerHTML = '';
-          loadingIndicator.style.display = 'none';
-          const questions = [];
-          snapshot.forEach(docSnap => {
-            questions.push({ id: docSnap.id, ...docSnap.data() });
-          });
-          // Sort newest first
-          questions.sort((a, b) => {
-            const tA = a.timestamp?.seconds ?? 0;
-            const tB = b.timestamp?.seconds ?? 0;
-            return tB - tA;
-          });
-          if (questions.length === 0) {
-            qaContainer.innerHTML = '<p class="text-gray-600 text-center">No questions yet. Ask Leila anything!</p>';
-          }
-          questions.forEach(q => {
-            const card = document.createElement('div');
-            card.className = 'tweet-card';
-            card.innerHTML = `
-              <svg class="tweet-avatar" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#be185d">
-                <circle cx="12" cy="12" r="10" fill="#fce7f3"/>
-                <text x="12" y="17" text-anchor="middle" font-size="13" fill="#be185d" font-family="Arial" font-weight="bold">Q</text>
-              </svg>
-              <div class="flex-grow">
-                <div class="tweet-header">
-                  <p class="tweet-name">${escapeHtml(q.name || 'Anonymous')}</p>
-                  <p class="tweet-handle">@user_${(q.userId || '').substring(0, 8)}</p>
-                  <p class="tweet-timestamp">· ${
-                    q.timestamp?.seconds
-                      ? new Date(q.timestamp.seconds * 1000).toLocaleDateString()
-                      : 'Just now'
-                  }</p>
-                </div>
-                <p class="tweet-content break-words mb-2">${escapeHtml(q.question)}</p>
-                ${q.answer ? `
-                  <div class="mt-2 bg-rose-50 rounded-lg p-3 text-left">
-                    <strong class="text-rose-700">Leila’s Answer:</strong><br>
-                    <span>${escapeHtml(q.answer)}</span>
-                    <div class="text-xs text-gray-500 mt-1">
-                      ${q.answeredAt?.seconds ? "Answered: " + new Date(q.answeredAt.seconds * 1000).toLocaleDateString() : ""}
-                    </div>
-                  </div>` : ``}
-              </div>
-            `;
-            qaContainer.appendChild(card);
-          });
-        }
-      );
-    });
+    const list = document.getElementById('questionsList');
+    const q = query(collection(db, `/artifacts/${ARTIFACT_ID}/public/data/questions`), orderBy('createdAt','desc'));
+    onSnapshot(q, snap => {
+      list.innerHTML = '';
+      snap.docs.forEach(docSnap => {
+        const d = docSnap.data();
+        const el = document.createElement('div');
+        el.className = 'bg-white p-4 rounded shadow';
+        el.innerHTML = `<div class="font-semibold">${d.title || 'Q'}</div><div class="text-sm text-gray-700 mt-1">${d.body || ''}</div>`;
+        list.appendChild(el);
+      });
+    }, err => { console.error(err); list.innerHTML = '<div class="text-red-600">Could not load questions.</div>'; });
   </script>
 </body>
 </html>
