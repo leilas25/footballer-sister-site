@@ -6,12 +6,12 @@
   <title>ADMIN • The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* small css helpers */
     .card { background:#fff; border-radius:12px; padding:20px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
     .btn { padding:.6rem 1rem; border-radius:9999px; font-weight:600; }
     .small-muted { font-size:.95rem; color:#7a7a7a; }
     .hidden-el { display:none !important; }
     body { -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+    input[type="file"] { display:block; }
   </style>
 </head>
 <body class="bg-pink-50 font-sans text-black">
@@ -26,7 +26,7 @@
 
   <!-- Main -->
   <main class="max-w-6xl mx-auto px-6 py-8">
-    <!-- LOGIN ONLY (visible by default) -->
+    <!-- LOGIN -->
     <section id="loginSection" class="card mx-auto max-w-md">
       <h2 class="text-2xl font-bold text-rose-700 mb-3">Admin sign-in</h2>
       <p class="small-muted mb-4">Enter the admin email & password. No admin content will be shown until the correct admin signs in.</p>
@@ -43,7 +43,7 @@
       <p id="loginMessage" class="mt-3 small-muted"></p>
     </section>
 
-    <!-- ADMIN UI: completely hidden until admin verified (do not remove the hidden class) -->
+    <!-- ADMIN UI -->
     <section id="adminUI" class="hidden-el" aria-hidden="true">
       <!-- top nav -->
       <div class="flex gap-3 items-center mb-6">
@@ -51,7 +51,6 @@
         <button id="navQA" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Q&A</button>
         <button id="navFixtures" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Fixtures</button>
         <button id="navMedia" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Media / Gallery</button>
-        <button id="navGiveaways" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Giveaways</button>
         <button id="navWinners" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Winners</button>
 
         <div class="ml-auto text-sm small-muted">
@@ -60,35 +59,106 @@
         </div>
       </div>
 
-      <!-- Example admin area (this will appear only after correct admin sign-in) -->
-      <div id="adminContent" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="card">
+      <!-- Admin content area (panes toggle) -->
+      <div id="panes" class="space-y-6">
+
+        <!-- Gallery pane -->
+        <div id="paneGallery" class="card hidden-el">
           <h3 class="text-xl font-bold mb-3 text-rose-700">Media / Gallery (admin)</h3>
-          <p class="small-muted">Manage gallery items here.</p>
-          <div id="galleryItems" class="mt-4 small-muted">(gallery will appear here)</div>
+          <p class="small-muted mb-3">Upload images to the gallery. Images are stored in Storage and the URL is saved to Firestore.</p>
+
+          <form id="galleryForm" class="grid gap-3 mb-4">
+            <input id="galleryCaption" placeholder="Caption (optional)" class="p-2 border rounded" />
+            <input id="galleryFile" type="file" accept="image/*" />
+            <div class="flex gap-3">
+              <button class="btn bg-rose-600 text-white" id="uploadGalleryBtn" type="button">Upload image</button>
+              <button class="btn bg-white border" type="button" id="refreshGalleryBtn">Refresh list</button>
+            </div>
+          </form>
+
+          <div id="galleryItems" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
         </div>
 
-        <div class="card">
+        <!-- Winners pane -->
+        <div id="paneWinners" class="card hidden-el">
           <h3 class="text-xl font-bold mb-3 text-rose-700">Winners (admin)</h3>
-          <p class="small-muted">Manage winners here.</p>
-          <div id="winnersList" class="mt-4 small-muted">(winners will appear here)</div>
+          <p class="small-muted mb-3">Add or remove giveaway winners.</p>
+
+          <form id="winnerForm" class="grid gap-2 mb-4">
+            <input id="winnerName" placeholder="Winner name" class="p-2 border rounded" />
+            <input id="winnerHandle" placeholder="@instagram" class="p-2 border rounded" />
+            <input id="winnerPrize" placeholder="Prize (optional)" class="p-2 border rounded" />
+            <input id="winnerFile" type="file" accept="image/*" />
+            <div class="flex gap-3">
+              <button id="addWinnerBtn" class="btn bg-rose-600 text-white" type="button">Add Winner</button>
+              <button id="refreshWinnersBtn" class="btn bg-white border" type="button">Refresh list</button>
+            </div>
+          </form>
+
+          <div id="winnersList" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
         </div>
+
+        <!-- Fixtures pane -->
+        <div id="paneFixtures" class="card hidden-el">
+          <h3 class="text-xl font-bold mb-3 text-rose-700">Fixtures (admin)</h3>
+          <p class="small-muted mb-3">Add/edit/delete fixtures. For logos, upload an image file for each team.</p>
+
+          <form id="fixtureForm" class="grid gap-2 mb-4">
+            <input id="fixtureHome" placeholder="Home team" class="p-2 border rounded" />
+            <input id="fixtureAway" placeholder="Away team" class="p-2 border rounded" />
+            <input id="fixtureStadium" placeholder="Stadium" class="p-2 border rounded" />
+            <input id="fixtureDatetime" type="datetime-local" class="p-2 border rounded" />
+            <input id="fixtureLevel" placeholder="Level (U14, U19, etc.)" class="p-2 border rounded" />
+            <input id="fixtureStatus" placeholder="Status (Scheduled/Finished)" class="p-2 border rounded" />
+            <div>
+              <label class="block text-sm small-muted">Home logo</label>
+              <input id="fixtureHomeLogo" type="file" accept="image/*" />
+            </div>
+            <div>
+              <label class="block text-sm small-muted">Away logo</label>
+              <input id="fixtureAwayLogo" type="file" accept="image/*" />
+            </div>
+            <div class="flex gap-3">
+              <button id="addFixtureBtn" class="btn bg-rose-600 text-white" type="button">Add fixture</button>
+              <button id="refreshFixturesBtn" class="btn bg-white border" type="button">Refresh list</button>
+            </div>
+          </form>
+
+          <div id="fixturesList" class="space-y-3"></div>
+        </div>
+
+        <!-- Support Wall pane -->
+        <div id="paneSupport" class="card hidden-el">
+          <h3 class="text-xl font-bold mb-3 text-rose-700">Support Wall (admin)</h3>
+          <p class="small-muted mb-3">Delete inappropriate or old messages.</p>
+          <div id="supportList" class="space-y-3"></div>
+        </div>
+
+        <!-- Q&A pane -->
+        <div id="paneQA" class="card hidden-el">
+          <h3 class="text-xl font-bold mb-3 text-rose-700">Q&A (admin)</h3>
+          <p class="small-muted mb-3">Manage posted questions.</p>
+          <div id="qaList" class="space-y-3"></div>
+        </div>
+
       </div>
     </section>
-
   </main>
 
   <footer class="bg-pink-900 text-white text-center py-6">
     <p>&copy; 2025 The Footballer’s Sister. All rights reserved.</p>
   </footer>
 
-  <!-- Firebase script (module) -->
+  <!-- Firebase + Admin JS (module) -->
   <script type="module">
-    // ---------- CONFIG ----------
-    // Admin UID must match exactly this value to reveal admin UI
-    const ADMIN_UID = "pDokgebzpTZWzmn9dW50kaDAqRT2";
+    /**************************************************************************
+     * Admin JS - embedded single-file script
+     * - Only reveals admin UI if signed-in UID matches ADMIN_UID (existing)
+     * - Provides gallery/winners/fixtures/support/qa CRUD
+     **************************************************************************/
 
-    // Your Firebase config (unchanged)
+    // ---------- CONFIG ----------
+    const ADMIN_UID = "pDokgebzpTZWzmn9dW50kaDAqRT2"; // keep same as your current check
     const appId = '1:65396604482:web:0f31625a714aa8352337db';
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
@@ -98,18 +168,28 @@
       messagingSenderId: "65396604482",
       appId: appId
     };
+    const ROOT_PATH = `/artifacts/${appId}/public/data`;
 
     // ---------- IMPORTS ----------
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import {
+      getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import {
+      getFirestore, collection, addDoc, doc, deleteDoc,
+      onSnapshot, query, orderBy, updateDoc, serverTimestamp, getDocs
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import {
+      getStorage, ref as sRef, uploadBytes, getDownloadURL, deleteObject
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
-    // ---------- INITIALIZE ----------
+    // ---------- INIT ----------
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app); // keep available but do not attach any listeners until admin validated
+    const db = getFirestore(app);
+    const storage = getStorage(app);
 
-    // ---------- ELEMENTS ----------
+    // ---------- DOM ----------
     const loginSection = document.getElementById('loginSection');
     const loginForm = document.getElementById('loginForm');
     const emailInput = document.getElementById('email');
@@ -120,95 +200,405 @@
     const adminEmailDisplay = document.getElementById('adminEmailDisplay');
     const signOutBtn = document.getElementById('signOutBtn');
 
-    // These containers will be used after admin validation
+    // Nav buttons
+    const navSupport = document.getElementById('navSupport');
+    const navQA = document.getElementById('navQA');
+    const navFixtures = document.getElementById('navFixtures');
+    const navMedia = document.getElementById('navMedia');
+    const navWinners = document.getElementById('navWinners');
+
+    // Panes
+    const paneGallery = document.getElementById('paneGallery');
+    const paneWinners = document.getElementById('paneWinners');
+    const paneFixtures = document.getElementById('paneFixtures');
+    const paneSupport = document.getElementById('paneSupport');
+    const paneQA = document.getElementById('paneQA');
+
+    function hideAllPanes() {
+      [paneGallery, paneWinners, paneFixtures, paneSupport, paneQA].forEach(p => p.classList.add('hidden-el'));
+    }
+
+    // Gallery DOM
+    const galleryCaption = document.getElementById('galleryCaption');
+    const galleryFile = document.getElementById('galleryFile');
+    const uploadGalleryBtn = document.getElementById('uploadGalleryBtn');
+    const refreshGalleryBtn = document.getElementById('refreshGalleryBtn');
     const galleryItems = document.getElementById('galleryItems');
+
+    // Winners DOM
+    const winnerName = document.getElementById('winnerName');
+    const winnerHandle = document.getElementById('winnerHandle');
+    const winnerPrize = document.getElementById('winnerPrize');
+    const winnerFile = document.getElementById('winnerFile');
+    const addWinnerBtn = document.getElementById('addWinnerBtn');
+    const refreshWinnersBtn = document.getElementById('refreshWinnersBtn');
     const winnersList = document.getElementById('winnersList');
 
-    // ---------- UTILS ----------
-    function hideAllAdminUI() {
-      adminUI.classList.add('hidden-el');
-      adminUI.setAttribute('aria-hidden', 'true');
-    }
-    function revealAdminUI(user) {
-      adminEmailDisplay.textContent = user.email || '(no email)';
-      adminUI.classList.remove('hidden-el');
-      adminUI.removeAttribute('aria-hidden');
+    // Fixtures DOM
+    const fixtureHome = document.getElementById('fixtureHome');
+    const fixtureAway = document.getElementById('fixtureAway');
+    const fixtureStadium = document.getElementById('fixtureStadium');
+    const fixtureDatetime = document.getElementById('fixtureDatetime');
+    const fixtureLevel = document.getElementById('fixtureLevel');
+    const fixtureStatus = document.getElementById('fixtureStatus');
+    const fixtureHomeLogo = document.getElementById('fixtureHomeLogo');
+    const fixtureAwayLogo = document.getElementById('fixtureAwayLogo');
+    const addFixtureBtn = document.getElementById('addFixtureBtn');
+    const refreshFixturesBtn = document.getElementById('refreshFixturesBtn');
+    const fixturesList = document.getElementById('fixturesList');
+
+    // Support / QA lists
+    const supportList = document.getElementById('supportList');
+    const qaList = document.getElementById('qaList');
+
+    // ---------- HELPERS ----------
+    function showMessage(msg, isError=false) {
+      loginMessage.textContent = msg;
+      loginMessage.style.color = isError ? 'crimson' : '';
+      setTimeout(()=>{ if (loginMessage.textContent === msg) loginMessage.textContent=''; }, 4000);
     }
 
-    // Start hidden (defensive)
-    hideAllAdminUI();
+    // path helpers
+    const col = (name) => collection(db, `${ROOT_PATH}/${name}`);
 
-    // ---------- SIGN IN HANDLER ----------
+    // ---------- AUTH ----------
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       loginMessage.textContent = 'Signing in...';
       try {
-        const email = emailInput.value.trim();
-        const password = passwordInput.value;
-        if (!email || !password) { loginMessage.textContent = 'Enter both email and password.'; return; }
-
-        // attempt sign in
-        await signInWithEmailAndPassword(auth, email, password);
-        // Do NOT reveal anything here — onAuthStateChanged will handle the result and verify UID.
+        await signInWithEmailAndPassword(auth, emailInput.value.trim(), passwordInput.value);
+        // auth state change will take over
       } catch (err) {
         console.error('Sign-in error', err);
-        loginMessage.textContent = 'Sign-in failed: ' + (err.message || 'Unknown error');
+        showMessage('Sign-in failed: ' + (err.message || ''), true);
       }
     });
 
-    // ---------- AUTH STATE WATCHER ----------
-    // This will immediately enforce that only the exact ADMIN_UID reveals the UI.
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        // not signed in: keep login shown and hide admin UI
-        loginMessage.textContent = '';
-        hideAllAdminUI();
+        // show login
+        loginSection.classList.remove('hidden-el');
+        hideAllPanes();
+        adminUI.classList.add('hidden-el');
+        adminUI.setAttribute('aria-hidden','true');
         return;
       }
 
-      // user is signed in -> check UID
-      if (user.uid === ADMIN_UID) {
-        // correct admin: reveal admin UI now (and you can safely attach listeners here)
-        loginMessage.textContent = '';
-        loginSection.classList.add('hidden-el'); // hide login card once admin validated
-        revealAdminUI(user);
-
-        // IMPORTANT: attach your Firestore listeners / admin logic here.
-        // For safety this file does NOT automatically attach any write listeners.
-        // Example placeholders (do not attach anything if you haven't set Firestore rules):
-        galleryItems.textContent = '(admin: gallery will load here)';
-        winnersList.textContent = '(admin: winners will load here)';
-
-        // If you want, I can add the listeners and upload logic now — tell me and I will paste them.
-      } else {
-        // signed in as non-admin -> immediately sign them out and show a message (do not reveal UI)
-        try {
-          await signOut(auth);
-        } catch (err) {
-          console.error('Sign-out after non-admin sign-in failed', err);
-        }
-        hideAllAdminUI();
-        loginMessage.textContent = 'Signed-in account is not the admin. You have been signed out.';
+      // check UID
+      if (user.uid !== ADMIN_UID) {
+        try { await signOut(auth); } catch(e){ console.error(e); }
+        showMessage('Signed-in account is not the admin. You have been signed out.', true);
+        return;
       }
+
+      // admin validated
+      loginSection.classList.add('hidden-el');
+      adminEmailDisplay.textContent = user.email || user.uid;
+      adminUI.classList.remove('hidden-el');
+      adminUI.removeAttribute('aria-hidden');
+
+      // show gallery by default
+      showGalleryPane();
+
+      // attach live listeners if desired (we will also load on demand)
+      attachLiveListeners(); 
     });
 
-    // ---------- SIGN OUT BUTTON ----------
     signOutBtn.addEventListener('click', async () => {
       try {
         await signOut(auth);
-        // always return to login view
-        loginMessage.textContent = 'Signed out.';
-        hideAllAdminUI();
-        loginSection.classList.remove('hidden-el');
+        showMessage('Signed out.');
       } catch (err) {
         console.error('Sign-out error', err);
-        loginMessage.textContent = 'Sign-out failed: ' + (err.message || '');
+        showMessage('Sign-out failed', true);
       }
     });
 
-    // Safety: ensure page starts with login visible and admin hidden
-    hideAllAdminUI();
-    document.getElementById('loginSection').classList.remove('hidden-el');
+    // ---------- NAV ----------
+    navMedia.addEventListener('click', () => showGalleryPane());
+    navWinners.addEventListener('click', () => showWinnersPane());
+    navFixtures.addEventListener('click', () => showFixturesPane());
+    navSupport.addEventListener('click', () => showSupportPane());
+    navQA.addEventListener('click', () => showQAPane());
+
+    function showGalleryPane() { hideAllPanes(); paneGallery.classList.remove('hidden-el'); loadGallery(); }
+    function showWinnersPane() { hideAllPanes(); paneWinners.classList.remove('hidden-el'); loadWinners(); }
+    function showFixturesPane() { hideAllPanes(); paneFixtures.classList.remove('hidden-el'); loadFixtures(); }
+    function showSupportPane() { hideAllPanes(); paneSupport.classList.remove('hidden-el'); loadSupport(); }
+    function showQAPane() { hideAllPanes(); paneQA.classList.remove('hidden-el'); loadQA(); }
+
+    // ---------- GALLERY ----------
+    uploadGalleryBtn.addEventListener('click', uploadGalleryImage);
+    refreshGalleryBtn.addEventListener('click', loadGallery);
+
+    async function uploadGalleryImage() {
+      const file = galleryFile.files[0];
+      if (!file) return showMessage('Select an image first.', true);
+      try {
+        uploadGalleryBtn.disabled = true;
+        showMessage('Uploading image...');
+        const storagePath = `gallery/${Date.now()}_${file.name}`;
+        const r = sRef(storage, storagePath);
+        await uploadBytes(r, file);
+        const url = await getDownloadURL(r);
+        await addDoc(col('gallery'), { imageUrl: url, caption: galleryCaption.value || '', createdAt: serverTimestamp() });
+        galleryCaption.value = ''; galleryFile.value = '';
+        showMessage('Uploaded to gallery.');
+        loadGallery();
+      } catch (err) {
+        console.error('gallery upload', err);
+        showMessage('Upload failed', true);
+      } finally { uploadGalleryBtn.disabled = false; }
+    }
+
+    // list & delete
+    let galleryUnsub = null;
+    function attachGalleryListener() {
+      if (galleryUnsub) return;
+      const q = query(col('gallery'), orderBy('createdAt','desc'));
+      galleryUnsub = onSnapshot(q, snap => renderGallery(snap.docs.map(d => ({ id:d.id, ...d.data() }))));
+    }
+    async function loadGallery() {
+      try {
+        const snaps = await getDocs(query(col('gallery'), orderBy('createdAt','desc')));
+        renderGallery(snaps.docs.map(d=>({ id:d.id, ...d.data() })));
+      } catch (err) { console.error(err); showMessage('Could not load gallery', true); }
+    }
+    function renderGallery(items) {
+      galleryItems.innerHTML = '';
+      if (!items.length) { galleryItems.innerHTML = '<div class="text-gray-500">No images.</div>'; return; }
+      items.forEach(it => {
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded shadow p-2';
+        card.innerHTML = `
+          <img src="${it.imageUrl}" class="w-full h-40 object-cover rounded mb-2">
+          <div class="text-sm text-gray-700 mb-2">${it.caption || ''}</div>
+          <div class="flex gap-2">
+            <button data-id="${it.id}" class="delete-gallery btn bg-white border">Delete</button>
+          </div>
+        `;
+        galleryItems.appendChild(card);
+      });
+      // attach delete handlers
+      galleryItems.querySelectorAll('.delete-gallery').forEach(b => {
+        b.addEventListener('click', async (e) => {
+          const id = e.currentTarget.getAttribute('data-id');
+          if (!confirm('Delete image?')) return;
+          try {
+            // delete doc only; storage deletion not attempted because we didn't store storage path
+            await deleteDoc(doc(db, `${ROOT_PATH}/gallery/${id}`));
+            showMessage('Deleted image record.');
+            loadGallery();
+          } catch(err){ console.error(err); showMessage('Delete failed', true); }
+        });
+      });
+    }
+
+    // ---------- WINNERS ----------
+    addWinnerBtn.addEventListener('click', addWinner);
+    refreshWinnersBtn.addEventListener('click', loadWinners);
+
+    async function addWinner() {
+      const file = winnerFile.files[0];
+      if (!winnerName.value.trim()) return showMessage('Enter winner name', true);
+      try {
+        addWinnerBtn.disabled = true;
+        showMessage('Adding winner...');
+        let imageUrl = '';
+        if (file) {
+          const path = `winners/${Date.now()}_${file.name}`;
+          const r = sRef(storage, path);
+          await uploadBytes(r, file);
+          imageUrl = await getDownloadURL(r);
+        }
+        await addDoc(col('winners'), {
+          name: winnerName.value.trim(),
+          handle: winnerHandle.value.trim(),
+          prize: winnerPrize.value.trim(),
+          imageUrl,
+          createdAt: serverTimestamp()
+        });
+        winnerName.value=''; winnerHandle.value=''; winnerPrize.value=''; winnerFile.value='';
+        showMessage('Winner added.');
+        loadWinners();
+      } catch(err){ console.error(err); showMessage('Add failed', true); }
+      finally { addWinnerBtn.disabled = false; }
+    }
+
+    async function loadWinners() {
+      try {
+        const snaps = await getDocs(query(col('winners'), orderBy('createdAt','desc')));
+        const items = snaps.docs.map(d => ({ id:d.id, ...d.data() }));
+        winnersList.innerHTML = '';
+        if (!items.length) { winnersList.innerHTML = '<div class="text-gray-500">No winners yet.</div>'; return; }
+        items.forEach(it => {
+          const card = document.createElement('div');
+          card.className = 'bg-white p-3 rounded shadow text-center';
+          card.innerHTML = `
+            <img src="${it.imageUrl || 'https://via.placeholder.com/200'}" class="w-full h-40 object-cover rounded mb-2">
+            <div class="font-semibold">${it.name}</div>
+            <div class="text-sm text-gray-600">${it.handle || ''}</div>
+            <div class="text-sm text-gray-700 mt-2">${it.prize || ''}</div>
+            <div class="mt-3"><button class="delete-winner btn bg-white border" data-id="${it.id}">Delete</button></div>
+          `;
+          winnersList.appendChild(card);
+        });
+        winnersList.querySelectorAll('.delete-winner').forEach(b => b.addEventListener('click', async (e) => {
+          const id = e.currentTarget.getAttribute('data-id');
+          if (!confirm('Delete winner?')) return;
+          try { await deleteDoc(doc(db, `${ROOT_PATH}/winners/${id}`)); showMessage('Winner deleted'); loadWinners(); }
+          catch(err){ console.error(err); showMessage('Delete failed', true); }
+        }));
+      } catch(err){ console.error(err); showMessage('Could not load winners', true); }
+    }
+
+    // ---------- FIXTURES ----------
+    addFixtureBtn.addEventListener('click', addFixture);
+    refreshFixturesBtn.addEventListener('click', loadFixtures);
+
+    async function addFixture() {
+      if (!fixtureHome.value.trim() || !fixtureAway.value.trim()) return showMessage('Enter both teams', true);
+      try {
+        addFixtureBtn.disabled = true;
+        showMessage('Adding fixture...');
+        let homeLogoUrl = '', awayLogoUrl = '';
+        const hFile = fixtureHomeLogo.files[0], aFile = fixtureAwayLogo.files[0];
+        if (hFile) {
+          const p = `fixtures/${Date.now()}_home_${hFile.name}`;
+          const r = sRef(storage, p);
+          await uploadBytes(r, hFile);
+          homeLogoUrl = await getDownloadURL(r);
+        }
+        if (aFile) {
+          const p = `fixtures/${Date.now()}_away_${aFile.name}`;
+          const r = sRef(storage, p);
+          await uploadBytes(r, aFile);
+          awayLogoUrl = await getDownloadURL(r);
+        }
+        const datetimeVal = fixtureDatetime.value ? new Date(fixtureDatetime.value).toISOString() : null;
+        await addDoc(col('fixtures'), {
+          home: fixtureHome.value.trim(),
+          away: fixtureAway.value.trim(),
+          stadium: fixtureStadium.value.trim(),
+          datetime: datetimeVal,
+          level: fixtureLevel.value.trim(),
+          status: fixtureStatus.value.trim(),
+          homeLogoUrl, awayLogoUrl,
+          createdAt: serverTimestamp()
+        });
+        fixtureHome.value=''; fixtureAway.value=''; fixtureStadium.value=''; fixtureDatetime.value=''; fixtureLevel.value=''; fixtureStatus.value=''; fixtureHomeLogo.value=''; fixtureAwayLogo.value='';
+        showMessage('Fixture added.');
+        loadFixtures();
+      } catch(err){ console.error(err); showMessage('Add fixture failed', true); }
+      finally { addFixtureBtn.disabled = false; }
+    }
+
+    async function loadFixtures() {
+      try {
+        const snaps = await getDocs(query(col('fixtures'), orderBy('datetime','asc')));
+        const items = snaps.docs.map(d => ({ id:d.id, ...d.data() }));
+        fixturesList.innerHTML = '';
+        if (!items.length) { fixturesList.innerHTML = '<div class="text-gray-500">No fixtures.</div>'; return; }
+        items.forEach(it => {
+          const block = document.createElement('div');
+          block.className = 'bg-white p-4 rounded shadow flex items-center justify-between';
+          block.innerHTML = `
+            <div class="flex items-center gap-4">
+              <img src="${it.homeLogoUrl || 'https://via.placeholder.com/60'}" class="w-12 h-12 object-cover rounded">
+              <div class="text-left">
+                <div class="font-semibold">${it.home} vs ${it.away}</div>
+                <div class="text-sm text-gray-600">${it.datetime ? new Date(it.datetime).toLocaleString() : ''} • ${it.stadium || ''}</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-sm text-gray-600">${it.level || ''}</div>
+              <div class="mt-2"><button class="delete-fixture btn bg-white border" data-id="${it.id}">Delete</button></div>
+            </div>
+          `;
+          fixturesList.appendChild(block);
+        });
+        fixturesList.querySelectorAll('.delete-fixture').forEach(b => b.addEventListener('click', async (e) => {
+          const id = e.currentTarget.getAttribute('data-id');
+          if (!confirm('Delete fixture?')) return;
+          try { await deleteDoc(doc(db, `${ROOT_PATH}/fixtures/${id}`)); showMessage('Fixture deleted'); loadFixtures(); }
+          catch(err){ console.error(err); showMessage('Delete failed', true); }
+        }));
+      } catch(err){ console.error(err); showMessage('Could not load fixtures', true); }
+    }
+
+    // ---------- SUPPORT WALL moderation ----------
+    async function loadSupport() {
+      try {
+        const snaps = await getDocs(query(col('supportMessages'), orderBy('createdAt','desc')));
+        const items = snaps.docs.map(d => ({ id:d.id, ...d.data() }));
+        supportList.innerHTML = '';
+        if (!items.length) { supportList.innerHTML = '<div class="text-gray-500">No messages.</div>'; return; }
+        items.forEach(it => {
+          const el = document.createElement('div');
+          el.className = 'bg-white p-3 rounded shadow flex items-start gap-3';
+          el.innerHTML = `
+            <div class="flex-1">
+              <div class="font-semibold">${it.name || 'Anonymous'} <span class="text-xs text-gray-500">· ${(it.userId||'').slice(0,8)}</span></div>
+              <div class="text-sm text-gray-700 mt-1">${it.message || ''}</div>
+              <div class="text-xs text-gray-400 mt-1">${it.createdAt ? new Date(it.createdAt.seconds * 1000).toLocaleString() : ''}</div>
+            </div>
+            <div>
+              <button class="delete-support btn bg-white border" data-id="${it.id}">Delete</button>
+            </div>
+          `;
+          supportList.appendChild(el);
+        });
+        supportList.querySelectorAll('.delete-support').forEach(b => b.addEventListener('click', async (e) => {
+          const id = e.currentTarget.getAttribute('data-id');
+          if (!confirm('Delete message?')) return;
+          try { await deleteDoc(doc(db, `${ROOT_PATH}/supportMessages/${id}`)); showMessage('Message deleted'); loadSupport(); }
+          catch(err){ console.error(err); showMessage('Delete failed', true); }
+        }));
+      } catch(err){ console.error(err); showMessage('Could not load support messages', true); }
+    }
+
+    // ---------- Q&A moderation ----------
+    async function loadQA() {
+      try {
+        const snaps = await getDocs(query(col('questions'), orderBy('createdAt','desc')));
+        const items = snaps.docs.map(d => ({ id:d.id, ...d.data() }));
+        qaList.innerHTML = '';
+        if (!items.length) { qaList.innerHTML = '<div class="text-gray-500">No questions.</div>'; return; }
+        items.forEach(it => {
+          const el = document.createElement('div');
+          el.className = 'bg-white p-3 rounded shadow';
+          el.innerHTML = `
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="font-semibold">${it.title || 'Question'}</div>
+                <div class="text-sm text-gray-700 mt-1">${it.body || ''}</div>
+                <div class="text-xs text-gray-400 mt-1">${it.createdAt ? new Date(it.createdAt.seconds * 1000).toLocaleString() : ''}</div>
+              </div>
+              <div>
+                <button class="delete-qa btn bg-white border" data-id="${it.id}">Delete</button>
+              </div>
+            </div>
+          `;
+          qaList.appendChild(el);
+        });
+        qaList.querySelectorAll('.delete-qa').forEach(b => b.addEventListener('click', async (e) => {
+          const id = e.currentTarget.getAttribute('data-id');
+          if (!confirm('Delete question?')) return;
+          try { await deleteDoc(doc(db, `${ROOT_PATH}/questions/${id}`)); showMessage('Question deleted'); loadQA(); }
+          catch(err){ console.error(err); showMessage('Delete failed', true); }
+        }));
+      } catch(err){ console.error(err); showMessage('Could not load Q&A', true); }
+    }
+
+    // ---------- LIVE LISTENERS (optional) ----------
+    function attachLiveListeners() {
+      // call on first show if you want real-time updates via onSnapshot
+      // Keep these commented out to avoid double updates; we use getDocs on demand.
+      // Example:
+      // attachGalleryListener();
+    }
+
+    // End of admin script
   </script>
 </body>
 </html>

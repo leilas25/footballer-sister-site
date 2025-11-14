@@ -26,7 +26,6 @@
       <div>
         <h3 class="text-2xl font-semibold text-rose-700 mb-4 text-center">My Vlogs & Highlights</h3>
         <div id="video-carousel" class="mx-auto md:max-w-sm shadow rounded overflow-hidden p-4 bg-white">
-          <!-- tiktok iframes can be kept as you had before -->
           <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" allowfullscreen class="w-full h-[600px]"></iframe>
         </div>
       </div>
@@ -57,23 +56,25 @@
     const db = getFirestore(app);
 
     const galleryEl = document.getElementById('btsGallery');
-    const galleryQuery = query(collection(db, `/artifacts/${ARTIFACT_ID}/public/data/gallery`), orderBy('order','asc'), orderBy('createdAt','asc'));
-    onSnapshot(galleryQuery, snap => {
-      galleryEl.innerHTML = '';
-      snap.docs.forEach(docSnap => {
-        const d = docSnap.data();
-        const card = document.createElement('div');
-        card.className = 'bg-white rounded shadow overflow-hidden';
-        card.innerHTML = `
-          <img src="${d.imageUrl}" class="w-full h-72 object-cover">
-          <div class="p-3"><div class="text-sm text-gray-700">${d.caption||''}</div></div>
-        `;
-        galleryEl.appendChild(card);
+    try {
+      const galleryQuery = query(collection(db, `/artifacts/${ARTIFACT_ID}/public/data/gallery`), orderBy('createdAt','desc'));
+      onSnapshot(galleryQuery, snap => {
+        galleryEl.innerHTML = '';
+        snap.docs.forEach(docSnap => {
+          const d = docSnap.data();
+          const card = document.createElement('div');
+          card.className = 'bg-white rounded shadow overflow-hidden';
+          card.innerHTML = `
+            <img src="${d.imageUrl}" class="w-full h-72 object-cover">
+            <div class="p-3"><div class="text-sm text-gray-700">${d.caption||''}</div></div>
+          `;
+          galleryEl.appendChild(card);
+        });
+      }, err => {
+        galleryEl.innerHTML = '<div class="text-red-600">Could not load gallery.</div>';
+        console.error(err);
       });
-    }, err => {
-      galleryEl.innerHTML = '<div class="text-red-600">Could not load gallery.</div>';
-      console.error(err);
-    });
+    } catch(err){ console.error('Gallery init error', err); galleryEl.innerHTML = '<div class="text-red-600">Could not load gallery.</div>'; }
   </script>
 </body>
 </html>

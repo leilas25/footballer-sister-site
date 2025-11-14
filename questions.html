@@ -39,17 +39,19 @@
     const db = getFirestore(app);
 
     const list = document.getElementById('questionsList');
-    const q = query(collection(db, `/artifacts/${ARTIFACT_ID}/public/data/questions`), orderBy('createdAt','desc'));
-    onSnapshot(q, snap => {
-      list.innerHTML = '';
-      snap.docs.forEach(docSnap => {
-        const d = docSnap.data();
-        const el = document.createElement('div');
-        el.className = 'bg-white p-4 rounded shadow';
-        el.innerHTML = `<div class="font-semibold">${d.title || 'Q'}</div><div class="text-sm text-gray-700 mt-1">${d.body || ''}</div>`;
-        list.appendChild(el);
-      });
-    }, err => { console.error(err); list.innerHTML = '<div class="text-red-600">Could not load questions.</div>'; });
+    try {
+      const q = query(collection(db, `/artifacts/${ARTIFACT_ID}/public/data/questions`), orderBy('createdAt','desc'));
+      onSnapshot(q, snap => {
+        list.innerHTML = '';
+        snap.docs.forEach(docSnap => {
+          const d = docSnap.data();
+          const el = document.createElement('div');
+          el.className = 'bg-white p-4 rounded shadow';
+          el.innerHTML = `<div class="font-semibold">${d.title || 'Q'}</div><div class="text-sm text-gray-700 mt-1">${d.body || ''}</div>`;
+          list.appendChild(el);
+        });
+      }, err => { console.error(err); list.innerHTML = '<div class="text-red-600">Could not load questions.</div>'; });
+    } catch(err){ console.error('Q&A init error', err); list.innerHTML = '<div class="text-red-600">Could not load questions.</div>'; }
   </script>
 </body>
 </html>
