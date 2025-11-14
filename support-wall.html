@@ -1,14 +1,12 @@
-<!-- support-wall.html -->
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>The Support Wall</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .tweet-card { background: #ffffff; border: 1px solid #e0e0e0; border-radius: 16px; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: transform .2s ease; display:flex; gap:1rem; }
-    .tweet-card:hover { transform: translateY(-2px); }
+    .tweet-card { background: #ffffff; border: 1px solid #e0e0e0; border-radius: 16px; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display:flex; gap:1rem; }
   </style>
 </head>
 <body class="bg-pink-50 text-black font-sans min-h-screen flex flex-col">
@@ -16,35 +14,28 @@
   <header class="fixed top-0 w-full bg-pink-100 shadow z-50">
     <div class="flex justify-between items-center px-6 py-4">
       <h1 class="text-xl font-bold uppercase text-rose-600">THE FOOTBALLER’S SISTER</h1>
-
-      <div class="relative inline-block text-left">
-        <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700">Home</a>
-      </div>
+      <div><a href="index.html" class="text-rose-600">Home</a></div>
     </div>
   </header>
   <div class="pt-24"></div>
 
   <main class="flex-grow px-6 pb-20 text-center max-w-2xl mx-auto">
     <h2 class="text-4xl font-bold mb-4 text-rose-700">The Support Wall ❤️</h2>
-    <p class="text-sm text-center text-gray-600 mb-6">
-      Thank you for your message! Here you can see all the messages from the community.
-      <br>Your user ID is <span id="user-id" class="font-mono text-xs text-pink-700 break-all">Loading...</span>
-    </p>
+    <p class="text-sm text-center text-gray-600 mb-6">Messages from our community. Admin may respond or remove messages.</p>
 
-    <div id="messages-container" class="mt-8 space-y-4 max-h-96 overflow-y-auto text-left">
+    <div id="messages-container" class="mt-8 space-y-4 text-left">
       <p id="loading-indicator" class="text-gray-500 text-center">Loading messages...</p>
     </div>
   </main>
   
   <footer class="bg-pink-900 text-white text-center py-6">
-    <p>&copy; <span id="copyright-year"></span> The Footballer’s Sister. All rights reserved.</p>
-    <script>document.getElementById('copyright-year').textContent = new Date().getFullYear();</script>
+    <p>&copy; <span id="year"></span> The Footballer’s Sister. All rights reserved.</p>
+    <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
   </footer>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const appId = '1:65396604482:web:0f31625a714aa8352337db';
     const firebaseConfig = {
@@ -58,52 +49,52 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const auth = getAuth(app);
+    const container = document.getElementById('messages-container');
+    const loading = document.getElementById('loading-indicator');
 
-    let userId = null;
-    const userIdEl = document.getElementById('user-id');
-    const messagesContainer = document.getElementById('messages-container');
-    const loadingIndicator = document.getElementById('loading-indicator');
-
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        userId = user.uid;
-        userIdEl.textContent = userId;
-
+    async function loadMessages() {
+      loading.style.display = 'block';
+      try {
         const path = `/artifacts/${appId}/public/data/supportMessages`;
-        onSnapshot(collection(db, path), (snapshot) => {
-          messagesContainer.innerHTML = '';
-          loadingIndicator.style.display = 'none';
-          const messages = [];
-          snapshot.forEach(docSnap => { messages.push({ id: docSnap.id, ...docSnap.data() }); });
-          messages.sort((a,b)=> (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
-          if (!messages.length) messagesContainer.innerHTML = '<p class="text-gray-500 text-center">No messages yet.</p>';
-          messages.forEach(msg => {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = 'tweet-card';
-            messageDiv.innerHTML = `
-              <div style="width:48px; flex-shrink:0;">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="#be185d"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.38 0 2.5 1.12 2.5 2.5S13.38 10 12 10s-2.5-1.12-2.5-2.5S10.62 5 12 5zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+        const snaps = await getDocs(query(collection(db, path), orderBy('createdAt','desc')));
+        const items = snaps.docs.map(d => ({ id: d.id, ...d.data() }));
+        loading.style.display = 'none';
+        container.innerHTML = '';
+        if (!items.length) {
+          container.innerHTML = '<div class="text-gray-500">No messages yet.</div>';
+          return;
+        }
+        items.forEach(it => {
+          const timeLabel = it.createdAt ? (it.createdAt.seconds ? new Date(it.createdAt.seconds*1000).toLocaleString() : String(it.createdAt)) : 'Unknown';
+          const el = document.createElement('div');
+          el.className = 'tweet-card';
+          el.innerHTML = `
+            <div style="width:48px;flex-shrink:0;">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="#be185d"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.38 0 2.5 1.12 2.5 2.5S13.38 10 12 10s-2.5-1.12-2.5-2.5S10.62 5 12 5zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+            </div>
+            <div style="flex:1">
+              <div style="display:flex;gap:.5rem;align-items:center;">
+                <div style="font-weight:700">${escapeHtml(it.name || 'Anonymous')}</div>
+                <div style="color:#94a3b8;font-size:.85rem">@${(it.userId||'').substring(0,8)}</div>
+                <div style="color:#94a3b8;font-size:.75rem;margin-left:.5rem;">· ${timeLabel}</div>
               </div>
-              <div style="flex:1;">
-                <div style="display:flex;align-items:center;gap:.5rem;">
-                  <div style="font-weight:700">${msg.name || 'Anonymous'}</div>
-                  <div style="color:#94a3b8;font-size:.85rem">@user_${(msg.userId||'').substring(0,8)}</div>
-                  <div style="color:#94a3b8;font-size:.75rem;margin-left:.5rem;">· ${msg.createdAt?.seconds ? new Date(msg.createdAt.seconds*1000).toLocaleString() : 'Just now'}</div>
-                </div>
-                <div style="margin-top:.5rem;color:#374151;">${msg.message || ''}</div>
-              </div>
-            `;
-            messagesContainer.appendChild(messageDiv);
-          });
-        }, err => {
-          messagesContainer.innerHTML = '<div class="text-red-600">Could not load messages.</div>';
-          console.error(err);
+              <div style="margin-top:.6rem;color:#374151;">${escapeHtml(it.message || '')}</div>
+              <div style="margin-top:.6rem;color:#6b7280;font-size:.9rem;">${ it.adminResponse ? `<strong>Admin:</strong> ${escapeHtml(it.adminResponse)} <span class="muted">· ${it.respondedAt && it.respondedAt.seconds ? new Date(it.respondedAt.seconds*1000).toLocaleString() : ''}</span>` : '<span class="muted">No admin response yet.</span>' }</div>
+            </div>
+          `;
+          container.appendChild(el);
         });
-      } else {
-        try { await signInAnonymously(auth); } catch (error) { console.error("Error signing in:", error); messagesContainer.innerHTML = '<div class="text-red-600">Could not load messages.</div>'; }
+      } catch (err) {
+        console.error('load messages', err);
+        loading.style.display = 'none';
+        container.innerHTML = '<div class="text-red-600">Could not load messages.</div>';
       }
-    });
+    }
+
+    // small helper
+    function escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>"']/g, (s) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]); }
+
+    loadMessages();
   </script>
 </body>
 </html>

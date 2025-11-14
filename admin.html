@@ -10,13 +10,12 @@
     .btn { padding:.6rem 1rem; border-radius:9999px; font-weight:600; }
     .small-muted { font-size:.95rem; color:#7a7a7a; }
     .hidden-el { display:none !important; }
-    body { -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
-    input[type="file"] { display:block; }
+    .muted { color:#6b7280; }
+    .response-box { width:100%; min-height:70px; padding:.5rem; border:1px solid #e5e7eb; border-radius:8px; }
   </style>
 </head>
 <body class="bg-pink-50 font-sans text-black">
 
-  <!-- Header -->
   <header class="bg-pink-100 sticky top-0 z-40 shadow">
     <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
       <h1 class="text-xl font-bold uppercase text-rose-600">ADMIN • THE FOOTBALLER’S SISTER</h1>
@@ -59,6 +58,7 @@
       </div>
 
       <div id="panes" class="space-y-6">
+
         <!-- Gallery pane -->
         <div id="paneGallery" class="card hidden-el">
           <h3 class="text-xl font-bold mb-3 text-rose-700">Media / Gallery (admin)</h3>
@@ -124,28 +124,34 @@
           <div id="fixturesList" class="space-y-3"></div>
         </div>
 
-        <!-- Support Wall pane -->
+        <!-- Support Wall pane (IMPROVED) -->
         <div id="paneSupport" class="card hidden-el">
           <h3 class="text-xl font-bold mb-3 text-rose-700">Support Wall (admin)</h3>
-          <p class="small-muted mb-3">Delete inappropriate or old messages.</p>
+          <p class="small-muted mb-3">All messages from the Support Wall are listed below. You can delete any message or mark it as featured (optional).</p>
+          <div class="mb-4">
+            <button id="refreshSupportBtn" class="btn bg-white border">Refresh messages</button>
+          </div>
           <div id="supportList" class="space-y-3"></div>
         </div>
 
-        <!-- Q&A pane -->
+        <!-- Q&A pane (IMPROVED with respond) -->
         <div id="paneQA" class="card hidden-el">
           <h3 class="text-xl font-bold mb-3 text-rose-700">Q&A (admin)</h3>
-          <p class="small-muted mb-3">Manage posted questions.</p>
-          <div id="qaList" class="space-y-3"></div>
+          <p class="small-muted mb-3">Respond to user questions or delete any you don't want on the site.</p>
+          <div class="mb-4">
+            <button id="refreshQABtn" class="btn bg-white border">Refresh questions</button>
+          </div>
+          <div id="qaList" class="space-y-4"></div>
         </div>
 
-        <!-- GIVEAWAYS pane (NEW) -->
+        <!-- GIVEAWAYS pane -->
         <div id="paneGiveaways" class="card hidden-el">
           <h3 class="text-xl font-bold mb-3 text-rose-700">Giveaways (admin)</h3>
           <p class="small-muted mb-3">Create giveaways (title, caption, image, optional end date). They will appear on the public Giveaways page.</p>
 
           <form id="giveawayForm" class="grid gap-2 mb-4">
             <input id="giveTitle" placeholder="Giveaway title" class="p-2 border rounded" />
-            <textarea id="giveCaption" placeholder="Caption (what the giveaway is / instructions)" class="p-2 border rounded" rows="3"></textarea>
+            <textarea id="giveCaption" placeholder="Caption" class="p-2 border rounded" rows="3"></textarea>
             <input id="giveEnds" type="datetime-local" class="p-2 border rounded" />
             <input id="giveFile" type="file" accept="image/*" />
             <div class="flex gap-3">
@@ -168,8 +174,7 @@
   <!-- Firebase + Admin JS (module) -->
   <script type="module">
     /**************************************************************************
-     * Admin JS - embedded single-file script
-     * - Added Giveaways management (create/list/delete)
+     * Admin JS - enhanced support & Q&A moderation
      **************************************************************************/
 
     // ---------- CONFIG ----------
@@ -195,7 +200,7 @@
       onSnapshot, query, orderBy, updateDoc, serverTimestamp, getDocs
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     import {
-      getStorage, ref as sRef, uploadBytes, getDownloadURL, deleteObject
+      getStorage, ref as sRef, uploadBytes, getDownloadURL
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
     // ---------- INIT ----------
@@ -204,7 +209,7 @@
     const db = getFirestore(app);
     const storage = getStorage(app);
 
-    // ---------- DOM ---------- (re-used elements)
+    // ---------- DOM ----------
     const loginSection = document.getElementById('loginSection');
     const loginForm = document.getElementById('loginForm');
     const emailInput = document.getElementById('email');
@@ -266,9 +271,11 @@
 
     // Support / QA lists
     const supportList = document.getElementById('supportList');
+    const refreshSupportBtn = document.getElementById('refreshSupportBtn');
     const qaList = document.getElementById('qaList');
+    const refreshQABtn = document.getElementById('refreshQABtn');
 
-    // Giveaways DOM (NEW)
+    // Giveaways DOM
     const giveTitle = document.getElementById('giveTitle');
     const giveCaption = document.getElementById('giveCaption');
     const giveEnds = document.getElementById('giveEnds');
@@ -277,7 +284,7 @@
     const refreshGiveawaysBtn = document.getElementById('refreshGiveawaysBtn');
     const giveList = document.getElementById('giveList');
 
-    // ---------- HELPERS ----------
+    // helpers
     function showMessage(msg, isError=false) {
       loginMessage.textContent = msg;
       loginMessage.style.color = isError ? 'crimson' : '';
@@ -300,6 +307,7 @@
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
+        // show login
         loginSection.classList.remove('hidden-el');
         hideAllPanes();
         adminUI.classList.add('hidden-el');
@@ -307,19 +315,21 @@
         return;
       }
 
+      // check UID
       if (user.uid !== ADMIN_UID) {
         try { await signOut(auth); } catch(e){ console.error(e); }
         showMessage('Signed-in account is not the admin. You have been signed out.', true);
         return;
       }
 
+      // admin validated
       loginSection.classList.add('hidden-el');
       adminEmailDisplay.textContent = user.email || user.uid;
       adminUI.classList.remove('hidden-el');
       adminUI.removeAttribute('aria-hidden');
 
+      // show gallery by default
       showGalleryPane();
-      attachLiveListeners();
     });
 
     signOutBtn.addEventListener('click', async () => {
@@ -332,7 +342,7 @@
       }
     });
 
-    // ---------- NAV ----------
+    // NAV
     navMedia.addEventListener('click', () => showGalleryPane());
     navWinners.addEventListener('click', () => showWinnersPane());
     navFixtures.addEventListener('click', () => showFixturesPane());
@@ -350,7 +360,6 @@
     // ---------- GALLERY (same as before) ----------
     uploadGalleryBtn.addEventListener('click', uploadGalleryImage);
     refreshGalleryBtn.addEventListener('click', loadGallery);
-
     async function uploadGalleryImage() {
       const file = galleryFile.files[0];
       if (!file) return showMessage('Select an image first.', true);
@@ -369,13 +378,6 @@
         console.error('gallery upload', err);
         showMessage('Upload failed', true);
       } finally { uploadGalleryBtn.disabled = false; }
-    }
-
-    let galleryUnsub = null;
-    function attachGalleryListener() {
-      if (galleryUnsub) return;
-      const q = query(col('gallery'), orderBy('createdAt','desc'));
-      galleryUnsub = onSnapshot(q, snap => renderGallery(snap.docs.map(d => ({ id:d.id, ...d.data() }))));
     }
     async function loadGallery() {
       try {
@@ -411,10 +413,9 @@
       });
     }
 
-    // ---------- WINNERS (same as before) ----------
+    // ---------- WINNERS ----------
     addWinnerBtn.addEventListener('click', addWinner);
     refreshWinnersBtn.addEventListener('click', loadWinners);
-
     async function addWinner() {
       const file = winnerFile.files[0];
       if (!winnerName.value.trim()) return showMessage('Enter winner name', true);
@@ -441,7 +442,6 @@
       } catch(err){ console.error(err); showMessage('Add failed', true); }
       finally { addWinnerBtn.disabled = false; }
     }
-
     async function loadWinners() {
       try {
         const snaps = await getDocs(query(col('winners'), orderBy('createdAt','desc')));
@@ -469,10 +469,9 @@
       } catch(err){ console.error(err); showMessage('Could not load winners', true); }
     }
 
-    // ---------- FIXTURES (same as before) ----------
+    // ---------- FIXTURES ----------
     addFixtureBtn.addEventListener('click', addFixture);
     refreshFixturesBtn.addEventListener('click', loadFixtures);
-
     async function addFixture() {
       if (!fixtureHome.value.trim() || !fixtureAway.value.trim()) return showMessage('Enter both teams', true);
       try {
@@ -509,7 +508,6 @@
       } catch(err){ console.error(err); showMessage('Add fixture failed', true); }
       finally { addFixtureBtn.disabled = false; }
     }
-
     async function loadFixtures() {
       try {
         const snaps = await getDocs(query(col('fixtures'), orderBy('datetime','asc')));
@@ -543,71 +541,146 @@
       } catch(err){ console.error(err); showMessage('Could not load fixtures', true); }
     }
 
-    // ---------- SUPPORT WALL moderation ----------
+    // ---------- SUPPORT WALL (IMPROVED) ----------
+    refreshSupportBtn.addEventListener('click', loadSupport);
+
     async function loadSupport() {
+      supportList.innerHTML = '<div class="muted">Loading messages...</div>';
       try {
+        // Get all messages — order by createdAt desc. Works even if createdAt is missing.
         const snaps = await getDocs(query(col('supportMessages'), orderBy('createdAt','desc')));
-        const items = snaps.docs.map(d => ({ id:d.id, ...d.data() }));
-        supportList.innerHTML = '';
-        if (!items.length) { supportList.innerHTML = '<div class="text-gray-500">No messages.</div>'; return; }
-        items.forEach(it => {
-          const el = document.createElement('div');
-          el.className = 'bg-white p-3 rounded shadow flex items-start gap-3';
-          el.innerHTML = `
-            <div class="flex-1">
-              <div class="font-semibold">${it.name || 'Anonymous'} <span class="text-xs text-gray-500">· ${(it.userId||'').slice(0,8)}</span></div>
-              <div class="text-sm text-gray-700 mt-1">${it.message || ''}</div>
-              <div class="text-xs text-gray-400 mt-1">${it.createdAt ? new Date(it.createdAt.seconds * 1000).toLocaleString() : ''}</div>
+        const items = snaps.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderSupport(items);
+      } catch (err) {
+        console.error('loadSupport', err);
+        supportList.innerHTML = '<div class="text-red-600">Could not load messages.</div>';
+      }
+    }
+
+    function renderSupport(items) {
+      supportList.innerHTML = '';
+      if (!items.length) {
+        supportList.innerHTML = '<div class="text-gray-500">No messages yet.</div>'; return;
+      }
+      items.forEach(it => {
+        const el = document.createElement('div');
+        el.className = 'bg-white p-3 rounded shadow flex items-start gap-3';
+        const timeLabel = it.createdAt ? (it.createdAt.seconds ? new Date(it.createdAt.seconds*1000).toLocaleString() : String(it.createdAt)) : 'Unknown';
+        el.innerHTML = `
+          <div style="width:48px;flex-shrink:0;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="#be185d">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.38 0 2.5 1.12 2.5 2.5S13.38 10 12 10s-2.5-1.12-2.5-2.5S10.62 5 12 5zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+            </svg>
+          </div>
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:.5rem;">
+              <div style="font-weight:700">${it.name || 'Anonymous'}</div>
+              <div style="color:#94a3b8;font-size:.85rem">@${(it.userId||'').substring(0,8)}</div>
+              <div style="color:#94a3b8;font-size:.75rem;margin-left:.5rem;">· ${timeLabel}</div>
             </div>
-            <div>
-              <button class="delete-support btn bg-white border" data-id="${it.id}">Delete</button>
-            </div>
-          `;
-          supportList.appendChild(el);
-        });
-        supportList.querySelectorAll('.delete-support').forEach(b => b.addEventListener('click', async (e) => {
+            <div style="margin-top:.5rem;color:#374151;">${it.message || ''}</div>
+            <div style="margin-top:.5rem;color:#6b7280;font-size:.9rem;">Admin response: ${it.adminResponse ? `<strong>${escapeHtml(it.adminResponse)}</strong> <span class="muted">(${it.respondedAt ? (it.respondedAt.seconds ? new Date(it.respondedAt.seconds*1000).toLocaleString() : it.respondedAt) : ''})</span>` : '<span class="muted">—</span>'}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.5rem;">
+            <button class="delete-support btn bg-white border" data-id="${it.id}">Delete</button>
+          </div>
+        `;
+        supportList.appendChild(el);
+      });
+
+      // attach deletes
+      supportList.querySelectorAll('.delete-support').forEach(b => {
+        b.addEventListener('click', async (e) => {
           const id = e.currentTarget.getAttribute('data-id');
           if (!confirm('Delete message?')) return;
-          try { await deleteDoc(doc(db, `${ROOT_PATH}/supportMessages/${id}`)); showMessage('Message deleted'); loadSupport(); }
-          catch(err){ console.error(err); showMessage('Delete failed', true); }
-        }));
-      } catch(err){ console.error(err); showMessage('Could not load support messages', true); }
+          try {
+            await deleteDoc(doc(db, `${ROOT_PATH}/supportMessages/${id}`));
+            showMessage('Message deleted');
+            loadSupport();
+          } catch(err){ console.error(err); showMessage('Delete failed', true); }
+        });
+      });
     }
 
-    // ---------- Q&A moderation ----------
+    // ---------- Q&A (IMPROVED: list, respond, delete) ----------
+    refreshQABtn.addEventListener('click', loadQA);
+
     async function loadQA() {
+      qaList.innerHTML = '<div class="muted">Loading questions...</div>';
       try {
         const snaps = await getDocs(query(col('questions'), orderBy('createdAt','desc')));
-        const items = snaps.docs.map(d => ({ id:d.id, ...d.data() }));
-        qaList.innerHTML = '';
-        if (!items.length) { qaList.innerHTML = '<div class="text-gray-500">No questions.</div>'; return; }
-        items.forEach(it => {
-          const el = document.createElement('div');
-          el.className = 'bg-white p-3 rounded shadow';
-          el.innerHTML = `
-            <div class="flex items-start justify-between">
-              <div>
-                <div class="font-semibold">${it.title || 'Question'}</div>
-                <div class="text-sm text-gray-700 mt-1">${it.body || ''}</div>
-                <div class="text-xs text-gray-400 mt-1">${it.createdAt ? new Date(it.createdAt.seconds * 1000).toLocaleString() : ''}</div>
-              </div>
-              <div>
-                <button class="delete-qa btn bg-white border" data-id="${it.id}">Delete</button>
-              </div>
-            </div>
-          `;
-          qaList.appendChild(el);
-        });
-        qaList.querySelectorAll('.delete-qa').forEach(b => b.addEventListener('click', async (e) => {
-          const id = e.currentTarget.getAttribute('data-id');
-          if (!confirm('Delete question?')) return;
-          try { await deleteDoc(doc(db, `${ROOT_PATH}/questions/${id}`)); showMessage('Question deleted'); loadQA(); }
-          catch(err){ console.error(err); showMessage('Delete failed', true); }
-        }));
-      } catch(err){ console.error(err); showMessage('Could not load Q&A', true); }
+        const items = snaps.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderQA(items);
+      } catch (err) {
+        console.error('loadQA', err);
+        qaList.innerHTML = '<div class="text-red-600">Could not load questions.</div>';
+      }
     }
 
-    // ---------- GIVEAWAYS (NEW) ----------
+    function renderQA(items) {
+      qaList.innerHTML = '';
+      if (!items.length) { qaList.innerHTML = '<div class="text-gray-500">No questions yet.</div>'; return; }
+
+      items.forEach(it => {
+        const el = document.createElement('div');
+        el.className = 'bg-white p-3 rounded shadow';
+        const timeLabel = it.createdAt ? (it.createdAt.seconds ? new Date(it.createdAt.seconds*1000).toLocaleString() : String(it.createdAt)) : 'Unknown';
+        el.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;">
+            <div style="flex:1">
+              <div style="font-weight:700">${escapeHtml(it.title || 'Question')}</div>
+              <div style="color:#374151;margin-top:.4rem;">${escapeHtml(it.body || '')}</div>
+              <div style="color:#94a3b8;font-size:.85rem;margin-top:.5rem;">From: ${escapeHtml(it.name || 'Anonymous')} · ${timeLabel}</div>
+
+              <div style="margin-top:.8rem;">
+                <div style="font-size:.9rem;color:#6b7280;margin-bottom:.5rem;">Admin response (saved to Firestore):</div>
+                <textarea class="response-box" data-id="${it.id}" placeholder="Write your reply here...">${it.adminResponse ? escapeHtml(it.adminResponse) : ''}</textarea>
+                <div class="mt-2 flex gap-2">
+                  <button class="respond-qa btn bg-rose-600 text-white" data-id="${it.id}">Save Response</button>
+                  <button class="delete-qa btn bg-white border" data-id="${it.id}">Delete question</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        qaList.appendChild(el);
+      });
+
+      // attach respond handlers
+      qaList.querySelectorAll('.respond-qa').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const id = e.currentTarget.getAttribute('data-id');
+          const textarea = qaList.querySelector(`textarea[data-id="${id}"]`);
+          if (!textarea) return;
+          const text = textarea.value.trim();
+          if (!confirm('Save response to this question?')) return;
+          try {
+            await updateDoc(doc(db, `${ROOT_PATH}/questions/${id}`), {
+              adminResponse: text,
+              responder: auth.currentUser ? auth.currentUser.email || auth.currentUser.uid : 'admin',
+              respondedAt: serverTimestamp()
+            });
+            showMessage('Response saved.');
+            loadQA();
+          } catch(err){ console.error('respond failed', err); showMessage('Could not save response', true); }
+        });
+      });
+
+      // attach delete handlers
+      qaList.querySelectorAll('.delete-qa').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const id = e.currentTarget.getAttribute('data-id');
+          if (!confirm('Delete question?')) return;
+          try {
+            await deleteDoc(doc(db, `${ROOT_PATH}/questions/${id}`));
+            showMessage('Question deleted');
+            loadQA();
+          } catch(err){ console.error(err); showMessage('Delete failed', true); }
+        });
+      });
+    }
+
+    // ---------- GIVEAWAYS ----------
     createGiveBtn.addEventListener('click', createGiveaway);
     refreshGiveawaysBtn.addEventListener('click', loadGiveaways);
 
@@ -668,12 +741,18 @@
       } catch(err){ console.error(err); showMessage('Could not load giveaways', true); }
     }
 
-    // ---------- LIVE LISTENERS (optional) ----------
-    function attachLiveListeners() {
-      // Intentionally *not* using onSnapshot everywhere to avoid double renders. We use getDocs on demand.
+    // ---------- UTILS ----------
+    // Simple HTML escape for small text display
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>"']/g, (s) => {
+        return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s];
+      });
     }
 
-    // End of admin script
+    // Initial convenience: attach click handlers to refresh buttons to existing loads
+    // (others use their own event handlers above)
+    // No live listeners to avoid double renders — we use getDocs when admin opens panes
   </script>
 </body>
 </html>
