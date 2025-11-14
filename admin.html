@@ -3,592 +3,499 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Admin • The Footballer’s Sister</title>
+  <title>ADMIN • The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
-    .pill { padding: .5rem 1rem; border-radius: 9999px; background:#f1f5f9; color:#334155; display:inline-block; }
-    .active-pill { background:#d9467a; color:white; }
-    .hidden { display:none; }
+    /* Replaced @apply rules with plain CSS so the file works directly in the browser. */
+    .btn {
+      padding-left: 1rem;
+      padding-right: 1rem;
+      padding-top: .5rem;
+      padding-bottom: .5rem;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+    .card {
+      background: white;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    }
+    .small-muted {
+      font-size: 0.85rem;
+      color: #7a7a7a;
+    }
+
+    /* small responsive helpers used in the page */
+    .hidden { display: none !important; }
   </style>
 </head>
-<body class="bg-pink-50">
-
-  <header class="bg-pink-100 fixed top-0 left-0 right-0 z-40">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-      <h1 class="text-xl font-bold text-rose-600">ADMIN • THE FOOTBALLER’S SISTER</h1>
-      <a href="index.html" class="text-rose-600">Home</a>
+<body class="bg-pink-50 text-black font-sans">
+  <header class="bg-pink-100 sticky top-0 z-50 shadow">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <h1 class="text-xl font-bold uppercase text-rose-600">ADMIN • THE FOOTBALLER’S SISTER</h1>
+      <nav class="flex items-center gap-3">
+        <a href="index.html" class="text-rose-600 hover:underline">Home</a>
+      </nav>
     </div>
   </header>
 
-  <main class="pt-28 max-w-6xl mx-auto px-6 pb-20">
-    <div class="flex gap-4 items-center mb-6">
-      <button id="tab-support" class="pill">Support Wall</button>
-      <button id="tab-questions" class="pill">Q&A</button>
-      <button id="tab-fixtures" class="pill">Fixtures</button>
-      <button id="tab-gallery" class="pill active-pill">Media / Gallery</button>
-      <button id="tab-giveaways" class="pill">Giveaways</button>
-      <button id="tab-winners" class="pill">Winners</button>
-      <div class="ml-auto text-sm text-gray-600" id="uidDisplay">UID: Loading...</div>
-      <button id="logoutBtn" class="ml-4 bg-rose-600 text-white px-4 py-2 rounded-full">Log out</button>
+  <main class="max-w-6xl mx-auto px-6 py-8">
+    <!-- top nav / sections -->
+    <div class="flex flex-wrap items-center gap-3 mb-6">
+      <button id="btnSupport" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Support Wall</button>
+      <button id="btnQA" class="rounded-full bg-rose-600 text-white px-4 py-2 shadow-sm">Q&A</button>
+      <button id="btnFixtures" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Fixtures</button>
+      <button id="btnMedia" class="rounded-full bg-rose-600 text-white px-4 py-2 shadow-sm">Media / Gallery</button>
+      <button id="btnGiveaways" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Giveaways</button>
+      <button id="btnWinners" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Winners</button>
+
+      <div class="ml-auto flex items-center gap-4">
+        <div id="authSection" class="text-sm small-muted"></div>
+        <button id="signOutBtn" class="btn bg-rose-600 text-white hidden">Log out</button>
+      </div>
     </div>
 
-    <!-- Generic status -->
-    <div id="status" class="mb-6 text-sm text-red-600"></div>
+    <!-- AUTH + ADMIN NOTICE -->
+    <section id="authCard" class="card mb-8">
+      <h2 class="text-2xl font-bold text-rose-700 mb-2">Admin sign-in</h2>
 
-    <!-- -------------- SUPPORT WALL (keeps same) -------------- -->
-    <section id="supportSection" class="">
-      <h2 class="text-2xl font-bold text-rose-700 mb-4">Support Wall — Manage</h2>
-      <p class="text-sm text-gray-700 mb-3">This re-uses your supportMessages collection — works as before.</p>
-      <div id="supportList" class="space-y-3 mb-12"></div>
-    </section>
-
-    <!-- -------------- Q&A (keeps same) -------------- -->
-    <section id="questionsSection" class="hidden">
-      <h2 class="text-2xl font-bold text-rose-700 mb-4">Q&A — Manage</h2>
-      <div id="questionsList" class="space-y-3 mb-12"></div>
-    </section>
-
-    <!-- -------------- FIXTURES -------------- -->
-    <section id="fixturesSection" class="hidden">
-      <h2 class="text-2xl font-bold text-rose-700 mb-4">Fixtures — Add / Edit</h2>
-
-      <div class="bg-white p-6 rounded-lg shadow mb-6">
-        <form id="fixtureForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm text-gray-700">Home Team</label>
-            <input id="fixtureHome" class="w-full border px-3 py-2 rounded" placeholder="Jomo Cosmos U14" />
-          </div>
-          <div>
-            <label class="block text-sm text-gray-700">Away Team</label>
-            <input id="fixtureAway" class="w-full border px-3 py-2 rounded" placeholder="Kaizer Chiefs U14" />
-          </div>
-          <div>
-            <label class="block text-sm text-gray-700">Date & Time</label>
-            <input id="fixtureDate" type="datetime-local" class="w-full border px-3 py-2 rounded" />
-          </div>
-          <div>
-            <label class="block text-sm text-gray-700">Stadium</label>
-            <input id="fixtureStadium" class="w-full border px-3 py-2 rounded" placeholder="Rand stadium" />
-          </div>
-
-          <div>
-            <label class="block text-sm text-gray-700">Level</label>
-            <select id="fixtureLevel" class="w-full border px-3 py-2 rounded">
-              <option>U14</option><option>U17</option><option>U19</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm text-gray-700">Status</label>
-            <select id="fixtureStatus" class="w-full border px-3 py-2 rounded">
-              <option>Scheduled</option><option>Played</option><option>Cancelled</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-sm text-gray-700">Home team logo (file)</label>
-            <input id="homeLogoFile" type="file" accept="image/*" class="mt-1" />
-            <button type="button" id="uploadHomeLogoBtn" class="mt-2 bg-rose-600 text-white px-3 py-2 rounded">Upload Home Logo</button>
-            <div id="homeLogoPreview" class="mt-2 text-sm text-gray-600"></div>
-          </div>
-          <div>
-            <label class="block text-sm text-gray-700">Away team logo (file)</label>
-            <input id="awayLogoFile" type="file" accept="image/*" class="mt-1" />
-            <button type="button" id="uploadAwayLogoBtn" class="mt-2 bg-rose-600 text-white px-3 py-2 rounded">Upload Away Logo</button>
-            <div id="awayLogoPreview" class="mt-2 text-sm text-gray-600"></div>
-          </div>
-
-          <div class="md:col-span-2 flex gap-3">
-            <button id="saveFixture" type="button" class="bg-rose-600 text-white px-6 py-2 rounded">Save Fixture</button>
-            <button id="resetFixture" type="button" class="bg-gray-100 px-4 py-2 rounded">Reset</button>
+      <div id="notSignedInUI" class="space-y-3">
+        <p class="small-muted">Sign in with email & password to access admin write features.</p>
+        <form id="loginForm" class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+          <input id="email" type="email" placeholder="Email" required class="p-3 rounded-lg border"/>
+          <input id="password" type="password" placeholder="Password" required class="p-3 rounded-lg border"/>
+          <div class="flex gap-3">
+            <button id="loginBtn" class="btn bg-rose-600 text-white">Sign in</button>
+            <button id="createBtn" type="button" class="btn bg-white border">Create account</button>
           </div>
         </form>
       </div>
 
-      <div>
-        <h3 class="text-lg font-semibold mb-2">Existing Fixtures</h3>
-        <div id="fixturesList" class="space-y-3"></div>
+      <div id="signedInUI" class="hidden">
+        <p class="text-sm">Signed in as <span id="userEmail" class="font-medium"></span></p>
+        <p class="text-xs small-muted">UID: <span id="userUid"></span></p>
+        <p id="adminNotice" class="mt-2 text-sm"></p>
       </div>
     </section>
 
-    <!-- -------------- GALLERY / BTS -------------- -->
-    <section id="gallerySection">
-      <h2 class="text-2xl font-bold text-rose-700 mb-4">Media / Gallery — Upload & Manage</h2>
+    <!-- Quick forms for media / winners / giveaways / fixtures -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-      <div class="bg-white p-6 rounded-lg shadow mb-6">
-        <form id="galleryForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-          <div>
-            <label class="block text-sm text-gray-700">Choose image</label>
-            <input id="galleryFile" type="file" accept="image/*" />
-          </div>
-          <div>
-            <label class="block text-sm text-gray-700">Caption</label>
-            <input id="galleryCaption" class="w-full border px-3 py-2 rounded" placeholder="Short caption (e.g., 'Pre-match shoot')" />
-          </div>
-          <div>
-            <label class="block text-sm text-gray-700">Order (smaller shows first)</label>
-            <input id="galleryOrder" type="number" value="1" class="w-full border px-3 py-2 rounded" />
-          </div>
+      <!-- Media / Gallery -->
+      <div class="card">
+        <h3 class="text-xl font-bold text-rose-700 mb-3">Media / Gallery — Upload & Manage</h3>
 
-          <div class="md:col-span-3">
-            <button id="uploadGalleryBtn" type="button" class="bg-rose-600 text-white px-6 py-2 rounded">Upload to Cloud & Save</button>
-            <button id="resetGalleryBtn" type="button" class="ml-3 bg-gray-100 px-4 py-2 rounded">Reset</button>
-          </div>
-
-          <div class="md:col-span-3 mt-4">
-            <div id="galleryProgress" class="w-full h-2 bg-gray-200 rounded overflow-hidden"><div id="galleryProgressFill" style="width:0%" class="h-full bg-rose-600"></div></div>
+        <form id="mediaForm" class="grid grid-cols-1 gap-3">
+          <label class="small-muted">Choose image (will upload to Cloudinary then save metadata into Firestore)</label>
+          <input id="mediaFile" type="file" accept="image/*" />
+          <input id="mediaCaption" placeholder="Short caption (e.g., 'Pre-match shoot')" class="p-2 rounded-lg border" />
+          <input id="mediaOrder" type="number" placeholder="Order (smaller shows first)" value="1" class="p-2 rounded-lg border" />
+          <div class="flex gap-3">
+            <button id="uploadMediaBtn" class="btn bg-rose-600 text-white">Upload to Cloud & Save</button>
+            <button id="resetMediaBtn" type="button" class="btn bg-white border">Reset</button>
           </div>
         </form>
-      </div>
 
-      <div>
-        <h3 class="text-lg font-semibold mb-2">Gallery Items</h3>
-        <div id="galleryList" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
-      </div>
-    </section>
-
-    <!-- -------------- GIVEAWAYS -------------- -->
-    <section id="giveawaysSection" class="hidden">
-      <h2 class="text-2xl font-bold text-rose-700 mb-4">Giveaways — Add / Manage</h2>
-
-      <div class="bg-white p-6 rounded-lg shadow mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-sm text-gray-700">Title</label>
-            <input id="giveTitle" class="w-full border px-3 py-2 rounded" />
-          </div>
-          <div>
-            <label class="block text-sm text-gray-700">Prize</label>
-            <input id="givePrize" class="w-full border px-3 py-2 rounded" />
-          </div>
-          <div>
-            <label class="block text-sm text-gray-700">Ends at</label>
-            <input id="giveEnds" type="datetime-local" class="w-full border px-3 py-2 rounded" />
-          </div>
-
-          <div class="md:col-span-3">
-            <button id="saveGiveaway" class="bg-rose-600 text-white px-6 py-2 rounded">Create Giveaway</button>
-            <button id="resetGiveaway" class="ml-3 bg-gray-100 px-4 py-2 rounded">Reset</button>
-          </div>
+        <div id="galleryList" class="mt-6 space-y-3">
+          <h4 class="font-semibold">Gallery Items</h4>
+          <div id="galleryItemsWrapper" class="space-y-2 small-muted">Loading gallery...</div>
         </div>
       </div>
 
-      <div>
-        <h3 class="text-lg font-semibold mb-2">Existing Giveaways</h3>
-        <div id="giveawaysList" class="space-y-3"></div>
+      <!-- Winners / Giveaways / Fixtures -->
+      <div class="space-y-6">
+
+        <div class="card">
+          <h3 class="text-xl font-bold text-rose-700 mb-3">Winners — Add / Manage</h3>
+          <form id="winnerForm" class="grid gap-3">
+            <input id="winnerName" placeholder="Winner Name" class="p-2 rounded-lg border" />
+            <input id="winnerHandle" placeholder="Handle (IG/TikTok)" class="p-2 rounded-lg border" />
+            <input id="winnerPrize" placeholder="Prize" class="p-2 rounded-lg border" />
+            <input id="winnerImage" type="file" accept="image/*" />
+            <div class="flex gap-3">
+              <button id="addWinnerBtn" class="btn bg-rose-600 text-white">Add Winner</button>
+              <button id="resetWinnerBtn" type="button" class="btn bg-white border">Reset</button>
+            </div>
+          </form>
+          <div id="winnersList" class="mt-4 small-muted">Loading winners...</div>
+        </div>
+
+        <div class="card">
+          <h3 class="text-xl font-bold text-rose-700 mb-3">Fixtures — Manage</h3>
+          <form id="fixtureForm" class="grid gap-3">
+            <input id="fixtureLevel" placeholder="Level (U13, U17)" class="p-2 rounded-lg border" />
+            <input id="fixtureOpponent" placeholder="Opponent / Match" class="p-2 rounded-lg border" />
+            <input id="fixtureDate" type="datetime-local" class="p-2 rounded-lg border" />
+            <div class="flex gap-3">
+              <button id="addFixtureBtn" class="btn bg-rose-600 text-white">Add / Save Fixture</button>
+              <button id="resetFixtureBtn" type="button" class="btn bg-white border">Reset</button>
+            </div>
+          </form>
+          <div id="fixturesList" class="mt-4 small-muted">Loading fixtures...</div>
+        </div>
+
       </div>
     </section>
 
-    <!-- -------------- WINNERS -------------- -->
-    <section id="winnersSection" class="hidden">
-      <h2 class="text-2xl font-bold text-rose-700 mb-4">Winners — Add / Manage</h2>
-
-      <div class="bg-white p-6 rounded-lg shadow mb-6">
-        <form id="winnerForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-          <div>
-            <label class="block text-sm text-gray-700">Winner Name</label>
-            <input id="winnerName" class="w-full border px-3 py-2 rounded" />
-          </div>
-          <div>
-            <label class="block text-sm text-gray-700">Handle (IG/TikTok)</label>
-            <input id="winnerHandle" class="w-full border px-3 py-2 rounded" />
-          </div>
-          <div>
-            <label class="block text-sm text-gray-700">Prize</label>
-            <input id="winnerPrize" class="w-full border px-3 py-2 rounded" />
-          </div>
-
-          <div>
-            <label class="block text-sm text-gray-700">Announced At</label>
-            <input id="winnerAnnouncedAt" type="date" class="w-full border px-3 py-2 rounded"/>
-          </div>
-          <div>
-            <label class="block text-sm text-gray-700">Upload Picture</label>
-            <input id="winnerFile" type="file" accept="image/*" />
-          </div>
-
-          <div class="md:col-span-3">
-            <button id="saveWinner" type="button" class="bg-rose-600 text-white px-6 py-2 rounded">Save Winner</button>
-            <button id="resetWinner" type="button" class="ml-3 bg-gray-100 px-4 py-2 rounded">Reset</button>
-          </div>
-        </form>
-      </div>
-
-      <div>
-        <h3 class="text-lg font-semibold mb-2">Winners List</h3>
-        <div id="winnersList" class="space-y-3"></div>
-      </div>
+    <section class="mt-8 small-muted">
+      <p>Note: admin write access is only enabled when you are signed in AND your UID matches the admin UID in the app (configured to the account that your Firestore rules expect).</p>
     </section>
   </main>
 
-  <footer class="fixed bottom-0 left-0 right-0 bg-pink-900 text-white text-center py-3">© 2025 The Footballer’s Sister</footer>
+  <footer class="bg-pink-900 text-white text-center py-6">
+    <p>&copy; 2025 The Footballer’s Sister. All rights reserved.</p>
+  </footer>
 
-  <!-- Firebase + logic -->
+  <!-- Firebase + Cloudinary config & app logic -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-    // --- CONFIG — replace if different project (kept as you provided) ---
+    // === CONFIG (replace only if you want different values) ===
+    const ADMIN_UID = 'pDokgebzpTZWzmn9dW50kaDAqRT2'; // YOUR admin UID (keeps writes permitted only for this user)
+    const appId = '1:65396604482:web:0f31625a714aa8352337db';
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
       projectId: "football-site-c3aa9",
       storageBucket: "football-site-c3aa9.appspot.com",
       messagingSenderId: "65396604482",
-      appId: "1:65396604482:web:0f31625a714aa8352337db"
+      appId: appId
     };
-    const ARTIFACT_ID = "1:65396604482:web:0f31625a714aa8352337db"; // collection base used in rules and client
-    const CLOUD_NAME = "dk1df1qmi"; // supplied by you
-    const CLOUDINARY_UPLOAD_PRESET = "unsigned_bts_preset"; // supplied by you
-    const ADMIN_UID = "pDokgebzpTZWzmn9dW50kaDAqRT2"; // your admin UID
+
+    // Cloudinary (unsigned preset)
+    const CLOUDINARY_CLOUD = 'dk1df1qmi'; // your cloud name
+    const CLOUDINARY_UPLOAD_PRESET = 'unsigned_bts_preset'; // unsigned preset name
+
+    // === Firebase imports ===
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // ui refs
-    const uidDisplay = document.getElementById('uidDisplay');
-    const statusEl = document.getElementById('status');
+    // --- UI elements
+    const loginForm = document.getElementById('loginForm');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const loginBtn = document.getElementById('loginBtn');
+    const createBtn = document.getElementById('createBtn');
+    const signOutBtn = document.getElementById('signOutBtn');
+    const notSignedInUI = document.getElementById('notSignedInUI');
+    const signedInUI = document.getElementById('signedInUI');
+    const userEmailEl = document.getElementById('userEmail');
+    const userUidEl = document.getElementById('userUid');
+    const adminNoticeEl = document.getElementById('adminNotice');
+    const authSection = document.getElementById('authSection');
 
-    // tabs
-    const sections = {
-      support: document.getElementById('supportSection'),
-      questions: document.getElementById('questionsSection'),
-      fixtures: document.getElementById('fixturesSection'),
-      gallery: document.getElementById('gallerySection'),
-      giveaways: document.getElementById('giveawaysSection'),
-      winners: document.getElementById('winnersSection'),
-    };
-
-    function switchTo(tab){
-      Object.values(sections).forEach(s => s.classList.add('hidden'));
-      sections[tab].classList.remove('hidden');
-      // update pills
-      document.querySelectorAll('.pill').forEach(b => b.classList.remove('active-pill'));
-      document.getElementById('tab-' + tab).classList.add('active-pill');
-    }
-
-    document.getElementById('tab-support').addEventListener('click', ()=>switchTo('support'));
-    document.getElementById('tab-questions').addEventListener('click', ()=>switchTo('questions'));
-    document.getElementById('tab-fixtures').addEventListener('click', ()=>switchTo('fixtures'));
-    document.getElementById('tab-gallery').addEventListener('click', ()=>switchTo('gallery'));
-    document.getElementById('tab-giveaways').addEventListener('click', ()=>switchTo('giveaways'));
-    document.getElementById('tab-winners').addEventListener('click', ()=>switchTo('winners'));
-
-    document.getElementById('logoutBtn').addEventListener('click', ()=> signOut(auth));
-
-    // ensure admin: sign in anonymously if needed — if your admin uses a custom token you should sign in that way.
-    onAuthStateChanged(auth, user => {
-      if (!user) {
-        // try anonymous sign-in to be able to read public docs. Admin should be a known UID (custom auth) in your environment.
-        signInAnonymously(auth).catch(e => console.error(e));
-        uidDisplay.textContent = "UID: (signing in...)";
-        return;
-      }
-      uidDisplay.textContent = `UID: ${user.uid}`;
-      if (user.uid !== ADMIN_UID) {
-        // not admin — show warning but still allow read-only where rules permit
-        statusEl.textContent = "You are signed in but not as the admin account. Writes will be blocked by rules unless your UID matches the admin UID.";
-      } else {
-        statusEl.textContent = "";
-      }
-    });
-
-    // ---------- HELPER: Cloudinary unsigned upload ----------
-    async function uploadToCloudinary(file, progressCallback) {
-      if (!file) throw new Error("No file provided");
-      const url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`;
-      const fd = new FormData();
-      fd.append('file', file);
-      fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-      // send
-      const res = await fetch(url, { method: 'POST', body: fd });
-      if (!res.ok) {
-        const txt = await res.text();
-        throw new Error("Upload failed: " + txt);
-      }
-      const data = await res.json();
-      return data; // contains secure_url, public_id, etc.
-    }
-
-    // -------------- SUPPORT WALL LISTENER --------------
-    const supportListEl = document.getElementById('supportList');
-    const supportQuery = query(collection(db, `/artifacts/${ARTIFACT_ID}/public/data/supportMessages`), orderBy('timestamp','desc'));
-    onSnapshot(supportQuery, snap => {
-      supportListEl.innerHTML = '';
-      snap.docs.forEach(docSnap => {
-        const d = docSnap.data();
-        const card = document.createElement('div');
-        card.className = 'p-3 bg-white rounded shadow flex justify-between';
-        card.innerHTML = `<div><strong>${d.name}</strong><div class="text-sm text-gray-600">${d.message}</div></div>
-          <div class="text-xs text-gray-400">${d.timestamp?.toDate ? d.timestamp.toDate().toLocaleString() : ''}</div>`;
-        supportListEl.appendChild(card);
-      });
-    }, err => { console.error(err); supportListEl.innerHTML = '<div class="text-red-600">Could not load support messages.</div>'; });
-
-    // -------------- QUESTIONS LISTENER --------------
-    const questionsListEl = document.getElementById('questionsList');
-    const qQuery = query(collection(db, `/artifacts/${ARTIFACT_ID}/public/data/questions`), orderBy('createdAt','desc'));
-    onSnapshot(qQuery, snap => {
-      questionsListEl.innerHTML = '';
-      snap.docs.forEach(s => {
-        const d = s.data();
-        const el = document.createElement('div');
-        el.className = 'p-3 bg-white rounded shadow';
-        el.innerHTML = `<div class="font-semibold">${d.title || 'Question'}</div><div class="text-sm text-gray-700 mt-1">${d.body||''}</div>`;
-        questionsListEl.appendChild(el);
-      });
-    }, err => { console.error(err); questionsListEl.innerHTML = '<div class="text-red-600">Could not load questions.</div>'; });
-
-    // -------------- GALLERY UPLOAD + LISTENER --------------
-    const galleryFile = document.getElementById('galleryFile');
-    const galleryCaption = document.getElementById('galleryCaption');
-    const galleryOrder = document.getElementById('galleryOrder');
-    const uploadGalleryBtn = document.getElementById('uploadGalleryBtn');
-    const galleryProgressFill = document.getElementById('galleryProgressFill');
+    const galleryItemsWrapper = document.getElementById('galleryItemsWrapper');
     const galleryList = document.getElementById('galleryList');
-    uploadGalleryBtn.addEventListener('click', async () => {
-      try{
-        uploadGalleryBtn.disabled = true;
-        galleryProgressFill.style.width = '5%';
-        const file = galleryFile.files[0];
-        if (!file) throw new Error("Select an image file");
-        const cloud = await uploadToCloudinary(file);
-        galleryProgressFill.style.width = '70%';
-        const docRef = await addDoc(collection(db, `/artifacts/${ARTIFACT_ID}/public/data/gallery`), {
-          imageUrl: cloud.secure_url,
-          publicId: cloud.public_id,
-          caption: galleryCaption.value || '',
-          order: Number(galleryOrder.value || 1),
-          createdAt: serverTimestamp()
-        });
-        galleryProgressFill.style.width = '100%';
-        galleryFile.value = '';
-        galleryCaption.value = '';
-        galleryOrder.value = '1';
-        setTimeout(()=> galleryProgressFill.style.width='0%', 600);
-      } catch (e) {
-        console.error(e);
-        statusEl.textContent = 'Gallery upload failed: ' + e.message;
-      } finally {
-        uploadGalleryBtn.disabled = false;
+
+    const uploadMediaBtn = document.getElementById('uploadMediaBtn');
+    const mediaFile = document.getElementById('mediaFile');
+    const mediaCaption = document.getElementById('mediaCaption');
+    const mediaOrder = document.getElementById('mediaOrder');
+
+    const winnersList = document.getElementById('winnersList');
+    const addWinnerBtn = document.getElementById('addWinnerBtn');
+    const winnerName = document.getElementById('winnerName');
+    const winnerHandle = document.getElementById('winnerHandle');
+    const winnerPrize = document.getElementById('winnerPrize');
+    const winnerImage = document.getElementById('winnerImage');
+
+    const fixturesList = document.getElementById('fixturesList');
+    const addFixtureBtn = document.getElementById('addFixtureBtn');
+    const fixtureLevel = document.getElementById('fixtureLevel');
+    const fixtureOpponent = document.getElementById('fixtureOpponent');
+    const fixtureDate = document.getElementById('fixtureDate');
+
+    // Helper show/hide
+    function setSignedInState(user) {
+      if (user) {
+        notSignedInUI.classList.add('hidden');
+        signedInUI.classList.remove('hidden');
+        signOutBtn.classList.remove('hidden');
+        userEmailEl.textContent = user.email || '(no email)';
+        userUidEl.textContent = user.uid;
+        authSection.textContent = `UID: ${user.uid}`;
+
+        if (user.uid === ADMIN_UID) {
+          adminNoticeEl.textContent = "You are signed in as the admin account. Writes are enabled.";
+          adminNoticeEl.className = "text-sm text-green-700";
+        } else {
+          adminNoticeEl.textContent = "You are signed in but not as the admin account. Writes will be blocked by rules unless your UID matches the admin UID.";
+          adminNoticeEl.className = "text-sm text-amber-700";
+        }
+      } else {
+        notSignedInUI.classList.remove('hidden');
+        signedInUI.classList.add('hidden');
+        signOutBtn.classList.add('hidden');
+        userEmailEl.textContent = '';
+        userUidEl.textContent = '';
+        authSection.textContent = '';
+      }
+    }
+
+    // Wire authentication
+    loginForm.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (err) {
+        alert("Sign-in failed: " + err.message);
+        console.error(err);
       }
     });
 
-    // listen gallery
-    const galleryQuery = query(collection(db, `/artifacts/${ARTIFACT_ID}/public/data/gallery`), orderBy('order','asc'), orderBy('createdAt','asc'));
-    onSnapshot(galleryQuery, snap => {
-      galleryList.innerHTML = '';
-      snap.docs.forEach(docSnap => {
-        const d = docSnap.data();
-        const el = document.createElement('div');
-        el.className = 'bg-white p-3 rounded shadow';
-        el.innerHTML = `
-          <img src="${d.imageUrl}" class="w-full h-48 object-cover rounded mb-2">
-          <div class="text-sm text-gray-700">${d.caption || ''}</div>
-          <div class="mt-2 flex gap-2">
-            <button data-id="${docSnap.id}" class="deleteGalleryBtn bg-gray-100 px-3 py-1 rounded">Delete</button>
-          </div>
-        `;
-        galleryList.appendChild(el);
-      });
-      // attach delete listeners
-      document.querySelectorAll('.deleteGalleryBtn').forEach(b=>{
-        b.addEventListener('click', async (e)=>{
-          const id = e.target.getAttribute('data-id');
-          try { await deleteDoc(doc(db, `/artifacts/${ARTIFACT_ID}/public/data/gallery/${id}`)); }
-          catch(err){ console.error(err); alert('Delete failed: ' + err.message); }
-        });
-      });
-    }, err => { console.error(err); galleryList.innerHTML = '<div class="text-red-600">Could not load gallery.</div>'; });
+    createBtn.addEventListener('click', async () => {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+      if (!email || !password) { alert('Enter email & password to create account'); return; }
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert('Account created and signed in (remember the credentials).');
+      } catch (err) {
+        alert('Create account failed: ' + err.message);
+        console.error(err);
+      }
+    });
 
-    // -------------- WINNERS --------------
-    const winnerFile = document.getElementById('winnerFile');
-    const saveWinnerBtn = document.getElementById('saveWinner');
-    const winnersList = document.getElementById('winnersList');
+    signOutBtn.addEventListener('click', async () => {
+      await signOut(auth);
+    });
 
-    saveWinnerBtn.addEventListener('click', async () => {
-      try{
-        saveWinnerBtn.disabled = true;
-        const name = document.getElementById('winnerName').value.trim();
-        const handle = document.getElementById('winnerHandle').value.trim();
-        const prize = document.getElementById('winnerPrize').value.trim();
-        const announcedAt = document.getElementById('winnerAnnouncedAt').value ? new Date(document.getElementById('winnerAnnouncedAt').value) : null;
-        const file = winnerFile.files[0];
+    onAuthStateChanged(auth, (user) => {
+      setSignedInState(user);
+    });
 
-        let imageUrl = '';
-        if (file) {
-          const cloud = await uploadToCloudinary(file);
-          imageUrl = cloud.secure_url;
-        }
+    // ===== Firestore collections paths
+    const galleryCollPath = `/artifacts/${appId}/public/data/gallery`;
+    const winnersCollPath = `/artifacts/${appId}/public/data/winners`;
+    const fixturesCollPath = `/artifacts/${appId}/public/data/fixtures`;
 
-        await addDoc(collection(db, `/artifacts/${ARTIFACT_ID}/public/data/winners`), {
-          name, handle, prize, imageUrl, announcedAt: announcedAt ? announcedAt.toISOString() : null,
+    // Utility: create a document only if current user is admin UID (client-side check for UX)
+    function isAdminUser() {
+      const user = auth.currentUser;
+      return user && user.uid === ADMIN_UID;
+    }
+
+    // === Media upload to Cloudinary (unsigned) and save to Firestore ===
+    async function uploadToCloudinary(file) {
+      if (!file) throw new Error('No file provided');
+      const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/upload`;
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+      const res = await fetch(url, { method: 'POST', body: formData });
+      if (!res.ok) throw new Error('Cloudinary upload failed: ' + res.statusText);
+      return res.json();
+    }
+
+    uploadMediaBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      if (!isAdminUser()) { alert('Only the admin account can upload media.'); return; }
+      const file = mediaFile.files[0];
+      if (!file) { alert('Please choose a file first'); return; }
+      try {
+        uploadMediaBtn.disabled = true;
+        uploadMediaBtn.textContent = 'Uploading...';
+
+        const cloud = await uploadToCloudinary(file);
+        const doc = {
+          caption: mediaCaption.value || '',
+          imageUrl: cloud.secure_url || cloud.url || '',
+          publicId: cloud.public_id || '',
+          order: parseInt(mediaOrder.value || '1', 10),
           createdAt: serverTimestamp()
-        });
-
-        document.getElementById('winnerName').value=''; document.getElementById('winnerHandle').value=''; document.getElementById('winnerPrize').value=''; winnerFile.value='';
-      } catch(e){
-        console.error(e);
-        alert('Save failed: ' + e.message);
-      } finally { saveWinnerBtn.disabled = false; }
+        };
+        await addDoc(collection(db, galleryCollPath), doc);
+        mediaCaption.value = '';
+        mediaOrder.value = '1';
+        mediaFile.value = '';
+        alert('Uploaded and saved to gallery.');
+      } catch (err) {
+        console.error(err);
+        alert('Upload failed: ' + (err.message || err));
+      } finally {
+        uploadMediaBtn.disabled = false;
+        uploadMediaBtn.textContent = 'Upload to Cloud & Save';
+      }
     });
 
-    // winners list
-    const winnersQuery = query(collection(db, `/artifacts/${ARTIFACT_ID}/public/data/winners`), orderBy('createdAt','desc'));
-    onSnapshot(winnersQuery, snap => {
-      winnersList.innerHTML = '';
-      snap.docs.forEach(dSnap=>{
-        const d = dSnap.data();
-        const el = document.createElement('div');
-        el.className = 'p-3 bg-white rounded shadow flex gap-4 items-center';
-        el.innerHTML = `
-          <img src="${d.imageUrl||'https://via.placeholder.com/150'}" class="w-20 h-20 object-cover rounded">
-          <div class="flex-1">
-            <div class="font-semibold">${d.name} <span class="text-sm text-gray-500">(${d.handle||''})</span></div>
-            <div class="text-sm text-gray-600">${d.prize||''}</div>
-            <div class="text-xs text-gray-400 mt-1">${d.announcedAt ? new Date(d.announcedAt).toLocaleDateString() : ''}</div>
-          </div>
-          <div>
-            <button data-id="${dSnap.id}" class="deleteWinnerBtn bg-gray-100 px-3 py-1 rounded">Delete</button>
-          </div>
-        `;
-        winnersList.appendChild(el);
-      });
-      document.querySelectorAll('.deleteWinnerBtn').forEach(b=>{
-        b.addEventListener('click', async e=>{
-          const id = e.target.getAttribute('data-id');
-          try { await deleteDoc(doc(db, `/artifacts/${ARTIFACT_ID}/public/data/winners/${id}`)); }
-          catch(err){ console.error(err); alert('Delete failed: ' + err.message); }
-        });
-      });
-    }, err => { console.error(err); winnersList.innerHTML = '<div class="text-red-600">Could not load winners.</div>'; });
-
-    // -------------- GIVEAWAYS --------------
-    const saveGiveawayBtn = document.getElementById('saveGiveaway');
-    const giveawaysList = document.getElementById('giveawaysList');
-    saveGiveawayBtn.addEventListener('click', async () => {
+    // === WINS ===
+    addWinnerBtn.addEventListener('click', async (ev) => {
+      ev.preventDefault();
+      if (!isAdminUser()) { alert('Only admin can add winners.'); return; }
+      const name = winnerName.value.trim();
+      if (!name) { alert('Enter winner name'); return; }
       try {
-        saveGiveawayBtn.disabled = true;
-        const title = document.getElementById('giveTitle').value.trim();
-        const prize = document.getElementById('givePrize').value.trim();
-        const endsAt = document.getElementById('giveEnds').value ? new Date(document.getElementById('giveEnds').value).toISOString() : null;
-        if (!title) throw new Error("Title required");
-        await addDoc(collection(db, `/artifacts/${ARTIFACT_ID}/public/data/giveaways`), {
-          title, prize, endsAt, status: 'active', createdAt: serverTimestamp()
-        });
-        document.getElementById('giveTitle').value=''; document.getElementById('givePrize').value=''; document.getElementById('giveEnds').value='';
-      } catch(e) { console.error(e); alert('Save giveaway failed: ' + e.message); }
-      finally { saveGiveawayBtn.disabled = false; }
+        let imageUrl = '';
+        if (winnerImage.files && winnerImage.files[0]) {
+          const cloud = await uploadToCloudinary(winnerImage.files[0]);
+          imageUrl = cloud.secure_url || cloud.url || '';
+        }
+        const doc = {
+          name,
+          handle: winnerHandle.value.trim() || '',
+          prize: winnerPrize.value.trim() || '',
+          imageUrl,
+          announcedAt: serverTimestamp()
+        };
+        await addDoc(collection(db, winnersCollPath), doc);
+        winnerName.value = winnerHandle.value = winnerPrize.value = '';
+        winnerImage.value = '';
+        alert('Winner added.');
+      } catch (err) {
+        console.error(err);
+        alert('Failed to add winner: ' + err.message);
+      }
     });
 
-    // listen giveaways
-    const giveQuery = query(collection(db, `/artifacts/${ARTIFACT_ID}/public/data/giveaways`), orderBy('createdAt','desc'));
-    onSnapshot(giveQuery, snap => {
-      giveawaysList.innerHTML = '';
-      snap.docs.forEach(snapDoc => {
-        const d = snapDoc.data();
-        const el = document.createElement('div');
-        el.className = 'p-3 bg-white rounded shadow flex justify-between';
-        el.innerHTML = `<div><strong>${d.title}</strong><div class="text-sm text-gray-600">${d.prize || ''}</div></div>
-          <div class="flex gap-2">
-            <button data-id="${snapDoc.id}" class="endGive bg-gray-100 px-3 py-1 rounded">End</button>
-            <button data-id="${snapDoc.id}" class="delGive bg-gray-100 px-3 py-1 rounded">Delete</button>
-          </div>`;
-        giveawaysList.appendChild(el);
-      });
-      document.querySelectorAll('.endGive').forEach(b=> b.addEventListener('click', async e=>{
-        const id = e.target.getAttribute('data-id');
-        try { await updateDoc(doc(db, `/artifacts/${ARTIFACT_ID}/public/data/giveaways/${id}`), { status: 'ended' }); }
-        catch(err){ console.error(err); alert('End failed: ' + err.message); }
-      }));
-      document.querySelectorAll('.delGive').forEach(b=> b.addEventListener('click', async e=>{
-        const id = e.target.getAttribute('data-id');
-        try { await deleteDoc(doc(db, `/artifacts/${ARTIFACT_ID}/public/data/giveaways/${id}`)); }
-        catch(err){ console.error(err); alert('Delete failed: ' + err.message); }
-      }));
-    }, err => { console.error(err); giveawaysList.innerHTML = '<div class="text-red-600">Could not load giveaways.</div>'; });
-
-    // -------------- FIXTURES (upload logos + save + list) --------------
-    let homeLogoUrl = '', awayLogoUrl = '';
-
-    document.getElementById('uploadHomeLogoBtn').addEventListener('click', async ()=>{
+    // === FIXTURES ===
+    addFixtureBtn.addEventListener('click', async (ev) => {
+      ev.preventDefault();
+      if (!isAdminUser()) { alert('Only admin can add fixtures.'); return; }
       try {
-        const f = document.getElementById('homeLogoFile').files[0];
-        if (!f) return alert('Choose a file first');
-        const cloud = await uploadToCloudinary(f);
-        homeLogoUrl = cloud.secure_url;
-        document.getElementById('homeLogoPreview').textContent = 'Uploaded ✓';
-      } catch(e){ console.error(e); alert('Home logo upload failed: ' + e.message); }
+        const doc = {
+          level: fixtureLevel.value || '',
+          opponent: fixtureOpponent.value || '',
+          date: fixtureDate.value ? new Date(fixtureDate.value).toISOString() : '',
+          createdAt: serverTimestamp()
+        };
+        await addDoc(collection(db, fixturesCollPath), doc);
+        fixtureLevel.value = fixtureOpponent.value = fixtureDate.value = '';
+        alert('Fixture added.');
+      } catch (err) {
+        console.error(err);
+        alert('Failed to add fixture: ' + err.message);
+      }
     });
 
-    document.getElementById('uploadAwayLogoBtn').addEventListener('click', async ()=>{
+    // === Live listeners for lists (read-only allowed to all in your rules) ===
+    function listenGallery() {
       try {
-        const f = document.getElementById('awayLogoFile').files[0];
-        if (!f) return alert('Choose a file first');
-        const cloud = await uploadToCloudinary(f);
-        awayLogoUrl = cloud.secure_url;
-        document.getElementById('awayLogoPreview').textContent = 'Uploaded ✓';
-      } catch(e){ console.error(e); alert('Away logo upload failed: ' + e.message); }
-    });
+        const q = query(collection(db, galleryCollPath), orderBy('order', 'asc'));
+        onSnapshot(q, snap => {
+          if (snap.empty) {
+            galleryItemsWrapper.innerHTML = '<div class="small-muted">No gallery items yet.</div>';
+            return;
+          }
+          galleryItemsWrapper.innerHTML = '';
+          snap.forEach(doc => {
+            const d = doc.data();
+            const html = document.createElement('div');
+            html.className = 'flex items-center gap-3 p-2 border rounded';
+            html.innerHTML = `
+              <div class="w-20 h-12 bg-gray-100 overflow-hidden rounded"><img src="${d.imageUrl||''}" class="w-full h-full object-cover" /></div>
+              <div class="flex-1"><div class="font-semibold">${d.caption||'(no caption)'}</div><div class="small-muted">order: ${d.order||0}</div></div>
+              <div><button class="btn bg-white border small-muted" data-id="${doc.id}">Delete</button></div>
+            `;
+            galleryItemsWrapper.appendChild(html);
 
-    document.getElementById('saveFixture').addEventListener('click', async ()=>{
+            html.querySelector('button')?.addEventListener('click', async (e) => {
+              if (!isAdminUser()) { alert('Only admin may delete.'); return; }
+              if (!confirm('Delete this gallery item?')) return;
+              try {
+                const mod = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
+                await mod.deleteDoc(mod.doc(db, `${galleryCollPath}/${doc.id}`));
+                alert('Deleted.');
+              } catch (err) {
+                console.error(err);
+                alert('Delete failed: ' + err.message);
+              }
+            });
+          });
+        }, err => {
+          galleryItemsWrapper.innerHTML = `<div class="text-red-600">Could not load gallery: ${err.message}</div>`;
+          console.error('gallery listener error', err);
+        });
+      } catch (err) {
+        galleryItemsWrapper.innerHTML = `<div class="text-red-600">Could not initialize gallery listener: ${err.message}</div>`;
+      }
+    }
+
+    function listenWinners() {
       try {
-        const home = document.getElementById('fixtureHome').value.trim();
-        const away = document.getElementById('fixtureAway').value.trim();
-        const dt = document.getElementById('fixtureDate').value;
-        const stadium = document.getElementById('fixtureStadium').value.trim();
-        const level = document.getElementById('fixtureLevel').value;
-        const status = document.getElementById('fixtureStatus').value;
-        if (!home || !away || !dt) throw new Error("Home, away & date required");
-        await addDoc(collection(db, `/artifacts/${ARTIFACT_ID}/public/data/fixtures`), {
-          home, away, datetime: dt, stadium, level, status, homeLogoUrl: homeLogoUrl||'', awayLogoUrl: awayLogoUrl||'', createdAt: serverTimestamp()
+        const q = query(collection(db, winnersCollPath), orderBy('announcedAt', 'desc'));
+        onSnapshot(q, snap => {
+          if (snap.empty) { winnersList.innerHTML = '<div class="small-muted">No winners yet.</div>'; return; }
+          winnersList.innerHTML = '';
+          snap.forEach(doc => {
+            const d = doc.data();
+            const el = document.createElement('div');
+            el.className = 'p-3 border rounded flex items-center gap-4';
+            el.innerHTML = `
+              <div class="w-16 h-12 bg-gray-100 overflow-hidden rounded"><img src="${d.imageUrl||''}" class="w-full h-full object-cover" /></div>
+              <div class="flex-1"><div class="font-semibold">${d.name||'(no name)'}</div><div class="small-muted">${d.prize||''} ${d.handle? '• ' + d.handle : ''}</div></div>
+              <div><button class="btn bg-white border" data-id="${doc.id}">Delete</button></div>
+            `;
+            winnersList.appendChild(el);
+            el.querySelector('button')?.addEventListener('click', async () => {
+              if (!isAdminUser()) { alert('Only admin may delete.'); return; }
+              if (!confirm('Delete this winner?')) return;
+              try {
+                const mod = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
+                await mod.deleteDoc(mod.doc(db, `${winnersCollPath}/${doc.id}`));
+                alert('Deleted.');
+              } catch (err) {
+                console.error(err);
+                alert('Delete failed: ' + err.message);
+              }
+            });
+          });
+        }, err => {
+          winnersList.innerHTML = `<div class="text-red-600">Could not load winners: ${err.message}</div>`;
         });
-        // reset local
-        document.getElementById('fixtureForm').reset();
-        homeLogoUrl = awayLogoUrl = '';
-        document.getElementById('homeLogoPreview').textContent = '';
-        document.getElementById('awayLogoPreview').textContent = '';
-      } catch(e){ console.error(e); alert('Save fixture failed: ' + e.message); }
-    });
+      } catch (err) {
+        winnersList.innerHTML = `<div class="text-red-600">Could not init winners: ${err.message}</div>`;
+      }
+    }
 
-    // fixtures list
-    const fixturesListEl = document.getElementById('fixturesList');
-    const fixturesQuery = query(collection(db, `/artifacts/${ARTIFACT_ID}/public/data/fixtures`), orderBy('datetime','asc'));
-    onSnapshot(fixturesQuery, snap => {
-      fixturesListEl.innerHTML = '';
-      snap.docs.forEach(snapDoc => {
-        const d = snapDoc.data();
-        const card = document.createElement('div');
-        card.className = 'p-4 bg-white rounded shadow flex gap-4 items-center';
-        card.innerHTML = `
-          <div class="w-20">
-            <img src="${d.homeLogoUrl||'https://via.placeholder.com/60'}" class="w-10 h-10 object-cover inline-block rounded mr-2">
-            <img src="${d.awayLogoUrl||'https://via.placeholder.com/60'}" class="w-10 h-10 object-cover inline-block rounded">
-          </div>
-          <div class="flex-1">
-            <div class="font-semibold">${d.home} vs ${d.away}</div>
-            <div class="text-sm text-gray-600">${d.datetime} • ${d.stadium || ''}</div>
-          </div>
-          <div>
-            <button data-id="${snapDoc.id}" class="deleteFixtureBtn bg-gray-100 px-3 py-1 rounded">Delete</button>
-          </div>
-        `;
-        fixturesListEl.appendChild(card);
-      });
-      document.querySelectorAll('.deleteFixtureBtn').forEach(b=>{
-        b.addEventListener('click', async e=>{
-          const id = e.target.getAttribute('data-id');
-          try { await deleteDoc(doc(db, `/artifacts/${ARTIFACT_ID}/public/data/fixtures/${id}`)); }
-          catch(err) { console.error(err); alert('Delete failed: ' + err.message); }
+    function listenFixtures() {
+      try {
+        const q = query(collection(db, fixturesCollPath), orderBy('createdAt', 'desc'));
+        onSnapshot(q, snap => {
+          if (snap.empty) { fixturesList.innerHTML = '<div class="small-muted">No fixtures yet.</div>'; return; }
+          fixturesList.innerHTML = '';
+          snap.forEach(doc => {
+            const d = doc.data();
+            const el = document.createElement('div');
+            el.className = 'p-3 border rounded flex items-center justify-between gap-4';
+            el.innerHTML = `<div><div class="font-semibold">${d.level||''} • ${d.opponent||''}</div><div class="small-muted">${d.date||''}</div></div>
+              <div><button class="btn bg-white border" data-id="${doc.id}">Delete</button></div>`;
+            fixturesList.appendChild(el);
+
+            el.querySelector('button')?.addEventListener('click', async () => {
+              if (!isAdminUser()) { alert('Only admin may delete.'); return; }
+              if (!confirm('Delete this fixture?')) return;
+              try {
+                const mod = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
+                await mod.deleteDoc(mod.doc(db, `${fixturesCollPath}/${doc.id}`));
+                alert('Deleted.');
+              } catch (err) {
+                console.error(err);
+                alert('Delete failed: ' + err.message);
+              }
+            });
+          });
+        }, err => {
+          fixturesList.innerHTML = `<div class="text-red-600">Could not load fixtures: ${err.message}</div>`;
         });
-      });
-    }, err => { console.error(err); fixturesListEl.innerHTML = '<div class="text-red-600">Could not load fixtures.</div>'; });
+      } catch (err) {
+        fixturesList.innerHTML = `<div class="text-red-600">Could not init fixtures: ${err.message}</div>`;
+      }
+    }
 
-    // initial tab
-    switchTo('gallery');
+    // start listeners (reads should be allowed by your Firestore rules)
+    listenGallery();
+    listenWinners();
+    listenFixtures();
 
+    // If Firestore rules deny reads or writes, you'll see permission errors in the console.
+    // Make sure your Firestore rules permit reads for the public collections and writes for
+    // the admin UID (the one stored in ADMIN_UID).
   </script>
 </body>
 </html>
