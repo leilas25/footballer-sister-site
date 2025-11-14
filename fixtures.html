@@ -1,61 +1,30 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Fixtures & Live Scores — The Footballer's Sister</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Fixtures & Live Scores</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-pink-50 text-black font-sans">
-
-  <header class="fixed top-0 w-full bg-pink-100 shadow z-50">
-    <div class="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
+<body class="bg-pink-50">
+  <header class="bg-pink-100 fixed top-0 left-0 right-0 z-40">
+    <div class="max-w-6xl mx-auto px-6 py-4">
       <h1 class="text-xl font-bold text-rose-600">THE FOOTBALLER’S SISTER</h1>
-      <nav class="flex gap-4">
-        <a href="index.html" class="text-rose-600">Home</a>
-        <a href="bts.html" class="text-rose-600">Behind the Game</a>
-        <a href="fixtures.html" class="font-semibold text-rose-700">Fixtures</a>
-        <a href="giveaways.html" class="text-rose-600">Giveaways</a>
-      </nav>
     </div>
   </header>
 
-  <main class="pt-28 pb-20">
-    <section class="max-w-3xl mx-auto text-center mb-8">
-      <h2 class="text-4xl font-bold text-rose-700">Fixtures & Live Scores</h2>
-      <p class="text-gray-600 mt-2">U14 & U19 • Jomo Cosmos</p>
-    </section>
+  <main class="pt-28 max-w-4xl mx-auto px-6 text-center">
+    <h2 class="text-4xl font-bold text-rose-700 mb-4">Fixtures & Live Scores</h2>
+    <p class="text-gray-600 mb-8">U14 & U19 • Jomo Cosmos</p>
 
-    <section class="max-w-3xl mx-auto px-6">
-      <div class="flex gap-3 justify-center mb-6">
-        <select id="levelFilter" class="px-4 py-2 rounded border bg-white">
-          <option value="all">All Levels</option>
-          <option value="U14">U14</option>
-          <option value="U19">U19</option>
-        </select>
-        <select id="statusFilter" class="px-4 py-2 rounded border bg-white">
-          <option value="all">All Status</option>
-          <option value="scheduled">Scheduled</option>
-          <option value="live">Live</option>
-          <option value="finished">Finished</option>
-        </select>
-      </div>
-
-      <div id="fixturesList" class="space-y-4">
-        <p class="text-center text-gray-500">Loading fixtures…</p>
-      </div>
-    </section>
+    <div id="fixturesWrap" class="space-y-4"></div>
   </main>
 
-  <footer class="bg-pink-900 text-white text-center py-6">
-    <p>&copy; <span id="year"></span> The Footballer’s Sister</p>
-  </footer>
-  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <footer class="mt-12 bg-pink-900 text-white text-center py-6">© 2025 The Footballer’s Sister</footer>
 
-  <!-- Firestore + rendering -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
@@ -65,69 +34,36 @@
       messagingSenderId: "65396604482",
       appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
+    const ARTIFACT_ID = "1:65396604482:web:0f31625a714aa8352337db";
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const APP_PATH = 'artifacts/1:65396604482:web:0f31625a714aa8352337db/public/data';
-    const FIXTURES_PATH = `${APP_PATH}/fixtures`;
-
-    const fixturesList = document.getElementById('fixturesList');
-    const levelFilter = document.getElementById('levelFilter');
-    const statusFilter = document.getElementById('statusFilter');
-
-    let fixtures = [];
-
-    function esc(s){ return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#039;"}[m])); }
-
-    function render() {
-      const level = levelFilter.value;
-      const status = statusFilter.value;
-      const items = fixtures.filter(f => (level==='all' || (f.level||'').toUpperCase()===level.toUpperCase()))
-                            .filter(f => (status==='all' || (f.status||'').toLowerCase()===status));
-
-      if (!items.length) {
-        fixturesList.innerHTML = '<p class="text-center text-gray-500">No fixtures found.</p>';
-        return;
-      }
-
-      fixturesList.innerHTML = '';
-      items.forEach(f => {
-        const kickoff = f.kickoffTs?.toDate ? f.kickoffTs.toDate() : (f.kickoffRaw ? new Date(f.kickoffRaw) : null);
-        const when = kickoff ? kickoff.toLocaleString() : (f.date || 'TBA');
-        const jomo = f.jomoLogoUrl || 'images/jomo-default.png';
-        const opp  = f.opponentLogoUrl || 'images/team-placeholder.png';
-        const score = (f.status==='live' || f.status==='finished') ? ` — ${f.scoreHome ?? 0} : ${f.scoreAway ?? 0}` : '';
-        fixturesList.innerHTML += `
-          <div class="bg-white rounded-xl p-4 shadow flex items-center gap-4">
-            <div class="w-16 flex-shrink-0">
-              <img src="${esc(jomo)}" alt="Jomo" class="w-16 h-16 object-contain rounded"/>
-            </div>
-            <div class="flex-1">
-              <div class="text-sm text-gray-500">${esc(when)} • ${esc(f.venue||'')}</div>
-              <div class="mt-1 font-semibold text-lg text-gray-800">
-                Jomo Cosmos ${esc(f.level||'')} ${f.homeAway === 'home' ? '(Home)' : '(Away)'} vs ${esc(f.opponent||'')}
-                <span class="ml-2 text-xs px-2 py-0.5 rounded-full ${f.status==='live' ? 'bg-green-100 text-green-700' : f.status==='finished' ? 'bg-gray-100 text-gray-700' : 'bg-blue-100 text-blue-700'}">${(f.status||'scheduled').toUpperCase()}</span>
-                <span class="ml-2 font-bold">${esc(score)}</span>
-              </div>
-              <div class="text-sm text-gray-500 mt-1">${esc(f.competition||'')}</div>
-            </div>
-            <div class="w-16 text-center">
-              <img src="${esc(opp)}" alt="Opp" class="w-16 h-16 object-contain rounded"/>
-            </div>
-          </div>
-        `;
-      });
-    }
-
-    // fetch realtime fixtures
-    const q = query(collection(db, FIXTURES_PATH), orderBy('kickoffTs', 'asc'));
+    const wrap = document.getElementById('fixturesWrap');
+    const q = query(collection(db, `/artifacts/${ARTIFACT_ID}/public/data/fixtures`), orderBy('datetime','asc'));
     onSnapshot(q, snap => {
-      fixtures = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      render();
+      wrap.innerHTML = '';
+      if (snap.empty) { wrap.innerHTML = '<div class="text-gray-500">No fixtures found.</div>'; return; }
+      snap.docs.forEach(snapDoc => {
+        const d = snapDoc.data();
+        const card = document.createElement('div');
+        card.className = 'bg-white p-6 rounded shadow flex items-center gap-4 justify-between';
+        card.innerHTML = `
+          <div class="flex items-center gap-4">
+            <img src="${d.homeLogoUrl || 'https://via.placeholder.com/60'}" class="w-12 h-12 object-cover rounded">
+            <div class="text-left">
+              <div class="font-semibold">${d.home} <span class="text-sm text-gray-500">(Home)</span> vs ${d.away}</div>
+              <div class="text-sm text-gray-600">${new Date(d.datetime).toLocaleString()} • ${d.stadium || ''}</div>
+            </div>
+            <img src="${d.awayLogoUrl || 'https://via.placeholder.com/60'}" class="w-12 h-12 object-cover rounded">
+          </div>
+          <div class="text-sm text-gray-600">${d.level || ''} <div class="mt-1 inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded">${d.status || ''}</div></div>
+        `;
+        wrap.appendChild(card);
+      });
+    }, err => {
+      console.error(err);
+      wrap.innerHTML = '<div class="text-red-600">Could not load fixtures.</div>';
     });
-
-    [levelFilter, statusFilter].forEach(el => el.addEventListener('change', render));
   </script>
-
 </body>
 </html>

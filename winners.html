@@ -1,42 +1,29 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Winners — The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-pink-50 text-black font-sans">
-  <header class="fixed top-0 w-full bg-pink-100 shadow z-50">
-    <div class="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
+<body class="bg-pink-50">
+  <header class="bg-pink-100 fixed top-0 left-0 right-0 z-40">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
       <h1 class="text-xl font-bold text-rose-600">THE FOOTBALLER’S SISTER</h1>
-      <nav class="flex gap-4">
-        <a href="giveaways.html" class="text-rose-600">Giveaways</a>
-        <a href="winners.html" class="font-semibold text-rose-700">Winners</a>
-      </nav>
+      <a href="giveaways.html" class="text-rose-600">Giveaways</a>
     </div>
   </header>
 
-  <main class="pt-28 pb-20">
-    <section class="max-w-4xl mx-auto text-center mb-8 px-6">
-      <h2 class="text-3xl font-bold text-rose-700">Giveaway Winners 🎉</h2>
-      <p class="text-gray-600 mt-2">All official winners and their prizes (as announced).</p>
-    </section>
-
-    <section class="max-w-4xl mx-auto px-6">
-      <div id="winnersGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <p class="text-gray-500 col-span-full text-center">Loading winners…</p>
-      </div>
-    </section>
+  <main class="pt-28 max-w-6xl mx-auto px-6">
+    <h2 class="text-4xl font-bold text-rose-700 mb-6 text-center">Winners</h2>
+    <div id="winnersWrap" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
   </main>
 
-  <footer class="bg-pink-900 text-white text-center py-6">
-    <p>&copy; <span id="year"></span> The Footballer’s Sister</p>
-  </footer>
-  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <footer class="mt-12 bg-pink-900 text-white text-center py-6">© 2025 The Footballer’s Sister</footer>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
@@ -46,31 +33,26 @@
       messagingSenderId: "65396604482",
       appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
+    const ARTIFACT_ID = "1:65396604482:web:0f31625a714aa8352337db";
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const APP_PATH = 'artifacts/1:65396604482:web:0f31625a714aa8352337db/public/data';
-    const WINNERS_PATH = `${APP_PATH}/winners`;
-
-    const grid = document.getElementById('winnersGrid');
-
-    function esc(s){ return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#039;"}[m])); }
-
-    const q = query(collection(db, WINNERS_PATH), orderBy('announcedAt','desc'));
+    const wrap = document.getElementById('winnersWrap');
+    const q = query(collection(db, `/artifacts/${ARTIFACT_ID}/public/data/winners`), orderBy('createdAt','desc'));
     onSnapshot(q, snap => {
-      const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      if (!docs.length) { grid.innerHTML = '<p class="text-center text-gray-500 col-span-full">No winners yet.</p>'; return; }
-      grid.innerHTML = docs.map(w => `
-        <div class="bg-white p-4 rounded-xl shadow flex gap-4 items-center">
-          <img src="${esc(w.photoUrl||'images/winner-placeholder.png')}" class="w-24 h-24 object-cover rounded-full"/>
-          <div>
-            <div class="font-semibold text-lg">${esc(w.name||'Winner')}</div>
-            <div class="text-sm text-gray-600">${esc(w.prize||'Prize')}</div>
-            <div class="text-xs text-gray-500 mt-1">${w.announcedAt?.toDate ? w.announcedAt.toDate().toLocaleDateString() : ''}</div>
-          </div>
-        </div>
-      `).join('');
-    });
+      wrap.innerHTML = '';
+      snap.docs.forEach(snapDoc => {
+        const d = snapDoc.data();
+        const el = document.createElement('div');
+        el.className = 'bg-white p-4 rounded shadow text-center';
+        el.innerHTML = `<img src="${d.imageUrl||'https://via.placeholder.com/200'}" class="w-full h-48 object-cover rounded mb-3">
+          <div class="font-semibold">${d.name}</div>
+          <div class="text-sm text-gray-600">${d.handle || ''}</div>
+          <div class="text-sm text-gray-700 mt-2">${d.prize || ''}</div>
+        `;
+        wrap.appendChild(el);
+      });
+    }, err => { console.error(err); wrap.innerHTML = '<div class="text-red-600">Could not load winners.</div>'; });
   </script>
 </body>
 </html>

@@ -1,188 +1,49 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Behind the Game – The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    .dropdown-open { opacity: 1 !important; transform: scale(1) !important; }
-    /* carousel track */
-    #photo-slides-container { display:flex; transition: transform 0.45s ease; will-change: transform; }
-    #photo-slides-container > figure { flex: 0 0 100%; margin:0; position:relative; min-height:220px; }
-    .carousel-dot { width:10px; height:10px; border-radius:9999px; background:rgba(255,255,255,0.6); border:1px solid rgba(0,0,0,0.06); }
-    .carousel-dot.active { background:white; }
-    /* fullscreen preview */
-    #previewModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:60; align-items:center; justify-content:center; padding:1.5rem; }
-    #previewModal img { max-width:100%; max-height:100%; border-radius:0.5rem; box-shadow:0 6px 30px rgba(0,0,0,0.6); }
-  </style>
 </head>
-<body class="bg-pink-50 text-black font-sans">
+<body class="bg-pink-50">
 
-  <!-- Header with dropdown -->
-  <header class="fixed top-0 w-full bg-pink-100 shadow z-50">
-    <div class="flex justify-between items-center px-6 py-4">
-      <h1 class="text-xl font-bold uppercase text-rose-600">THE FOOTBALLER’S SISTER</h1>
-      <div class="relative inline-block text-left">
-        <button id="navButton" class="inline-flex justify-center w-full rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50">
-          Loading…
-          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd"/>
-          </svg>
-        </button>
-        <div id="dropdownMenu" class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
-          <div class="py-1">
-            <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
-            <a href="bts.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
-            <a href="leila.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Meet Leila</a>
-            <a href="questions.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Q&A</a>
-            <a href="support-wall.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Support Wall</a>
-            <a href="fixtures.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Fixtures & Live Scores</a>
-            <a href="giveaways.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Giveaways</a>
-          </div>
-        </div>
+  <!-- header -->
+  <header class="fixed top-0 left-0 right-0 bg-pink-100 z-40">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+      <h1 class="text-xl font-bold text-rose-600">THE FOOTBALLER’S SISTER</h1>
+      <div>
+        <a href="index.html" class="text-rose-600 mr-4">Home</a>
+        <a href="bts.html" class="text-rose-600 font-semibold">Behind the Game</a>
       </div>
     </div>
   </header>
-  <div class="pt-24"></div>
 
-  <!-- Hero -->
-  <section class="pt-8 px-6 text-center max-w-3xl mx-auto">
-    <h2 class="text-4xl font-bold mb-4 text-rose-700">Behind the Game 📸⚽</h2>
-    <p class="text-lg text-gray-600 mb-10">From pre-match rituals to post-match reflections — vlogs, shoots and collabs. This is football, sister-style.</p>
-  </section>
+  <main class="pt-28 max-w-6xl mx-auto px-6">
+    <h2 class="text-4xl text-rose-700 font-bold text-center mb-6">Behind the Game 📸⚽</h2>
 
-  <!-- Player profiles (unchanged) -->
-  <section class="grid grid-cols-1 md:grid-cols-2 gap-6 px-6 max-w-4xl mx-auto mb-20">
-    <h3 class="md:col-span-2 text-3xl font-bold mb-4 text-rose-700 text-center">Meet the Brothers</h3>
-    <div class="bg-white p-5 rounded-lg shadow-md flex flex-col items-center text-center">
-      <img src="images/elijah2.jpeg" alt="Elijah Sono" class="rounded-lg mb-4 w-full h-auto object-cover" />
-      <h4 class="text-2xl font-bold text-rose-700">Elijah Sono</h4>
-      <p class="text-gray-600 mt-1"><strong>Position:</strong> Midfielder</p>
-      <div class="mt-4 text-left w-full">
-        <h5 class="font-semibold text-rose-600">Key Attributes:</h5>
-        <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1 text-sm">
-          <li><strong>Dribbling:</strong> Confident on the ball with quick feet to navigate tight spaces.</li>
-          <li><strong>Passing:</strong> Excellent vision and timing to consistently find teammates.</li>
-          <li><strong>Tackling:</strong> Reads the game well with precise and controlled tackling.</li>
-        </ul>
-      </div>
-      <div class="mt-4 text-left w-full">
-        <h5 class="font-semibold text-rose-600">Experience:</h5>
-        <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1 text-sm">
-          <li>Currently plays for the u13 Jomo Cosmos team in the GDL league.</li>
-          <li>Played for the u13 Jomo Cosmos team at age 10 and 11.</li>
-          <li>Developed skills at Wanderers Discovery Soccer Club.</li>
-        </ul>
-      </div>
-      <a href="uploaded:BAMUZA SONO JNR  - Player profile .pdf" target="_blank" class="mt-6 inline-block bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">View Official Profile</a>
-    </div>
-
-    <div class="bg-white p-5 rounded-lg shadow-md flex flex-col items-center text-center">
-      <img src="images/Bamuza.jpeg" alt="Bamuza Sono" class="rounded-lg mb-4 w-[622px] h-[470px] object-cover object-top mx-auto" />
-      <h4 class="text-2xl font-bold text-rose-700">Bamuza Sono Jnr</h4>
-      <p class="text-gray-600 mt-1"><strong>Position:</strong> Midfielder</p>
-      <div class="mt-4 text-left w-full">
-        <h5 class="font-semibold text-rose-600">Key Attributes:</h5>
-        <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1 text-sm">
-          <li><strong>Dribbling:</strong> Able to take on defenders with close control and quick feet.</li>
-          <li><strong>Passing:</strong> Excellent vision to deliver precise short passes or long balls.</li>
-          <li><strong>Shooting:</strong> Known as a free-kick or corner kick taker.</li>
-        </ul>
-      </div>
-      <div class="mt-4 text-left w-full">
-        <h5 class="font-semibold text-rose-600">Experience:</h5>
-        <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1 text-sm">
-          <li>Currently playing for the U17 Jomo Cosmos FC team in the GDL league.</li>
-          <li>Played for the U15 and U17 teams in previous years.</li>
-          <li>Developed skills at Wanderers Discovery Soccer Club</li>
-        </ul>
-      </div>
-      <a href="uploaded:BAMUZA SONO JNR  - Player profile .pdf.pdf" target="_blank" class="mt-6 inline-block bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">View Official Profile</a>
-    </div>
-  </section>
-
-  <!-- Media wall -->
-  <section class="px-6 max-w-6xl mx-auto mb-20">
-    <h3 class="text-2xl font-bold mb-6 text-rose-700 text-center">My Vlogs & Highlights + Collab Gallery</h3>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-
-      <!-- TikTok carousel -->
+    <section class="grid md:grid-cols-2 gap-8">
       <div>
-        <div id="video-carousel" class="relative overflow-hidden rounded-lg shadow-lg mx-auto w-full md:max-w-sm">
-          <div id="video-slides-container" class="flex transition-transform duration-500 ease-in-out">
-            <div class="w-full flex-shrink-0 relative" style="padding-top: 177.77%;"><iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" allowfullscreen class="absolute top-0 left-0 w-full h-full"></iframe></div>
-            <div class="w-full flex-shrink-0 relative" style="padding-top: 177.77%;"><iframe src="https://www.tiktok.com/embed/v2/7514262969786567943" allowfullscreen class="absolute top-0 left-0 w-full h-full"></iframe></div>
-            <div class="w-full flex-shrink-0 relative" style="padding-top: 177.77%;"><iframe src="https://www.tiktok.com/embed/v2/7508374047332338949" allowfullscreen class="absolute top-0 left-0 w-full h-full"></iframe></div>
-            <div class="w-full flex-shrink-0 relative" style="padding-top: 177.77%;"><iframe src="https://www.tiktok.com/embed/v2/7513233296747220231" allowfullscreen class="absolute top-0 left-0 w-full h-full"></iframe></div>
-            <div class="w-full flex-shrink-0 relative" style="padding-top: 177.77%;"><iframe src="https://www.tiktok.com/embed/v2/7515058133610401029" allowfullscreen class="absolute top-0 left-0 w-full h-full"></iframe></div>
-          </div>
-          <button id="prevBtn" class="absolute top-1/2 left-4 -translate-y-1/2 bg-white/60 text-gray-900 p-2 rounded-full hover:bg-white shadow">‹</button>
-          <button id="nextBtn" class="absolute top-1/2 right-4 -translate-y-1/2 bg-white/60 text-gray-900 p-2 rounded-full hover:bg-white shadow">›</button>
+        <h3 class="text-2xl font-semibold text-rose-700 mb-4 text-center">My Vlogs & Highlights</h3>
+        <div id="video-carousel" class="mx-auto md:max-w-sm shadow rounded overflow-hidden p-4 bg-white">
+          <!-- tiktok iframes can be kept as you had before -->
+          <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" allowfullscreen class="w-full h-[600px]"></iframe>
         </div>
       </div>
 
-      <!-- Photo carousel (from Firestore) -->
       <div>
-        <div id="photo-carousel" class="relative overflow-hidden rounded-lg shadow-lg mx-auto w-full md:max-w-sm bg-white">
-          <div id="photo-slides-container" class="touch-pan-y"></div>
-
-          <!-- controls & dots -->
-          <button id="prevPhoto" class="absolute top-1/2 left-4 -translate-y-1/2 bg-white/60 text-gray-900 p-2 rounded-full hover:bg-white shadow hidden" aria-label="Previous photo">‹</button>
-          <button id="nextPhoto" class="absolute top-1/2 right-4 -translate-y-1/2 bg-white/60 text-gray-900 p-2 rounded-full hover:bg-white shadow hidden" aria-label="Next photo">›</button>
-          <div id="photoDots" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2"></div>
-        </div>
-        <p id="galleryEmpty" class="hidden text-center text-gray-500 mt-3">No photos yet — check back soon!</p>
+        <h3 class="text-2xl font-semibold text-rose-700 mb-4 text-center">Collab Gallery</h3>
+        <div id="btsGallery" class="grid grid-cols-1 gap-4"></div>
       </div>
-    </div>
+    </section>
+  </main>
 
-    <blockquote class="italic text-xl text-rose-800 mt-6 text-center">“You don’t have to wear the jersey to feel the pressure.”</blockquote>
-  </section>
+  <footer class="mt-12 bg-pink-900 text-white text-center py-6">© 2025 The Footballer’s Sister</footer>
 
-  <!-- Support Wall -->
-  <section class="px-6 max-w-2xl mx-auto mb-20 bg-pink-100 p-8 rounded-xl shadow-lg">
-    <h3 class="text-2xl font-bold mb-4 text-rose-700 text-center">The Support Wall ❤️</h3>
-    <p class="text-sm text-center text-gray-600 mb-6">Leave a message of support and it will appear on the wall! Your user ID is <span id="user-id" class="font-mono text-xs text-pink-700 break-all">Loading...</span></p>
-    <form id="support-form" class="space-y-4">
-      <input type="text" id="name" placeholder="Your Name" required class="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-rose-500">
-      <textarea id="message" rows="3" placeholder="Write your message here..." required class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500"></textarea>
-      <button type="submit" class="w-full bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">Post Message</button>
-    </form>
-    <div class="mt-4 text-center">
-      <a href="support-wall.html" class="inline-block text-rose-600 hover:underline font-semibold">View All Messages</a>
-    </div>
-  </section>
-
-  <div class="text-center mb-20">
-    <a href="index.html" class="bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition">Back to Home</a>
-  </div>
-
-  <footer class="bg-pink-900 text-white text-center py-6">
-    <p>&copy; 2025 The Footballer’s Sister. All rights reserved.</p>
-  </footer>
-
-  <script async src="https://www.tiktok.com/embed.js"></script>
-
-  <!-- Smart header JS (unchanged) -->
-  <script>
-    const navButton=document.getElementById('navButton');
-    const dropdownMenu=document.getElementById('dropdownMenu');
-    const navItems=document.querySelectorAll('.nav-item');
-    const currentPage=window.location.pathname.split('/').pop();
-    const pageTitles={"index.html":"Home","bts.html":"Behind the Game","leila.html":"Meet Leila","questions.html":"Q&A","support-wall.html":"Support Wall","fixtures.html":"Fixtures & Live Scores","giveaways.html":"Giveaways"};
-    navButton.firstChild.textContent=pageTitles[currentPage]||"Menu";
-    navItems.forEach(l=>{if(l.getAttribute('href')===currentPage){l.classList.add("font-semibold","text-rose-600");}});
-    navButton.addEventListener('click',()=>{const h=dropdownMenu.classList.contains('hidden'); if(h){dropdownMenu.classList.remove('hidden'); setTimeout(()=>dropdownMenu.classList.add('dropdown-open'),10);} else {dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'),200);} });
-    document.addEventListener('click',(e)=>{ if(!navButton.contains(e.target) && !dropdownMenu.contains(e.target)){ dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'),200); }});
-  </script>
-
-  <!-- Firebase: support wall + gallery loader -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    const appId = '1:65396604482:web:0f31625a714aa8352337db';
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
@@ -191,159 +52,28 @@
       messagingSenderId: "65396604482",
       appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
-
+    const ARTIFACT_ID = "1:65396604482:web:0f31625a714aa8352337db";
     const app = initializeApp(firebaseConfig);
-    const db  = getFirestore(app);
-    const auth= getAuth(app);
+    const db = getFirestore(app);
 
-    // Support wall auth + submit
-    let userId=null;
-    const userIdEl=document.getElementById('user-id');
-    const form=document.getElementById('support-form');
-    const nameInput=document.getElementById('name');
-    const messageInput=document.getElementById('message');
-
-    onAuthStateChanged(auth, async user=>{
-      if (user){ userId=user.uid; userIdEl.textContent=userId; }
-      else { try{ await signInAnonymously(auth);}catch(e){console.error(e);} }
-    });
-
-    form.addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      if (!userId) return;
-      const name=nameInput.value.trim(), message=messageInput.value.trim();
-      if (!name || !message) return;
-      try{
-        await addDoc(collection(db, `/artifacts/${appId}/public/data/supportMessages`), { name, message, userId, timestamp: serverTimestamp() });
-        window.location.href='support-wall.html';
-      } catch(err){ console.error(err); alert('Could not post message.'); }
-    });
-
-    /* Gallery / carousel logic */
-    const photoWrap = document.getElementById('photo-slides-container');
-    const prevBtn = document.getElementById('prevPhoto');
-    const nextBtn = document.getElementById('nextPhoto');
-    const dotsWrap = document.getElementById('photoDots');
-    const emptyMsg = document.getElementById('galleryEmpty');
-    const previewModal = document.createElement('div');
-    previewModal.id = 'previewModal';
-    previewModal.innerHTML = '<button id="closePreview" class="absolute top-6 right-6 text-white text-2xl">✕</button><div id="previewInner" class="max-w-full max-h-full flex items-center justify-center"></div>';
-    document.body.appendChild(previewModal);
-    document.getElementById('closePreview').addEventListener('click', ()=> previewModal.style.display='none');
-    previewModal.addEventListener('click', (e)=> { if (e.target === previewModal) previewModal.style.display='none'; });
-
-    let idx = 0;
-    let slides = [];
-    let autoplay = null;
-    const APP_PATH = `/artifacts/${appId}/public/data`;
-    const GALLERY_PATH = `${APP_PATH}/gallery`;
-
-    function esc(s){ return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#039;"}[m])); }
-
-    function renderSlides(items){
-      photoWrap.innerHTML = '';
-      dotsWrap.innerHTML = '';
-      if (!items.length){
-        emptyMsg.classList.remove('hidden');
-        prevBtn.classList.add('hidden');
-        nextBtn.classList.add('hidden');
-        return;
-      }
-      emptyMsg.classList.add('hidden');
-      prevBtn.classList.remove('hidden');
-      nextBtn.classList.remove('hidden');
-
-      items.forEach((it, i) => {
-        const fig = document.createElement('figure');
-        fig.innerHTML = `
-          <img src="${esc(it.imageUrl||'')}" alt="${esc(it.caption||'')}" class="absolute inset-0 w-full h-full object-cover" loading="lazy">
-          <figcaption class="absolute bottom-0 left-0 right-0 bg-black/40 text-white text-xs md:text-sm p-2">${esc(it.caption||'')}</figcaption>
+    const galleryEl = document.getElementById('btsGallery');
+    const galleryQuery = query(collection(db, `/artifacts/${ARTIFACT_ID}/public/data/gallery`), orderBy('order','asc'), orderBy('createdAt','asc'));
+    onSnapshot(galleryQuery, snap => {
+      galleryEl.innerHTML = '';
+      snap.docs.forEach(docSnap => {
+        const d = docSnap.data();
+        const card = document.createElement('div');
+        card.className = 'bg-white rounded shadow overflow-hidden';
+        card.innerHTML = `
+          <img src="${d.imageUrl}" class="w-full h-72 object-cover">
+          <div class="p-3"><div class="text-sm text-gray-700">${d.caption||''}</div></div>
         `;
-        fig.className = 'relative';
-        fig.style.minHeight = '220px';
-        photoWrap.appendChild(fig);
-
-        const dot = document.createElement('button');
-        dot.className = 'carousel-dot';
-        dot.setAttribute('aria-label','Go to slide '+(i+1));
-        dot.addEventListener('click', ()=> { idx = i; show(); startAutoplay(); });
-        dotsWrap.appendChild(dot);
-
-        // preview on click
-        fig.addEventListener('click', ()=> {
-          const inner = document.getElementById('previewInner');
-          inner.innerHTML = `<img src="${esc(it.imageUrl||'')}" alt="${esc(it.caption||'')}"><div class="mt-2 text-white text-sm">${esc(it.caption||'')}</div>`;
-          previewModal.style.display = 'flex';
-        });
+        galleryEl.appendChild(card);
       });
-
-      slides = Array.from(photoWrap.children);
-      idx = 0;
-      show();
-      startAutoplay();
-    }
-
-    function show(){
-      if (!slides || slides.length === 0) return;
-      // clamp idx
-      idx = (idx + slides.length) % slides.length;
-      photoWrap.style.transform = `translateX(-${idx * 100}%)`;
-      Array.from(dotsWrap.children).forEach((b,i)=> b.classList.toggle('active', i===idx));
-    }
-
-    function next(){ if (slides.length) idx = (idx + 1) % slides.length; show(); }
-    function prev(){ if (slides.length) idx = (idx - 1 + slides.length) % slides.length; show(); }
-    function startAutoplay(){ stopAutoplay(); autoplay = setInterval(next, 5000); }
-    function stopAutoplay(){ if (autoplay) clearInterval(autoplay); autoplay = null; }
-
-    prevBtn.addEventListener('click', ()=> { prev(); startAutoplay(); });
-    nextBtn.addEventListener('click', ()=> { next(); startAutoplay(); });
-    photoWrap.parentElement.addEventListener('mouseenter', stopAutoplay);
-    photoWrap.parentElement.addEventListener('mouseleave', startAutoplay);
-
-    // touch support for swipe
-    let touchStartX = 0;
-    photoWrap.parentElement.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, {passive:true});
-    photoWrap.parentElement.addEventListener('touchend', e => {
-      const dx = e.changedTouches[0].clientX - touchStartX;
-      if (dx < -50) next();
-      if (dx > 50) prev();
-      startAutoplay();
-    });
-
-    // realtime query
-    const q = query(collection(db, GALLERY_PATH), orderBy('order','asc'), orderBy('createdAt','asc'));
-    onSnapshot(q, snap => {
-      const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      renderSlides(items);
     }, err => {
-      console.error('Gallery snapshot failed:', err);
-      emptyMsg.classList.remove('hidden');
-      emptyMsg.textContent = 'Could not load gallery.';
+      galleryEl.innerHTML = '<div class="text-red-600">Could not load gallery.</div>';
+      console.error(err);
     });
-
-  </script>
-
-  <!-- Video carousel basic logic -->
-  <script>
-    (function(){
-      const wrap=document.getElementById('video-slides-container');
-      const prev=document.getElementById('prevBtn');
-      const next=document.getElementById('nextBtn');
-      if (!wrap) return;
-      let i=0, sx=0;
-      const slides = wrap.children;
-      function show(){ wrap.style.transform = `translateX(-${i*100}%)`; }
-      next.addEventListener('click', ()=>{ i = (i+1) % slides.length; show(); });
-      prev.addEventListener('click', ()=>{ i = (i-1 + slides.length) % slides.length; show(); });
-      wrap.parentElement.addEventListener('touchstart', e=> sx = e.touches[0].clientX, {passive:true});
-      wrap.parentElement.addEventListener('touchend', e=>{
-        const dx = e.changedTouches[0].clientX - sx;
-        if (dx < -50) i = (i+1) % slides.length;
-        if (dx > 50) i = (i-1 + slides.length) % slides.length;
-        show();
-      });
-    })();
   </script>
 </body>
 </html>
