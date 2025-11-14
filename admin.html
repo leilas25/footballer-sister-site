@@ -24,7 +24,6 @@
     </div>
   </header>
 
-  <!-- Main -->
   <main class="max-w-6xl mx-auto px-6 py-8">
     <!-- LOGIN -->
     <section id="loginSection" class="card mx-auto max-w-md">
@@ -45,13 +44,13 @@
 
     <!-- ADMIN UI -->
     <section id="adminUI" class="hidden-el" aria-hidden="true">
-      <!-- top nav -->
       <div class="flex gap-3 items-center mb-6">
         <button id="navSupport" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Support Wall</button>
         <button id="navQA" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Q&A</button>
         <button id="navFixtures" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Fixtures</button>
         <button id="navMedia" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Media / Gallery</button>
         <button id="navWinners" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Winners</button>
+        <button id="navGiveaways" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Giveaways</button>
 
         <div class="ml-auto text-sm small-muted">
           Signed in as <span id="adminEmailDisplay"></span>
@@ -59,13 +58,11 @@
         </div>
       </div>
 
-      <!-- Admin content area (panes toggle) -->
       <div id="panes" class="space-y-6">
-
         <!-- Gallery pane -->
         <div id="paneGallery" class="card hidden-el">
           <h3 class="text-xl font-bold mb-3 text-rose-700">Media / Gallery (admin)</h3>
-          <p class="small-muted mb-3">Upload images to the gallery. Images are stored in Storage and the URL is saved to Firestore.</p>
+          <p class="small-muted mb-3">Upload images to the gallery. Images are stored in Storage and the URL saved to Firestore.</p>
 
           <form id="galleryForm" class="grid gap-3 mb-4">
             <input id="galleryCaption" placeholder="Caption (optional)" class="p-2 border rounded" />
@@ -141,6 +138,25 @@
           <div id="qaList" class="space-y-3"></div>
         </div>
 
+        <!-- GIVEAWAYS pane (NEW) -->
+        <div id="paneGiveaways" class="card hidden-el">
+          <h3 class="text-xl font-bold mb-3 text-rose-700">Giveaways (admin)</h3>
+          <p class="small-muted mb-3">Create giveaways (title, caption, image, optional end date). They will appear on the public Giveaways page.</p>
+
+          <form id="giveawayForm" class="grid gap-2 mb-4">
+            <input id="giveTitle" placeholder="Giveaway title" class="p-2 border rounded" />
+            <textarea id="giveCaption" placeholder="Caption (what the giveaway is / instructions)" class="p-2 border rounded" rows="3"></textarea>
+            <input id="giveEnds" type="datetime-local" class="p-2 border rounded" />
+            <input id="giveFile" type="file" accept="image/*" />
+            <div class="flex gap-3">
+              <button id="createGiveBtn" class="btn bg-rose-600 text-white" type="button">Create Giveaway</button>
+              <button id="refreshGiveawaysBtn" class="btn bg-white border" type="button">Refresh list</button>
+            </div>
+          </form>
+
+          <div id="giveList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+
       </div>
     </section>
   </main>
@@ -153,12 +169,11 @@
   <script type="module">
     /**************************************************************************
      * Admin JS - embedded single-file script
-     * - Only reveals admin UI if signed-in UID matches ADMIN_UID (existing)
-     * - Provides gallery/winners/fixtures/support/qa CRUD
+     * - Added Giveaways management (create/list/delete)
      **************************************************************************/
 
     // ---------- CONFIG ----------
-    const ADMIN_UID = "pDokgebzpTZWzmn9dW50kaDAqRT2"; // keep same as your current check
+    const ADMIN_UID = "pDokgebzpTZWzmn9dW50kaDAqRT2";
     const appId = '1:65396604482:web:0f31625a714aa8352337db';
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
@@ -189,7 +204,7 @@
     const db = getFirestore(app);
     const storage = getStorage(app);
 
-    // ---------- DOM ----------
+    // ---------- DOM ---------- (re-used elements)
     const loginSection = document.getElementById('loginSection');
     const loginForm = document.getElementById('loginForm');
     const emailInput = document.getElementById('email');
@@ -206,6 +221,7 @@
     const navFixtures = document.getElementById('navFixtures');
     const navMedia = document.getElementById('navMedia');
     const navWinners = document.getElementById('navWinners');
+    const navGiveaways = document.getElementById('navGiveaways');
 
     // Panes
     const paneGallery = document.getElementById('paneGallery');
@@ -213,9 +229,10 @@
     const paneFixtures = document.getElementById('paneFixtures');
     const paneSupport = document.getElementById('paneSupport');
     const paneQA = document.getElementById('paneQA');
+    const paneGiveaways = document.getElementById('paneGiveaways');
 
     function hideAllPanes() {
-      [paneGallery, paneWinners, paneFixtures, paneSupport, paneQA].forEach(p => p.classList.add('hidden-el'));
+      [paneGallery, paneWinners, paneFixtures, paneSupport, paneQA, paneGiveaways].forEach(p => p.classList.add('hidden-el'));
     }
 
     // Gallery DOM
@@ -251,6 +268,15 @@
     const supportList = document.getElementById('supportList');
     const qaList = document.getElementById('qaList');
 
+    // Giveaways DOM (NEW)
+    const giveTitle = document.getElementById('giveTitle');
+    const giveCaption = document.getElementById('giveCaption');
+    const giveEnds = document.getElementById('giveEnds');
+    const giveFile = document.getElementById('giveFile');
+    const createGiveBtn = document.getElementById('createGiveBtn');
+    const refreshGiveawaysBtn = document.getElementById('refreshGiveawaysBtn');
+    const giveList = document.getElementById('giveList');
+
     // ---------- HELPERS ----------
     function showMessage(msg, isError=false) {
       loginMessage.textContent = msg;
@@ -258,7 +284,6 @@
       setTimeout(()=>{ if (loginMessage.textContent === msg) loginMessage.textContent=''; }, 4000);
     }
 
-    // path helpers
     const col = (name) => collection(db, `${ROOT_PATH}/${name}`);
 
     // ---------- AUTH ----------
@@ -267,7 +292,6 @@
       loginMessage.textContent = 'Signing in...';
       try {
         await signInWithEmailAndPassword(auth, emailInput.value.trim(), passwordInput.value);
-        // auth state change will take over
       } catch (err) {
         console.error('Sign-in error', err);
         showMessage('Sign-in failed: ' + (err.message || ''), true);
@@ -276,7 +300,6 @@
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        // show login
         loginSection.classList.remove('hidden-el');
         hideAllPanes();
         adminUI.classList.add('hidden-el');
@@ -284,24 +307,19 @@
         return;
       }
 
-      // check UID
       if (user.uid !== ADMIN_UID) {
         try { await signOut(auth); } catch(e){ console.error(e); }
         showMessage('Signed-in account is not the admin. You have been signed out.', true);
         return;
       }
 
-      // admin validated
       loginSection.classList.add('hidden-el');
       adminEmailDisplay.textContent = user.email || user.uid;
       adminUI.classList.remove('hidden-el');
       adminUI.removeAttribute('aria-hidden');
 
-      // show gallery by default
       showGalleryPane();
-
-      // attach live listeners if desired (we will also load on demand)
-      attachLiveListeners(); 
+      attachLiveListeners();
     });
 
     signOutBtn.addEventListener('click', async () => {
@@ -320,14 +338,16 @@
     navFixtures.addEventListener('click', () => showFixturesPane());
     navSupport.addEventListener('click', () => showSupportPane());
     navQA.addEventListener('click', () => showQAPane());
+    navGiveaways.addEventListener('click', () => showGiveawaysPane());
 
     function showGalleryPane() { hideAllPanes(); paneGallery.classList.remove('hidden-el'); loadGallery(); }
     function showWinnersPane() { hideAllPanes(); paneWinners.classList.remove('hidden-el'); loadWinners(); }
     function showFixturesPane() { hideAllPanes(); paneFixtures.classList.remove('hidden-el'); loadFixtures(); }
     function showSupportPane() { hideAllPanes(); paneSupport.classList.remove('hidden-el'); loadSupport(); }
     function showQAPane() { hideAllPanes(); paneQA.classList.remove('hidden-el'); loadQA(); }
+    function showGiveawaysPane() { hideAllPanes(); paneGiveaways.classList.remove('hidden-el'); loadGiveaways(); }
 
-    // ---------- GALLERY ----------
+    // ---------- GALLERY (same as before) ----------
     uploadGalleryBtn.addEventListener('click', uploadGalleryImage);
     refreshGalleryBtn.addEventListener('click', loadGallery);
 
@@ -351,7 +371,6 @@
       } finally { uploadGalleryBtn.disabled = false; }
     }
 
-    // list & delete
     let galleryUnsub = null;
     function attachGalleryListener() {
       if (galleryUnsub) return;
@@ -379,13 +398,11 @@
         `;
         galleryItems.appendChild(card);
       });
-      // attach delete handlers
       galleryItems.querySelectorAll('.delete-gallery').forEach(b => {
         b.addEventListener('click', async (e) => {
           const id = e.currentTarget.getAttribute('data-id');
           if (!confirm('Delete image?')) return;
           try {
-            // delete doc only; storage deletion not attempted because we didn't store storage path
             await deleteDoc(doc(db, `${ROOT_PATH}/gallery/${id}`));
             showMessage('Deleted image record.');
             loadGallery();
@@ -394,7 +411,7 @@
       });
     }
 
-    // ---------- WINNERS ----------
+    // ---------- WINNERS (same as before) ----------
     addWinnerBtn.addEventListener('click', addWinner);
     refreshWinnersBtn.addEventListener('click', loadWinners);
 
@@ -452,7 +469,7 @@
       } catch(err){ console.error(err); showMessage('Could not load winners', true); }
     }
 
-    // ---------- FIXTURES ----------
+    // ---------- FIXTURES (same as before) ----------
     addFixtureBtn.addEventListener('click', addFixture);
     refreshFixturesBtn.addEventListener('click', loadFixtures);
 
@@ -590,12 +607,70 @@
       } catch(err){ console.error(err); showMessage('Could not load Q&A', true); }
     }
 
+    // ---------- GIVEAWAYS (NEW) ----------
+    createGiveBtn.addEventListener('click', createGiveaway);
+    refreshGiveawaysBtn.addEventListener('click', loadGiveaways);
+
+    async function createGiveaway() {
+      if (!giveTitle.value.trim()) return showMessage('Enter a giveaway title', true);
+      try {
+        createGiveBtn.disabled = true;
+        showMessage('Creating giveaway...');
+        let imageUrl = '';
+        const file = giveFile.files[0];
+        if (file) {
+          const path = `giveaways/${Date.now()}_${file.name}`;
+          const r = sRef(storage, path);
+          await uploadBytes(r, file);
+          imageUrl = await getDownloadURL(r);
+        }
+        const docData = {
+          title: giveTitle.value.trim(),
+          caption: giveCaption.value.trim(),
+          imageUrl,
+          endsAt: giveEnds.value ? new Date(giveEnds.value).toISOString() : null,
+          createdAt: serverTimestamp()
+        };
+        await addDoc(col('giveaways'), docData);
+        giveTitle.value=''; giveCaption.value=''; giveFile.value=''; giveEnds.value='';
+        showMessage('Giveaway created.');
+        loadGiveaways();
+      } catch(err){ console.error(err); showMessage('Could not create giveaway', true); }
+      finally { createGiveBtn.disabled = false; }
+    }
+
+    async function loadGiveaways() {
+      try {
+        const snaps = await getDocs(query(col('giveaways'), orderBy('createdAt','desc')));
+        const items = snaps.docs.map(d => ({ id:d.id, ...d.data() }));
+        giveList.innerHTML = '';
+        if (!items.length) { giveList.innerHTML = '<div class="text-gray-500">No giveaways yet.</div>'; return; }
+        items.forEach(it => {
+          const card = document.createElement('div');
+          card.className = 'bg-white p-3 rounded shadow';
+          card.innerHTML = `
+            <img src="${it.imageUrl || 'https://via.placeholder.com/800x400'}" class="w-full h-48 object-cover rounded mb-3">
+            <div class="font-semibold text-lg">${it.title}</div>
+            <div class="text-sm text-gray-700 mt-1">${it.caption || ''}</div>
+            <div class="text-xs text-gray-400 mt-2">Ends: ${it.endsAt ? new Date(it.endsAt).toLocaleString() : '—'}</div>
+            <div class="mt-3 flex gap-2">
+              <button class="delete-give btn bg-white border" data-id="${it.id}">Delete</button>
+            </div>
+          `;
+          giveList.appendChild(card);
+        });
+        giveList.querySelectorAll('.delete-give').forEach(b => b.addEventListener('click', async (e) => {
+          const id = e.currentTarget.getAttribute('data-id');
+          if (!confirm('Delete giveaway?')) return;
+          try { await deleteDoc(doc(db, `${ROOT_PATH}/giveaways/${id}`)); showMessage('Giveaway deleted'); loadGiveaways(); }
+          catch(err){ console.error(err); showMessage('Delete failed', true); }
+        }));
+      } catch(err){ console.error(err); showMessage('Could not load giveaways', true); }
+    }
+
     // ---------- LIVE LISTENERS (optional) ----------
     function attachLiveListeners() {
-      // call on first show if you want real-time updates via onSnapshot
-      // Keep these commented out to avoid double updates; we use getDocs on demand.
-      // Example:
-      // attachGalleryListener();
+      // Intentionally *not* using onSnapshot everywhere to avoid double renders. We use getDocs on demand.
     }
 
     // End of admin script
