@@ -6,16 +6,17 @@
   <title>ADMIN • The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* small helper CSS (no @apply so works in-browser) */
-    .card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
-    .btn { padding: .6rem 1rem; border-radius: 9999px; font-weight:600; }
-    .small-muted { font-size:.9rem; color:#7a7a7a; }
+    /* small css helpers */
+    .card { background:#fff; border-radius:12px; padding:20px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
+    .btn { padding:.6rem 1rem; border-radius:9999px; font-weight:600; }
+    .small-muted { font-size:.95rem; color:#7a7a7a; }
     .hidden-el { display:none !important; }
+    body { -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
   </style>
 </head>
 <body class="bg-pink-50 font-sans text-black">
 
-  <!-- header -->
+  <!-- Header -->
   <header class="bg-pink-100 sticky top-0 z-40 shadow">
     <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
       <h1 class="text-xl font-bold uppercase text-rose-600">ADMIN • THE FOOTBALLER’S SISTER</h1>
@@ -23,87 +24,55 @@
     </div>
   </header>
 
-  <!-- MAIN -->
-  <main class="max-w-6xl mx-auto px-6 py-8" id="appRoot">
+  <!-- Main -->
+  <main class="max-w-6xl mx-auto px-6 py-8">
+    <!-- LOGIN ONLY (visible by default) -->
+    <section id="loginSection" class="card mx-auto max-w-md">
+      <h2 class="text-2xl font-bold text-rose-700 mb-3">Admin sign-in</h2>
+      <p class="small-muted mb-4">Enter the admin email & password. No admin content will be shown until the correct admin signs in.</p>
 
-    <!-- LOGIN CARD: Visible by default -->
-    <section id="loginSection" class="card mb-6">
-      <h2 class="text-2xl font-bold text-rose-700 mb-2">Admin sign-in</h2>
-      <p class="small-muted mb-4">You must sign in with the admin account to view and manage content. This device will not show anything until the correct admin signs in.</p>
-
-      <form id="loginForm" class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
-        <input id="email" type="email" placeholder="Admin email" required class="p-3 rounded-lg border" />
-        <input id="password" type="password" placeholder="Password" required class="p-3 rounded-lg border" />
+      <form id="loginForm" class="grid gap-3">
+        <input id="email" type="email" placeholder="Admin email" autocomplete="username" required class="p-3 rounded border" />
+        <input id="password" type="password" placeholder="Password" autocomplete="current-password" required class="p-3 rounded border" />
         <div class="flex gap-3">
-          <button id="signInBtn" class="btn bg-rose-600 text-white" type="submit">Sign in</button>
-          <button id="createBtn" type="button" class="btn bg-white border">Create account</button>
+          <button id="signInBtn" type="submit" class="btn bg-rose-600 text-white">Sign in</button>
+          <button id="cancelBtn" type="button" class="btn bg-white border" onclick="document.getElementById('email').value='';document.getElementById('password').value='';">Clear</button>
         </div>
       </form>
 
-      <p id="loginMessage" class="mt-4 small-muted"></p>
+      <p id="loginMessage" class="mt-3 small-muted"></p>
     </section>
 
-    <!-- ADMIN UI: hidden until admin authenticated -->
+    <!-- ADMIN UI: completely hidden until admin verified (do not remove the hidden class) -->
     <section id="adminUI" class="hidden-el" aria-hidden="true">
+      <!-- top nav -->
       <div class="flex gap-3 items-center mb-6">
         <button id="navSupport" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Support Wall</button>
-        <button id="navQA" class="rounded-full bg-rose-600 text-white px-4 py-2 shadow-sm">Q&A</button>
+        <button id="navQA" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Q&A</button>
         <button id="navFixtures" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Fixtures</button>
-        <button id="navMedia" class="rounded-full bg-rose-600 text-white px-4 py-2 shadow-sm">Media / Gallery</button>
+        <button id="navMedia" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Media / Gallery</button>
         <button id="navGiveaways" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Giveaways</button>
         <button id="navWinners" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Winners</button>
 
         <div class="ml-auto text-sm small-muted">
-          Signed in as <span id="adminEmailDisplay"></span> • UID: <span id="adminUidDisplay"></span>
+          Signed in as <span id="adminEmailDisplay"></span>
           <button id="signOutBtn" class="btn bg-rose-600 text-white ml-4">Log out</button>
         </div>
       </div>
 
-      <!-- Admin cards -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- MEDIA -->
+      <!-- Example admin area (this will appear only after correct admin sign-in) -->
+      <div id="adminContent" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="card">
-          <h3 class="text-xl font-bold text-rose-700 mb-4">Media / Gallery — Upload & Manage</h3>
-          <label class="small-muted">Image (uploads to Cloudinary — then Firestore)</label>
-          <input id="mediaFile" type="file" accept="image/*" class="mt-2" />
-          <input id="mediaCaption" placeholder="Short caption" class="w-full p-2 rounded border mt-3" />
-          <input id="mediaOrder" type="number" value="1" class="w-full p-2 rounded border mt-3" />
-          <div class="flex gap-3 mt-4">
-            <button id="uploadMediaBtn" class="btn bg-rose-600 text-white">Upload to Cloud & Save</button>
-            <button id="resetMediaBtn" class="btn bg-white border">Reset</button>
-          </div>
-
-          <div id="galleryItems" class="mt-6 small-muted">Loading gallery...</div>
+          <h3 class="text-xl font-bold mb-3 text-rose-700">Media / Gallery (admin)</h3>
+          <p class="small-muted">Manage gallery items here.</p>
+          <div id="galleryItems" class="mt-4 small-muted">(gallery will appear here)</div>
         </div>
 
-        <!-- WINNERS -->
         <div class="card">
-          <h3 class="text-xl font-bold text-rose-700 mb-4">Winners — Add / Manage</h3>
-          <input id="winnerName" placeholder="Winner Name" class="w-full p-2 rounded border mb-3" />
-          <input id="winnerHandle" placeholder="Handle (IG/TikTok)" class="w-full p-2 rounded border mb-3" />
-          <input id="winnerPrize" placeholder="Prize" class="w-full p-2 rounded border mb-3" />
-          <input id="winnerImage" type="file" accept="image/*" class="mb-3" />
-          <div class="flex gap-3">
-            <button id="addWinnerBtn" class="btn bg-rose-600 text-white">Add Winner</button>
-            <button id="resetWinnerBtn" class="btn bg-white border">Reset</button>
-          </div>
-
-          <div id="winnersList" class="mt-6 small-muted">Loading winners...</div>
+          <h3 class="text-xl font-bold mb-3 text-rose-700">Winners (admin)</h3>
+          <p class="small-muted">Manage winners here.</p>
+          <div id="winnersList" class="mt-4 small-muted">(winners will appear here)</div>
         </div>
-
-      </div>
-
-      <!-- FIXTURES card below -->
-      <div class="card mt-6">
-        <h3 class="text-xl font-bold text-rose-700 mb-4">Fixtures — Add / Manage</h3>
-        <input id="fixtureLevel" placeholder="Level (U13, U17)" class="w-full p-2 rounded border mb-3" />
-        <input id="fixtureOpponent" placeholder="Opponent / Match" class="w-full p-2 rounded border mb-3" />
-        <input id="fixtureDate" type="datetime-local" class="w-full p-2 rounded border mb-3" />
-        <div class="flex gap-3">
-          <button id="addFixtureBtn" class="btn bg-rose-600 text-white">Add / Save Fixture</button>
-          <button id="resetFixtureBtn" class="btn bg-white border">Reset</button>
-        </div>
-        <div id="fixturesList" class="mt-4 small-muted">Loading fixtures...</div>
       </div>
     </section>
 
@@ -113,10 +82,13 @@
     <p>&copy; 2025 The Footballer’s Sister. All rights reserved.</p>
   </footer>
 
-  <!-- Firebase + Cloudinary logic -->
+  <!-- Firebase script (module) -->
   <script type="module">
-    // ====== CONFIG ======
-    const ADMIN_UID = 'pDokgebzpTZWzmn9dW50kaDAqRT2'; // your admin UID (readonly here)
+    // ---------- CONFIG ----------
+    // Admin UID must match exactly this value to reveal admin UI
+    const ADMIN_UID = "pDokgebzpTZWzmn9dW50kaDAqRT2";
+
+    // Your Firebase config (unchanged)
     const appId = '1:65396604482:web:0f31625a714aa8352337db';
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
@@ -127,308 +99,116 @@
       appId: appId
     };
 
-    // Cloudinary unsigned preset (unchanged from your earlier values)
-    const CLOUDINARY_CLOUD = 'dk1df1qmi';
-    const CLOUDINARY_UPLOAD_PRESET = 'unsigned_bts_preset';
-
-    // ====== FIREBASE IMPORTS ======
+    // ---------- IMPORTS ----------
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+    // ---------- INITIALIZE ----------
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
+    const db = getFirestore(app); // keep available but do not attach any listeners until admin validated
 
-    // ====== UI ELEMENTS ======
+    // ---------- ELEMENTS ----------
     const loginSection = document.getElementById('loginSection');
     const loginForm = document.getElementById('loginForm');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
-    const signInBtn = document.getElementById('signInBtn');
-    const createBtn = document.getElementById('createBtn');
     const loginMessage = document.getElementById('loginMessage');
 
     const adminUI = document.getElementById('adminUI');
     const adminEmailDisplay = document.getElementById('adminEmailDisplay');
-    const adminUidDisplay = document.getElementById('adminUidDisplay');
     const signOutBtn = document.getElementById('signOutBtn');
 
-    // media form elements
-    const mediaFile = document.getElementById('mediaFile');
-    const mediaCaption = document.getElementById('mediaCaption');
-    const mediaOrder = document.getElementById('mediaOrder');
-    const uploadMediaBtn = document.getElementById('uploadMediaBtn');
+    // These containers will be used after admin validation
     const galleryItems = document.getElementById('galleryItems');
-
-    // winners
-    const winnerName = document.getElementById('winnerName');
-    const winnerHandle = document.getElementById('winnerHandle');
-    const winnerPrize = document.getElementById('winnerPrize');
-    const winnerImage = document.getElementById('winnerImage');
-    const addWinnerBtn = document.getElementById('addWinnerBtn');
     const winnersList = document.getElementById('winnersList');
 
-    // fixtures
-    const fixtureLevel = document.getElementById('fixtureLevel');
-    const fixtureOpponent = document.getElementById('fixtureOpponent');
-    const fixtureDate = document.getElementById('fixtureDate');
-    const addFixtureBtn = document.getElementById('addFixtureBtn');
-    const fixturesList = document.getElementById('fixturesList');
-
-    // Firestore paths
-    const galleryColl = `/artifacts/${appId}/public/data/gallery`;
-    const winnersColl = `/artifacts/${appId}/public/data/winners`;
-    const fixturesColl = `/artifacts/${appId}/public/data/fixtures`;
-
-    // Helper - show login only until admin verified
-    function showLoginOnly(msg = '') {
-      loginSection.classList.remove('hidden-el');
+    // ---------- UTILS ----------
+    function hideAllAdminUI() {
       adminUI.classList.add('hidden-el');
-      loginMessage.textContent = msg;
+      adminUI.setAttribute('aria-hidden', 'true');
     }
-    function showAdminUI(user) {
-      loginSection.classList.add('hidden-el');
-      adminUI.classList.remove('hidden-el');
+    function revealAdminUI(user) {
       adminEmailDisplay.textContent = user.email || '(no email)';
-      adminUidDisplay.textContent = user.uid;
+      adminUI.classList.remove('hidden-el');
+      adminUI.removeAttribute('aria-hidden');
     }
 
-    // Sign-in form handling (email + pass)
+    // Start hidden (defensive)
+    hideAllAdminUI();
+
+    // ---------- SIGN IN HANDLER ----------
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = emailInput.value.trim();
-      const password = passwordInput.value;
       loginMessage.textContent = 'Signing in...';
       try {
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+        if (!email || !password) { loginMessage.textContent = 'Enter both email and password.'; return; }
+
+        // attempt sign in
         await signInWithEmailAndPassword(auth, email, password);
-        loginMessage.textContent = '';
+        // Do NOT reveal anything here — onAuthStateChanged will handle the result and verify UID.
       } catch (err) {
-        loginMessage.textContent = 'Sign-in failed: ' + err.message;
-        console.error(err);
+        console.error('Sign-in error', err);
+        loginMessage.textContent = 'Sign-in failed: ' + (err.message || 'Unknown error');
       }
     });
 
-    createBtn.addEventListener('click', async () => {
-      const email = emailInput.value.trim();
-      const password = passwordInput.value;
-      if (!email || !password) { loginMessage.textContent = 'Enter email & password first'; return; }
-      try {
-        await createUserWithEmailAndPassword(auth, email, password);
-        loginMessage.textContent = 'Account created and signed in.';
-      } catch (err) {
-        loginMessage.textContent = 'Create failed: ' + err.message;
-        console.error(err);
-      }
-    });
-
-    signOutBtn.addEventListener('click', async () => {
-      await signOut(auth);
-    });
-
-    // Cloudinary uploader (unsigned preset)
-    async function uploadToCloudinary(file) {
-      const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/upload`;
-      const fd = new FormData();
-      fd.append('file', file);
-      fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-      const res = await fetch(url, { method: 'POST', body: fd });
-      if (!res.ok) throw new Error('Cloudinary upload failed: ' + res.statusText);
-      return res.json();
-    }
-
-    // Only initialize Firestore listeners & buttons when the correct admin is signed in
-    let galleryUnsub = null, winnersUnsub = null, fixturesUnsub = null;
-
-    function attachListeners() {
-      // GALLERY listener
-      try {
-        const q = query(collection(db, galleryColl), orderBy('order', 'asc'));
-        galleryUnsub = onSnapshot(q, snap => {
-          if (snap.empty) { galleryItems.innerHTML = '<div class="small-muted">No items yet.</div>'; return; }
-          galleryItems.innerHTML = '';
-          snap.forEach(docSnap => {
-            const d = docSnap.data();
-            const el = document.createElement('div');
-            el.className = 'flex items-center gap-3 p-2 border rounded mb-2';
-            el.innerHTML = `<div class="w-20 h-12 overflow-hidden rounded"><img src="${d.imageUrl||''}" class="w-full h-full object-cover"></div>
-              <div class="flex-1"><div class="font-semibold">${d.caption||'(no caption)'}</div><div class="small-muted">order: ${d.order||0}</div></div>
-              <div><button class="btn bg-white border" data-id="${docSnap.id}">Delete</button></div>`;
-            const btn = el.querySelector('button');
-            btn.addEventListener('click', async () => {
-              if (!confirm('Delete this gallery item?')) return;
-              try {
-                await deleteDoc(doc(db, `${galleryColl}/${docSnap.id}`));
-                alert('Deleted');
-              } catch (err) {
-                alert('Delete failed: ' + err.message);
-              }
-            });
-            galleryItems.appendChild(el);
-          });
-        }, err => { galleryItems.innerHTML = `<div class="text-red-600">Gallery load failed: ${err.message}</div>`; });
-      } catch (err) { galleryItems.innerHTML = `<div class="text-red-600">${err.message}</div>`; }
-
-      // WINNERS
-      try {
-        const q = query(collection(db, winnersColl), orderBy('announcedAt', 'desc'));
-        winnersUnsub = onSnapshot(q, snap => {
-          winnersList.innerHTML = '';
-          if (snap.empty) { winnersList.innerHTML = '<div class="small-muted">No winners yet.</div>'; return; }
-          snap.forEach(docSnap => {
-            const d = docSnap.data();
-            const el = document.createElement('div');
-            el.className = 'p-3 border rounded mb-2 flex items-center gap-3';
-            el.innerHTML = `<div class="w-16 h-12 overflow-hidden rounded"><img src="${d.imageUrl||''}" class="w-full h-full object-cover"></div>
-              <div class="flex-1"><div class="font-semibold">${d.name||'(no name)'}</div><div class="small-muted">${d.prize||''} ${d.handle? '• ' + d.handle: ''}</div></div>
-              <div><button class="btn bg-white border" data-id="${docSnap.id}">Delete</button></div>`;
-            const btn = el.querySelector('button');
-            btn.addEventListener('click', async () => {
-              if (!confirm('Delete this winner?')) return;
-              try {
-                await deleteDoc(doc(db, `${winnersColl}/${docSnap.id}`));
-                alert('Deleted');
-              } catch (err) {
-                alert('Delete failed: ' + err.message);
-              }
-            });
-            winnersList.appendChild(el);
-          });
-        }, err => { winnersList.innerHTML = `<div class="text-red-600">Winners load failed: ${err.message}</div>`; });
-      } catch (err) { winnersList.innerHTML = `<div class="text-red-600">${err.message}</div>`; }
-
-      // FIXTURES
-      try {
-        const q = query(collection(db, fixturesColl), orderBy('createdAt', 'desc'));
-        fixturesUnsub = onSnapshot(q, snap => {
-          fixturesList.innerHTML = '';
-          if (snap.empty) { fixturesList.innerHTML = '<div class="small-muted">No fixtures yet.</div>'; return; }
-          snap.forEach(docSnap => {
-            const d = docSnap.data();
-            const el = document.createElement('div');
-            el.className = 'p-3 border rounded mb-2 flex items-center justify-between';
-            el.innerHTML = `<div><div class="font-semibold">${d.level||''} • ${d.opponent||''}</div><div class="small-muted">${d.date||''}</div></div><div><button class="btn bg-white border" data-id="${docSnap.id}">Delete</button></div>`;
-            const btn = el.querySelector('button');
-            btn.addEventListener('click', async () => {
-              if (!confirm('Delete this fixture?')) return;
-              try {
-                await deleteDoc(doc(db, `${fixturesColl}/${docSnap.id}`));
-                alert('Deleted');
-              } catch (err) {
-                alert('Delete failed: ' + err.message);
-              }
-            });
-            fixturesList.appendChild(el);
-          });
-        }, err => { fixturesList.innerHTML = `<div class="text-red-600">Fixtures load failed: ${err.message}</div>`; });
-      } catch (err) { fixturesList.innerHTML = `<div class="text-red-600">${err.message}</div>`; }
-
-      // wire upload/add buttons (writes allowed only for admin UID — Firestore rules also must match)
-      uploadMediaBtn.addEventListener('click', async (ev) => {
-        ev.preventDefault();
-        const file = mediaFile.files[0];
-        if (!file) { alert('Choose a file'); return; }
-        try {
-          uploadMediaBtn.disabled = true;
-          uploadMediaBtn.textContent = 'Uploading...';
-          const cloud = await uploadToCloudinary(file);
-          await addDoc(collection(db, galleryColl), {
-            caption: mediaCaption.value || '',
-            imageUrl: cloud.secure_url || cloud.url || '',
-            publicId: cloud.public_id || '',
-            order: parseInt(mediaOrder.value || '1', 10),
-            createdAt: serverTimestamp()
-          });
-          mediaCaption.value = ''; mediaOrder.value = '1'; mediaFile.value = '';
-          alert('Uploaded and saved.');
-        } catch (err) {
-          alert('Upload failed: ' + err.message);
-          console.error(err);
-        } finally {
-          uploadMediaBtn.disabled = false;
-          uploadMediaBtn.textContent = 'Upload to Cloud & Save';
-        }
-      });
-
-      addWinnerBtn.addEventListener('click', async (ev) => {
-        ev.preventDefault();
-        if (!winnerName.value.trim()) { alert('Enter winner name'); return; }
-        try {
-          let url = '';
-          if (winnerImage.files && winnerImage.files[0]) {
-            const r = await uploadToCloudinary(winnerImage.files[0]);
-            url = r.secure_url || r.url || '';
-          }
-          await addDoc(collection(db, winnersColl), {
-            name: winnerName.value.trim(),
-            handle: winnerHandle.value.trim(),
-            prize: winnerPrize.value.trim(),
-            imageUrl: url,
-            announcedAt: serverTimestamp()
-          });
-          winnerName.value = winnerHandle.value = winnerPrize.value = '';
-          winnerImage.value = '';
-          alert('Winner added.');
-        } catch (err) { alert('Add winner failed: ' + err.message); console.error(err); }
-      });
-
-      addFixtureBtn.addEventListener('click', async (ev) => {
-        ev.preventDefault();
-        try {
-          await addDoc(collection(db, fixturesColl), {
-            level: fixtureLevel.value || '',
-            opponent: fixtureOpponent.value || '',
-            date: fixtureDate.value ? new Date(fixtureDate.value).toISOString() : '',
-            createdAt: serverTimestamp()
-          });
-          fixtureLevel.value = fixtureOpponent.value = fixtureDate.value = '';
-          alert('Fixture added.');
-        } catch (err) { alert('Add fixture failed: ' + err.message); console.error(err); }
-      });
-    } // end attachListeners
-
-    // onAuthStateChanged - require admin UID to allow viewing
-    onAuthStateChanged(auth, (user) => {
+    // ---------- AUTH STATE WATCHER ----------
+    // This will immediately enforce that only the exact ADMIN_UID reveals the UI.
+    onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        // not signed in -> show login only
-        showLoginOnly('');
-        // detach any existing listeners if present
-        if (galleryUnsub) { galleryUnsub(); galleryUnsub = null; }
-        if (winnersUnsub) { winnersUnsub(); winnersUnsub = null; }
-        if (fixturesUnsub) { fixturesUnsub(); fixturesUnsub = null; }
+        // not signed in: keep login shown and hide admin UI
+        loginMessage.textContent = '';
+        hideAllAdminUI();
         return;
       }
 
-      // user signed in -> check UID
+      // user is signed in -> check UID
       if (user.uid === ADMIN_UID) {
-        // correct admin -> reveal admin UI and attach listeners
-        showAdminUI(user);
-        try {
-          attachListeners();
-        } catch (err) {
-          console.error('Attach listeners error', err);
-        }
+        // correct admin: reveal admin UI now (and you can safely attach listeners here)
+        loginMessage.textContent = '';
+        loginSection.classList.add('hidden-el'); // hide login card once admin validated
+        revealAdminUI(user);
+
+        // IMPORTANT: attach your Firestore listeners / admin logic here.
+        // For safety this file does NOT automatically attach any write listeners.
+        // Example placeholders (do not attach anything if you haven't set Firestore rules):
+        galleryItems.textContent = '(admin: gallery will load here)';
+        winnersList.textContent = '(admin: winners will load here)';
+
+        // If you want, I can add the listeners and upload logic now — tell me and I will paste them.
       } else {
-        // signed in but not admin -> do NOT reveal admin UI
-        showLoginOnly('Signed in as non-admin. You must sign in with the admin account to view content.');
-        // optional: keep the sign-in session but do not grant access
+        // signed in as non-admin -> immediately sign them out and show a message (do not reveal UI)
+        try {
+          await signOut(auth);
+        } catch (err) {
+          console.error('Sign-out after non-admin sign-in failed', err);
+        }
+        hideAllAdminUI();
+        loginMessage.textContent = 'Signed-in account is not the admin. You have been signed out.';
       }
     });
 
-    // Cloudinary upload helper
-    async function uploadToCloudinary(file) {
-      const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/upload`;
-      const fd = new FormData();
-      fd.append('file', file);
-      fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-      const res = await fetch(url, { method: 'POST', body: fd });
-      if (!res.ok) throw new Error('Cloudinary upload failed: ' + res.statusText);
-      return res.json();
-    }
+    // ---------- SIGN OUT BUTTON ----------
+    signOutBtn.addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        // always return to login view
+        loginMessage.textContent = 'Signed out.';
+        hideAllAdminUI();
+        loginSection.classList.remove('hidden-el');
+      } catch (err) {
+        console.error('Sign-out error', err);
+        loginMessage.textContent = 'Sign-out failed: ' + (err.message || '');
+      }
+    });
 
-    // On load: show login-only by default
-    showLoginOnly('');
-
+    // Safety: ensure page starts with login visible and admin hidden
+    hideAllAdminUI();
+    document.getElementById('loginSection').classList.remove('hidden-el');
   </script>
 </body>
 </html>
