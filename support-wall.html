@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .tweet-card { background: #ffffff; border: 1px solid #e0e0e0; border-radius: 16px; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display:flex; gap:1rem; }
+    .muted { color:#6b7280; }
   </style>
 </head>
 <body class="bg-pink-50 text-black font-sans min-h-screen flex flex-col">
@@ -27,74 +28,127 @@
       <p id="loading-indicator" class="text-gray-500 text-center">Loading messages...</p>
     </div>
   </main>
-  
+
   <footer class="bg-pink-900 text-white text-center py-6">
     <p>&copy; <span id="year"></span> The Footballer’s Sister. All rights reserved.</p>
     <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
   </footer>
 
   <script type="module">
+    // resilient support-wall loader: auto-detects path and uses anonymous auth fallback
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    const appId = '1:65396604482:web:0f31625a714aa8352337db';
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
       projectId: "football-site-c3aa9",
       storageBucket: "football-site-c3aa9.appspot.com",
       messagingSenderId: "65396604482",
-      appId: appId
+      appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
-
     const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
     const db = getFirestore(app);
+
+    const appId = firebaseConfig.appId;
     const container = document.getElementById('messages-container');
     const loading = document.getElementById('loading-indicator');
 
-    async function loadMessages() {
-      loading.style.display = 'block';
+    // candidate base paths — order matters (artifact path first since your console shows that)
+    const CANDIDATES = [
+      `/artifacts/${appId}/public/data`,
+      `/artifacts/${appId}/public`,
+      `/artifacts/${appId}`,
+      `/public/data`,
+      '' // top-level collections as last resort
+    ];
+
+    function escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>"']/g, (s) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]); }
+
+    async function tryLoad(base) {
+      // tries to read collection `${base}/supportMessages` (if base is '', reads top-level 'supportMessages')
       try {
-        const path = `/artifacts/${appId}/public/data/supportMessages`;
+        const path = base ? `${base}/supportMessages` : 'supportMessages';
         const snaps = await getDocs(query(collection(db, path), orderBy('createdAt','desc')));
-        const items = snaps.docs.map(d => ({ id: d.id, ...d.data() }));
-        loading.style.display = 'none';
-        container.innerHTML = '';
-        if (!items.length) {
-          container.innerHTML = '<div class="text-gray-500">No messages yet.</div>';
-          return;
-        }
-        items.forEach(it => {
-          const timeLabel = it.createdAt ? (it.createdAt.seconds ? new Date(it.createdAt.seconds*1000).toLocaleString() : String(it.createdAt)) : 'Unknown';
-          const el = document.createElement('div');
-          el.className = 'tweet-card';
-          el.innerHTML = `
-            <div style="width:48px;flex-shrink:0;">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="#be185d"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.38 0 2.5 1.12 2.5 2.5S13.38 10 12 10s-2.5-1.12-2.5-2.5S10.62 5 12 5zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
-            </div>
-            <div style="flex:1">
-              <div style="display:flex;gap:.5rem;align-items:center;">
-                <div style="font-weight:700">${escapeHtml(it.name || 'Anonymous')}</div>
-                <div style="color:#94a3b8;font-size:.85rem">@${(it.userId||'').substring(0,8)}</div>
-                <div style="color:#94a3b8;font-size:.75rem;margin-left:.5rem;">· ${timeLabel}</div>
-              </div>
-              <div style="margin-top:.6rem;color:#374151;">${escapeHtml(it.message || '')}</div>
-              <div style="margin-top:.6rem;color:#6b7280;font-size:.9rem;">${ it.adminResponse ? `<strong>Admin:</strong> ${escapeHtml(it.adminResponse)} <span class="muted">· ${it.respondedAt && it.respondedAt.seconds ? new Date(it.respondedAt.seconds*1000).toLocaleString() : ''}</span>` : '<span class="muted">No admin response yet.</span>' }</div>
-            </div>
-          `;
-          container.appendChild(el);
-        });
+        return snaps;
       } catch (err) {
-        console.error('load messages', err);
-        loading.style.display = 'none';
-        container.innerHTML = '<div class="text-red-600">Could not load messages.</div>';
+        // return error object so caller can detect this path failed
+        return { __error: String(err) };
       }
     }
 
-    // small helper
-    function escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>"']/g, (s) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]); }
+    async function findAndRender() {
+      loading.style.display = 'block';
+      container.innerHTML = '';
+      for (const base of CANDIDATES) {
+        const res = await tryLoad(base);
+        if (res && res.__error) {
+          // path exists but read blocked or invalid — continue trying next candidate
+          console.warn('path read error for', base, res.__error);
+          continue;
+        }
+        if (res && res.size !== undefined && res.size > 0) {
+          // found docs here — render them
+          renderDocs(res.docs.map(d => ({ id: d.id, ...d.data() })));
+          loading.style.display = 'none';
+          console.log('Support messages loaded from base path:', base || 'top-level');
+          return;
+        }
+        // if docs empty but no error, still treat as valid (render empty)
+        if (res && res.size !== undefined) {
+          renderDocs([]);
+          loading.style.display = 'none';
+          console.log('Support path valid but empty at base:', base || 'top-level');
+          return;
+        }
+      }
+      // If we reach here, all attempts errored (likely rules blocking reads). Show friendly message.
+      loading.style.display = 'none';
+      container.innerHTML = '<div class="text-red-600">Could not load messages. This may be a permissions / Firestore rules issue — see admin console.</div>';
+    }
 
-    loadMessages();
+    function renderDocs(items) {
+      container.innerHTML = '';
+      if (!items.length) { container.innerHTML = '<div class="text-gray-500">No messages yet.</div>'; return; }
+      items.forEach(it => {
+        const timeLabel = it.createdAt ? (it.createdAt.seconds ? new Date(it.createdAt.seconds*1000).toLocaleString() : String(it.createdAt)) : 'Unknown';
+        const el = document.createElement('div');
+        el.className = 'tweet-card';
+        el.innerHTML = `
+          <div style="width:48px;flex-shrink:0;">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="#be185d"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.38 0 2.5 1.12 2.5 2.5S13.38 10 12 10s-2.5-1.12-2.5-2.5S10.62 5 12 5zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+          </div>
+          <div style="flex:1">
+            <div style="display:flex;gap:.5rem;align-items:center;">
+              <div style="font-weight:700">${escapeHtml(it.name || 'Anonymous')}</div>
+              <div style="color:#94a3b8;font-size:.85rem">@${(it.userId||'').substring(0,8)}</div>
+              <div style="color:#94a3b8;font-size:.75rem;margin-left:.5rem;">· ${timeLabel}</div>
+            </div>
+            <div style="margin-top:.6rem;color:#374151;">${escapeHtml(it.message || '')}</div>
+            <div style="margin-top:.6rem;color:#6b7280;font-size:.9rem;">${ it.adminResponse ? `<strong>Admin:</strong> ${escapeHtml(it.adminResponse)} <span class="muted">· ${it.respondedAt && it.respondedAt.seconds ? new Date(it.respondedAt.seconds*1000).toLocaleString() : ''}</span>` : '<span class="muted">No admin response yet.</span>' }</div>
+          </div>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    // Ensure we are at least anonymously signed in if rules require auth
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        findAndRender();
+      } else {
+        try {
+          await signInAnonymously(auth);
+          findAndRender();
+        } catch (err) {
+          console.warn('Anonymous sign-in failed:', err);
+          // still try to load without auth (some rules allow unauthenticated reads)
+          findAndRender();
+        }
+      }
+    });
   </script>
 </body>
 </html>

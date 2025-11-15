@@ -24,6 +24,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -34,40 +35,73 @@
       messagingSenderId: "65396604482",
       appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
-    const ARTIFACT_ID = "1:65396604482:web:0f31625a714aa8352337db";
     const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
     const db = getFirestore(app);
-
+    const appId = firebaseConfig.appId;
     const list = document.getElementById('questionsList');
 
-    async function loadQuestions() {
-      list.innerHTML = '<div class="muted">Loading...</div>';
-      try {
-        const q = query(collection(db, `/artifacts/${ARTIFACT_ID}/public/data/questions`), orderBy('createdAt','desc'));
-        const snaps = await getDocs(q);
-        list.innerHTML = '';
-        if (snaps.empty) { list.innerHTML = '<div class="text-gray-500">No questions yet.</div>'; return; }
-        snaps.forEach(docSnap => {
-          const d = docSnap.data();
-          const el = document.createElement('div');
-          el.className = 'bg-white p-4 rounded shadow';
-          el.innerHTML = `
-            <div class="font-semibold">${escapeHtml(d.title || 'Q')}</div>
-            <div class="text-sm text-gray-700 mt-1">${escapeHtml(d.body || '')}</div>
-            <div class="text-xs text-gray-400 mt-2">${d.createdAt && d.createdAt.seconds ? new Date(d.createdAt.seconds*1000).toLocaleString() : ''}</div>
-            <div class="mt-2">${ d.adminResponse ? `<div class="p-3 rounded bg-gray-50 border"><strong>Reply:</strong> ${escapeHtml(d.adminResponse)}</div>` : '<div class="text-sm text-gray-500">No reply yet.</div>' }</div>
-          `;
-          list.appendChild(el);
-        });
-      } catch (err) {
-        console.error('Q load', err);
-        list.innerHTML = '<div class="text-red-600">Could not load questions.</div>';
-      }
-    }
+    const CANDIDATES = [
+      `/artifacts/${appId}/public/data`,
+      `/artifacts/${appId}/public`,
+      `/artifacts/${appId}`,
+      `/public/data`,
+      ''
+    ];
 
     function escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>"']/g, (s) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]); }
 
-    loadQuestions();
+    async function tryLoad(base) {
+      try {
+        const path = base ? `${base}/questions` : 'questions';
+        const snaps = await getDocs(query(collection(db, path), orderBy('createdAt','desc')));
+        return snaps;
+      } catch (err) {
+        return { __error: String(err) };
+      }
+    }
+
+    async function findAndRender() {
+      list.innerHTML = '<div class="text-gray-500">Loading...</div>';
+      for (const base of CANDIDATES) {
+        const res = await tryLoad(base);
+        if (res && res.__error) {
+          console.warn('path read error for', base, res.__error);
+          continue;
+        }
+        if (res && res.size !== undefined) {
+          render(res.docs.map(d => ({ id: d.id, ...d.data() })));
+          console.log('Questions loaded from base path:', base || 'top-level');
+          return;
+        }
+      }
+      list.innerHTML = '<div class="text-red-600">Could not load questions. Check Firestore rules or console for errors.</div>';
+    }
+
+    function render(items) {
+      list.innerHTML = '';
+      if (!items.length) { list.innerHTML = '<div class="text-gray-500">No questions yet.</div>'; return; }
+      items.forEach(it => {
+        const el = document.createElement('div');
+        el.className = 'bg-white p-4 rounded shadow';
+        el.innerHTML = `
+          <div class="font-semibold">${escapeHtml(it.title || 'Q')}</div>
+          <div class="text-sm text-gray-700 mt-1">${escapeHtml(it.body || '')}</div>
+          <div class="text-xs text-gray-400 mt-2">${it.createdAt && it.createdAt.seconds ? new Date(it.createdAt.seconds*1000).toLocaleString() : ''}</div>
+          <div class="mt-2">${ it.adminResponse ? `<div class="p-3 rounded bg-gray-50 border"><strong>Reply:</strong> ${escapeHtml(it.adminResponse)}</div>` : '<div class="text-sm text-gray-500">No reply yet.</div>' }</div>
+        `;
+        list.appendChild(el);
+      });
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        findAndRender();
+      } else {
+        try { await signInAnonymously(auth); findAndRender(); }
+        catch (err) { console.warn('Anonymous sign in failed', err); findAndRender(); }
+      }
+    });
   </script>
 </body>
 </html>
