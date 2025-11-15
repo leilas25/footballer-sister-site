@@ -6,40 +6,66 @@
   <title>The Support Wall</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .tweet-card { background: #ffffff; border: 1px solid #e0e0e0; border-radius: 16px; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display:flex; gap:1rem; }
-    .muted { color:#6b7280; }
+    .msg-card {
+      background:#fff;
+      padding:1rem;
+      border-radius:12px;
+      box-shadow:0 4px 10px rgba(0,0,0,0.06);
+    }
   </style>
 </head>
+
 <body class="bg-pink-50 text-black font-sans min-h-screen flex flex-col">
 
+  <!-- HEADER -->
   <header class="fixed top-0 w-full bg-pink-100 shadow z-50">
     <div class="flex justify-between items-center px-6 py-4">
       <h1 class="text-xl font-bold uppercase text-rose-600">THE FOOTBALLER’S SISTER</h1>
-      <div><a href="index.html" class="text-rose-600">Home</a></div>
+      <div><a href="index.html" class="text-rose-600 hover:underline">Home</a></div>
     </div>
   </header>
   <div class="pt-24"></div>
 
+  <!-- MAIN -->
   <main class="flex-grow px-6 pb-20 text-center max-w-2xl mx-auto">
     <h2 class="text-4xl font-bold mb-4 text-rose-700">The Support Wall ❤️</h2>
-    <p class="text-sm text-center text-gray-600 mb-6">Messages from our community. Admin may respond or remove messages.</p>
+    <p class="text-sm text-center text-gray-600 mb-6">
+      Messages from the community. Your love and support is appreciated.
+    </p>
 
-    <div id="messages-container" class="mt-8 space-y-4 text-left">
-      <p id="loading-indicator" class="text-gray-500 text-center">Loading messages...</p>
-    </div>
+    <div id="messagesContainer" class="space-y-4"></div>
+
+    <p id="loading" class="text-gray-500 mt-10">Loading messages...</p>
+    <p id="errorBox" class="text-red-600 mt-6 hidden"></p>
   </main>
 
+  <!-- FOOTER -->
   <footer class="bg-pink-900 text-white text-center py-6">
     <p>&copy; <span id="year"></span> The Footballer’s Sister. All rights reserved.</p>
-    <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+    <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
   </footer>
 
-  <script type="module">
-    // resilient support-wall loader: auto-detects path and uses anonymous auth fallback
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+  <!-- FIREBASE + MESSAGES SCRIPT -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { 
+      getAuth,
+      signInAnonymously,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { 
+      getFirestore,
+      collection,
+      getDocs,
+      query,
+      orderBy
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+
+    // --------------------------
+    // FIREBASE CONFIG
+    // --------------------------
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
@@ -48,188 +74,100 @@
       messagingSenderId: "65396604482",
       appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
+
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
+    const db   = getFirestore(app);
 
     const appId = firebaseConfig.appId;
-    const container = document.getElementById('messages-container');
-    const loading = document.getElementById('loading-indicator');
 
-    // candidate base paths — order matters (artifact path first since your console shows that)
-    const CANDIDATES = [
-      `/artifacts/${appId}/public/data`,
-      `/artifacts/${appId}/public`,
-      `/artifacts/${appId}`,
-      `/public/data`,
-      '' // top-level collections as last resort
-    ];
+    // EXACT Firestore path where your data lives:
+    const SUPPORT_PATH = `/artifacts/${appId}/public/data/supportMessages`;
 
-    function escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>"']/g, (s) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]); }
 
-    async function tryLoad(base) {
-      // tries to read collection `${base}/supportMessages` (if base is '', reads top-level 'supportMessages')
+    // --------------------------
+    // ELEMENTS
+    // --------------------------
+    const container = document.getElementById("messagesContainer");
+    const loading   = document.getElementById("loading");
+    const errorBox  = document.getElementById("errorBox");
+
+
+    // --------------------------
+    // LOAD SUPPORT WALL MESSAGES
+    // --------------------------
+    async function loadMessages() {
+      loading.classList.remove("hidden");
+      errorBox.classList.add("hidden");
+      container.innerHTML = "";
+
       try {
-        const path = base ? `${base}/supportMessages` : 'supportMessages';
-        const snaps = await getDocs(query(collection(db, path), orderBy('createdAt','desc')));
-        return snaps;
+        const q = query(
+          collection(db, SUPPORT_PATH),
+          orderBy("createdAt", "desc")
+        );
+
+        const snap = await getDocs(q);
+
+        if (snap.empty) {
+          loading.textContent = "No messages yet.";
+          return;
+        }
+
+        loading.classList.add("hidden");
+
+        snap.forEach(doc => {
+          const data = doc.data();
+
+          const name = data.name || "Anonymous";
+          const msg  = data.message || "";
+          const time = data.createdAt?.seconds
+            ? new Date(data.createdAt.seconds * 1000).toLocaleString()
+            : "Unknown";
+
+          const card = document.createElement("div");
+          card.className = "msg-card text-left";
+
+          card.innerHTML = `
+            <div class="font-semibold">${name}</div>
+            <div class="text-gray-700 mt-2">${msg}</div>
+            <div class="text-xs text-gray-400 mt-2">${time}</div>
+          `;
+
+          container.appendChild(card);
+        });
+
       } catch (err) {
-        // return error object so caller can detect this path failed
-        return { __error: String(err) };
+        console.error("Support wall load error:", err);
+        loading.classList.add("hidden");
+        errorBox.textContent =
+          "Unable to load messages. Error: " +
+          (err.message || err.code || err);
+        errorBox.classList.remove("hidden");
       }
     }
 
-    async function findAndRender() {
-      loading.style.display = 'block';
-      container.innerHTML = '';
-      for (const base of CANDIDATES) {
-        const res = await tryLoad(base);
-        if (res && res.__error) {
-          // path exists but read blocked or invalid — continue trying next candidate
-          console.warn('path read error for', base, res.__error);
-          continue;
-        }
-        if (res && res.size !== undefined && res.size > 0) {
-          // found docs here — render them
-          renderDocs(res.docs.map(d => ({ id: d.id, ...d.data() })));
-          loading.style.display = 'none';
-          console.log('Support messages loaded from base path:', base || 'top-level');
-          return;
-        }
-        // if docs empty but no error, still treat as valid (render empty)
-        if (res && res.size !== undefined) {
-          renderDocs([]);
-          loading.style.display = 'none';
-          console.log('Support path valid but empty at base:', base || 'top-level');
-          return;
-        }
-      }
-      // If we reach here, all attempts errored (likely rules blocking reads). Show friendly message.
-      loading.style.display = 'none';
-      container.innerHTML = '<div class="text-red-600">Could not load messages. This may be a permissions / Firestore rules issue — see admin console.</div>';
-    }
 
-    function renderDocs(items) {
-      container.innerHTML = '';
-      if (!items.length) { container.innerHTML = '<div class="text-gray-500">No messages yet.</div>'; return; }
-      items.forEach(it => {
-        const timeLabel = it.createdAt ? (it.createdAt.seconds ? new Date(it.createdAt.seconds*1000).toLocaleString() : String(it.createdAt)) : 'Unknown';
-        const el = document.createElement('div');
-        el.className = 'tweet-card';
-        el.innerHTML = `
-          <div style="width:48px;flex-shrink:0;">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="#be185d"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.38 0 2.5 1.12 2.5 2.5S13.38 10 12 10s-2.5-1.12-2.5-2.5S10.62 5 12 5zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
-          </div>
-          <div style="flex:1">
-            <div style="display:flex;gap:.5rem;align-items:center;">
-              <div style="font-weight:700">${escapeHtml(it.name || 'Anonymous')}</div>
-              <div style="color:#94a3b8;font-size:.85rem">@${(it.userId||'').substring(0,8)}</div>
-              <div style="color:#94a3b8;font-size:.75rem;margin-left:.5rem;">· ${timeLabel}</div>
-            </div>
-            <div style="margin-top:.6rem;color:#374151;">${escapeHtml(it.message || '')}</div>
-            <div style="margin-top:.6rem;color:#6b7280;font-size:.9rem;">${ it.adminResponse ? `<strong>Admin:</strong> ${escapeHtml(it.adminResponse)} <span class="muted">· ${it.respondedAt && it.respondedAt.seconds ? new Date(it.respondedAt.seconds*1000).toLocaleString() : ''}</span>` : '<span class="muted">No admin response yet.</span>' }</div>
-          </div>
-        `;
-        container.appendChild(el);
-      });
-    }
-
-    // Ensure we are at least anonymously signed in if rules require auth
-    onAuthStateChanged(auth, async (user) => {
+    // --------------------------
+    // AUTH (ANONYMOUS)
+    // --------------------------
+    onAuthStateChanged(auth, (user) => {
       if (user) {
-        findAndRender();
+        loadMessages();
       } else {
-        try {
-          await signInAnonymously(auth);
-          findAndRender();
-        } catch (err) {
-          console.warn('Anonymous sign-in failed:', err);
-          // still try to load without auth (some rules allow unauthenticated reads)
-          findAndRender();
-        }
+        signInAnonymously(auth)
+          .then(() => loadMessages())
+          .catch(err => {
+            console.error("Anonymous sign-in failed:", err);
+            errorBox.textContent =
+              "Could not sign in to view messages: " +
+              (err.message || err.code || err);
+            errorBox.classList.remove("hidden");
+          });
       }
-
-      (async () => {
-  console.log('--- FIRESTORE DIAGNOSTIC START ---');
-
-  // use your site config (same as files we gave you)
-  const firebaseConfig = {
-    apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
-    authDomain: "football-site-c3aa9.firebaseapp.com",
-    projectId: "football-site-c3aa9",
-    storageBucket: "football-site-c3aa9.appspot.com",
-    messagingSenderId: "65396604482",
-    appId: "1:65396604482:web:0f31625a714aa8352337db"
-  };
-  console.log('Using firebaseConfig.appId =', firebaseConfig.appId);
-
-  try {
-    const appModule = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
-    const authModule = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
-    const fsModule = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-
-    const app = appModule.initializeApp(firebaseConfig);
-    const auth = authModule.getAuth(app);
-    const db = fsModule.getFirestore(app);
-
-    // check auth state
-    let currentUser = auth.currentUser;
-    console.log('auth.currentUser (immediate):', currentUser);
-    authModule.onAuthStateChanged(auth, (u) => {
-      console.log('onAuthStateChanged ->', u ? { uid: u.uid, anon: u.isAnonymous, email: u.email } : null);
     });
 
-    // try anonymous sign-in (safe): if already signed in this does nothing harmful
-    try {
-      if (!auth.currentUser) {
-        console.log('Attempting signInAnonymously() ...');
-        await authModule.signInAnonymously(auth);
-        console.log('Anonymous sign-in OK:', auth.currentUser ? { uid: auth.currentUser.uid, isAnonymous: auth.currentUser.isAnonymous } : null);
-      } else {
-        console.log('Already signed-in:', auth.currentUser ? { uid: auth.currentUser.uid, isAnonymous: auth.currentUser.isAnonymous, email: auth.currentUser.email } : null);
-      }
-    } catch (err) {
-      console.warn('Anonymous sign-in failed:', err && err.code, err && err.message);
-    }
-
-    const ART = firebaseConfig.appId;
-    const candidateBases = [
-      `/artifacts/${ART}/public/data`,
-      `/artifacts/${ART}/public`,
-      `/artifacts/${ART}`,
-      `/public/data`,
-      '' // top-level
-    ];
-    const collections = ['supportMessages','questions'];
-
-    for (const base of candidateBases) {
-      for (const coll of collections) {
-        const path = base ? `${base}/${coll}` : coll;
-        try {
-          console.log(`Trying to read collection: "${path}"`);
-          const q = fsModule.query(fsModule.collection(db, path), fsModule.orderBy('createdAt','desc'));
-          const snap = await fsModule.getDocs(q);
-          console.log(` -> read succeeded for "${path}" ; size = ${snap.size}`);
-          if (snap.size > 0) {
-            console.log('Sample doc (first):', { id: snap.docs[0].id, data: snap.docs[0].data() });
-          } else {
-            console.log(' -> collection empty (no docs found).');
-          }
-        } catch (err) {
-          // most important: show the code/message so we can see permission-denied or not-found
-          console.error(` -> read ERROR for "${path}":`, err && err.code ? err.code : err, err && err.message ? err.message : '');
-        }
-      }
-    }
-
-    // Additionally try a direct document read for the first question/supportMessage id you saw in the console (if you remember one)
-    console.log('--- DIAGNOSTIC COMPLETE ---');
-  } catch (err) {
-    console.error('Diagnostic failed to run (module import or network issue):', err);
-  }
-})();
-
-    });
   </script>
+
 </body>
 </html>

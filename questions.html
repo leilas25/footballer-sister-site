@@ -5,28 +5,39 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Q&A – The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .qa-card { background:#fff; padding:1rem; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.06); }
+    .muted { color:#6b7280; }
+  </style>
 </head>
-<body class="bg-pink-50">
+<body class="bg-pink-50 min-h-screen font-sans text-black">
+
   <header class="bg-pink-100 fixed top-0 left-0 right-0 z-40">
     <div class="max-w-6xl mx-auto px-6 py-4">
       <h1 class="text-xl font-bold text-rose-600">THE FOOTBALLER’S SISTER</h1>
     </div>
   </header>
+  <div class="pt-24"></div>
 
-  <main class="pt-28 max-w-4xl mx-auto px-6">
-    <h2 class="text-3xl font-bold text-rose-700 mb-4">Q&A</h2>
-    <p class="text-gray-600 mb-6">Ask a question — the community and admin will see it here.</p>
+  <main class="max-w-4xl mx-auto px-6 pb-20">
+    <h2 class="text-3xl font-bold text-rose-700 mb-3">Q&A</h2>
+    <p class="text-gray-600 mb-6">Questions from the community. Admin replies (if any) are shown below.</p>
 
     <div id="questionsList" class="space-y-4"></div>
+
+    <p id="loading" class="text-gray-500 mt-6">Loading questions...</p>
+    <p id="errorBox" class="text-red-600 mt-6 hidden"></p>
   </main>
 
-  <footer class="mt-12 bg-pink-900 text-white text-center py-6">© 2025 The Footballer’s Sister</footer>
+  <footer class="mt-12 bg-pink-900 text-white text-center py-6">© <span id="year"></span> The Footballer’s Sister</footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+    // ---------- config (matches your project)
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
@@ -35,71 +46,94 @@
       messagingSenderId: "65396604482",
       appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
+
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
     const appId = firebaseConfig.appId;
-    const list = document.getElementById('questionsList');
 
-    const CANDIDATES = [
-      `/artifacts/${appId}/public/data`,
-      `/artifacts/${appId}/public`,
-      `/artifacts/${appId}`,
-      `/public/data`,
-      ''
-    ];
+    // Exact path where your questions live
+    const QUESTIONS_PATH = `/artifacts/${appId}/public/data/questions`;
 
-    function escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>"']/g, (s) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]); }
+    // DOM
+    const listEl = document.getElementById('questionsList');
+    const loadingEl = document.getElementById('loading');
+    const errorBox = document.getElementById('errorBox');
 
-    async function tryLoad(base) {
-      try {
-        const path = base ? `${base}/questions` : 'questions';
-        const snaps = await getDocs(query(collection(db, path), orderBy('createdAt','desc')));
-        return snaps;
-      } catch (err) {
-        return { __error: String(err) };
-      }
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>"']/g, (s) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]);
     }
 
-    async function findAndRender() {
-      list.innerHTML = '<div class="text-gray-500">Loading...</div>';
-      for (const base of CANDIDATES) {
-        const res = await tryLoad(base);
-        if (res && res.__error) {
-          console.warn('path read error for', base, res.__error);
-          continue;
-        }
-        if (res && res.size !== undefined) {
-          render(res.docs.map(d => ({ id: d.id, ...d.data() })));
-          console.log('Questions loaded from base path:', base || 'top-level');
+    // Load questions (ordered by createdAt desc when available; if createdAt missing, fallback)
+    async function loadQuestions() {
+      loadingEl.classList.remove('hidden');
+      errorBox.classList.add('hidden');
+      listEl.innerHTML = '';
+
+      try {
+        // attempt ordered query by createdAt; some docs might not have createdAt but getDocs will still work
+        const q = query(collection(db, QUESTIONS_PATH), orderBy('createdAt', 'desc'));
+        const snaps = await getDocs(q);
+
+        if (snaps.empty) {
+          loadingEl.textContent = 'No questions yet.';
           return;
         }
+
+        loadingEl.classList.add('hidden');
+
+        // Render each question
+        snaps.forEach(docSnap => {
+          const data = docSnap.data();
+          const title = data.title || 'Question';
+          const body = data.body || '';
+          const name = data.name || 'Anonymous';
+          const createdAt = data.createdAt && data.createdAt.seconds ? new Date(data.createdAt.seconds * 1000).toLocaleString() : 'Unknown';
+          const adminResponse = data.adminResponse || null;
+
+          const card = document.createElement('article');
+          card.className = 'qa-card';
+
+          card.innerHTML = `
+            <div class="flex justify-between items-start">
+              <div>
+                <div class="font-semibold">${escapeHtml(title)}</div>
+                <div class="text-sm text-gray-700 mt-2">${escapeHtml(body)}</div>
+                <div class="text-xs muted mt-2">Asked by ${escapeHtml(name)} · ${createdAt}</div>
+              </div>
+            </div>
+            <div class="mt-4">
+              ${ adminResponse
+                ? `<div class="p-3 rounded bg-gray-50 border"><strong>Reply:</strong> ${escapeHtml(adminResponse)}</div>`
+                : `<div class="text-sm text-gray-500">No reply yet.</div>`
+              }
+            </div>
+          `;
+
+          listEl.appendChild(card);
+        });
+
+      } catch (err) {
+        console.error('Could not load questions:', err);
+        loadingEl.classList.add('hidden');
+        errorBox.textContent = 'Could not load questions. Error: ' + (err.message || err.code || err);
+        errorBox.classList.remove('hidden');
       }
-      list.innerHTML = '<div class="text-red-600">Could not load questions. Check Firestore rules or console for errors.</div>';
     }
 
-    function render(items) {
-      list.innerHTML = '';
-      if (!items.length) { list.innerHTML = '<div class="text-gray-500">No questions yet.</div>'; return; }
-      items.forEach(it => {
-        const el = document.createElement('div');
-        el.className = 'bg-white p-4 rounded shadow';
-        el.innerHTML = `
-          <div class="font-semibold">${escapeHtml(it.title || 'Q')}</div>
-          <div class="text-sm text-gray-700 mt-1">${escapeHtml(it.body || '')}</div>
-          <div class="text-xs text-gray-400 mt-2">${it.createdAt && it.createdAt.seconds ? new Date(it.createdAt.seconds*1000).toLocaleString() : ''}</div>
-          <div class="mt-2">${ it.adminResponse ? `<div class="p-3 rounded bg-gray-50 border"><strong>Reply:</strong> ${escapeHtml(it.adminResponse)}</div>` : '<div class="text-sm text-gray-500">No reply yet.</div>' }</div>
-        `;
-        list.appendChild(el);
-      });
-    }
-
-    onAuthStateChanged(auth, async (user) => {
+    // Ensure auth (anonymous) then load
+    onAuthStateChanged(auth, (user) => {
       if (user) {
-        findAndRender();
+        loadQuestions();
       } else {
-        try { await signInAnonymously(auth); findAndRender(); }
-        catch (err) { console.warn('Anonymous sign in failed', err); findAndRender(); }
+        signInAnonymously(auth)
+          .then(() => loadQuestions())
+          .catch(err => {
+            console.warn('Anonymous sign in failed:', err);
+            // still try to load (some rules allow unauthenticated read)
+            loadQuestions();
+          });
       }
     });
   </script>
