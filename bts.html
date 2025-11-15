@@ -5,40 +5,95 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Behind the Game – The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Small visual helpers */
+    .card { background:#fff; border-radius:12px; padding:16px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
+    .avatar { width:96px; height:96px; object-fit:cover; border-radius:9999px; border:4px solid #fff; box-shadow:0 6px 14px rgba(0,0,0,0.08); }
+    .carousel-frame { width:100%; height:420px; border-radius:12px; overflow:hidden; background:#f8fafc; display:flex; align-items:center; justify-content:center; }
+    .muted { color:#6b7280; }
+    .social-link { display:inline-flex; gap:.5rem; align-items:center; padding:.35rem .6rem; border-radius:999px; border:1px solid #eee; background:#fff; font-weight:600; text-decoration:none; color:#111827; }
+    .dot { width:10px; height:10px; border-radius:999px; background:#e5e7eb; display:inline-block; margin:0 .25rem; }
+    .dot.active { background:#be185d; }
+    pre.json { background:#f8fafc;border:1px solid #e6eef6;padding:8px;border-radius:6px;overflow:auto;max-height:220px; }
+  </style>
 </head>
-<body class="bg-pink-50">
+<body class="bg-pink-50 min-h-screen text-black">
 
-  <!-- header -->
-  <header class="fixed top-0 left-0 right-0 bg-pink-100 z-40">
+  <!-- HEADER -->
+  <header class="fixed top-0 w-full bg-pink-100 z-40">
     <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-      <h1 class="text-xl font-bold text-rose-600">THE FOOTBALLER’S SISTER</h1>
-      <div>
+      <h1 class="text-xl font-bold uppercase text-rose-600">THE FOOTBALLER’S SISTER</h1>
+      <nav>
         <a href="index.html" class="text-rose-600 mr-4">Home</a>
-        <a href="bts.html" class="text-rose-600">Behind the Game</a>
-      </div>
+        <a href="bts.html" class="text-rose-600 font-semibold">Behind the Game</a>
+        <a href="support-wall.html" class="text-rose-600 ml-4">Support</a>
+      </nav>
     </div>
   </header>
-
   <div class="pt-24"></div>
 
   <main class="max-w-6xl mx-auto px-6 pb-16">
 
-    <h2 class="text-4xl font-bold text-rose-700 mb-4">Behind the Game</h2>
-    <p class="text-gray-700 mb-6">
-      Exclusive look behind the scenes — training, match day, lifestyle, and more.
-    </p>
+    <!-- Page title -->
+    <section class="text-center mb-8">
+      <h2 class="text-4xl font-bold text-rose-700">Behind the Game 📸⚽</h2>
+      <p class="text-gray-700 mt-3">Exclusive look behind the scenes — training, match day, lifestyle, and more.</p>
+    </section>
 
-    <!-- GALLERY -->
-    <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    <!-- Player profiles -->
+    <section id="playersSection" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <!-- Player cards inserted here by JS -->
+    </section>
+
+    <!-- TikTok Carousel + Collab gallery -->
+    <section class="grid md:grid-cols-2 gap-8 items-start">
+      <div>
+        <h3 class="text-2xl font-semibold text-rose-700 mb-4">My Vlogs & Highlights (TikTok)</h3>
+
+        <div id="tiktokCarousel" class="card">
+          <div id="tiktokFrame" class="carousel-frame">
+            <!-- iframe or placeholder injected here -->
+            <div class="muted">Loading TikToks...</div>
+          </div>
+
+          <div class="mt-4 flex items-center justify-between">
+            <div class="flex items-center" id="tiktokDots"></div>
+            <div>
+              <button id="prevTiktok" class="btn bg-white border py-2 px-3 mr-2">Prev</button>
+              <button id="nextTiktok" class="btn bg-rose-600 text-white py-2 px-3">Next</button>
+            </div>
+          </div>
+
+          <div id="tiktokDebug" class="mt-3 muted text-sm"></div>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="text-2xl font-semibold text-rose-700 mb-4">Collab Gallery</h3>
+        <div id="btsGallery" class="grid grid-cols-1 gap-4"></div>
+        <div id="galleryDebug" class="mt-3 muted text-sm"></div>
+      </div>
+    </section>
+
+    <!-- Full gallery (larger grid) -->
+    <section class="mt-10">
+      <h3 class="text-2xl font-semibold text-rose-700 mb-4">All BTS Images</h3>
+      <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      <div id="galleryGridDebug" class="mt-3 muted text-sm"></div>
+    </section>
 
   </main>
 
+  <footer class="mt-12 bg-pink-900 text-white text-center py-6">© <span id="year"></span> The Footballer’s Sister</footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- Firebase -->
+  <!-- FIREBASE + LOGIC -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, query, orderBy, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+    // ----- config -----
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
@@ -47,44 +102,297 @@
       messagingSenderId: "65396604482",
       appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
+    const APP_ID = firebaseConfig.appId;
+    const ARTPATH = `/artifacts/${APP_ID}/public/data`;
 
     const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
     const db = getFirestore(app);
 
-    const galleryEl = document.getElementById('galleryGrid');
+    // ----- DOM refs -----
+    const playersSection = document.getElementById('playersSection');
+    const btsGallery = document.getElementById('btsGallery');
+    const galleryGrid = document.getElementById('galleryGrid');
 
-    /* load gallery from artifacts */
-    const path = `artifacts/1:65396604482:web:0f31625a714aa8352337db/public/data/gallery`;
+    const tiktokFrame = document.getElementById('tiktokFrame');
+    const prevTiktok = document.getElementById('prevTiktok');
+    const nextTiktok = document.getElementById('nextTiktok');
+    const tiktokDots = document.getElementById('tiktokDots');
+    const tiktokDebug = document.getElementById('tiktokDebug');
+    const galleryDebug = document.getElementById('galleryDebug');
+    const galleryGridDebug = document.getElementById('galleryGridDebug');
 
-    const qGallery = query(
-      collection(db, path),
-      orderBy('createdAt', 'desc')
-    );
+    // Helper: escape
+    function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-    onSnapshot(qGallery, snapshot => {
-      galleryEl.innerHTML = '';
+    // Auto-detect helper: tries artifact path first then top-level name
+    async function fetchCollection(collectionName) {
+      const candidates = [
+        `${ARTPATH}/${collectionName}`,
+        `/public/data/${collectionName}`,
+        collectionName // top-level
+      ];
+      let firstError = null;
+      for (const path of candidates) {
+        try {
+          // Using getDocs + query(orderBy createdAt) where possible
+          // try ordered query; if createdAt missing, it will still fetch but ordering may not apply
+          const q = query(collection(db, path), orderBy('createdAt', 'desc'));
+          const snap = await getDocs(q);
+          return { path, docs: snap.docs.map(d => ({ id: d.id, data: d.data() })) };
+        } catch (err) {
+          // keep first error for debugging
+          if (!firstError) firstError = { path, error: err };
+          console.warn('fetchCollection error for', path, err);
+          // try next candidate
+        }
+      }
+      // none succeeded: return error info
+      return { error: firstError || { message: 'No path worked' } };
+    }
 
-      if (snapshot.empty) {
-        galleryEl.innerHTML = '<p class="text-gray-500">No images yet.</p>';
+    // Safe onSnapshot loader (falls back to getDocs if onSnapshot path fails)
+    async function subscribeCollection(collectionName, onChange, onError) {
+      // try artifact path directly with onSnapshot
+      const candidates = [
+        `${ARTPATH}/${collectionName}`,
+        `/public/data/${collectionName}`,
+        collectionName
+      ];
+      for (const path of candidates) {
+        try {
+          const q = query(collection(db, path), orderBy('createdAt','desc'));
+          // try onSnapshot - if it throws, we'll catch and continue
+          onSnapshot(q, snap => {
+            onChange({ path, docs: snap.docs.map(d => ({ id: d.id, data: d.data() })) });
+          }, err => {
+            console.warn('onSnapshot error for', path, err);
+            // report error but continue trying next path
+            if (onError) onError({ path, error: err });
+          });
+          return; // subscription active
+        } catch (err) {
+          console.warn('subscribeCollection failed for', path, err);
+          if (onError) onError({ path, error: err });
+        }
+      }
+      // If we reach here no real-time subscription was made; try one-time fetch
+      try {
+        const res = await fetchCollection(collectionName);
+        if (res && !res.error) onChange(res);
+        else if (onError) onError(res.error || { message: 'Could not fetch' });
+      } catch(e){
+        if (onError) onError({ message: e.message || e });
+      }
+    }
+
+    // ---------- Players (try to load /artifacts/.../players or top-level 'players') ----------
+    async function renderPlayers() {
+      playersSection.innerHTML = '<div class="muted">Loading players...</div>';
+      const res = await fetchCollection('players');
+      if (res && res.error) {
+        // fallback: show two placeholder profiles (so page looks like your original)
+        playersSection.innerHTML = `
+          <div class="card text-center">
+            <img src="https://res.cloudinary.com/demo/image/upload/w_300,h_300,c_thumb,g_face/sample.jpg" alt="Player 1" class="avatar mx-auto mb-3">
+            <div class="font-semibold">Player One</div>
+            <div class="muted mt-1">Forward • Club</div>
+            <div class="mt-3">
+              <a class="social-link" href="#" target="_blank">Instagram</a>
+              <a class="social-link ml-2" href="#" target="_blank">TikTok</a>
+            </div>
+          </div>
+          <div class="card text-center">
+            <img src="https://res.cloudinary.com/demo/image/upload/w_300,h_300,c_thumb,g_face/sample.jpg" alt="Player 2" class="avatar mx-auto mb-3">
+            <div class="font-semibold">Player Two</div>
+            <div class="muted mt-1">Midfielder • Club</div>
+            <div class="mt-3">
+              <a class="social-link" href="#" target="_blank">Instagram</a>
+              <a class="social-link ml-2" href="#" target="_blank">TikTok</a>
+            </div>
+          </div>
+        `;
+        // show debug note
+        playersSection.insertAdjacentHTML('beforeend', `<div class="muted mt-2">Players collection not found at artifact path; showing placeholders.</div>`);
         return;
       }
+      // render docs if present
+      playersSection.innerHTML = '';
+      if (!res.docs.length) {
+        playersSection.innerHTML = '<div class="muted">No players found — showing placeholders.</div>';
+        renderPlayers(); // call again will show placeholders because fetchCollection returns empty array (handled above)
+        return;
+      }
+      res.docs.forEach(d => {
+        const p = d.data || {};
+        const img = p.photoUrl || p.imageUrl || p.avatar || 'https://res.cloudinary.com/demo/image/upload/w_300,h_300,c_thumb,g_face/sample.jpg';
+        const name = p.name || 'Player';
+        const role = p.role || p.position || '';
+        const insta = p.instagram || p.ig || p.instagramUrl || '#';
+        const tiktok = p.tiktok || p.tiktokUrl || '#';
+        const card = document.createElement('div');
+        card.className = 'card text-center';
+        card.innerHTML = `
+          <img src="${escapeHtml(img)}" alt="${escapeHtml(name)}" class="avatar mx-auto mb-3">
+          <div class="font-semibold">${escapeHtml(name)}</div>
+          <div class="muted mt-1">${escapeHtml(role)}</div>
+          <div class="mt-3">
+            <a class="social-link" href="${escapeHtml(insta)}" target="_blank">Instagram</a>
+            <a class="social-link ml-2" href="${escapeHtml(tiktok)}" target="_blank">TikTok</a>
+          </div>
+        `;
+        playersSection.appendChild(card);
+      });
+    }
 
-      snapshot.forEach(doc => {
-        const d = doc.data();
-        if (!d.imageUrl) return;
+    // ---------- TikTok carousel (reads /artifacts/.../tiktoks or top-level 'tiktoks') ----------
+    let tiktoks = []; // array of { embedUrl, rawUrl, caption }
+    let tiktokIndex = 0;
 
+    function showTiktokAt(i) {
+      if (!tiktoks.length) {
+        tiktokFrame.innerHTML = '<div class="muted">No TikToks found.</div>';
+        tiktokDots.innerHTML = '';
+        return;
+      }
+      tiktokIndex = (i + tiktoks.length) % tiktoks.length;
+      const item = tiktoks[tiktokIndex];
+      tiktokFrame.innerHTML = '';
+      if (item.embedUrl) {
+        const ifr = document.createElement('iframe');
+        ifr.src = item.embedUrl;
+        ifr.allow = "autoplay; encrypted-media; fullscreen";
+        ifr.className = 'w-full h-full';
+        ifr.style.border = '0';
+        tiktokFrame.appendChild(ifr);
+      } else if (item.rawUrl) {
+        // fallback to a link
+        tiktokFrame.innerHTML = `<a href="${escapeHtml(item.rawUrl)}" target="_blank" class="muted">${escapeHtml(item.rawUrl)}</a>`;
+      } else {
+        tiktokFrame.innerHTML = '<div class="muted">TikTok item missing embed or URL.</div>';
+      }
+
+      // dots
+      tiktokDots.innerHTML = '';
+      tiktoks.forEach((_, idx) => {
+        const dot = document.createElement('span');
+        dot.className = 'dot' + (idx === tiktokIndex ? ' active' : '');
+        dot.addEventListener('click', ()=> showTiktokAt(idx));
+        tiktokDots.appendChild(dot);
+      });
+
+      tiktokDebug.textContent = `Showing ${tiktokIndex+1} of ${tiktoks.length} (source path detected or fallback)`;
+    }
+
+    async function loadTiktoks() {
+      tiktokFrame.innerHTML = '<div class="muted">Loading TikToks...</div>';
+      tiktoks = [];
+      const res = await fetchCollection('tiktoks');
+      if (res && res.error) {
+        // fallback: try top-level 'tiktoks' or show sample embed
+        // Provide a sample so carousel isn't empty
+        tiktoks = [
+          { embedUrl: 'https://www.tiktok.com/embed/v2/7529094647944072454', rawUrl: 'https://www.tiktok.com/@someuser/video/7529094647944072454', caption: 'Sample highlight' }
+        ];
+        showTiktokAt(0);
+        tiktokDebug.textContent = 'tiktoks not found at artifact path — showing sample.';
+        return;
+      }
+      if (!res.docs.length) {
+        tiktokDebug.textContent = 'No tiktok docs found — showing sample.';
+        tiktoks = [
+          { embedUrl: 'https://www.tiktok.com/embed/v2/7529094647944072454', rawUrl: 'https://www.tiktok.com/@someuser/video/7529094647944072454', caption: 'Sample highlight' }
+        ];
+        showTiktokAt(0);
+        return;
+      }
+      // populate tiktoks array with embedUrl or rawUrl fields
+      res.docs.forEach(doc => {
+        const d = doc.data || doc.data;
+        const embedUrl = d.embedUrl || d.oembed || d.tiktokEmbed;
+        const rawUrl = d.url || d.tiktokUrl || d.link;
+        tiktoks.push({ embedUrl, rawUrl, caption: d.caption || '' });
+      });
+      showTiktokAt(0);
+    }
+
+    prevTiktok.addEventListener('click', ()=> showTiktokAt(tiktokIndex - 1));
+    nextTiktok.addEventListener('click', ()=> showTiktokAt(tiktokIndex + 1));
+
+    // ---------- Collab gallery + full gallery ----------
+    function renderGalleryDocsInto(containerEl, docs) {
+      containerEl.innerHTML = '';
+      if (!docs.length) {
+        containerEl.innerHTML = '<div class="muted">No images yet.</div>';
+        return;
+      }
+      docs.forEach(dObj => {
+        const d = dObj.data || dObj;
+        const url = d.imageUrl || d.image || d.url || '';
+        const caption = d.caption || d.title || '';
         const card = document.createElement('div');
         card.className = 'bg-white rounded shadow overflow-hidden';
         card.innerHTML = `
-          <img src="${d.imageUrl}" class="w-full h-72 object-cover">
-          <div class="p-3"><div class="text-sm text-gray-700">${d.caption||''}</div></div>
+          <img src="${escapeHtml(url)}" class="w-full h-72 object-cover" alt="${escapeHtml(caption)}">
+          <div class="p-3"><div class="text-sm text-gray-700">${escapeHtml(caption)}</div></div>
         `;
-        galleryEl.appendChild(card);
+        containerEl.appendChild(card);
       });
-    }, err => {
-      galleryEl.innerHTML = '<div class="text-red-600">Could not load gallery.</div>';
-      console.error(err);
+    }
+
+    async function initGalleries() {
+      // subscribe or one-time load to gallery collection
+      await subscribeCollection('gallery', res => {
+        if (res && res.docs) {
+          // For the collab gallery (btsGallery) show only items tagged collab=true or collection field 'type' === 'collab' if present
+          const docs = res.docs || [];
+          const collabs = docs.filter(d => {
+            const meta = d.data || {};
+            if (meta.collab === true) return true;
+            if ((meta.type||'').toLowerCase() === 'collab') return true;
+            // if caption contains 'collab' fallback
+            if ((meta.caption||'').toLowerCase().includes('collab')) return true;
+            return false;
+          });
+          try { renderGalleryDocsInto(btsGallery, collabs); } catch(e) { btsGallery.innerHTML = '<div class="muted">Error rendering collab gallery.</div>'; }
+          try { renderGalleryDocsInto(galleryGrid, docs); } catch(e) { galleryGrid.innerHTML = '<div class="muted">Error rendering gallery grid.</div>'; }
+          galleryDebug.textContent = `Loaded ${docs.length} gallery items (collabs: ${collabs.length}) from ${res.path}`;
+          galleryGridDebug.textContent = `Gallery path: ${res.path}`;
+        } else if (res && res.error) {
+          galleryDebug.textContent = `Gallery error: ${res.error && (res.error.message||res.error.code) || res.error}`;
+          btsGallery.innerHTML = '<div class="muted">Could not load collab gallery.</div>';
+          galleryGrid.innerHTML = '<div class="muted">Could not load gallery.</div>';
+        }
+      }, err => {
+        galleryDebug.textContent = 'Realtime subscription failed: ' + (err && err.error && (err.error.message||err.error.code) || JSON.stringify(err));
+      });
+    }
+
+    // Ensure anonymous auth (so rules that require auth pass)
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // load everything
+        renderPlayers();
+        loadTiktoks();
+        initGalleries();
+      } else {
+        signInAnonymously(auth).catch(err => {
+          console.warn('Anonymous sign-in failed', err);
+          // even if anon sign-in fails, still try to load (some rules allow public read)
+          renderPlayers();
+          loadTiktoks();
+          initGalleries();
+        });
+      }
     });
+
+    // Kick off in case auth state already available
+    if (auth.currentUser) {
+      renderPlayers();
+      loadTiktoks();
+      initGalleries();
+    }
+
   </script>
 </body>
 </html>
