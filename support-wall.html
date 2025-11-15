@@ -148,6 +148,87 @@
           findAndRender();
         }
       }
+
+      (async () => {
+  console.log('--- FIRESTORE DIAGNOSTIC START ---');
+
+  // use your site config (same as files we gave you)
+  const firebaseConfig = {
+    apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
+    authDomain: "football-site-c3aa9.firebaseapp.com",
+    projectId: "football-site-c3aa9",
+    storageBucket: "football-site-c3aa9.appspot.com",
+    messagingSenderId: "65396604482",
+    appId: "1:65396604482:web:0f31625a714aa8352337db"
+  };
+  console.log('Using firebaseConfig.appId =', firebaseConfig.appId);
+
+  try {
+    const appModule = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
+    const authModule = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
+    const fsModule = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+
+    const app = appModule.initializeApp(firebaseConfig);
+    const auth = authModule.getAuth(app);
+    const db = fsModule.getFirestore(app);
+
+    // check auth state
+    let currentUser = auth.currentUser;
+    console.log('auth.currentUser (immediate):', currentUser);
+    authModule.onAuthStateChanged(auth, (u) => {
+      console.log('onAuthStateChanged ->', u ? { uid: u.uid, anon: u.isAnonymous, email: u.email } : null);
+    });
+
+    // try anonymous sign-in (safe): if already signed in this does nothing harmful
+    try {
+      if (!auth.currentUser) {
+        console.log('Attempting signInAnonymously() ...');
+        await authModule.signInAnonymously(auth);
+        console.log('Anonymous sign-in OK:', auth.currentUser ? { uid: auth.currentUser.uid, isAnonymous: auth.currentUser.isAnonymous } : null);
+      } else {
+        console.log('Already signed-in:', auth.currentUser ? { uid: auth.currentUser.uid, isAnonymous: auth.currentUser.isAnonymous, email: auth.currentUser.email } : null);
+      }
+    } catch (err) {
+      console.warn('Anonymous sign-in failed:', err && err.code, err && err.message);
+    }
+
+    const ART = firebaseConfig.appId;
+    const candidateBases = [
+      `/artifacts/${ART}/public/data`,
+      `/artifacts/${ART}/public`,
+      `/artifacts/${ART}`,
+      `/public/data`,
+      '' // top-level
+    ];
+    const collections = ['supportMessages','questions'];
+
+    for (const base of candidateBases) {
+      for (const coll of collections) {
+        const path = base ? `${base}/${coll}` : coll;
+        try {
+          console.log(`Trying to read collection: "${path}"`);
+          const q = fsModule.query(fsModule.collection(db, path), fsModule.orderBy('createdAt','desc'));
+          const snap = await fsModule.getDocs(q);
+          console.log(` -> read succeeded for "${path}" ; size = ${snap.size}`);
+          if (snap.size > 0) {
+            console.log('Sample doc (first):', { id: snap.docs[0].id, data: snap.docs[0].data() });
+          } else {
+            console.log(' -> collection empty (no docs found).');
+          }
+        } catch (err) {
+          // most important: show the code/message so we can see permission-denied or not-found
+          console.error(` -> read ERROR for "${path}":`, err && err.code ? err.code : err, err && err.message ? err.message : '');
+        }
+      }
+    }
+
+    // Additionally try a direct document read for the first question/supportMessage id you saw in the console (if you remember one)
+    console.log('--- DIAGNOSTIC COMPLETE ---');
+  } catch (err) {
+    console.error('Diagnostic failed to run (module import or network issue):', err);
+  }
+})();
+
     });
   </script>
 </body>
