@@ -61,14 +61,14 @@
 
     <!-- Elijah (hard-coded) -->
     <div class="bg-white p-5 rounded-lg shadow-md flex flex-col items-center text-center">
-      <!-- fixed height to keep cards uniform -->
+      <!-- FIXED HEIGHT: both images use the same height so cards are uniform -->
       <img src="images/elijah2.jpeg" alt="Elijah Sono"
            class="rounded-lg mb-4 w-full h-96 object-cover" />
       <h4 class="text-2xl font-bold text-rose-700 flex items-center gap-3">
         <span>Elijah Sono</span>
         <span class="inline-flex items-center gap-2 ml-2">
           <!-- Instagram icon -->
-          <a id="elijah-instagram" href="social link here" target="_blank" rel="noreferrer" title="Instagram">
+          <a id="elijah-instagram" href="https://www.instagram.com/elijah_sono?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" title="Instagram">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <rect x="2" y="2" width="20" height="20" rx="5" stroke="#BE185D" stroke-width="1.5" fill="none"/>
               <path d="M7.75 11.99a4.25 4.25 0 1 1 8.5 0 4.25 4.25 0 0 1-8.5 0z" stroke="#BE185D" stroke-width="1.5" fill="none"/>
@@ -77,7 +77,7 @@
           </a>
 
           <!-- TikTok icon (resized to match Instagram visual weight) -->
-          <a id="elijah-tiktok" href="social link here" target="_blank" rel="noreferrer" title="TikTok">
+          <a id="elijah-tiktok" href="https://www.tiktok.com/@elijah_sono_?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" title="TikTok">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                  xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M15 6.5c.6.6 1.6 1.1 3 1.1v2.1c-1.3 0-2.4-.4-3-.9v5.8a3.6 3.6 0 1 1-3.6-3.6c.2 0 .5 0 .7.1v2.2a1.4 1.4 0 1 0 1.4 1.4V6.5z"
@@ -115,12 +115,13 @@
 
     <!-- Bamuza (hard-coded) -->
     <div class="bg-white p-5 rounded-lg shadow-md flex flex-col items-center text-center">
+      <!-- FIXED HEIGHT: same h-96 to match Elijah -->
       <img src="images/Bamuza.jpeg" alt="Bamuza Sono"
            class="rounded-lg mb-4 w-full h-96 object-cover" />
       <h4 class="text-2xl font-bold text-rose-700 flex items-center gap-3">
         <span>Bamuza Sono Jnr</span>
         <span class="inline-flex items-center gap-2 ml-2">
-          <a id="bamuza-instagram" href="social link here" target="_blank" rel="noreferrer" title="Instagram">
+          <a id="bamuza-instagram" href="https://www.instagram.com/bamuza_sono?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" title="Instagram">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <rect x="2" y="2" width="20" height="20" rx="5" stroke="#BE185D" stroke-width="1.5" fill="none"/>
               <path d="M7.75 11.99a4.25 4.25 0 1 1 8.5 0 4.25 4.25 0 0 1-8.5 0z" stroke="#BE185D" stroke-width="1.5" fill="none"/>
@@ -128,7 +129,8 @@
             </svg>
           </a>
 
-          <a id="bamuza-tiktok" href="social link here" target="_blank" rel="noreferrer" title="TikTok">
+          <!-- TikTok icon (resized to match Instagram visual weight) -->
+          <a id="bamuza-tiktok" href="https://www.tiktok.com/@bamuza_sono?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" title="TikTok">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                  xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M15 6.5c.6.6 1.6 1.1 3 1.1v2.1c-1.3 0-2.4-.4-3-.9v5.8a3.6 3.6 0 1 1-3.6-3.6c.2 0 .5 0 .7.1v2.2a1.4 1.4 0 1 0 1.4 1.4V6.5z"
@@ -215,7 +217,7 @@
     </div>
   </section>
 
-  <!-- Support Wall Form Section (no inline messages shown here) -->
+  <!-- Support Wall Form Section -->
   <section class="px-6 max-w-2xl mx-auto mb-20 bg-pink-100 p-8 rounded-xl shadow-lg">
     <h3 class="text-2xl font-bold mb-4 text-rose-700 text-center">The Support Wall ❤️</h3>
     <p class="text-sm text-center text-gray-600 mb-6">Leave a message of support and it will appear on the wall! Your user ID is <span id="user-id" class="font-mono text-xs text-pink-700 break-all">Loading...</span></p>
@@ -232,9 +234,9 @@
       <button type="submit" class="w-full bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">Post Message</button>
     </form>
 
-    <!-- NEW: View All Messages button leads to the dedicated support page -->
+    <!-- View All Messages button (links to support-wall.html) -->
     <div class="mt-6 text-center">
-      <a href="support-wall.html" class="inline-block bg-white border border-rose-600 text-rose-600 px-6 py-3 rounded-full hover:bg-rose-50 transition font-semibold">View All Messages</a>
+      <a href="support-wall.html" class="inline-block border border-rose-600 text-rose-600 px-6 py-3 rounded-full hover:bg-rose-50 transition font-semibold">View All Messages</a>
     </div>
   </section>
 
@@ -321,7 +323,7 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // Support wall: form still posts and redirects to support-wall.html
+    // Support wall
     let userId = null;
     const userIdEl = document.getElementById('user-id');
     const form = document.getElementById('support-form');
@@ -366,7 +368,6 @@
         const message = messageInput.value.trim();
         if (!name || !message) return;
         try {
-          // write to the public supportMessages path and then redirect to the dedicated support page
           await withExponentialBackoff(() => addDoc(collection(db, `/artifacts/${appId}/public/data/supportMessages`), {
             name, message, userId, timestamp: serverTimestamp()
           }));
@@ -531,53 +532,6 @@
           }
         });
       }
-    })();
-  </script>
-
-  <!-- SUPPORT DEBUG (paste just before </body>) -->
-  <div id="support-debug" style="position:fixed;right:12px;bottom:12px;background:#fff;border:1px solid #F7D6E0;padding:10px;border-radius:8px;z-index:9999;font-family:Inter,system-ui;">
-    <div style="font-weight:700;color:#BE185D;margin-bottom:6px;">Support write debug</div>
-    <div id="sd-status" style="font-size:13px;margin-bottom:6px;">Ready</div>
-    <button id="sd-test-write" style="background:#BE185D;color:#fff;border:none;padding:8px 10px;border-radius:6px;cursor:pointer;">Run test write</button>
-    <div id="sd-result" style="margin-top:8px;font-size:13px;color:#333;"></div>
-  </div>
-
-  <script>
-    (function(){
-      const status = document.getElementById('sd-status');
-      const res = document.getElementById('sd-result');
-      const btn = document.getElementById('sd-test-write');
-
-      btn.addEventListener('click', async () => {
-        status.textContent = 'Running test write...';
-        res.textContent = '';
-        try {
-          if (typeof db === 'undefined' || typeof addDoc === 'undefined' || typeof collection === 'undefined') {
-            throw new Error('Firestore client (db, addDoc, collection) not found in this scope.');
-          }
-          const theAppId = (typeof appId !== 'undefined' && appId) ? appId : 'MISSING_APPID';
-          const path = `/artifacts/${theAppId}/public/data/supportMessages`;
-          status.textContent = 'Attempting addDoc -> ' + path;
-
-          const payload = {
-            name: 'DEBUG_USER',
-            message: 'Test message at ' + new Date().toISOString(),
-            debug: true,
-            ts: (typeof serverTimestamp === 'function') ? serverTimestamp() : new Date().toISOString()
-          };
-
-          await addDoc(collection(db, path), payload);
-          status.textContent = 'Write succeeded. Check Firestore console at: ' + path;
-          res.textContent = 'SUCCESS: wrote debug doc — check Firestore console.';
-          res.style.color = 'green';
-          console.log('DEBUG write succeeded to', path);
-        } catch (err) {
-          status.textContent = 'Write failed — check console for error';
-          res.textContent = 'ERROR: ' + (err && err.message ? err.message : String(err));
-          res.style.color = 'darkred';
-          console.error('Support debug write error:', err);
-        }
-      });
     })();
   </script>
 
