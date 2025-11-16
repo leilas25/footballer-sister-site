@@ -26,8 +26,11 @@
     .tweet-handle { font-size:0.9rem; color:#9aa3ad; margin-left:0.4rem; }
     .tweet-timestamp { margin-left:auto; color:#8b99a6; font-size:0.85rem; }
     .tweet-content { margin-top:0.5rem; color:#344054; line-height:1.45; }
-    .reactions { margin-top:0.75rem; display:flex; gap:0.8rem; align-items:center; color:#9b1630; font-weight:600; }
-    .reaction-pill { display:inline-flex; align-items:center; gap:0.5rem; background:#fff6f8; border:1px solid #ffdde6; padding:6px 10px; border-radius:999px; font-size:0.9rem; color:#be185d; }
+    .reactions { margin-top:0.75rem; display:flex; gap:0.6rem; align-items:center; color:#9b1630; font-weight:600; }
+    .reaction-pill { display:inline-flex; align-items:center; gap:0.5rem; background:#fff6f8; border:1px solid #ffdde6; padding:6px 10px; border-radius:999px; font-size:0.9rem; color:#be185d; cursor:pointer; user-select:none; }
+    .reaction-pill.secondary { background:#f7f6ff; border-color:#e6e3ff; color:#5b4bd6; }
+    .reaction-pill.strong { background:#fff7e9; border-color:#ffe9c6; color:#c95d00; }
+    .reaction-pill[disabled] { opacity:0.6; cursor:not-allowed; }
     .back-link { display:inline-block; margin-bottom:1rem; color:#be185d; border:1px solid #f7d6e0; padding:8px 12px; border-radius:9999px; }
     .dropdown-open { opacity: 1 !important; transform: scale(1) !important; }
     @media (max-width:640px) {
@@ -124,13 +127,15 @@
     });
   </script>
 
-  <!-- Firebase + render messages with reactions display (no updates from this page) -->
+  <!-- Firebase + clickable reactions -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import {
+      getFirestore, collection, onSnapshot, doc, updateDoc, increment
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // Match the appId / config used on your other pages
+    // Keep same appId/config used across site
     const appId = '1:65396604482:web:0f31625a714aa8352337db';
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
@@ -151,85 +156,163 @@
 
     function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+    // helper: create a reaction element (clickable)
+    function createReactionButton(kind, count) {
+      const btn = document.createElement('button');
+      btn.className = 'reaction-pill';
+      if (kind === 'thumb') btn.classList.add('secondary');
+      if (kind === 'fire') btn.classList.add('strong');
+
+      // icon + count
+      const icon = document.createElement('span');
+      icon.innerHTML = (kind === 'heart') ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="#be185d" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s-7-4.35-9-7.05C-0.05 9.8 3.2 4 8 4c2.2 0 3.9 1.2 4 2.1.1-.9 1.8-2.1 4-2.1 4.8 0 8 5.8 5 9.95C19 16.65 12 21 12 21z"/></svg>'
+        : (kind === 'thumb') ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="#5b4bd6" xmlns="http://www.w3.org/2000/svg"><path d="M2 21h4V9H2v12zm20-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13.17 2 7.59 7.59C7.22 7.95 7 8.45 7 9v9c0 1.1.9 2 2 2h8c.78 0 1.45-.45 1.77-1.11L22 12.67V10z"/></svg>'
+        : '<svg width="14" height="14" viewBox="0 0 24 24" fill="#c95d00" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 2s-1 2-1 3.5S11 8 11 8s-1-1.5-3-1.5C7 6.5 5 8 5 10c0 3 3 5.5 7 5.5S19 13 19 9c0-2.5-2-5-5.5-7z"/></svg>';
+      icon.style.display = 'inline-flex';
+      icon.style.alignItems = 'center';
+
+      const countSpan = document.createElement('span');
+      countSpan.textContent = count;
+      countSpan.style.marginLeft = '6px';
+
+      btn.appendChild(icon);
+      btn.appendChild(countSpan);
+      return { btn, countSpan };
+    }
+
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         if (userIdEl) userIdEl.textContent = user.uid;
 
-        // subscribe to public supportMessages collection (read-only display here)
-        try {
-          onSnapshot(collection(db, `/artifacts/${appId}/public/data/supportMessages`), (snap) => {
-            const docs = [];
-            snap.forEach(d => docs.push({ id: d.id, ...d.data() }));
-            // sort newest first (by timestamp.seconds)
-            docs.sort((a,b) => {
-              const ta = (a.timestamp && a.timestamp.seconds) ? a.timestamp.seconds : 0;
-              const tb = (b.timestamp && b.timestamp.seconds) ? b.timestamp.seconds : 0;
-              return tb - ta;
-            });
+        // subscribe to support messages
+        onSnapshot(collection(db, `/artifacts/${appId}/public/data/supportMessages`), (snap) => {
+          const docs = [];
+          snap.forEach(d => docs.push({ id: d.id, ...d.data() }));
 
-            container.innerHTML = '';
-            if (!docs.length) {
-              container.innerHTML = '<p class="text-gray-500 text-center">No messages yet.</p>';
-              return;
-            }
-
-            docs.forEach(msg => {
-              const name = escapeHtml(msg.name || 'Anonymous');
-              const uid = escapeHtml((msg.userId || '').slice(0,8));
-              let tsText = 'Just now';
-              if (msg.timestamp && msg.timestamp.seconds) {
-                tsText = new Date(msg.timestamp.seconds * 1000).toLocaleString();
-              }
-
-              const messageHtml = escapeHtml(msg.message || '').replace(/\n/g, '<br/>');
-
-              // reactions: display heart count if present (stored as msg.reactions?.heart)
-              const heartCount = (msg.reactions && typeof msg.reactions.heart === 'number') ? msg.reactions.heart : 0;
-
-              const card = document.createElement('div');
-              card.className = 'tweet-card';
-              card.innerHTML = `
-                <div class="tweet-avatar" aria-hidden="true">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="#be185d" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-                  </svg>
-                </div>
-                <div style="flex:1;">
-                  <div class="tweet-header">
-                    <div style="display:flex;flex-direction:column;">
-                      <div style="display:flex;align-items:center;gap:0.4rem;">
-                        <span class="tweet-name">${name}</span>
-                        <span class="tweet-handle">@${uid}</span>
-                      </div>
-                    </div>
-                    <div class="tweet-timestamp">${escapeHtml(tsText)}</div>
-                  </div>
-
-                  <div class="tweet-content">${messageHtml}</div>
-
-                  <div class="reactions" aria-hidden="true">
-                    <div class="reaction-pill" title="Hearts received">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="#be185d" xmlns="http://www.w3.org/2000/svg" style="margin-right:4px;">
-                        <path d="M12 21s-7-4.35-9-7.05C-0.05 9.8 3.2 4 8 4c2.2 0 3.9 1.2 4 2.1.1-.9 1.8-2.1 4-2.1 4.8 0 8 5.8 5 9.95C19 16.65 12 21 12 21z"/>
-                      </svg>
-                      <span>${heartCount}</span>
-                    </div>
-                  </div>
-                </div>
-              `;
-              container.appendChild(card);
-            });
-          }, (err) => {
-            console.error('supportMessages onSnapshot error:', err);
-            container.innerHTML = '<p class="text-gray-500 text-center">Unable to load messages.</p>';
+          // newest first
+          docs.sort((a,b) => {
+            const ta = (a.timestamp && a.timestamp.seconds) ? a.timestamp.seconds : 0;
+            const tb = (b.timestamp && b.timestamp.seconds) ? b.timestamp.seconds : 0;
+            return tb - ta;
           });
-        } catch (err) {
-          console.error('subscribe error:', err);
+
+          container.innerHTML = '';
+          if (!docs.length) {
+            container.innerHTML = '<p class="text-gray-500 text-center">No messages yet.</p>';
+            return;
+          }
+
+          docs.forEach(msg => {
+            const name = escapeHtml(msg.name || 'Anonymous');
+            const uid = escapeHtml((msg.userId || '').slice(0,8));
+            let tsText = 'Just now';
+            if (msg.timestamp && msg.timestamp.seconds) {
+              tsText = new Date(msg.timestamp.seconds * 1000).toLocaleString();
+            }
+            const messageHtml = (escapeHtml(msg.message || '')).replace(/\n/g, '<br/>');
+
+            const card = document.createElement('div');
+            card.className = 'tweet-card';
+
+            card.innerHTML = `
+              <div class="tweet-avatar" aria-hidden="true">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="#be185d" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                </svg>
+              </div>
+              <div style="flex:1;">
+                <div class="tweet-header">
+                  <div style="display:flex;flex-direction:column;">
+                    <div style="display:flex;align-items:center;gap:0.4rem;">
+                      <span class="tweet-name">${name}</span>
+                      <span class="tweet-handle">@${uid}</span>
+                    </div>
+                  </div>
+                  <div class="tweet-timestamp">${escapeHtml(tsText)}</div>
+                </div>
+                <div class="tweet-content">${messageHtml}</div>
+                <div class="reactions" data-docid="${escapeHtml(msg.id || '')}"></div>
+              </div>
+            `;
+
+            // render reaction buttons with current counts
+            const reactionContainer = card.querySelector('.reactions');
+            const reactions = (msg.reactions && typeof msg.reactions === 'object') ? msg.reactions : {};
+            const heartCount = Number(reactions.heart || 0);
+            const thumbCount = Number(reactions.thumb || 0);
+            const fireCount  = Number(reactions.fire  || 0);
+
+            // heart
+            const heartObj = createReactionButton('heart', heartCount);
+            reactionContainer.appendChild(heartObj.btn);
+
+            // thumb
+            const thumbObj = createReactionButton('thumb', thumbCount);
+            reactionContainer.appendChild(thumbObj.btn);
+
+            // fire
+            const fireObj = createReactionButton('fire', fireCount);
+            reactionContainer.appendChild(fireObj.btn);
+
+            // click handlers: atomic increment using updateDoc + increment(1)
+            const docRef = doc(db, `/artifacts/${appId}/public/data/supportMessages/${msg.id}`);
+
+            heartObj.btn.addEventListener('click', async (e) => {
+              if (heartObj.btn.disabled) return;
+              heartObj.btn.disabled = true;
+              // optimistic increment
+              heartObj.countSpan.textContent = Number(heartObj.countSpan.textContent) + 1;
+              try {
+                await updateDoc(docRef, { 'reactions.heart': increment(1) });
+              } catch (err) {
+                console.error('Reaction update error (heart):', err);
+                // rollback optimistic UI
+                heartObj.countSpan.textContent = Math.max(0, Number(heartObj.countSpan.textContent) - 1);
+                alert('Could not send reaction. Try again.');
+              } finally {
+                // small delay to prevent spamming; re-enable
+                setTimeout(()=> heartObj.btn.disabled = false, 800);
+              }
+            });
+
+            thumbObj.btn.addEventListener('click', async (e) => {
+              if (thumbObj.btn.disabled) return;
+              thumbObj.btn.disabled = true;
+              thumbObj.countSpan.textContent = Number(thumbObj.countSpan.textContent) + 1;
+              try {
+                await updateDoc(docRef, { 'reactions.thumb': increment(1) });
+              } catch (err) {
+                console.error('Reaction update error (thumb):', err);
+                thumbObj.countSpan.textContent = Math.max(0, Number(thumbObj.countSpan.textContent) - 1);
+                alert('Could not send reaction. Try again.');
+              } finally {
+                setTimeout(()=> thumbObj.btn.disabled = false, 800);
+              }
+            });
+
+            fireObj.btn.addEventListener('click', async (e) => {
+              if (fireObj.btn.disabled) return;
+              fireObj.btn.disabled = true;
+              fireObj.countSpan.textContent = Number(fireObj.countSpan.textContent) + 1;
+              try {
+                await updateDoc(docRef, { 'reactions.fire': increment(1) });
+              } catch (err) {
+                console.error('Reaction update error (fire):', err);
+                fireObj.countSpan.textContent = Math.max(0, Number(fireObj.countSpan.textContent) - 1);
+                alert('Could not send reaction. Try again.');
+              } finally {
+                setTimeout(()=> fireObj.btn.disabled = false, 800);
+              }
+            });
+
+            container.appendChild(card);
+          });
+        }, (err) => {
+          console.error('supportMessages onSnapshot error:', err);
           container.innerHTML = '<p class="text-gray-500 text-center">Unable to load messages.</p>';
-        }
+        });
 
       } else {
-        // sign in anonymously so BTS page can post and this page can read as an auth'd user
         try {
           await signInAnonymously(auth);
         } catch (err) {
