@@ -68,7 +68,7 @@
         <span>Elijah Sono</span>
         <span class="inline-flex items-center gap-2 ml-2">
           <!-- Instagram icon -->
-          <a id="elijah-instagram" href="https://www.instagram.com/elijah_sono?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" title="Instagram">
+          <a id="elijah-instagram" href="social link here" target="_blank" rel="noreferrer" title="Instagram">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <rect x="2" y="2" width="20" height="20" rx="5" stroke="#BE185D" stroke-width="1.5" fill="none"/>
               <path d="M7.75 11.99a4.25 4.25 0 1 1 8.5 0 4.25 4.25 0 0 1-8.5 0z" stroke="#BE185D" stroke-width="1.5" fill="none"/>
@@ -77,7 +77,7 @@
           </a>
 
           <!-- TikTok icon (resized to match Instagram visual weight) -->
-          <a id="elijah-tiktok" href="https://www.tiktok.com/@elijah_sono_?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" title="TikTok">
+          <a id="elijah-tiktok" href="social link here" target="_blank" rel="noreferrer" title="TikTok">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                  xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M15 6.5c.6.6 1.6 1.1 3 1.1v2.1c-1.3 0-2.4-.4-3-.9v5.8a3.6 3.6 0 1 1-3.6-3.6c.2 0 .5 0 .7.1v2.2a1.4 1.4 0 1 0 1.4 1.4V6.5z"
@@ -115,13 +115,11 @@
 
     <!-- Bamuza (hard-coded) -->
     <div class="bg-white p-5 rounded-lg shadow-md flex flex-col items-center text-center">
-      <!-- FIXED HEIGHT: same h-96 to match Elijah -->
-      <img src="images/Bamuza.jpeg" alt="Bamuza Sono"
-           class="rounded-lg mb-4 w-full h-96 object-cover" />
+      <img src="images/Bamuza.jpeg" alt="Bamuza Sono" class="rounded-lg mb-4 w-full h-96 object-cover" />
       <h4 class="text-2xl font-bold text-rose-700 flex items-center gap-3">
         <span>Bamuza Sono Jnr</span>
         <span class="inline-flex items-center gap-2 ml-2">
-          <a id="bamuza-instagram" href="https://www.instagram.com/bamuza_sono?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" title="Instagram">
+          <a id="bamuza-instagram" href="social link here" target="_blank" rel="noreferrer" title="Instagram">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <rect x="2" y="2" width="20" height="20" rx="5" stroke="#BE185D" stroke-width="1.5" fill="none"/>
               <path d="M7.75 11.99a4.25 4.25 0 1 1 8.5 0 4.25 4.25 0 0 1-8.5 0z" stroke="#BE185D" stroke-width="1.5" fill="none"/>
@@ -129,8 +127,7 @@
             </svg>
           </a>
 
-          <!-- TikTok icon (resized to match Instagram visual weight) -->
-          <a id="bamuza-tiktok" href="https://www.tiktok.com/@bamuza_sono?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" title="TikTok">
+          <a id="bamuza-tiktok" href="social link here" target="_blank" rel="noreferrer" title="TikTok">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                  xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <path d="M15 6.5c.6.6 1.6 1.1 3 1.1v2.1c-1.3 0-2.4-.4-3-.9v5.8a3.6 3.6 0 1 1-3.6-3.6c.2 0 .5 0 .7.1v2.2a1.4 1.4 0 1 0 1.4 1.4V6.5z"
@@ -234,9 +231,8 @@
       <button type="submit" class="w-full bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">Post Message</button>
     </form>
 
-    <div class="mt-4 text-center">
-      <a href="support-wall.html" class="inline-block text-rose-600 hover:underline font-semibold">View All Messages</a>
-    </div>
+    <!-- LIVE messages placeholder: populated by the module script -->
+    <!-- (will be inserted automatically below the form by the script if not present) -->
   </section>
 
   <!-- Back Button -->
@@ -307,6 +303,7 @@
     import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+    // replace / confirm appId/config if you use templated environment variables in your deploy
     const appId = typeof __app_id !== 'undefined' ? __app_id : '1:65396604482:web:0f31625a714aa8352337db';
     const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
@@ -322,12 +319,18 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // expose important handles to window so non-module debug scripts can use them
-    window.__db = db;
-    window.__addDoc = addDoc;
-    window.__collection = collection;
-    window.__serverTimestamp = serverTimestamp;
-    window.__appId = appId;
+    // EXPOSE firestore helpers to window so non-module debug code can access them
+    window.__FS = {
+      db,
+      addDoc,
+      collection,
+      serverTimestamp
+    };
+    // convenience (older pages / debug widget expect db, addDoc, collection to exist)
+    window.db = db;
+    window.addDoc = addDoc;
+    window.collection = collection;
+    window.serverTimestamp = serverTimestamp;
 
     // Support wall
     let userId = null;
@@ -377,14 +380,87 @@
           await withExponentialBackoff(() => addDoc(collection(db, `/artifacts/${appId}/public/data/supportMessages`), {
             name, message, userId, timestamp: serverTimestamp()
           }));
-          window.location.href = 'support-wall.html';
+          // clear inputs and optionally show a small success UI
+          nameInput.value = '';
+          messageInput.value = '';
+          // as we have a live listener on this page, message should appear automatically
         } catch (err) {
           console.error('Error adding support message', err);
+          // surface a simple alert so the user knows
+          alert('Could not post message — check console for permissions error.');
         }
       });
     }
 
-    // Collabs carousel (subscribe to gallery collection)
+    /* ===== live support wall listener ===== */
+    (function initSupportListener(){
+      const supportContainerId = 'support-list';
+      // create container under the form if not present
+      let supportList = document.getElementById(supportContainerId);
+      if (!supportList) {
+        supportList = document.createElement('div');
+        supportList.id = supportContainerId;
+        supportList.className = 'mt-6 space-y-4';
+        const formEl = document.getElementById('support-form');
+        formEl.parentNode.insertBefore(supportList, formEl.nextSibling);
+      }
+
+      function renderMessages(items){
+        supportList.innerHTML = '';
+        if (!items || items.length === 0) {
+          supportList.innerHTML = '<div class="text-center text-gray-500">No messages yet.</div>';
+          return;
+        }
+        items.forEach(d => {
+          // if we passed doc wrappers earlier shape may be { id, data }
+          const data = d.data ? d.data : d;
+          const name = data.name ? escapeHtml(String(data.name)) : 'Anonymous';
+          const message = data.message ? escapeHtml(String(data.message)) : '';
+          const ts = (data.timestamp && data.timestamp.toDate) ? data.timestamp.toDate().toLocaleString() : (data.ts ? String(data.ts) : '');
+          const el = document.createElement('div');
+          el.className = 'bg-white p-4 rounded-lg shadow-sm';
+          el.innerHTML = `<div class="font-semibold text-rose-700">${name} <span class="text-xs text-gray-400 ml-2">${ts}</span></div>
+                          <div class="mt-1 text-gray-800">${message}</div>`;
+          supportList.appendChild(el);
+        });
+      }
+
+      try {
+        const supportPaths = [
+          `/artifacts/${appId}/public/data/supportMessages`,
+          `/public/data/supportMessages`,
+          `supportMessages`
+        ];
+        let subscribed = false;
+        supportPaths.forEach(p => {
+          try {
+            const q = query(collection(db, p), orderBy('timestamp','desc'));
+            onSnapshot(q, snap => {
+              if (!snap || !snap.docs) return;
+              // render docs: map to {id, data} so renderMessages handles both shapes
+              const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }));
+              renderMessages(docs);
+              subscribed = true;
+              console.info('Support messages loaded from', p, 'count=', snap.docs.length);
+            }, err => {
+              console.warn('support onSnapshot error for', p, err);
+            });
+          } catch(e) {
+            // ignore and continue
+          }
+        });
+
+        setTimeout(()=> {
+          if (!subscribed) {
+            supportList.innerHTML = '<div class="text-center text-red-500">Unable to subscribe to support messages (check rules/path). See console.</div>';
+          }
+        }, 900);
+      } catch (e) {
+        console.error('initSupportListener error', e);
+      }
+    })();
+
+    /* ===== collab carousel (reads gallery collection) ===== */
     (function initCollabCarousel(){
       const slidesEl = document.getElementById('collab-slides');
       const prev = document.getElementById('collabPrev');
@@ -396,10 +472,11 @@
       let idx = 0;
 
       function renderSlides(){
+        if (!slidesEl) return;
         slidesEl.innerHTML = '';
         if (!items.length) {
           slidesEl.innerHTML = '<div class="w-full flex-shrink-0 p-8 text-center muted">No collaborations yet.</div>';
-          dotsEl.innerHTML = '';
+          if (dotsEl) dotsEl.innerHTML = '';
           if (debugEl) debugEl.textContent = 'No collab items found.';
           return;
         }
@@ -420,9 +497,10 @@
         if (debugEl) debugEl.textContent = `Loaded ${items.length} collaborations.`;
       }
 
-      function updatePosition(){ slidesEl.style.transform = `translateX(-${idx * 100}%)`; }
+      function updatePosition(){ if (slidesEl) slidesEl.style.transform = `translateX(-${idx * 100}%)`; }
 
       function renderDots(){
+        if (!dotsEl) return;
         dotsEl.innerHTML = '';
         items.forEach((_, i) => {
           const d = document.createElement('button');
@@ -443,7 +521,7 @@
         updatePosition(); renderDots();
       });
 
-      // swipe
+      // swipe for touch devices
       let touchStartX = 0;
       const parent = document.getElementById('collab-carousel');
       if (parent) {
@@ -471,7 +549,6 @@
           const q = query(collection(db, p), orderBy('createdAt','desc'));
           onSnapshot(q, snap => {
             const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }) );
-            // prefer items explicitly marked as collab; fallback to all
             const collabs = docs.filter(d => {
               const meta = d.data || {};
               if (meta.collab === true) return true;
@@ -507,6 +584,7 @@
         }
       }, 900);
     })();
+
   </script>
 
   <!-- TikTok carousel controls -->
@@ -541,59 +619,52 @@
     })();
   </script>
 
-  <!-- SUPPORT DEBUG (paste just before </body>) -->
-<div id="support-debug" style="position:fixed;right:12px;bottom:12px;background:#fff;border:1px solid #F7D6E0;padding:10px;border-radius:8px;z-index:9999;font-family:Inter,system-ui;">
-  <div style="font-weight:700;color:#BE185D;margin-bottom:6px;">Support write debug</div>
-  <div id="sd-status" style="font-size:13px;margin-bottom:6px;">Ready</div>
-  <button id="sd-test-write" style="background:#BE185D;color:#fff;border:none;padding:8px 10px;border-radius:6px;cursor:pointer;">Run test write</button>
-  <div id="sd-result" style="margin-top:8px;font-size:13px;color:#333;"></div>
-</div>
+  <!-- SUPPORT DEBUG (fixed; now uses window.addDoc etc.) -->
+  <div id="support-debug" style="position:fixed;right:12px;bottom:12px;background:#fff;border:1px solid #F7D6E0;padding:10px;border-radius:8px;z-index:9999;font-family:Inter,system-ui;">
+    <div style="font-weight:700;color:#BE185D;margin-bottom:6px;">Support write debug</div>
+    <div id="sd-status" style="font-size:13px;margin-bottom:6px;">Ready</div>
+    <button id="sd-test-write" style="background:#BE185D;color:#fff;border:none;padding:8px 10px;border-radius:6px;cursor:pointer;">Run test write</button>
+    <div id="sd-result" style="margin-top:8px;font-size:13px;color:#333;"></div>
+  </div>
 
-<script>
-  (function(){
-    const status = document.getElementById('sd-status');
-    const res = document.getElementById('sd-result');
-    const btn = document.getElementById('sd-test-write');
+  <script>
+    (function(){
+      const status = document.getElementById('sd-status');
+      const res = document.getElementById('sd-result');
+      const btn = document.getElementById('sd-test-write');
 
-    btn.addEventListener('click', async () => {
-      status.textContent = 'Running test write...';
-      res.textContent = '';
-      try {
-        // use the handles exposed by the module script
-        const db = window.__db;
-        const addDoc = window.__addDoc;
-        const collection = window.__collection;
-        const serverTimestamp = window.__serverTimestamp;
-        const theAppId = window.__appId || 'MISSING_APPID';
+      btn.addEventListener('click', async () => {
+        status.textContent = 'Running test write...';
+        res.textContent = '';
+        try {
+          if (typeof window.db === 'undefined' || typeof window.addDoc === 'undefined' || typeof window.collection === 'undefined') {
+            throw new Error('Firestore client (db, addDoc, collection) not found in this scope.');
+          }
+          const theAppId = (typeof appId !== 'undefined' && appId) ? appId : 'MISSING_APPID';
+          const path = `/artifacts/${theAppId}/public/data/supportMessages`;
+          status.textContent = 'Attempting addDoc → ' + path;
 
-        if (!db || !addDoc || !collection) {
-          throw new Error('Firestore client (db, addDoc, collection) not found in this scope.');
+          const payload = {
+            name: 'DEBUG_USER',
+            message: 'Test message at ' + new Date().toISOString(),
+            debug: true,
+            ts: (typeof window.serverTimestamp === 'function') ? window.serverTimestamp() : new Date().toISOString()
+          };
+
+          await window.addDoc(window.collection(window.db, path), payload);
+          status.textContent = 'Write succeeded. Check Firestore console at: ' + path;
+          res.textContent = 'SUCCESS: wrote debug doc — check Firestore console.';
+          res.style.color = 'green';
+          console.log('DEBUG write succeeded to', path);
+        } catch (err) {
+          status.textContent = 'Write failed — check console for error';
+          res.textContent = 'ERROR: ' + (err && err.message ? err.message : String(err));
+          res.style.color = 'darkred';
+          console.error('Support debug write error:', err);
         }
-
-        const path = `/artifacts/${theAppId}/public/data/supportMessages`;
-        status.textContent = 'Attempting addDoc -> ' + path;
-
-        const payload = {
-          name: 'DEBUG_USER',
-          message: 'Test message at ' + new Date().toISOString(),
-          debug: true,
-          ts: (typeof serverTimestamp === 'function') ? serverTimestamp() : new Date().toISOString()
-        };
-
-        await addDoc(collection(db, path), payload);
-        status.textContent = 'Write succeeded. Check Firestore console at: ' + path;
-        res.textContent = 'SUCCESS: wrote debug doc — check Firestore console.';
-        res.style.color = 'green';
-        console.log('DEBUG write succeeded to', path);
-      } catch (err) {
-        status.textContent = 'Write failed — check console for error';
-        res.textContent = 'ERROR: ' + (err && err.message ? err.message : String(err));
-        res.style.color = 'darkred';
-        console.error('Support debug write error:', err);
-      }
-    });
-  })();
-</script>
+      });
+    })();
+  </script>
 
 </body>
 </html>
