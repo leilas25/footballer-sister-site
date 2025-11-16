@@ -33,6 +33,15 @@
     .reaction-pill[disabled] { opacity:0.6; cursor:not-allowed; }
     .back-link { display:inline-block; margin-bottom:1rem; color:#be185d; border:1px solid #f7d6e0; padding:8px 12px; border-radius:9999px; }
     .dropdown-open { opacity: 1 !important; transform: scale(1) !important; }
+
+    /* pulse animation on successful reaction */
+    @keyframes reactionPulse {
+      0%   { transform: scale(1);   box-shadow: 0 0 0 rgba(0,0,0,0); }
+      50%  { transform: scale(1.08); box-shadow: 0 6px 18px rgba(190,24,93,0.12); }
+      100% { transform: scale(1);   box-shadow: 0 0 0 rgba(0,0,0,0); }
+    }
+    .reaction-pulse { animation: reactionPulse 420ms ease-in-out; }
+
     @media (max-width:640px) {
       .tweet-card{ flex-direction:column; }
       .tweet-timestamp{ margin-left:0; margin-top:0.3rem; }
@@ -135,7 +144,7 @@
       getFirestore, collection, onSnapshot, doc, updateDoc, increment
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // Keep same appId/config used across site
+    // keep using same appId/config as your site
     const appId = '1:65396604482:web:0f31625a714aa8352337db';
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
@@ -156,27 +165,32 @@
 
     function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-    // helper: create a reaction element (clickable)
+    // create a reaction button element (returns { btn, countSpan })
     function createReactionButton(kind, count) {
       const btn = document.createElement('button');
       btn.className = 'reaction-pill';
       if (kind === 'thumb') btn.classList.add('secondary');
       if (kind === 'fire') btn.classList.add('strong');
 
-      // icon + count
       const icon = document.createElement('span');
-      icon.innerHTML = (kind === 'heart') ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="#be185d" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s-7-4.35-9-7.05C-0.05 9.8 3.2 4 8 4c2.2 0 3.9 1.2 4 2.1.1-.9 1.8-2.1 4-2.1 4.8 0 8 5.8 5 9.95C19 16.65 12 21 12 21z"/></svg>'
-        : (kind === 'thumb') ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="#5b4bd6" xmlns="http://www.w3.org/2000/svg"><path d="M2 21h4V9H2v12zm20-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13.17 2 7.59 7.59C7.22 7.95 7 8.45 7 9v9c0 1.1.9 2 2 2h8c.78 0 1.45-.45 1.77-1.11L22 12.67V10z"/></svg>'
-        : '<svg width="14" height="14" viewBox="0 0 24 24" fill="#c95d00" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 2s-1 2-1 3.5S11 8 11 8s-1-1.5-3-1.5C7 6.5 5 8 5 10c0 3 3 5.5 7 5.5S19 13 19 9c0-2.5-2-5-5.5-7z"/></svg>';
       icon.style.display = 'inline-flex';
       icon.style.alignItems = 'center';
 
+      if (kind === 'heart') {
+        icon.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="#be185d" xmlns="http://www.w3.org/2000/svg"><path d="M12 21s-7-4.35-9-7.05C-0.05 9.8 3.2 4 8 4c2.2 0 3.9 1.2 4 2.1.1-.9 1.8-2.1 4-2.1 4.8 0 8 5.8 5 9.95C19 16.65 12 21 12 21z"/></svg>';
+      } else if (kind === 'thumb') {
+        icon.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="#5b4bd6" xmlns="http://www.w3.org/2000/svg"><path d="M2 21h4V9H2v12zm20-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L13.17 2 7.59 7.59C7.22 7.95 7 8.45 7 9v9c0 1.1.9 2 2 2h8c.78 0 1.45-.45 1.77-1.11L22 12.67V10z"/></svg>';
+      } else {
+        icon.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="#c95d00" xmlns="http://www.w3.org/2000/svg"><path d="M13.5 2s-1 2-1 3.5S11 8 11 8s-1-1.5-3-1.5C7 6.5 5 8 5 10c0 3 3 5.5 7 5.5S19 13 19 9c0-2.5-2-5-5.5-7z"/></svg>';
+      }
+
       const countSpan = document.createElement('span');
-      countSpan.textContent = count;
+      countSpan.textContent = String(count || 0);
       countSpan.style.marginLeft = '6px';
 
       btn.appendChild(icon);
       btn.appendChild(countSpan);
+
       return { btn, countSpan };
     }
 
@@ -242,64 +256,69 @@
             const thumbCount = Number(reactions.thumb || 0);
             const fireCount  = Number(reactions.fire  || 0);
 
-            // heart
             const heartObj = createReactionButton('heart', heartCount);
             reactionContainer.appendChild(heartObj.btn);
 
-            // thumb
             const thumbObj = createReactionButton('thumb', thumbCount);
             reactionContainer.appendChild(thumbObj.btn);
 
-            // fire
             const fireObj = createReactionButton('fire', fireCount);
             reactionContainer.appendChild(fireObj.btn);
 
             // click handlers: atomic increment using updateDoc + increment(1)
             const docRef = doc(db, `/artifacts/${appId}/public/data/supportMessages/${msg.id}`);
 
-            heartObj.btn.addEventListener('click', async (e) => {
+            heartObj.btn.addEventListener('click', async () => {
               if (heartObj.btn.disabled) return;
               heartObj.btn.disabled = true;
-              // optimistic increment
-              heartObj.countSpan.textContent = Number(heartObj.countSpan.textContent) + 1;
+              // optimistic UI
+              const prev = Number(heartObj.countSpan.textContent || 0);
+              heartObj.countSpan.textContent = String(prev + 1);
               try {
                 await updateDoc(docRef, { 'reactions.heart': increment(1) });
+                // pulse effect
+                heartObj.btn.classList.add('reaction-pulse');
+                setTimeout(()=> heartObj.btn.classList.remove('reaction-pulse'), 450);
               } catch (err) {
                 console.error('Reaction update error (heart):', err);
-                // rollback optimistic UI
-                heartObj.countSpan.textContent = Math.max(0, Number(heartObj.countSpan.textContent) - 1);
-                alert('Could not send reaction. Try again.');
+                heartObj.countSpan.textContent = String(Math.max(0, prev));
+                alert('Could not send reaction. Please try again.');
               } finally {
-                // small delay to prevent spamming; re-enable
                 setTimeout(()=> heartObj.btn.disabled = false, 800);
               }
             });
 
-            thumbObj.btn.addEventListener('click', async (e) => {
+            thumbObj.btn.addEventListener('click', async () => {
               if (thumbObj.btn.disabled) return;
               thumbObj.btn.disabled = true;
-              thumbObj.countSpan.textContent = Number(thumbObj.countSpan.textContent) + 1;
+              const prev = Number(thumbObj.countSpan.textContent || 0);
+              thumbObj.countSpan.textContent = String(prev + 1);
               try {
                 await updateDoc(docRef, { 'reactions.thumb': increment(1) });
+                thumbObj.btn.classList.add('reaction-pulse');
+                setTimeout(()=> thumbObj.btn.classList.remove('reaction-pulse'), 450);
               } catch (err) {
                 console.error('Reaction update error (thumb):', err);
-                thumbObj.countSpan.textContent = Math.max(0, Number(thumbObj.countSpan.textContent) - 1);
-                alert('Could not send reaction. Try again.');
+                thumbObj.countSpan.textContent = String(Math.max(0, prev));
+                alert('Could not send reaction. Please try again.');
               } finally {
                 setTimeout(()=> thumbObj.btn.disabled = false, 800);
               }
             });
 
-            fireObj.btn.addEventListener('click', async (e) => {
+            fireObj.btn.addEventListener('click', async () => {
               if (fireObj.btn.disabled) return;
               fireObj.btn.disabled = true;
-              fireObj.countSpan.textContent = Number(fireObj.countSpan.textContent) + 1;
+              const prev = Number(fireObj.countSpan.textContent || 0);
+              fireObj.countSpan.textContent = String(prev + 1);
               try {
                 await updateDoc(docRef, { 'reactions.fire': increment(1) });
+                fireObj.btn.classList.add('reaction-pulse');
+                setTimeout(()=> fireObj.btn.classList.remove('reaction-pulse'), 450);
               } catch (err) {
                 console.error('Reaction update error (fire):', err);
-                fireObj.countSpan.textContent = Math.max(0, Number(fireObj.countSpan.textContent) - 1);
-                alert('Could not send reaction. Try again.');
+                fireObj.countSpan.textContent = String(Math.max(0, prev));
+                alert('Could not send reaction. Please try again.');
               } finally {
                 setTimeout(()=> fireObj.btn.disabled = false, 800);
               }
