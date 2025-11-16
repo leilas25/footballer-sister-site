@@ -1,71 +1,141 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>The Support Wall</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .msg-card {
-      background:#fff;
-      padding:1rem;
-      border-radius:12px;
-      box-shadow:0 4px 10px rgba(0,0,0,0.06);
+    .tweet-card {
+      background: #ffffff; border: 1px solid #eae6ea; border-radius: 12px;
+      padding: 1rem; margin-bottom: 1rem; box-shadow: 0 1px 6px rgba(0,0,0,0.03);
+      display: flex; align-items: flex-start; gap: 0.75rem;
     }
+    .tweet-avatar { width: 48px; height: 48px; border-radius: 9999px; background-color: #fff0f6; flex-shrink: 0; display:inline-block; }
+    .tweet-header { display: flex; align-items: baseline; gap: 0.5rem; width:100%; flex-wrap:wrap; }
+    .tweet-name { font-weight:700; color:#9f1239; }
+    .tweet-timestamp { font-size:0.85rem; color:#8b8b8b; margin-left:auto; }
+    .tweet-content { margin-top:0.25rem; font-size:0.95rem; color:#4b5563; white-space:pre-wrap; word-break:break-word; }
+    .dropdown-open { opacity: 1 !important; transform: scale(1) !important; }
   </style>
 </head>
-
 <body class="bg-pink-50 text-black font-sans min-h-screen flex flex-col">
 
-  <!-- HEADER -->
+  <!-- Header -->
   <header class="fixed top-0 w-full bg-pink-100 shadow z-50">
     <div class="flex justify-between items-center px-6 py-4">
       <h1 class="text-xl font-bold uppercase text-rose-600">THE FOOTBALLER’S SISTER</h1>
-      <div><a href="index.html" class="text-rose-600 hover:underline">Home</a></div>
+
+      <div class="relative inline-block text-left">
+        <button id="navButton"
+          class="inline-flex justify-center w-full rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
+          <span id="navTitle">Loading...</span>
+          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
+          </svg>
+        </button>
+
+        <div id="dropdownMenu"
+          class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
+          <div class="py-1">
+            <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
+            <a href="bts.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
+            <a href="leila.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Meet Leila</a>
+            <a href="questions.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Q&A</a>
+            <a href="support-wall.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Support Wall</a>
+            <a href="fixtures.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Fixtures & Live Scores</a>
+          </div>
+        </div>
+      </div>
     </div>
   </header>
+
   <div class="pt-24"></div>
 
-  <!-- MAIN -->
-  <main class="flex-grow px-6 pb-20 text-center max-w-2xl mx-auto">
-    <h2 class="text-4xl font-bold mb-4 text-rose-700">The Support Wall ❤️</h2>
+  <!-- Main -->
+  <main class="flex-grow px-6 pb-20 text-center max-w-3xl mx-auto">
+    <h2 class="text-4xl font-bold mb-2 text-rose-700">The Support Wall ❤️</h2>
     <p class="text-sm text-center text-gray-600 mb-6">
       Messages from the community. Your love and support is appreciated.
     </p>
 
-    <div id="messagesContainer" class="space-y-4"></div>
+    <!-- Back button -->
+    <div class="mb-6 text-left">
+      <a href="bts.html" class="inline-flex items-center gap-2 text-rose-600 font-semibold px-3 py-2 rounded-full border border-rose-100 hover:bg-rose-50">
+        ← Back to Behind the Game
+      </a>
+    </div>
 
-    <p id="loading" class="text-gray-500 mt-10">Loading messages...</p>
-    <p id="errorBox" class="text-red-600 mt-6 hidden"></p>
+    <!-- Message list -->
+    <div id="messages-container" class="mt-4 space-y-4 text-left">
+      <p id="loading-indicator" class="text-gray-500 text-center">Loading messages...</p>
+    </div>
+
+    <!-- Load more -->
+    <div id="load-more-wrap" class="mt-4 text-center">
+      <button id="load-more-btn" class="hidden bg-white border border-rose-600 text-rose-600 px-6 py-2 rounded-full hover:bg-rose-50 transition font-semibold">Load more</button>
+      <div id="load-more-status" class="text-sm text-gray-500 mt-2"></div>
+    </div>
   </main>
-
-  <!-- FOOTER -->
+  
   <footer class="bg-pink-900 text-white text-center py-6">
-    <p>&copy; <span id="year"></span> The Footballer’s Sister. All rights reserved.</p>
-    <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+    <p>&copy; <span id="copyright-year"></span> The Footballer’s Sister. All rights reserved.</p>
+    <script>document.getElementById('copyright-year').textContent = new Date().getFullYear();</script>
   </footer>
 
+  <!-- header dropdown script -->
+  <script>
+    const navButton = document.getElementById('navButton');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    const navItems = document.querySelectorAll('.nav-item');
+    const currentPage = window.location.pathname.split('/').pop();
+    const pageTitles = {
+      "index.html": "Home",
+      "bts.html": "Behind the Game",
+      "leila.html": "Meet Leila",
+      "questions.html": "Q&A",
+      "support-wall.html": "Support Wall",
+      "fixtures.html": "Fixtures & Live Scores"
+    };
+    const title = pageTitles[currentPage] || "Menu";
+    document.getElementById('navTitle').textContent = title;
+    navItems.forEach(link => {
+      if (link.getAttribute('href') === currentPage) {
+        link.classList.add("font-semibold", "text-rose-600");
+      }
+    });
+    navButton.addEventListener('click', () => {
+      const isHidden = dropdownMenu.classList.contains('hidden');
+      if (isHidden) {
+        dropdownMenu.classList.remove('hidden');
+        setTimeout(() => dropdownMenu.classList.add('dropdown-open'), 10);
+      } else {
+        dropdownMenu.classList.remove('dropdown-open');
+        setTimeout(() => dropdownMenu.classList.add('hidden'), 200);
+      }
+    });
+    document.addEventListener('click', (event) => {
+      if (!navButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+        dropdownMenu.classList.remove('dropdown-open');
+        setTimeout(() => dropdownMenu.classList.add('hidden'), 200);
+      }
+    });
+  </script>
 
-  <!-- FIREBASE + MESSAGES SCRIPT -->
+  <!-- Firebase + pagination + admin delete -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { 
-      getAuth,
-      signInAnonymously,
-      onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { 
-      getFirestore,
-      collection,
-      getDocs,
-      query,
-      orderBy
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import {
+      getFirestore, collection, onSnapshot, query, orderBy, limit,
+      getDocs, startAfter, deleteDoc, doc
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+    // --- CONFIG / CONSTANTS ---
+    const appId = '1:65396604482:web:0f31625a714aa8352337db';
+    const ADMIN_UID = 'pDokgebzpTZWzmn9dW50kaDAqRT2'; // your admin UID (from rules)
+    const PAGE_SIZE = 8; // number of messages to load per "page"
 
-    // --------------------------
-    // FIREBASE CONFIG
-    // --------------------------
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
@@ -75,99 +145,205 @@
       appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
 
+    // --- INIT ---
     const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
     const auth = getAuth(app);
-    const db   = getFirestore(app);
 
-    const appId = firebaseConfig.appId;
+    // DOM
+    const messagesContainer = document.getElementById('messages-container');
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    const loadMoreStatus = document.getElementById('load-more-status');
 
-    // EXACT Firestore path where your data lives:
-    const SUPPORT_PATH = `/artifacts/${appId}/public/data/supportMessages`;
+    let currentUser = null;
+    let lastVisibleDoc = null; // for pagination
+    let snapshotUnsubscribe = null;
+    let realtimeLoaded = false;
 
+    // ensure we have an auth user (anonymous fallback) and then subscribe
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        try {
+          await signInAnonymously(auth);
+        } catch (e) {
+          console.error('Anonymous sign-in failed', e);
+        }
+        return; // wait for next callback
+      }
+      currentUser = user;
+      // subscribe to latest PAGE_SIZE messages in realtime
+      subscribeLatest();
+    });
 
-    // --------------------------
-    // ELEMENTS
-    // --------------------------
-    const container = document.getElementById("messagesContainer");
-    const loading   = document.getElementById("loading");
-    const errorBox  = document.getElementById("errorBox");
+    // Create a DOM element for one message. If currentUser is admin, show Delete button.
+    function createMessageElement(msg) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'tweet-card';
+      wrapper.dataset.docId = msg.id;
 
+      const avatar = document.createElement('div');
+      avatar.className = 'tweet-avatar';
+      avatar.innerHTML = '<svg width="100%" height="100%" viewBox="0 0 24 24" fill="#be185d" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.38 0 2.5 1.12 2.5 2.5S13.38 10 12 10s-2.5-1.12-2.5-2.5S10.62 5 12 5zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>';
+      wrapper.appendChild(avatar);
 
-    // --------------------------
-    // LOAD SUPPORT WALL MESSAGES
-    // --------------------------
-    async function loadMessages() {
-      loading.classList.remove("hidden");
-      errorBox.classList.add("hidden");
-      container.innerHTML = "";
+      const body = document.createElement('div');
+      body.style.width = '100%';
 
-      try {
-        const q = query(
-          collection(db, SUPPORT_PATH),
-          orderBy("createdAt", "desc")
-        );
+      const header = document.createElement('div');
+      header.className = 'tweet-header';
 
-        const snap = await getDocs(q);
+      const nameEl = document.createElement('div');
+      nameEl.className = 'tweet-name';
+      nameEl.textContent = msg.name || 'Anonymous';
 
-        if (snap.empty) {
-          loading.textContent = "No messages yet.";
+      const handleEl = document.createElement('div');
+      handleEl.className = 'tweet-handle';
+      handleEl.style.color = '#8b8b8b';
+      handleEl.style.marginLeft = '8px';
+      handleEl.textContent = '@' + ((msg.userId||'').substring(0,8) || 'guest');
+
+      const timeEl = document.createElement('div');
+      timeEl.className = 'tweet-timestamp';
+      timeEl.textContent = msg.timestamp?.seconds
+        ? new Date(msg.timestamp.seconds * 1000).toLocaleString()
+        : '';
+
+      header.appendChild(nameEl);
+      header.appendChild(handleEl);
+
+      // if admin, append delete button into header (aligned right by CSS)
+      if (currentUser && currentUser.uid === ADMIN_UID) {
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.className = 'ml-2 px-3 py-1 rounded-full text-sm font-semibold bg-red-50 text-red-600 border border-red-100 hover:bg-red-100';
+        deleteBtn.style.marginLeft = 'auto';
+        deleteBtn.addEventListener('click', async (ev) => {
+          ev.stopPropagation();
+          const confirmDelete = confirm('Delete this message forever?');
+          if (!confirmDelete) return;
+          try {
+            const docRef = doc(db, `/artifacts/${appId}/public/data/supportMessages`, msg.id);
+            await deleteDoc(docRef);
+            // message will disappear automatically via realtime onSnapshot
+          } catch (err) {
+            console.error('Delete failed', err);
+            alert('Delete failed — check console for details.');
+          }
+        });
+        header.appendChild(deleteBtn);
+      } else {
+        header.appendChild(timeEl); // put time at the end for non-admins
+      }
+
+      const content = document.createElement('div');
+      content.className = 'tweet-content';
+      content.innerHTML = (msg.message ? escapeHtml(msg.message) : '');
+
+      // if admin, put time after delete button so timestamp still shows
+      if (currentUser && currentUser.uid === ADMIN_UID) {
+        header.appendChild(timeEl);
+      }
+
+      body.appendChild(header);
+      body.appendChild(content);
+      wrapper.appendChild(body);
+      return wrapper;
+    }
+
+    function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+    // Subscribe to newest PAGE_SIZE messages in realtime
+    function subscribeLatest() {
+      // If there's an existing subscription remove it
+      if (snapshotUnsubscribe) snapshotUnsubscribe();
+
+      const path = `/artifacts/${appId}/public/data/supportMessages`;
+      const q = query(collection(db, path), orderBy('timestamp', 'desc'), limit(PAGE_SIZE));
+      snapshotUnsubscribe = onSnapshot(q, (snap) => {
+        realtimeLoaded = true;
+        loadingIndicator.style.display = 'none';
+        messagesContainer.innerHTML = '';
+        const docs = snap.docs.map(d => ({ id: d.id, ...d.data(), _docRef: d }));
+        if (!docs.length) {
+          messagesContainer.innerHTML = '<p class="text-gray-500 text-center">No messages yet.</p>';
+          loadMoreBtn.classList.add('hidden');
           return;
         }
 
-        loading.classList.add("hidden");
+        // remember last visible doc for pagination (oldest doc in this page)
+        lastVisibleDoc = snap.docs[snap.docs.length - 1];
 
-        snap.forEach(doc => {
-          const data = doc.data();
-
-          const name = data.name || "Anonymous";
-          const msg  = data.message || "";
-          const time = data.createdAt?.seconds
-            ? new Date(data.createdAt.seconds * 1000).toLocaleString()
-            : "Unknown";
-
-          const card = document.createElement("div");
-          card.className = "msg-card text-left";
-
-          card.innerHTML = `
-            <div class="font-semibold">${name}</div>
-            <div class="text-gray-700 mt-2">${msg}</div>
-            <div class="text-xs text-gray-400 mt-2">${time}</div>
-          `;
-
-          container.appendChild(card);
+        docs.forEach(docData => {
+          const el = createMessageElement(docData);
+          messagesContainer.appendChild(el);
         });
 
+        // show "Load more" if there are probably more messages on the server
+        loadMoreBtn.classList.remove('hidden');
+        loadMoreStatus.textContent = '';
+      }, (err) => {
+        console.error('Realtime load error', err);
+        loadingIndicator.textContent = 'Unable to load messages (see console).';
+        loadMoreBtn.classList.add('hidden');
+      });
+    }
+
+    // Load older messages (one-off) using startAfter(lastVisibleDoc)
+    async function loadMoreOlder() {
+      loadMoreStatus.textContent = 'Loading...';
+      loadMoreBtn.disabled = true;
+      try {
+        if (!lastVisibleDoc) {
+          loadMoreStatus.textContent = 'No more messages.';
+          loadMoreBtn.classList.add('hidden');
+          loadMoreBtn.disabled = false;
+          return;
+        }
+
+        const path = `/artifacts/${appId}/public/data/supportMessages`;
+        const q = query(collection(db, path), orderBy('timestamp', 'desc'), startAfter(lastVisibleDoc), limit(PAGE_SIZE));
+        const snap = await getDocs(q);
+        if (!snap || snap.empty) {
+          loadMoreStatus.textContent = 'No older messages.';
+          loadMoreBtn.classList.add('hidden');
+          loadMoreBtn.disabled = false;
+          return;
+        }
+
+        // append fetched older messages after the currently shown ones
+        const docs = snap.docs.map(d => ({ id: d.id, ...d.data(), _docRef: d }));
+        // update lastVisibleDoc to point to the last doc returned here
+        lastVisibleDoc = snap.docs[snap.docs.length - 1];
+
+        // Append each older message element (maintain order: older items after current list)
+        docs.forEach(docData => {
+          const el = createMessageElement(docData);
+          messagesContainer.appendChild(el);
+        });
+
+        loadMoreStatus.textContent = '';
+        loadMoreBtn.disabled = false;
       } catch (err) {
-        console.error("Support wall load error:", err);
-        loading.classList.add("hidden");
-        errorBox.textContent =
-          "Unable to load messages. Error: " +
-          (err.message || err.code || err);
-        errorBox.classList.remove("hidden");
+        console.error('Load more failed', err);
+        loadMoreStatus.textContent = 'Error loading more (check console).';
+        loadMoreBtn.disabled = false;
       }
     }
 
+    // wire load more button
+    loadMoreBtn.addEventListener('click', loadMoreOlder);
 
-    // --------------------------
-    // AUTH (ANONYMOUS)
-    // --------------------------
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        loadMessages();
-      } else {
-        signInAnonymously(auth)
-          .then(() => loadMessages())
-          .catch(err => {
-            console.error("Anonymous sign-in failed:", err);
-            errorBox.textContent =
-              "Could not sign in to view messages: " +
-              (err.message || err.code || err);
-            errorBox.classList.remove("hidden");
-          });
-      }
+    // small safety: when the page unloads, unsubscribe realtime listener
+    window.addEventListener('beforeunload', () => { if (snapshotUnsubscribe) snapshotUnsubscribe(); });
+
+    // (optional) Refresh admin UI if auth changes (delete buttons appear/disappear)
+    onAuthStateChanged(auth, (u) => {
+      currentUser = u;
+      // If messages already loaded, re-render them quickly by re-subscribing:
+      if (realtimeLoaded) subscribeLatest();
     });
 
   </script>
-
 </body>
 </html>
