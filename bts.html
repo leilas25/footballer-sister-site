@@ -1,24 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Behind the Game – The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-pink-50 text-black font-sans">
 
-  <!-- Header (your original simple header) -->
-  <header class="fixed top-0 w-full flex justify-between items-center px-6 py-4 bg-pink-100 shadow z-50">
-    <h1 class="text-xl font-bold uppercase text-rose-600">The Footballer’s Sister</h1>
-    <nav class="space-x-6">
-      <a href="index.html" class="hover:underline text-rose-600">Home</a>
-      <a href="bts.html" class="font-semibold underline text-rose-600">Behind the Game</a>
-    </nav>
+  <!-- Header with dropdown navigation (uses your dropdown code) -->
+  <header class="fixed top-0 w-full bg-pink-100 shadow z-50">
+    <div class="flex justify-between items-center px-6 py-4">
+      <h1 class="text-xl font-bold uppercase text-rose-600">THE FOOTBALLER’S SISTER</h1>
+
+      <!-- Dropdown Navigation -->
+      <div class="relative inline-block text-left">
+        <button id="navButton"
+          class="inline-flex justify-center items-center rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
+          <span id="navTitle">Loading...</span>
+          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
+          </svg>
+        </button>
+
+        <!-- Dropdown menu -->
+        <div id="dropdownMenu"
+          class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
+          <div class="py-1">
+            <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
+            <a href="bts.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
+            <a href="leila.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Meet Leila</a>
+            <a href="questions.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Q&A</a>
+            <a href="support-wall.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Support Wall</a>
+            <a href="fixtures.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Fixtures & Live Scores</a>
+          </div>
+        </div>
+      </div>
+    </div>
   </header>
 
+  <style>
+    /* Animation for dropdown open */
+    .dropdown-open {
+      opacity: 1 !important;
+      transform: scale(1) !important;
+    }
+  </style>
+
   <!-- Hero -->
-  <section class="pt-32 px-6 text-center max-w-3xl mx-auto">
+  <section class="pt-28 px-6 text-center max-w-3xl mx-auto">
     <h2 class="text-4xl font-bold mb-4 text-rose-700">Behind the Game 📸⚽</h2>
     <p class="text-lg text-gray-600 mb-10">
       From pre-match rituals to post-match reflections, skills on the field and creative vlogs — Welcome to the real story. This is football, sister-style.
@@ -29,13 +59,11 @@
   <section class="grid grid-cols-1 md:grid-cols-2 gap-6 px-6 max-w-4xl mx-auto mb-20">
     <h3 class="md:col-span-2 text-3xl font-bold mb-4 text-rose-700 text-center">Meet the Brothers</h3>
 
-    <!-- === Elijah (hard-coded card) === -->
+    <!-- Elijah (hard-coded) -->
     <div class="bg-white p-5 rounded-lg shadow-md flex flex-col items-center text-center">
       <img src="images/elijah2.jpeg" alt="Elijah Sono" class="rounded-lg mb-4 w-full h-auto object-cover" />
       <h4 class="text-2xl font-bold text-rose-700 flex items-center gap-3">
         <span>Elijah Sono</span>
-
-        <!-- Social icons: edit href="social link here" to actual links -->
         <span class="inline-flex items-center gap-2 ml-2">
           <!-- Instagram icon -->
           <a id="elijah-instagram" href="social link here" target="_blank" rel="noreferrer" title="Instagram">
@@ -46,11 +74,10 @@
             </svg>
           </a>
 
-          <!-- TikTok jewel-style icon (fill + white glyph) -->
+          <!-- TikTok jewel-style icon -->
           <a id="elijah-tiktok" href="social link here" target="_blank" rel="noreferrer" title="TikTok">
             <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <circle cx="12" cy="12" r="10" fill="#BE185D"/>
-              <!-- simplified white glyph shaped like TikTok note (keeps the jewel look) -->
               <path d="M15.1 8.2c-.6 0-1.1-.2-1.6-.4v5.8a2.9 2.9 0 1 1-1.4-2.4V7.3c.7.5 1.6.9 2.6.9.1 0 .2 0 .4 0v3.4c0 .6.5 1.1 1.1 1.1.6 0 1.1-.5 1.1-1.1V9.3c-.5.1-1 .1-1.6.1z" fill="#fff"/>
             </svg>
           </a>
@@ -77,16 +104,14 @@
         </ul>
       </div>
 
-      <!-- PDF link (edit if the filename/path differs) -->
       <a href="pdfs/ELIJAHSONO-player-profile.pdf" target="_blank" rel="noreferrer" class="mt-6 inline-block bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">View Official Profile</a>
     </div>
 
-    <!-- === Bamuza (hard-coded card) === -->
+    <!-- Bamuza (hard-coded) -->
     <div class="bg-white p-5 rounded-lg shadow-md flex flex-col items-center text-center">
       <img src="images/Bamuza.jpeg" alt="Bamuza Sono" class="rounded-lg mb-4 w-full h-auto object-cover" />
       <h4 class="text-2xl font-bold text-rose-700 flex items-center gap-3">
         <span>Bamuza Sono Jnr</span>
-
         <span class="inline-flex items-center gap-2 ml-2">
           <a id="bamuza-instagram" href="social link here" target="_blank" rel="noreferrer" title="Instagram">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -129,22 +154,21 @@
     </div>
   </section>
 
-  <!-- TikTok Carousel (left) + Collaborations (right) -->
+  <!-- TikTok Carousel + Collaborations side-by-side -->
   <section class="px-6 max-w-5xl mx-auto mb-10">
     <div class="grid md:grid-cols-2 gap-8 items-start">
-      <!-- LEFT: TikTok Carousel -->
+      <!-- LEFT: TikTok -->
       <div>
         <h3 class="text-2xl font-bold mb-4 text-rose-700 text-center">My Vlogs & Highlights</h3>
         <div id="video-carousel" class="relative overflow-hidden rounded-lg shadow-lg mx-auto w-full md:max-w-sm">
           <div id="video-slides-container" class="flex transition-transform duration-500 ease-in-out">
-            <!-- Put your TikTok embed iframes here (kept same as you used before) -->
             <div class="w-full flex-shrink-0 relative" style="padding-top: 177.77%;">
               <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" allowfullscreen class="absolute top-0 left-0 w-full h-full"></iframe>
             </div>
             <div class="w-full flex-shrink-0 relative" style="padding-top: 177.77%;">
               <iframe src="https://www.tiktok.com/embed/v2/7514262969786567943" allowfullscreen class="absolute top-0 left-0 w-full h-full"></iframe>
             </div>
-            <!-- add more iframes as desired -->
+            <!-- add more iframes as needed -->
           </div>
 
           <button id="prevBtn" class="absolute top-1/2 left-4 transform -translate-y-1/2 bg-white/50 text-gray-800 p-2 rounded-full hover:bg-white/80 transition-colors">
@@ -161,7 +185,7 @@
         <blockquote class="italic text-xl text-rose-800 mt-6 text-center">“You don’t have to wear the jersey to feel the pressure.”</blockquote>
       </div>
 
-      <!-- RIGHT: Collaborations carousel (reads gallery collection in Firestore) -->
+      <!-- RIGHT: Collaborations (reads Firestore gallery) -->
       <div>
         <h3 class="text-2xl font-bold mb-4 text-rose-700 text-center">Collaborations</h3>
         <div id="collab-carousel" class="relative overflow-hidden rounded-lg shadow-lg mx-auto w-full">
@@ -180,7 +204,7 @@
     </div>
   </section>
 
-  <!-- Support Wall Form Section -->
+  <!-- Support Wall Form -->
   <section class="px-6 max-w-2xl mx-auto mb-20 bg-pink-100 p-8 rounded-xl shadow-lg">
     <h3 class="text-2xl font-bold mb-4 text-rose-700 text-center">The Support Wall ❤️</h3>
     <p class="text-sm text-center text-gray-600 mb-6">Leave a message of support and it will appear on the wall! Your user ID is <span id="user-id" class="font-mono text-xs text-pink-700 break-all">Loading...</span></p>
@@ -202,11 +226,6 @@
     </div>
   </section>
 
-  <!-- Back Button -->
-  <div class="text-center mb-20">
-    <a href="index.html" class="bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition">Back to Home</a>
-  </div>
-
   <!-- Footer -->
   <footer class="bg-pink-900 text-white text-center py-6">
     <p>&copy; 2025 The Footballer’s Sister. All rights reserved.</p>
@@ -215,13 +234,61 @@
   <!-- TikTok embed script -->
   <script async src="https://www.tiktok.com/embed.js"></script>
 
-  <!-- FIREBASE: auth (anonymous) + support-wall + gallery collabs -->
+  <!-- Dropdown script (your code adapted) -->
+  <script>
+    const navButton = document.getElementById('navButton');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    const navItems = document.querySelectorAll('.nav-item');
+    const navTitleEl = document.getElementById('navTitle');
+    const currentPage = window.location.pathname.split('/').pop();
+
+    const pageTitles = {
+      "index.html": "Home",
+      "bts.html": "Behind the Game",
+      "leila.html": "Meet Leila",
+      "questions.html": "Q&A",
+      "support-wall.html": "Support Wall",
+      "fixtures.html": "Fixtures & Live Scores"
+    };
+
+    const title = pageTitles[currentPage] || "Menu";
+    navTitleEl.textContent = title;
+
+    // Highlight current page in dropdown
+    navItems.forEach(link => {
+      if (link.getAttribute('href') === currentPage) {
+        link.classList.add("font-semibold", "text-rose-600");
+      }
+    });
+
+    // Toggle dropdown
+    navButton.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isHidden = dropdownMenu.classList.contains('hidden');
+      if (isHidden) {
+        dropdownMenu.classList.remove('hidden');
+        setTimeout(() => dropdownMenu.classList.add('dropdown-open'), 10);
+      } else {
+        dropdownMenu.classList.remove('dropdown-open');
+        setTimeout(() => dropdownMenu.classList.add('hidden'), 200);
+      }
+    });
+
+    // Close when clicking outside
+    document.addEventListener('click', (event) => {
+      if (!navButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+        dropdownMenu.classList.remove('dropdown-open');
+        setTimeout(() => dropdownMenu.classList.add('hidden'), 200);
+      }
+    });
+  </script>
+
+  <!-- Firebase & admin features (support wall + collabs subscription) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // NOTE: these default values match your project -- replace if needed
     const appId = typeof __app_id !== 'undefined' ? __app_id : '1:65396604482:web:0f31625a714aa8352337db';
     const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
@@ -237,7 +304,7 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // support wall elements
+    // Support wall
     let userId = null;
     const userIdEl = document.getElementById('user-id');
     const form = document.getElementById('support-form');
@@ -246,11 +313,10 @@
 
     function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-    // auth (anonymous or token if provided)
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         userId = user.uid;
-        userIdEl.textContent = userId;
+        if (userIdEl) userIdEl.textContent = userId;
       } else {
         try {
           if (initialAuthToken) {
@@ -264,7 +330,6 @@
       }
     });
 
-    // exponential backoff helper (keeps your original pattern)
     const withExponentialBackoff = async (func, retries = 5, delay = 1000) => {
       try { return await func(); }
       catch (error) {
@@ -276,24 +341,25 @@
       }
     };
 
-    // support form submit -> addDoc
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!userId) { console.error("User not authenticated."); return; }
-      const name = nameInput.value.trim();
-      const message = messageInput.value.trim();
-      if (!name || !message) return;
-      try {
-        await withExponentialBackoff(() => addDoc(collection(db, `/artifacts/${appId}/public/data/supportMessages`), {
-          name, message, userId, timestamp: serverTimestamp()
-        }));
-        window.location.href = 'support-wall.html';
-      } catch (err) {
-        console.error('Error adding support message', err);
-      }
-    });
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!userId) { console.error("User not authenticated."); return; }
+        const name = nameInput.value.trim();
+        const message = messageInput.value.trim();
+        if (!name || !message) return;
+        try {
+          await withExponentialBackoff(() => addDoc(collection(db, `/artifacts/${appId}/public/data/supportMessages`), {
+            name, message, userId, timestamp: serverTimestamp()
+          }));
+          window.location.href = 'support-wall.html';
+        } catch (err) {
+          console.error('Error adding support message', err);
+        }
+      });
+    }
 
-    // --- Collaborations carousel: subscribe to gallery and filter collab items ---
+    // Collabs carousel (subscribe to gallery collection)
     (function initCollabCarousel(){
       const slidesEl = document.getElementById('collab-slides');
       const prev = document.getElementById('collabPrev');
@@ -309,7 +375,7 @@
         if (!items.length) {
           slidesEl.innerHTML = '<div class="w-full flex-shrink-0 p-8 text-center muted">No collaborations yet.</div>';
           dotsEl.innerHTML = '';
-          debugEl.textContent = 'No collab items found.';
+          if (debugEl) debugEl.textContent = 'No collab items found.';
           return;
         }
         items.forEach(it => {
@@ -326,7 +392,7 @@
         });
         updatePosition();
         renderDots();
-        debugEl.textContent = `Loaded ${items.length} collaborations.`;
+        if (debugEl) debugEl.textContent = `Loaded ${items.length} collaborations.`;
       }
 
       function updatePosition(){ slidesEl.style.transform = `translateX(-${idx * 100}%)`; }
@@ -341,93 +407,84 @@
         });
       }
 
-      prev.addEventListener('click', ()=> {
+      if (prev) prev.addEventListener('click', ()=> {
         if (!items.length) return;
         idx = (idx - 1 + items.length) % items.length;
         updatePosition(); renderDots();
       });
-      next.addEventListener('click', ()=> {
+      if (next) next.addEventListener('click', ()=> {
         if (!items.length) return;
         idx = (idx + 1) % items.length;
         updatePosition(); renderDots();
       });
 
-      // swipe support
+      // swipe
       let touchStartX = 0;
       const parent = document.getElementById('collab-carousel');
-      parent.addEventListener('touchstart', e => touchStartX = e.touches[0].clientX);
-      parent.addEventListener('touchend', e => {
-        const endX = e.changedTouches[0].clientX;
-        const delta = touchStartX - endX;
-        if (Math.abs(delta) > 40) {
-          if (delta > 0) idx = (idx + 1) % Math.max(1, items.length);
-          else idx = (idx - 1 + Math.max(1, items.length)) % Math.max(1, items.length);
-          updatePosition(); renderDots();
-        }
-      });
+      if (parent) {
+        parent.addEventListener('touchstart', e => touchStartX = e.touches[0].clientX);
+        parent.addEventListener('touchend', e => {
+          const endX = e.changedTouches[0].clientX;
+          const delta = touchStartX - endX;
+          if (Math.abs(delta) > 40) {
+            if (delta > 0) idx = (idx + 1) % Math.max(1, items.length);
+            else idx = (idx - 1 + Math.max(1, items.length)) % Math.max(1, items.length);
+            updatePosition(); renderDots();
+          }
+        });
+      }
 
-      // try a few likely paths for your gallery collection
       const galleryPaths = [
         `/artifacts/${appId}/public/data/gallery`,
         `/public/data/gallery`,
         `gallery`
       ];
-
       let subscribed = false;
+
       galleryPaths.forEach(p => {
         try {
           const q = query(collection(db, p), orderBy('createdAt','desc'));
           onSnapshot(q, snap => {
             const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }) );
+            // prefer items explicitly marked as collab; fallback to all
             const collabs = docs.filter(d => {
               const meta = d.data || {};
               if (meta.collab === true) return true;
               if ((meta.type||'').toLowerCase() === 'collab') return true;
               if ((meta.caption||'').toLowerCase().includes('collab')) return true;
-              // fallback: include all items if nothing marked (comment out if unwanted)
               return false;
             }).map(d => {
               const data = d.data || {};
-              return {
-                imageUrl: data.imageUrl || data.image || data.url || '',
-                caption: data.caption || data.title || '',
-                link: data.link || data.target || ''
-              };
+              return { imageUrl: data.imageUrl || data.image || data.url || '', caption: data.caption || data.title || '', link: data.link || data.target || '' };
             });
 
-            // If no items matched the collab filters, try to include all items as fallback:
             const collabItems = collabs.length ? collabs : docs.map(d => {
               const data = d.data || {};
-              return {
-                imageUrl: data.imageUrl || data.image || data.url || '',
-                caption: data.caption || data.title || '',
-                link: data.link || data.target || ''
-              };
+              return { imageUrl: data.imageUrl || data.image || data.url || '', caption: data.caption || data.title || '', link: data.link || data.target || '' };
             });
 
-            items = collabItems.filter(it => it.imageUrl); // require imageUrl
+            items = collabItems.filter(it => it.imageUrl);
             idx = 0;
             renderSlides();
             subscribed = true;
-            debugEl.textContent = `Loaded ${items.length} collabs from ${p}`;
+            if (debugEl) debugEl.textContent = `Loaded ${items.length} collabs from ${p}`;
           }, err => {
             console.warn('gallery onSnapshot error for', p, err);
           });
         } catch (e) {
-          // ignore: try next path
+          // ignore and continue trying other paths
         }
       });
 
       setTimeout(() => {
-        if (!subscribed && items.length === 0) {
-          debugEl.textContent = 'No realtime subscription available for gallery - check collection path or rules.';
+        if (!subscribed && (!items || items.length === 0)) {
+          if (debugEl) debugEl.textContent = 'No realtime subscription available for gallery - check collection path or rules.';
         }
       }, 900);
     })();
-
   </script>
 
-  <!-- TikTok carousel controls (simple translateX) -->
+  <!-- TikTok carousel controls -->
   <script>
     (function(){
       const slidesContainer = document.getElementById('video-slides-container');
@@ -444,7 +501,6 @@
       if (nextBtn) nextBtn.addEventListener('click', next);
       if (prevBtn) prevBtn.addEventListener('click', prev);
 
-      // swipe
       let startX = 0;
       const parent = document.getElementById('video-carousel');
       if (parent) {
@@ -459,6 +515,5 @@
       }
     })();
   </script>
-
 </body>
 </html>
