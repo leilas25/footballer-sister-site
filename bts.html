@@ -322,6 +322,13 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
+    // expose important handles to window so non-module debug scripts can use them
+    window.__db = db;
+    window.__addDoc = addDoc;
+    window.__collection = collection;
+    window.__serverTimestamp = serverTimestamp;
+    window.__appId = appId;
+
     // Support wall
     let userId = null;
     const userIdEl = document.getElementById('user-id');
@@ -552,11 +559,17 @@
       status.textContent = 'Running test write...';
       res.textContent = '';
       try {
-        if (typeof db === 'undefined' || typeof addDoc === 'undefined' || typeof collection === 'undefined') {
+        // use the handles exposed by the module script
+        const db = window.__db;
+        const addDoc = window.__addDoc;
+        const collection = window.__collection;
+        const serverTimestamp = window.__serverTimestamp;
+        const theAppId = window.__appId || 'MISSING_APPID';
+
+        if (!db || !addDoc || !collection) {
           throw new Error('Firestore client (db, addDoc, collection) not found in this scope.');
         }
-        // pick the appId used by your code (falls back to string if not present)
-        const theAppId = (typeof appId !== 'undefined' && appId) ? appId : 'MISSING_APPID';
+
         const path = `/artifacts/${theAppId}/public/data/supportMessages`;
         status.textContent = 'Attempting addDoc -> ' + path;
 
@@ -581,7 +594,6 @@
     });
   })();
 </script>
-
 
 </body>
 </html>
