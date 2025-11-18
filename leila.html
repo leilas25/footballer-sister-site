@@ -12,10 +12,10 @@
     .tweet-card { background:#fff; border:1px solid #e0e0e0; border-radius:16px; padding:1rem; box-shadow:0 1px 3px rgba(0,0,0,.1); margin-bottom:1rem; display:flex; align-items:flex-start; gap:1rem; }
     .tweet-avatar { width:48px; height:48px; border-radius:9999px; background-color:#fce7f3; flex-shrink:0; }
     .dropdown-open { opacity:1!important; transform:scale(1)!important; }
-    /* video styling */
-    .hero-video { max-width:460px; width:100%; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,0.08); }
-    /* nice caption */
-    .media-caption { color:#6b7280; font-size:0.95rem; margin-top:.5rem; }
+    /* video/gif styling */
+    .hero-video { max-width:480px; width:100%; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,0.08); display:block; margin:0 auto; }
+    .media-caption { color:#6b7280; font-size:0.95rem; margin-top:.5rem; text-align:center; }
+    .timeline-pre { white-space: pre-line; font-size:1rem; color:#374151; line-height:1.6; }
   </style>
 </head>
 
@@ -52,56 +52,42 @@
   <!-- spacer for fixed header -->
   <div class="pt-24"></div>
 
-  <!-- MAIN -->
   <main class="max-w-6xl mx-auto px-6 pb-20">
-    <!-- Top hero area (centered profile + audio + download CTA) -->
-    <section class="text-center mb-12">
+    <!-- Top hero area (profile image) -->
+    <section class="text-center mb-6">
       <img src="images/leila pic.png" alt="Leila Sono profile picture"
            class="rounded-full w-48 h-48 object-cover mx-auto mb-4 shadow-lg border-4 border-white mt-6">
 
       <h2 class="text-4xl font-bold mb-4 text-rose-700">Meet Leila Sono ✨</h2>
+    </section>
 
-      <div class="max-w-3xl mx-auto text-gray-700 leading-relaxed">
-        <p class="mb-4">
-          Hello! I'm Leila, a storyteller, a content creator, and most importantly, a very proud sister.
-          I've spent my life on the sidelines, watching my brothers chase their football dreams — and capturing the real moments that make the game so special.
-        </p>
-        <p class="mb-6">
-          Join me as I share sideline vlogs, family moments, and the behind-the-scenes life of the Sono family.
-          I built this little site because good stories deserve a home and a little bit of code. 😉
-        </p>
-      </div>
+    <!-- AUDIO FIRST (kept above the intro paragraph) -->
+    <section class="text-center mb-8">
+      <h4 class="text-lg font-semibold mb-2 text-rose-700">A Quick Hello from Me:</h4>
+      <audio controls class="mx-auto mb-4">
+        <source src="pdfs/footabllers sister vn.MP3" type="audio/mpeg">
+        Your browser does not support the audio element.
+      </audio>
 
-      <div class="mt-6">
-        <h4 class="text-lg font-semibold mb-2 text-rose-700">A Quick Hello from Me:</h4>
-        <audio controls class="mx-auto">
-          <source src="pdfs/footabllers sister vn.MP3" type="audio/mpeg">
-          Your browser does not support the audio element.
-        </audio>
+      <div class="mt-2 flex items-center justify-center gap-4">
+        <a href="pdfs/LeilaSono-Media-Kit.pdf" target="_blank"
+           class="inline-block bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">View Media Kit</a>
 
-        <div class="mt-5 flex items-center justify-center gap-4">
-          <!-- view & download -->
-          <a href="pdfs/LeilaSono-Media-Kit.pdf" target="_blank"
-             class="inline-block bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">View Media Kit</a>
-
-          <!-- download button -->
-          <a href="pdfs/LeilaSono-Media-Kit.pdf" download
-             class="inline-block border border-rose-600 text-rose-600 px-5 py-2 rounded-full hover:bg-rose-50 transition font-medium">Download Media Kit</a>
-        </div>
+        <a href="pdfs/LeilaSono-Media-Kit.pdf" download
+           class="inline-block border border-rose-600 text-rose-600 px-5 py-2 rounded-full hover:bg-rose-50 transition font-medium">Download Media Kit</a>
       </div>
     </section>
 
-    <!-- GIF / Video with caption -->
-    <section class="text-center mb-12">
-      <figure class="mx-auto">
-        <!-- video tag: ensure your file path is correct (videos/Jomo vid.mov) -->
-        <video class="hero-video" autoplay muted loop playsinline controls>
-          <source src="videos/Jomo vid.mov" type="video/quicktime">
-          <!-- fallback image if browser can't play .mov -->
-          Your browser doesn't support this video.
-        </video>
-        <figcaption class="media-caption mt-3">Guess the legend! 😍</figcaption>
-      </figure>
+    <!-- Intro paragraphs (after the audio) -->
+    <section class="text-center mb-12 max-w-3xl mx-auto text-gray-700 leading-relaxed">
+      <p class="mb-4">
+        Hello! I'm Leila, a storyteller, a content creator, and most importantly, a very proud sister.
+        I've spent my life on the sidelines, watching my brothers chase their football dreams — and capturing the real moments that make the game so special.
+      </p>
+      <p class="mb-6">
+        Join me as I share sideline vlogs, family moments, and the behind-the-scenes life of the Sono family.
+        I built this little site because good stories deserve a home and a little bit of code. 😉
+      </p>
     </section>
 
     <!-- Quick facts grid -->
@@ -125,27 +111,40 @@
       </div>
     </section>
 
-    <!-- Timeline / journey -->
+    <!-- Timeline / journey (exact text you requested, preserved spacing & line breaks) -->
     <section class="max-w-3xl mx-auto my-12">
       <h3 class="text-2xl font-semibold text-rose-700 mb-4 text-center">The start of the "Footballer’s Sister" Journey 📸⚽</h3>
 
       <div class="bg-white rounded-lg shadow p-6 text-left">
-        <ul class="space-y-4">
-          <li><span class="font-semibold text-rose-700">2023:</span> Picked up my phone & hit record — the series began.</li>
-          <li><span class="font-semibold text-rose-700">2024:</span> Sidelines became home — more stories, more vlogs.</li>
-          <li><span class="font-semibold text-rose-700">April 2025:</span> My first football vlog went viral (250k views)! ⚡</li>
-          <li><span class="font-semibold text-rose-700">June 2025:</span> Began posting weekly "life as a footballer's sister" content.</li>
-          <li><span class="font-semibold text-rose-700">August 2025:</span> Created this website to share the journey in one place.</li>
-        </ul>
+        <div class="timeline-pre">
+2023 : Started the filming the boys games & created their football accounts on instagram.
+2024: Kept recording their trainings, games and behind-the-scenes moments for their instagram pages and mine.
+April 2025: Posted my 1st football vlog on tiktok & it went viral (currently at 250k views)!
+2025: Continued my vlogs & bts moments, creating more viral content and growing my audience.
+June 2025: Officialy started my "life as a footballer's sister" content & posting weekly as so many people loved the vlogs
+August 2025: Created this website to share my journey and connect with all of you in one place!
+The journey does not end there! You definitely will not want to miss out on this one! Follow along
+        </div>
       </div>
     </section>
 
-    <!-- short author paragraph (wide centered) -->
-    <section class="max-w-4xl mx-auto text-center text-gray-700">
+    <!-- short author paragraph -->
+    <section class="max-w-4xl mx-auto text-center text-gray-700 mb-12">
       <p>
         Through my lens you see the long hours of training, the quiet moments of doubt, the family pride that fuels every victory,
         and the love that keeps a player going. Follow along — the journey is just getting started. 💕
       </p>
+    </section>
+
+    <!-- MOV/GIF centered with caption underneath (moved to the END of page) -->
+    <section class="text-center mb-12">
+      <figure class="mx-auto">
+        <video class="hero-video" autoplay muted loop playsinline controls>
+          <source src="videos/Jomo vid.mov" type="video/quicktime">
+          Your browser doesn't support this video.
+        </video>
+        <figcaption class="media-caption">Guess the legend! 😍</figcaption>
+      </figure>
     </section>
   </main>
 
