@@ -10,26 +10,28 @@
     .tweet-card { background:#fff; border:1px solid #e0e0e0; border-radius:16px; padding:1rem; box-shadow:0 1px 3px rgba(0,0,0,.1); margin-bottom:1rem; display:flex; align-items:flex-start; gap:1rem; }
     .tweet-avatar { width:48px; height:48px; border-radius:9999px; background-color:#fce7f3; flex-shrink:0; }
     .dropdown-open { opacity:1!important; transform:scale(1)!important; }
-
-    /* modal */
-    .modal-backdrop { background: rgba(0,0,0,0.45); position: fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:60; }
-    .modal-card { background:#fff; border-radius:12px; padding:20px; max-width:420px; width:94%; box-shadow:0 10px 30px rgba(0,0,0,0.12);}
-    /* media */
-    .media-preview { border-radius:12px; overflow:hidden; display:block; margin:0 auto; max-width:420px; width:100%; }
+    /* small helper for the services dropdown */
+    .services-btn { background:#BE185D; color:#fff; border-radius:9999px; padding:8px 14px; display:inline-flex; align-items:center; gap:8px; font-weight:600; }
+    .services-menu { min-width:220px; }
+    /* play overlay style */
+    .video-overlay { display:none; position:absolute; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.28); color:#fff; font-size:20px; border-radius:12px; }
+    .video-wrapper { position:relative; border-radius:12px; overflow:hidden; }
+    /* Q&A box */
+    .qa-box { background:#fff; border:1px solid #f3d6df; border-radius:12px; padding:16px; box-shadow:0 2px 6px rgba(0,0,0,0.04); }
   </style>
 </head>
 <body class="bg-pink-50 text-black font-sans">
 
-  <!-- Header -->
+  <!-- Smart animated dropdown header -->
   <header class="fixed top-0 w-full bg-pink-100 shadow z-50">
-    <div class="flex justify-between items-center px-6 py-4">
+    <div class="flex justify-between items-center px-6 py-4 max-w-6xl mx-auto">
       <h1 class="text-xl font-bold uppercase text-rose-600">THE FOOTBALLER’S SISTER</h1>
 
       <div class="relative inline-block text-left">
         <button id="navButton"
-          class="inline-flex justify-center items-center rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
+          class="inline-flex justify-center w-full rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
           <span id="navTitle">Loading...</span>
-          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
           </svg>
         </button>
@@ -51,105 +53,122 @@
 
   <div class="pt-28"></div>
 
-  <main class="max-w-4xl mx-auto px-6">
+  <main class="max-w-4xl mx-auto px-6 pb-20">
 
-    <!-- Top: Profile heading -->
-    <section class="text-center mb-6">
-      <img src="images/leila pic.png" alt="Leila Sono" class="rounded-full w-36 h-36 object-cover mx-auto mb-4 shadow-lg border-4 border-white">
-      <h2 class="text-4xl font-bold mb-3 text-rose-700">Meet Leila Sono ✨</h2>
-    </section>
+    <section class="pb-6 text-center">
+      <!-- Profile Image -->
+      <img src="images/leila pic.png" alt="Leila Sono profile picture"
+        class="rounded-full w-48 h-48 object-cover mx-auto mb-4 shadow-lg border-4 border-white mt-6">
 
-    <!-- Voice recording (above the paragraph) -->
-    <section class="text-center mb-8">
-      <h3 class="text-2xl font-semibold text-rose-700 mb-3">A Quick Hello from Me:</h3>
-      <div class="mx-auto mb-4">
-        <audio controls class="mx-auto bg-white rounded-full p-3 shadow media-preview">
+      <h2 class="text-4xl font-bold mb-2 text-rose-700">Meet Leila Sono ✨</h2>
+
+      <!-- Voice note (moved ABOVE paragraph) -->
+      <div class="mt-4 mb-4">
+        <h4 class="text-lg font-semibold mb-2 text-rose-700">A Quick Hello from Me:</h4>
+        <audio controls class="mx-auto" style="outline:none;">
           <source src="pdfs/footabllers sister vn.MP3" type="audio/mpeg">
           Your browser does not support the audio element.
         </audio>
       </div>
 
-      <div class="flex items-center justify-center gap-4 mt-2">
-        <a href="pdfs/LeilaSono-Media-Kit.pdf" target="_blank" class="inline-block bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">View Media Kit</a>
-        <a href="pdfs/LeilaSono-Media-Kit.pdf" download class="inline-block border border-rose-500 text-rose-600 px-6 py-3 rounded-full hover:bg-pink-50 transition font-semibold">Download Media Kit</a>
+      <p class="text-lg text-gray-700 mb-6">
+        From sideline vlogs to life behind the games — welcome. This page shares the heartbeat behind the content, the people that make it real, and how you can work with me.
+      </p>
+
+      <!-- Services dropdown (Option B: rounded pink button) -->
+      <div class="mt-4">
+        <div class="relative inline-block text-left">
+          <button id="servicesButton" class="services-btn">
+            Leila's Services
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="white" aria-hidden="true">
+              <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
+            </svg>
+          </button>
+
+          <div id="servicesMenu" class="services-menu hidden absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-150 scale-95 opacity-0">
+            <div class="py-1">
+              <a href="pdfs/LeilaSono-Media-Kit.pdf" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">📄 Download Media Kit</a>
+              <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">📌 Book a Collab</a>
+              <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">🎥 Content Creation Packages</a>
+              <a href="mailto:your-email@example.com" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">📧 Email Me</a>
+            </div>
+          </div>
+        </div>
       </div>
+
     </section>
 
-    <!-- Intro paragraph (after voice element) -->
-    <section class="prose mx-auto text-center max-w-3xl mb-10">
-      <p class="text-gray-700 leading-relaxed">
-        Hello! I'm Leila, a storyteller, a content creator, and most importantly, a very proud sister. I've spent my life on the sidelines, watching my brothers chase their football dreams — and capturing the real moments that make the game so special.
-      </p>
-      <p class="text-gray-700 leading-relaxed mt-4">
-        Join me as I share sideline vlogs, family moments, and the behind-the-scenes life of the Sono family. I built this little site because good stories deserve a home and a little bit of code. 😊
-      </p>
-    </section>
-
-    <!-- Quick facts -->
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-6 my-10">
-      <div class="bg-white rounded-xl shadow p-4 text-center">
+    <!-- Quick Facts Grid -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
+      <div class="bg-white rounded-xl shadow p-4">
         <span class="text-3xl">🎥</span>
         <p class="font-bold mt-2">Favorite Content:</p>
         <p class="text-gray-600 text-sm">Sideline vlogs & family moments</p>
       </div>
-      <div class="bg-white rounded-xl shadow p-4 text-center">
+      <div class="bg-white rounded-xl shadow p-4">
         <span class="text-3xl">⚽</span>
         <p class="font-bold mt-2">Favourite Team:</p>
         <p class="text-gray-600 text-sm">Anywhere my brothers are playing! 🤭</p>
       </div>
-      <div class="bg-white rounded-xl shadow p-4 text-center">
+      <div class="bg-white rounded-xl shadow p-4">
         <span class="text-3xl">☕</span>
         <p class="font-bold mt-2">Sideline Snack:</p>
         <p class="text-gray-600 text-sm">Chai latte & a chocolate muffin</p>
       </div>
     </section>
 
-    <!-- Timeline -->
-    <section class="mb-10 max-w-3xl mx-auto">
-      <h4 class="text-xl font-semibold text-rose-700 mb-4 text-center">The start of the "Footballer’s Sister" Journey 📸⚽</h4>
-
-      <div class="bg-white rounded-xl p-6 shadow space-y-3">
-        <p><span class="font-bold text-rose-600">2023 :</span> Started the filming the boys games & created their football accounts on instagram.</p>
-        <p><span class="font-bold text-rose-600">2024:</span> Kept recording their trainings, games and behind-the-scenes moments for their instagram pages and mine.</p>
-        <p><span class="font-bold text-rose-600">April 2025:</span> Posted my 1st football vlog on tiktok & it went viral (currently at 250k views)!</p>
-        <p><span class="font-bold text-rose-600">2025:</span> Continued my vlogs & bts moments, creating more viral content and growing my audience.</p>
-        <p><span class="font-bold text-rose-600">June 2025:</span> Officialy started my "life as a footballer's sister" content & posting weekly as so many people loved the vlogs</p>
-        <p><span class="font-bold text-rose-600">August 2025:</span> Created this website to share my journey and connect with all of you in one place!</p>
-        <p>The journey does not end there! You definitely will not want to miss out on this one! Follow along</p>
+    <!-- Timeline Section (dates bold + pink) -->
+    <section class="my-8">
+      <h4 class="text-lg font-semibold mb-4 text-rose-700">The start of the "Footballer’s Sister" Journey 📸⚽</h4>
+      <div class="bg-white rounded-xl p-4 shadow">
+        <pre class="whitespace-pre-wrap text-left text-gray-800" style="font-family:inherit; font-size:15px; line-height:1.6;">
+<span class="font-bold text-rose-600">2023 :</span> Started the filming the boys games & created their football accounts on instagram.
+<span class="font-bold text-rose-600">2024 :</span> Kept recording their trainings, games and behind-the-scenes moments for their instagram pages and mine.
+<span class="font-bold text-rose-600">April 2025 :</span> Posted my 1st football vlog on tiktok & it went viral (currently at 250k views)!
+<span class="font-bold text-rose-600">2025 :</span> Continued my vlogs & bts moments, creating more viral content and growing my audience.
+<span class="font-bold text-rose-600">June 2025 :</span> Officially started my "life as a footballer's sister" content & posting weekly as so many people loved the vlogs.
+<span class="font-bold text-rose-600">August 2025 :</span> Created this website to share my journey and connect with all of you in one place!
+        </pre>
       </div>
     </section>
 
-    <!-- Video / GIF at the end and centered, with autoplay + loop (muted for autoplay on mobile) -->
-    <section class="mb-10 text-center">
-      <video id="jomo-video" class="media-preview mb-2" autoplay loop muted playsinline>
-        <!-- Preferred: MP4. Fallback: MOV. If you only have MOV, browsers may restrict autoplay — convert MOV -> MP4 for best results. -->
-        <source src="images/Jomo vid.mp4" type="video/mp4">
-        <source src="images/Jomo vid.mov" type="video/quicktime">
-        Your browser does not support this media.
-      </video>
-      <div class="text-gray-600 mt-2">Guess the legend! 😍</div>
+    <!-- Centered Video/GIF (moved toward end as requested) -->
+    <section class="mt-8 text-center">
+      <div class="video-wrapper mx-auto" style="max-width:780px;">
+        <video id="jomo-video" class="w-full rounded-lg" autoplay muted loop playsinline preload="auto" poster="images/jomo-poster.jpg">
+          <source src="images/jomo-vid.mp4" type="video/mp4">
+          <source src="images/jomo-vid.webm" type="video/webm">
+          Your browser does not support this video.
+        </video>
+        <button id="videoOverlay" class="video-overlay">▶ Tap to play</button>
+      </div>
+
+      <div class="text-gray-700 mt-3 font-semibold">Guess the legend! 😍</div>
+      <!-- The extra caption placed under the GIF/video (centered) -->
     </section>
 
-    <!-- Closing line (end of page) -->
-    <section class="mb-20 max-w-3xl mx-auto text-center">
-      <p class="text-gray-700 leading-relaxed">
-        Through my lens you see the long hours of training, the quiet moments of doubt, the family pride that fuels every victory, and the love that keeps a player going. Follow along — the journey is just getting started. 💕
+    <!-- Closing line at the end of page (as requested) -->
+    <section class="mt-8 text-gray-800 text-center">
+      <p class="italic mt-6 max-w-3xl mx-auto">
+        <strong class="text-rose-600">Through my lens</strong> you see the long hours of training, the quiet moments of doubt, the family pride that fuels every victory, and the love that keeps a player going. <strong>Follow along — the journey is just getting started. 💕</strong>
       </p>
     </section>
 
-    <!-- Q&A moved to the END of the page as requested -->
-    <section id="qa-end" class="bg-white rounded-2xl shadow-lg p-8 mb-20 max-w-3xl mx-auto">
-      <h3 class="text-2xl font-bold text-rose-700 mb-2 text-center">Ask Me Anything!</h3>
-      <p class="text-sm text-gray-600 text-center mb-6">Got a question about football, family, or my journey? Ask below and I’ll answer on the Q&A page!</p>
-
-      <form id="qa-form" class="space-y-4">
-        <input id="qa-name" type="text" placeholder="Your Name" autocomplete="name" class="w-full px-4 py-3 border border-pink-200 rounded-full focus:outline-none focus:ring-2 focus:ring-rose-500" required>
-        <textarea id="qa-question" rows="3" placeholder="Type your question here..." class="w-full px-4 py-3 border border-pink-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500" required></textarea>
-        <div class="flex justify-center gap-4">
-          <button id="qa-submit" type="submit" class="bg-rose-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-rose-700 transition">Send Question</button>
-          <a href="questions.html" class="self-center text-rose-600 hover:underline">View All Q&A</a>
-        </div>
-      </form>
+    <!-- Q&A box placed at the very end -->
+    <section class="mt-8">
+      <div class="qa-box max-w-2xl mx-auto">
+        <h3 class="text-xl font-semibold text-rose-700 mb-3">Ask me anything — Q&A</h3>
+        <p class="text-sm text-gray-600 mb-3">Leave a question and I’ll answer it in the Q&A section.</p>
+        <form id="leila-qa-form" class="space-y-3">
+          <input id="qa-name" type="text" placeholder="Your name (optional)" class="w-full px-3 py-2 border rounded-md" />
+          <textarea id="qa-question" rows="3" placeholder="Your question..." class="w-full px-3 py-2 border rounded-md" required></textarea>
+          <div class="flex gap-3">
+            <button type="submit" class="bg-rose-600 text-white px-4 py-2 rounded-full">Submit Question</button>
+            <button type="button" id="qa-clear" class="bg-white border px-4 py-2 rounded-full">Clear</button>
+          </div>
+          <div id="qa-status" class="text-sm mt-2 text-gray-600"></div>
+        </form>
+      </div>
     </section>
 
   </main>
@@ -159,14 +178,13 @@
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- Dropdown script -->
+  <!-- NAV dropdown script (unchanged behavior) -->
   <script>
     const navButton = document.getElementById('navButton');
     const dropdownMenu = document.getElementById('dropdownMenu');
     const navItems = document.querySelectorAll('.nav-item');
-    const navTitleEl = document.getElementById('navTitle');
+    const navTitle = document.getElementById('navTitle');
     const currentPage = window.location.pathname.split('/').pop();
-
     const pageTitles = {
       "index.html": "Home",
       "bts.html": "Behind the Game",
@@ -175,43 +193,93 @@
       "support-wall.html": "Support Wall",
       "fixtures.html": "Fixtures & Live Scores"
     };
-
-    navTitleEl.textContent = pageTitles[currentPage] || "Menu";
-
+    navTitle.textContent = pageTitles[currentPage] || "Menu";
     navItems.forEach(link => {
-      if (link.getAttribute('href') === currentPage) {
-        link.classList.add("font-semibold", "text-rose-600");
-      }
+      if (link.getAttribute('href') === currentPage) link.classList.add("font-semibold", "text-rose-600");
     });
-
     navButton.addEventListener('click', (e) => {
       e.stopPropagation();
       const isHidden = dropdownMenu.classList.contains('hidden');
       if (isHidden) {
         dropdownMenu.classList.remove('hidden');
-        setTimeout(() => dropdownMenu.classList.add('dropdown-open'), 10);
+        setTimeout(()=> dropdownMenu.classList.add('dropdown-open'), 10);
       } else {
         dropdownMenu.classList.remove('dropdown-open');
-        setTimeout(() => dropdownMenu.classList.add('hidden'), 200);
+        setTimeout(()=> dropdownMenu.classList.add('hidden'), 200);
       }
     });
-
-    document.addEventListener('click', (event) => {
-      if (!navButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
-        dropdownMenu.classList.remove('dropdown-open');
-        setTimeout(() => dropdownMenu.classList.add('hidden'), 200);
+    document.addEventListener('click', (e)=> {
+      if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+        dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=> dropdownMenu.classList.add('hidden'), 200);
       }
     });
   </script>
 
-  <!-- Firestore wiring for Q&A form -->
+  <!-- Services dropdown (Option B) script -->
+  <script>
+    (function(){
+      const btn = document.getElementById('servicesButton');
+      const menu = document.getElementById('servicesMenu');
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const hidden = menu.classList.contains('hidden');
+        if (hidden) {
+          menu.classList.remove('hidden');
+          setTimeout(()=> menu.classList.add('dropdown-open'), 10);
+        } else {
+          menu.classList.remove('dropdown-open');
+          setTimeout(()=> menu.classList.add('hidden'), 150);
+        }
+      });
+      document.addEventListener('click', (e)=>{
+        if (!btn.contains(e.target) && !menu.contains(e.target)) {
+          menu.classList.remove('dropdown-open');
+          setTimeout(()=> menu.classList.add('hidden'), 150);
+        }
+      });
+    })();
+  </script>
+
+  <!-- Video autoplay fallback overlay -->
+  <script>
+    (function(){
+      const video = document.getElementById('jomo-video');
+      const overlay = document.getElementById('videoOverlay');
+      if (!video || !overlay) return;
+
+      function tryPlay(){
+        video.play().then(()=> {
+          overlay.style.display = 'none';
+        }).catch((err) => {
+          // autoplay blocked → show overlay so user can tap to play
+          overlay.style.display = 'flex';
+        });
+      }
+
+      overlay.addEventListener('click', async () => {
+        try {
+          video.muted = false;
+          await video.play();
+          overlay.style.display = 'none';
+        } catch(e) {
+          console.error('Manual play failed', e);
+        }
+      });
+
+      window.addEventListener('load', ()=> setTimeout(tryPlay, 300));
+      document.addEventListener('visibilitychange', ()=> { if (!document.hidden) setTimeout(tryPlay,200); });
+    })();
+  </script>
+
+  <!-- FIREBASE: Q&A wiring (module) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    const appId = '1:65396604482:web:0f31625a714aa8352337db';
-    const firebaseConfig = {
+    // Replace these if you use a different app / config elsewhere
+    const appId = typeof __app_id !== 'undefined' ? __app_id : '1:65396604482:web:0f31625a714aa8352337db';
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
       projectId: "football-site-c3aa9",
@@ -219,99 +287,95 @@
       messagingSenderId: "65396604482",
       appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
+    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
     const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // Q&A form elements
+    const qaForm = document.getElementById('leila-qa-form');
+    const qaName = document.getElementById('qa-name');
+    const qaQuestion = document.getElementById('qa-question');
+    const qaStatus = document.getElementById('qa-status');
+    const qaClear = document.getElementById('qa-clear');
 
     let currentUid = null;
-    onAuthStateChanged(auth, async (user) => {
+
+    // Sign-in (anonymous or custom token if provided)
+    onAuthStateChanged(auth, (user) => {
       if (user) {
         currentUid = user.uid;
-        console.log('Signed in (anonymous) uid=', currentUid);
       } else {
-        try { await signInAnonymously(auth); } catch (err) { console.error('Anonymous sign-in failed', err); }
+        // attempt sign-in
+        (async () => {
+          try {
+            if (initialAuthToken) {
+              await signInWithCustomToken(auth, initialAuthToken);
+            } else {
+              await signInAnonymously(auth);
+            }
+          } catch (err) {
+            console.error('Auth sign-in error', err);
+            qaStatus.textContent = 'Authentication failed — questions may not save.';
+            qaStatus.style.color = 'darkred';
+          }
+        })();
       }
     });
 
-    const form = document.getElementById('qa-form');
-    const submitBtn = document.getElementById('qa-submit');
+    // small helper for UX
+    function setStatus(msg, color){
+      qaStatus.textContent = msg || '';
+      qaStatus.style.color = color || '#374151';
+    }
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!currentUid) {
-        showModal('Error', 'Unable to sign you in. Please refresh the page and try again.');
-        return;
-      }
+    // submit handler - writes to Firestore
+    if (qaForm) {
+      qaForm.addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        const qText = (qaQuestion.value || '').trim();
+        const nameText = (qaName.value || '').trim() || 'Anonymous';
+        if (!qText) { setStatus('Please type a question before submitting.', 'darkred'); return; }
 
-      const name = document.getElementById('qa-name').value.trim();
-      const question = document.getElementById('qa-question').value.trim();
-      if (!name || !question) return;
+        setStatus('Submitting question...', '#374151');
 
-      submitBtn.disabled = true;
-      submitBtn.classList.add('opacity-60', 'cursor-not-allowed');
+        try {
+          // ensure authenticated UID available
+          if (!currentUid) {
+            // try to sign in quickly
+            try {
+              if (initialAuthToken) await signInWithCustomToken(auth, initialAuthToken);
+              else await signInAnonymously(auth);
+            } catch (e) {
+              console.warn('Auth retry failed', e);
+            }
+          }
 
-      try {
-        const colPath = `/artifacts/${appId}/public/data/questions`;
-        await addDoc(collection(db, colPath), {
-          name,
-          question,
-          userId: currentUid,
-          timestamp: serverTimestamp()
-        });
+          const payload = {
+            name: nameText,
+            question: qText,
+            userId: currentUid || null,
+            timestamp: serverTimestamp()
+          };
 
-        showModal('Thanks!', 'Thanks for your question! Look out for the answer on the Q&A page soon.');
-        form.reset();
-      } catch (err) {
-        console.error('Error writing question', err);
-        showModal('Error', 'Could not save your question. Please try again later.');
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.classList.remove('opacity-60', 'cursor-not-allowed');
-      }
-    });
+          await addDoc(collection(db, `/artifacts/${appId}/public/data/questions`), payload);
 
-    function showModal(title, message) {
-      const backdrop = document.createElement('div');
-      backdrop.className = 'modal-backdrop';
-      backdrop.innerHTML = `
-        <div class="modal-card">
-          <div class="text-center">
-            <h4 class="text-lg font-semibold mb-2">${title}</h4>
-            <p class="text-gray-700 mb-4">${message}</p>
-            <button id="modal-close" class="bg-rose-600 text-white px-4 py-2 rounded-full">OK</button>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(backdrop);
-      document.getElementById('modal-close').focus();
-      document.getElementById('modal-close').addEventListener('click', () => {
-        document.body.removeChild(backdrop);
+          setStatus('Thanks — your question was submitted!', '#059669');
+          qaQuestion.value = '';
+          qaName.value = '';
+        } catch (err) {
+          console.error('Error saving question', err);
+          setStatus('Failed to submit question — check console.', 'darkred');
+        }
+      });
+
+      qaClear.addEventListener('click', () => {
+        qaName.value = '';
+        qaQuestion.value = '';
+        setStatus('', '#374151');
       });
     }
-  </script>
-
-  <!-- Try to ensure autoplay works: attempt play() and log errors -->
-  <script>
-    (function(){
-      const v = document.getElementById('jomo-video');
-      if (!v) return;
-      // try to programmatically play (some browsers need explicit call)
-      function tryPlay() {
-        v.play().then(()=> {
-          console.log('Video playback started');
-        }).catch(err => {
-          console.warn('Video play prevented:', err);
-          // If autoplay prevented, show muted controls fallback (already muted) — user can tap to play.
-        });
-      }
-      // small delay to allow sources to load
-      setTimeout(tryPlay, 300);
-      // if the document becomes visible (after being hidden), try again
-      document.addEventListener('visibilitychange', () => {
-        if (!document.hidden) tryPlay();
-      });
-    })();
   </script>
 
 </body>
