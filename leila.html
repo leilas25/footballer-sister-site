@@ -4,16 +4,57 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Meet Leila – The Footballer’s Sister</title>
+
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
     .text-outline-darkpink { color: transparent; -webkit-text-stroke: 1px #be185d; font-weight: 800; }
-    .tweet-card { background:#fff; border:1px solid #e0e0e0; border-radius:16px; padding:1rem; box-shadow:0 1px 3px rgba(0,0,0,.1); margin-bottom:1rem; display:flex; align-items:flex-start; gap:1rem; }
-    .tweet-avatar { width:48px; height:48px; border-radius:9999px; background-color:#fce7f3; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+    .tweet-card {
+      background:#fff;
+      border:1px solid #e0e0e0;
+      border-radius:16px;
+      padding:1rem;
+      box-shadow:0 1px 3px rgba(0,0,0,.1);
+      margin-bottom:1rem;
+      display:flex;
+      align-items:flex-start;
+      gap:1rem;
+    }
+    .tweet-avatar {
+      width:48px;
+      height:48px;
+      border-radius:9999px;
+      background-color:#fce7f3;
+      flex-shrink:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
     .dropdown-open { opacity:1!important; transform:scale(1)!important; }
+
+    /* Hero (circular media) */
+    .leila-hero {
+      width:160px;
+      height:160px;
+      margin: 0 auto;
+      display:block;
+      border-radius:9999px;
+      overflow:hidden;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+      border: 4px solid white;
+      background: linear-gradient(180deg,#fff,#ffeef6);
+    }
+    .leila-hero img, .leila-hero video { width:100%; height:100%; object-fit:cover; display:block; }
+
     /* small responsive adjustments */
     @media (max-width:640px) {
       .tweet-card { flex-direction: column; }
+      .leila-hero { width:120px; height:120px; }
     }
+
+    /* Caption styling */
+    .media-caption { color: #6b7280; font-size: 0.95rem; margin-top: 0.5rem; }
   </style>
 </head>
 <body class="bg-pink-50 text-black font-sans">
@@ -50,19 +91,33 @@
   <div class="pt-24"></div>
 
   <section class="pb-10 px-6 max-w-4xl mx-auto text-center">
-    <!-- Profile Image & Audio -->
-    <img src="images/leila pic.png" alt="Leila Sono profile picture"
-      class="rounded-full w-48 h-48 object-cover mx-auto mb-4 shadow-lg border-4 border-white mt-10">
-    <h2 class="text-4xl font-bold mb-4 text-rose-700">Meet Leila Sono ✨</h2>
+    <!-- HERO: use <video> for your .mov file -->
+    <div class="leila-hero" aria-hidden="false">
+      <!-- video element will be assigned a safe src via JS (to handle spaces) -->
+      <video id="leilaVideo" playsinline muted loop autoplay aria-label="Leila hero video"></video>
+    </div>
+
+    <!-- small caption under the video -->
+    <div class="media-caption text-center mt-2">Behind-the-scenes with Jomo — match-day moments.</div>
+
+    <h2 class="text-4xl font-bold mb-4 text-rose-700 mt-6">Meet Leila Sono ✨</h2>
 
     <div class="my-6">
       <h4 class="text-lg font-semibold mb-2 text-rose-700">A Quick Hello from Me:</h4>
+
+      <!-- Audio element (both original path and safe fallback included) -->
       <audio controls class="mx-auto">
         <source src="pdfs/footabllers sister vn.MP3" type="audio/mpeg">
+        <source src="audio/footabllers-sister-vn.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
       </audio>
-      <div class="mt-6">
-        <a href="pdfs/LeilaSono-Media-Kit.pdf" target="_blank" rel="noreferrer" class="inline-block bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">View my media kit</a>
+
+      <div class="mt-6 flex justify-center gap-3">
+        <!-- Download button for media kit -->
+        <a id="mediaKitDownload" href="pdfs/LeilaSono-Media-Kit.pdf" download class="inline-block bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold" rel="noreferrer">Download my media kit</a>
+
+        <!-- also keep the open-in-new-tab option -->
+        <a href="pdfs/LeilaSono-Media-Kit.pdf" target="_blank" class="inline-block border border-rose-600 text-rose-600 px-4 py-3 rounded-full hover:bg-pink-50 transition font-semibold" rel="noreferrer">Open</a>
       </div>
     </div>
 
@@ -127,7 +182,6 @@
       }
     });
 
-    // toggle dropdown open/close with animation
     navButton.addEventListener('click', (e) => {
       e.stopPropagation();
       const isHidden = dropdownMenu.classList.contains('hidden');
@@ -140,13 +194,49 @@
       }
     });
 
-    // close when clicking outside
     document.addEventListener('click', (event) => {
       if (!navButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
         dropdownMenu.classList.remove('dropdown-open');
         setTimeout(() => dropdownMenu.classList.add('hidden'), 200);
       }
     });
+  </script>
+
+  <!-- Video initialization (handles spaces in filename safely) -->
+  <script>
+    (function(){
+      // If your video is at images/Jomo vid.mov (with the space), this safely encodes it.
+      const VIDEO_RAW = 'images/Jomo vid.mov';
+      const videoEl = document.getElementById('leilaVideo');
+      if (!videoEl) return;
+      const encoded = encodeURI(VIDEO_RAW); // 'images/Jomo%20vid.mov'
+      // Append both sources (encoded and raw) to maximize compatibility
+      try {
+        const srcEncoded = document.createElement('source');
+        srcEncoded.src = encoded;
+        srcEncoded.type = 'video/quicktime'; // .mov type
+        videoEl.appendChild(srcEncoded);
+
+        const srcRaw = document.createElement('source');
+        srcRaw.src = VIDEO_RAW;
+        srcRaw.type = 'video/quicktime';
+        videoEl.appendChild(srcRaw);
+
+        // set attributes for autoplay experience
+        videoEl.muted = true;
+        videoEl.autoplay = true;
+        videoEl.loop = true;
+        videoEl.playsInline = true;
+        // try to play (some browsers block autoplay unless muted)
+        videoEl.play().catch(err => {
+          // autoplay may be blocked; leave controls so user can tap-play
+          videoEl.controls = true;
+          console.warn('Autoplay blocked, controls enabled', err);
+        });
+      } catch (e) {
+        console.error('Failed to init leila video', e);
+      }
+    })();
   </script>
 </body>
 </html>
