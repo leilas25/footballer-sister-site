@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Meet Leila – The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -10,12 +10,11 @@
     .tweet-card { background:#fff; border:1px solid #e0e0e0; border-radius:16px; padding:1rem; box-shadow:0 1px 3px rgba(0,0,0,.1); margin-bottom:1rem; display:flex; align-items:flex-start; gap:1rem; }
     .tweet-avatar { width:48px; height:48px; border-radius:9999px; background-color:#fce7f3; flex-shrink:0; }
     .dropdown-open { opacity:1!important; transform:scale(1)!important; }
-    /* small helper for the services dropdown and media kit button */
+    /* small helper for the services dropdown */
     .services-btn { background:#BE185D; color:#fff; border-radius:9999px; padding:8px 14px; display:inline-flex; align-items:center; gap:8px; font-weight:600; }
-    .media-btn { background:#BE185D; color:#fff; border-radius:9999px; padding:8px 14px; display:inline-flex; align-items:center; gap:8px; font-weight:600; text-decoration:none; }
-    .services-menu { min-width:260px; }
+    .services-menu { min-width:220px; }
     /* play overlay style */
-    .video-overlay { display:none; position:absolute; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.28); color:#fff; font-size:20px; border-radius:12px; cursor:pointer; }
+    .video-overlay { display:none; position:absolute; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.28); color:#fff; font-size:20px; border-radius:12px; }
     .video-wrapper { position:relative; border-radius:12px; overflow:hidden; }
     /* Q&A box */
     .qa-box { background:#fff; border:1px solid #f3d6df; border-radius:12px; padding:16px; box-shadow:0 2px 6px rgba(0,0,0,0.04); }
@@ -76,9 +75,8 @@
         From sideline vlogs to life behind the games — welcome. This page shares the heartbeat behind the content, the people that make it real, and how you can work with me.
       </p>
 
-      <!-- Services dropdown + Media Kit button (side-by-side) -->
-      <div class="mt-4 flex items-center justify-center gap-4">
-        <!-- Services dropdown (only this one expands) -->
+      <!-- Services dropdown (Option B: rounded pink button) -->
+      <div class="mt-4">
         <div class="relative inline-block text-left">
           <button id="servicesButton" class="services-btn">
             Leila's Services
@@ -89,22 +87,13 @@
 
           <div id="servicesMenu" class="services-menu hidden absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-150 scale-95 opacity-0">
             <div class="py-1">
-              <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Player profile creation</a>
-              <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Supersport match highlight reels</a>
-              <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Content creation</a>
-              <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Website creation</a>
+              <a href="pdfs/LeilaSono-Media-Kit.pdf" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">📄 Download Media Kit</a>
+              <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">📌 Book a Collab</a>
+              <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">🎥 Content Creation Packages</a>
+              <a href="mailto:your-email@example.com" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">📧 Email Me</a>
             </div>
           </div>
         </div>
-
-        <!-- View Media Kit button (direct link, same shape) -->
-        <a href="pdfs/LeilaSono-Media-Kit.pdf" class="media-btn" title="Download Media Kit" target="_blank" rel="noreferrer">
-          View My Media Kit
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="white" aria-hidden="true">
-            <path d="M3 7a1 1 0 011-1h3V4a1 1 0 112 0v2h3a1 1 0 011 1v7a1 1 0 01-1 1H4a1 1 0 01-1-1V7z"/>
-            <path d="M9 12l3-3m0 0l3 3m-3-3v6" stroke="white" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </a>
       </div>
 
     </section>
@@ -151,7 +140,7 @@
           <source src="images/jomo-vid.webm" type="video/webm">
           Your browser does not support this video.
         </video>
-        <div id="videoOverlay" class="video-overlay">▶ Tap to play</div>
+        <button id="videoOverlay" class="video-overlay">▶ Tap to play</button>
       </div>
 
       <div class="text-gray-700 mt-3 font-semibold">Guess the legend! 😍</div>
@@ -226,7 +215,7 @@
     });
   </script>
 
-  <!-- Services dropdown script -->
+  <!-- Services dropdown (Option B) script -->
   <script>
     (function(){
       const btn = document.getElementById('servicesButton');
@@ -328,14 +317,15 @@
             }
           } catch (err) {
             console.error('Auth sign-in error', err);
-            if (qaStatus) { qaStatus.textContent = 'Authentication failed — questions may not save.'; qaStatus.style.color = 'darkred'; }
+            qaStatus.textContent = 'Authentication failed — questions may not save.';
+            qaStatus.style.color = 'darkred';
           }
         })();
       }
     });
 
+    // small helper for UX
     function setStatus(msg, color){
-      if (!qaStatus) return;
       qaStatus.textContent = msg || '';
       qaStatus.style.color = color || '#374151';
     }
@@ -351,7 +341,9 @@
         setStatus('Submitting question...', '#374151');
 
         try {
+          // ensure authenticated UID available
           if (!currentUid) {
+            // try to sign in quickly
             try {
               if (initialAuthToken) await signInWithCustomToken(auth, initialAuthToken);
               else await signInAnonymously(auth);
