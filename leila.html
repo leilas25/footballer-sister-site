@@ -5,25 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Meet Leila – The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
+    /* small custom touches to match your site style */
     .text-outline-darkpink { color: transparent; -webkit-text-stroke: 1px #be185d; font-weight: 800; }
     .tweet-card { background:#fff; border:1px solid #e0e0e0; border-radius:16px; padding:1rem; box-shadow:0 1px 3px rgba(0,0,0,.1); margin-bottom:1rem; display:flex; align-items:flex-start; gap:1rem; }
     .tweet-avatar { width:48px; height:48px; border-radius:9999px; background-color:#fce7f3; flex-shrink:0; }
     .dropdown-open { opacity:1!important; transform:scale(1)!important; }
+    /* video styling */
+    .hero-video { max-width:460px; width:100%; border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,0.08); }
+    /* nice caption */
+    .media-caption { color:#6b7280; font-size:0.95rem; margin-top:.5rem; }
   </style>
 </head>
-<body class="bg-pink-50 text-black font-sans">
 
-  <!-- Smart animated dropdown header -->
+<body class="bg-pink-50 text-black font-sans">
+  <!-- Header with dropdown navigation (same pattern used on other pages) -->
   <header class="fixed top-0 w-full bg-pink-100 shadow z-50">
     <div class="flex justify-between items-center px-6 py-4">
       <h1 class="text-xl font-bold uppercase text-rose-600">THE FOOTBALLER’S SISTER</h1>
 
       <div class="relative inline-block text-left">
         <button id="navButton"
-          class="inline-flex justify-center w-full rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
-          Loading...
-          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+          class="inline-flex justify-center items-center rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
+          <span id="navTitle">Loading...</span>
+          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
           </svg>
         </button>
@@ -42,65 +48,121 @@
       </div>
     </div>
   </header>
+
+  <!-- spacer for fixed header -->
   <div class="pt-24"></div>
 
-  <section class="pb-10 px-6 max-w-4xl mx-auto text-center">
-    <!-- Profile Image & Audio -->
-    <img src="images/leila pic.png" alt="Leila Sono profile picture"
-      class="rounded-full w-48 h-48 object-cover mx-auto mb-4 shadow-lg border-4 border-white mt-10">
-    <h2 class="text-4xl font-bold mb-4 text-rose-700">Meet Leila Sono ✨</h2>
+  <!-- MAIN -->
+  <main class="max-w-6xl mx-auto px-6 pb-20">
+    <!-- Top hero area (centered profile + audio + download CTA) -->
+    <section class="text-center mb-12">
+      <img src="images/leila pic.png" alt="Leila Sono profile picture"
+           class="rounded-full w-48 h-48 object-cover mx-auto mb-4 shadow-lg border-4 border-white mt-6">
 
-    <div class="my-6">
-      <h4 class="text-lg font-semibold mb-2 text-rose-700">A Quick Hello from Me:</h4>
-      <audio controls class="mx-auto">
-        <source src="pdfs/footabllers sister vn.MP3" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-      <a href="pdfs/LeilaSono-Media-Kit.pdf" target="_blank" class="mt-6 inline-block bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">View my media kit</a>
-    </div>
+      <h2 class="text-4xl font-bold mb-4 text-rose-700">Meet Leila Sono ✨</h2>
 
-    <!-- Quick Facts Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-10 max-w-2xl mx-auto">
-      <div class="bg-white rounded-xl shadow p-4">
-        <span class="text-3xl">🎥</span>
-        <p class="font-bold mt-2">Favorite Content:</p>
-        <p class="text-gray-600 text-sm">Sideline vlogs & family moments</p>
+      <div class="max-w-3xl mx-auto text-gray-700 leading-relaxed">
+        <p class="mb-4">
+          Hello! I'm Leila, a storyteller, a content creator, and most importantly, a very proud sister.
+          I've spent my life on the sidelines, watching my brothers chase their football dreams — and capturing the real moments that make the game so special.
+        </p>
+        <p class="mb-6">
+          Join me as I share sideline vlogs, family moments, and the behind-the-scenes life of the Sono family.
+          I built this little site because good stories deserve a home and a little bit of code. 😉
+        </p>
       </div>
-      <div class="bg-white rounded-xl shadow p-4">
-        <span class="text-3xl">⚽</span>
-        <p class="font-bold mt-2">Favourite Team:</p>
-        <p class="text-gray-600 text-sm">Anywhere my brothers are playing!🤭</p>
-      </div>
-      <div class="bg-white rounded-xl shadow p-4">
-        <span class="text-3xl">☕</span>
-        <p class="font-bold mt-2">Sideline Snack:</p>
-        <p class="text-gray-600 text-sm">Chai latte (for those cold morning games) & a chocolate muffin</p>
-      </div>
-    </div>
 
-    <!-- Timeline Section -->
-    <div class="my-12 max-w-lg mx-auto">
-      <h4 class="text-lg font-semibold mb-2 text-rose-700">The start of the "Footballer’s Sister" Journey 📸⚽</h4>
-      <ul class="border-l-4 border-rose-300 text-left pl-4 space-y-3">
-        <li><span class="font-semibold text-rose-700">2023:</span> Picked up my phone & hit record…
-        </li>
-        <li><span class="font-semibold text-rose-700">2024:</span> The series grows, the sidelines become home.</li>
-        <li><span class="font-semibold text-rose-700">2025:</span> Building a community that lives the game with us.</li>
-      </ul>
-    </div>
-  </section>
+      <div class="mt-6">
+        <h4 class="text-lg font-semibold mb-2 text-rose-700">A Quick Hello from Me:</h4>
+        <audio controls class="mx-auto">
+          <source src="pdfs/footabllers sister vn.MP3" type="audio/mpeg">
+          Your browser does not support the audio element.
+        </audio>
 
+        <div class="mt-5 flex items-center justify-center gap-4">
+          <!-- view & download -->
+          <a href="pdfs/LeilaSono-Media-Kit.pdf" target="_blank"
+             class="inline-block bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">View Media Kit</a>
+
+          <!-- download button -->
+          <a href="pdfs/LeilaSono-Media-Kit.pdf" download
+             class="inline-block border border-rose-600 text-rose-600 px-5 py-2 rounded-full hover:bg-rose-50 transition font-medium">Download Media Kit</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- GIF / Video with caption -->
+    <section class="text-center mb-12">
+      <figure class="mx-auto">
+        <!-- video tag: ensure your file path is correct (videos/Jomo vid.mov) -->
+        <video class="hero-video" autoplay muted loop playsinline controls>
+          <source src="videos/Jomo vid.mov" type="video/quicktime">
+          <!-- fallback image if browser can't play .mov -->
+          Your browser doesn't support this video.
+        </video>
+        <figcaption class="media-caption mt-3">Guess the legend! 😍</figcaption>
+      </figure>
+    </section>
+
+    <!-- Quick facts grid -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6 my-10 max-w-4xl mx-auto">
+      <div class="bg-white rounded-xl shadow p-6 text-center">
+        <div class="text-3xl">🎥</div>
+        <p class="font-bold mt-4">Favorite Content</p>
+        <p class="text-gray-600 text-sm mt-1">Sideline vlogs & family moments</p>
+      </div>
+
+      <div class="bg-white rounded-xl shadow p-6 text-center">
+        <div class="text-3xl">⚽</div>
+        <p class="font-bold mt-4">Favourite Team</p>
+        <p class="text-gray-600 text-sm mt-1">Anywhere my brothers are playing! 🤭</p>
+      </div>
+
+      <div class="bg-white rounded-xl shadow p-6 text-center">
+        <div class="text-3xl">☕</div>
+        <p class="font-bold mt-4">Sideline Snack</p>
+        <p class="text-gray-600 text-sm mt-1">Chai latte & a chocolate muffin</p>
+      </div>
+    </section>
+
+    <!-- Timeline / journey -->
+    <section class="max-w-3xl mx-auto my-12">
+      <h3 class="text-2xl font-semibold text-rose-700 mb-4 text-center">The start of the "Footballer’s Sister" Journey 📸⚽</h3>
+
+      <div class="bg-white rounded-lg shadow p-6 text-left">
+        <ul class="space-y-4">
+          <li><span class="font-semibold text-rose-700">2023:</span> Picked up my phone & hit record — the series began.</li>
+          <li><span class="font-semibold text-rose-700">2024:</span> Sidelines became home — more stories, more vlogs.</li>
+          <li><span class="font-semibold text-rose-700">April 2025:</span> My first football vlog went viral (250k views)! ⚡</li>
+          <li><span class="font-semibold text-rose-700">June 2025:</span> Began posting weekly "life as a footballer's sister" content.</li>
+          <li><span class="font-semibold text-rose-700">August 2025:</span> Created this website to share the journey in one place.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- short author paragraph (wide centered) -->
+    <section class="max-w-4xl mx-auto text-center text-gray-700">
+      <p>
+        Through my lens you see the long hours of training, the quiet moments of doubt, the family pride that fuels every victory,
+        and the love that keeps a player going. Follow along — the journey is just getting started. 💕
+      </p>
+    </section>
+  </main>
+
+  <!-- Footer -->
   <footer class="bg-pink-900 text-white text-center py-6">
     <p>&copy; <span id="year"></span> The Footballer’s Sister. All rights reserved.</p>
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- Smart header JS -->
+  <!-- Dropdown script (keeps behaviour consistent with other pages) -->
   <script>
     const navButton = document.getElementById('navButton');
     const dropdownMenu = document.getElementById('dropdownMenu');
     const navItems = document.querySelectorAll('.nav-item');
+    const navTitleEl = document.getElementById('navTitle');
     const currentPage = window.location.pathname.split('/').pop();
+
     const pageTitles = {
       "index.html": "Home",
       "bts.html": "Behind the Game",
@@ -109,18 +171,34 @@
       "support-wall.html": "Support Wall",
       "fixtures.html": "Fixtures & Live Scores"
     };
-    navButton.firstChild.textContent = pageTitles[currentPage] || "Menu";
+
+    navTitleEl.textContent = pageTitles[currentPage] || "Menu";
+
+    // highlight current page
     navItems.forEach(link => {
-      if (link.getAttribute('href') === currentPage) link.classList.add("font-semibold", "text-rose-600");
+      if (link.getAttribute('href') === currentPage) {
+        link.classList.add("font-semibold", "text-rose-600");
+      }
     });
-    navButton.addEventListener('click', () => {
+
+    // toggle menu
+    navButton.addEventListener('click', (e) => {
+      e.stopPropagation();
       const isHidden = dropdownMenu.classList.contains('hidden');
-      if (isHidden) { dropdownMenu.classList.remove('hidden'); setTimeout(()=>dropdownMenu.classList.add('dropdown-open'),10); }
-      else { dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'),200); }
+      if (isHidden) {
+        dropdownMenu.classList.remove('hidden');
+        setTimeout(() => dropdownMenu.classList.add('dropdown-open'), 10);
+      } else {
+        dropdownMenu.classList.remove('dropdown-open');
+        setTimeout(() => dropdownMenu.classList.add('hidden'), 200);
+      }
     });
-    document.addEventListener('click', (e) => {
-      if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
-        dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'),200);
+
+    // close when clicking outside
+    document.addEventListener('click', (event) => {
+      if (!navButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+        dropdownMenu.classList.remove('dropdown-open');
+        setTimeout(() => dropdownMenu.classList.add('hidden'), 200);
       }
     });
   </script>
