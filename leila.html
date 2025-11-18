@@ -8,8 +8,12 @@
   <style>
     .text-outline-darkpink { color: transparent; -webkit-text-stroke: 1px #be185d; font-weight: 800; }
     .tweet-card { background:#fff; border:1px solid #e0e0e0; border-radius:16px; padding:1rem; box-shadow:0 1px 3px rgba(0,0,0,.1); margin-bottom:1rem; display:flex; align-items:flex-start; gap:1rem; }
-    .tweet-avatar { width:48px; height:48px; border-radius:9999px; background-color:#fce7f3; flex-shrink:0; }
+    .tweet-avatar { width:48px; height:48px; border-radius:9999px; background-color:#fce7f3; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
     .dropdown-open { opacity:1!important; transform:scale(1)!important; }
+    /* small responsive adjustments */
+    @media (max-width:640px) {
+      .tweet-card { flex-direction: column; }
+    }
   </style>
 </head>
 <body class="bg-pink-50 text-black font-sans">
@@ -21,9 +25,9 @@
 
       <div class="relative inline-block text-left">
         <button id="navButton"
-          class="inline-flex justify-center w-full rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
-          Loading...
-          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+          class="inline-flex justify-center items-center rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
+          <span id="navTitle">Loading...</span>
+          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
           </svg>
         </button>
@@ -37,13 +41,12 @@
             <a href="questions.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Q&A</a>
             <a href="support-wall.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Support Wall</a>
             <a href="fixtures.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Fixtures & Live Scores</a>
-            <a href="giveaways.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Giveaways</a>
-
           </div>
         </div>
       </div>
     </div>
   </header>
+
   <div class="pt-24"></div>
 
   <section class="pb-10 px-6 max-w-4xl mx-auto text-center">
@@ -58,7 +61,9 @@
         <source src="pdfs/footabllers sister vn.MP3" type="audio/mpeg">
         Your browser does not support the audio element.
       </audio>
-      <a href="pdfs/LeilaSono-Media-Kit.pdf" target="_blank" class="mt-6 inline-block bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">View my media kit</a>
+      <div class="mt-6">
+        <a href="pdfs/LeilaSono-Media-Kit.pdf" target="_blank" rel="noreferrer" class="inline-block bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">View my media kit</a>
+      </div>
     </div>
 
     <!-- Quick Facts Grid -->
@@ -84,8 +89,7 @@
     <div class="my-12 max-w-lg mx-auto">
       <h4 class="text-lg font-semibold mb-2 text-rose-700">The start of the "Footballer’s Sister" Journey 📸⚽</h4>
       <ul class="border-l-4 border-rose-300 text-left pl-4 space-y-3">
-        <li><span class="font-semibold text-rose-700">2023:</span> Picked up my phone & hit record…
-        </li>
+        <li><span class="font-semibold text-rose-700">2023:</span> Picked up my phone & hit record…</li>
         <li><span class="font-semibold text-rose-700">2024:</span> The series grows, the sidelines become home.</li>
         <li><span class="font-semibold text-rose-700">2025:</span> Building a community that lives the game with us.</li>
       </ul>
@@ -97,12 +101,14 @@
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- Smart header JS -->
+  <!-- Smart header JS (dropdown) -->
   <script>
     const navButton = document.getElementById('navButton');
     const dropdownMenu = document.getElementById('dropdownMenu');
     const navItems = document.querySelectorAll('.nav-item');
+    const navTitleEl = document.getElementById('navTitle');
     const currentPage = window.location.pathname.split('/').pop();
+
     const pageTitles = {
       "index.html": "Home",
       "bts.html": "Behind the Game",
@@ -111,18 +117,34 @@
       "support-wall.html": "Support Wall",
       "fixtures.html": "Fixtures & Live Scores"
     };
-    navButton.firstChild.textContent = pageTitles[currentPage] || "Menu";
+
+    navTitleEl.textContent = pageTitles[currentPage] || "Menu";
+
+    // highlight current page link in dropdown
     navItems.forEach(link => {
-      if (link.getAttribute('href') === currentPage) link.classList.add("font-semibold", "text-rose-600");
+      if (link.getAttribute('href') === currentPage) {
+        link.classList.add("font-semibold", "text-rose-600");
+      }
     });
-    navButton.addEventListener('click', () => {
+
+    // toggle dropdown open/close with animation
+    navButton.addEventListener('click', (e) => {
+      e.stopPropagation();
       const isHidden = dropdownMenu.classList.contains('hidden');
-      if (isHidden) { dropdownMenu.classList.remove('hidden'); setTimeout(()=>dropdownMenu.classList.add('dropdown-open'),10); }
-      else { dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'),200); }
+      if (isHidden) {
+        dropdownMenu.classList.remove('hidden');
+        setTimeout(() => dropdownMenu.classList.add('dropdown-open'), 10);
+      } else {
+        dropdownMenu.classList.remove('dropdown-open');
+        setTimeout(() => dropdownMenu.classList.add('hidden'), 200);
+      }
     });
-    document.addEventListener('click', (e) => {
-      if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
-        dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'),200);
+
+    // close when clicking outside
+    document.addEventListener('click', (event) => {
+      if (!navButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+        dropdownMenu.classList.remove('dropdown-open');
+        setTimeout(() => dropdownMenu.classList.add('hidden'), 200);
       }
     });
   </script>
