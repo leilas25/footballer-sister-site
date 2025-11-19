@@ -6,81 +6,42 @@
   <title>Meet Leila – The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* small custom styles to get the aesthetic you had */
     .text-outline-darkpink { color: transparent; -webkit-text-stroke: 1px #be185d; font-weight: 800; }
     .tweet-card { background:#fff; border:1px solid #e0e0e0; border-radius:16px; padding:1rem; box-shadow:0 1px 3px rgba(0,0,0,.1); margin-bottom:1rem; display:flex; align-items:flex-start; gap:1rem; }
     .tweet-avatar { width:48px; height:48px; border-radius:9999px; background-color:#fce7f3; flex-shrink:0; }
     .dropdown-open { opacity:1!important; transform:scale(1)!important; }
-
-    /* Timeline aesthetic */
-    .timeline {
-      position: relative;
-      margin: 2rem 0;
-      padding-left: 1rem;
+    /* timeline dots & spacing */
+    .timeline { position: relative; padding-left: 1rem; }
+    .timeline li { position: relative; padding-left: 1.25rem; margin-bottom: 0.9rem; line-height: 1.45; }
+    .timeline li:before {
+      content: '';
+      width: 8px; height: 8px; border-radius: 999px;
+      background: #FCE7F3; border: 3px solid #FBCFE8;
+      position: absolute; left: -1.25rem; top: 0.5rem;
     }
-    .timeline::before {
-      content: "";
-      position: absolute;
-      left: 10px;
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background: rgba(190,24,93,0.10);
-      border-radius: 2px;
-    }
-    .timeline-item {
-      position: relative;
-      padding: 0.75rem 1rem 0.75rem 2.5rem;
-      margin-bottom: 1rem;
-      background: rgba(255,255,255,0.0);
-      border-radius: 8px;
-    }
-    .timeline-item::before {
-      content: "";
-      position: absolute;
-      left: -6px;
-      top: 1rem;
-      width: 14px;
-      height: 14px;
-      background: #fff;
-      border: 3px solid #BE185D;
-      border-radius: 50%;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-    }
-    .timeline-date { color: #BE185D; font-weight: 700; margin-right: 6px; }
-
-    /* GIF/video container */
-    .media-card { max-width: 420px; margin: 2.5rem auto; border-radius: 12px; overflow: hidden; background: transparent; }
-    .media-caption { text-align:center; color:#9a254b; margin-top: 0.5rem; font-size: 0.95rem; }
-
-    /* Buttons */
-    .btn-primary { background: #BE185D; color: #fff; padding: .75rem 1.25rem; border-radius: 9999px; display:inline-block; font-weight:600; }
-    .btn-outline { border:2px solid #BE185D; color:#BE185D; padding:.7rem 1rem; border-radius:9999px; background:transparent; font-weight:600; }
-
-    /* services dropdown matches nav in style */
-    .services-dropdown { position: relative; display: inline-block; }
-    .services-panel { position: absolute; right: 0; top: calc(100% + 8px); background: white; box-shadow: 0 6px 18px rgba(0,0,0,0.08); border-radius: 10px; min-width: 220px; padding: .5rem 0; display:none; z-index: 50; }
-    .services-panel a { display:block; padding: .6rem 1rem; color:#333; text-decoration:none; }
-    .services-panel a:hover { background: #fff1f6; color:#BE185D; }
-
-    /* small responsive tweaks */
-    @media (min-width: 768px) {
-      .media-card { max-width: 540px; }
-    }
+    .timeline .date { font-weight:800; color:#BE185D; margin-right:6px; }
+    /* media kit / services group */
+    .btn-same { display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:9999px; border:1px solid #FBCFE8; background:#fff; color:#BE185D; font-weight:600; text-decoration:none; }
+    .services-dropdown { position: relative; display:inline-block; }
+    .services-list { position: absolute; right:0; top:calc(100% + 8px); background:white; border:1px solid #eee; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.06); padding:8px; display:none; min-width:220px; z-index:60; }
+    .services-list a { display:block; padding:8px 10px; color:#333; border-radius:6px; }
+    .services-list a:hover { background:#FEF2F8; color:#BE185D; }
+    .muted { color:#6b7280; }
+    .centered-video { display:flex; justify-content:center; align-items:center; }
   </style>
 </head>
 <body class="bg-pink-50 text-black font-sans">
 
-  <!-- Header -->
+  <!-- Header with dropdown -->
   <header class="fixed top-0 w-full bg-pink-100 shadow z-50">
-    <div class="flex justify-between items-center px-6 py-4 max-w-6xl mx-auto">
+    <div class="flex justify-between items-center px-6 py-4">
       <h1 class="text-xl font-bold uppercase text-rose-600">THE FOOTBALLER’S SISTER</h1>
 
       <div class="relative inline-block text-left">
         <button id="navButton"
-          class="inline-flex justify-center items-center rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
+          class="inline-flex justify-center w-full rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
           <span id="navTitle">Loading...</span>
-          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
           </svg>
         </button>
@@ -100,143 +61,112 @@
     </div>
   </header>
 
-  <main class="pt-28 pb-16">
-    <section class="px-6 max-w-4xl mx-auto text-center">
-      <!-- Profile Image -->
-      <img src="images/leila pic.png" alt="Leila Sono profile picture" class="rounded-full w-40 h-40 object-cover mx-auto mb-6 shadow-lg border-4 border-white mt-2">
+  <div class="pt-24"></div>
 
-      <h2 class="text-4xl font-bold mb-4 text-rose-700">Meet Leila Sono ✨</h2>
+  <section class="pb-10 px-6 max-w-4xl mx-auto text-center">
+    <!-- Profile Image & Controls -->
+    <img src="images/leila pic.png" alt="Leila Sono profile picture"
+      class="rounded-full w-48 h-48 object-cover mx-auto mb-4 shadow-lg border-4 border-white mt-6">
+    <h2 class="text-4xl font-bold mb-2 text-rose-700">Meet Leila Sono ✨</h2>
 
-      <!-- Voice note above the paragraph (user requested) -->
-      <div class="mt-4">
-        <h4 class="text-lg font-semibold mb-4 text-rose-700">A Quick Hello from Me:</h4>
-        <div class="mx-auto max-w-xl bg-white/20 rounded-full inline-block px-6 py-4">
-          <audio controls preload="metadata" class="mx-auto">
-            <source src="pdfs/footabllers sister vn.MP3" type="audio/mpeg">
-            Your browser does not support the audio element.
-          </audio>
-        </div>
+    <!-- Controls: Media kit & Services dropdown (same visual style) -->
+    <div class="mt-3 flex justify-center items-center gap-3">
+      <a id="view-media-kit" href="pdfs/LeilaSono-Media-Kit.pdf" target="_blank" class="btn-same" download>
+        View my media kit
+      </a>
 
-        <!-- paragraph exactly as you provided, placed under the voice recording -->
-        <div class="mt-6 text-left prose mx-auto max-w-3xl text-center text-gray-700 px-4">
-          <p>
-            Hello! I'm Leila, a storyteller, a content creator, and most importantly, a very proud sister.
-            I've spent my life on the sidelines, watching my brothers chase their football dreams. What started as just cheering them on has evolved into a passion for capturing the raw, unfiltered emotions and moments of the game, not just on the field, but off it as well.
-            Through my lens, you get to see the real story: the long hours of training, the special moments on and off the field, the silent moments of doubt, the family pride that fuels every victory, and the unwavering support that keeps a player going. I believe the heart of football isn't just in the goals, but in the journeys of the people who live and breathe it.
-            Join me as I share a perspective on the sport that's rooted in love, family, and the beautiful, unpredictable life of a footballer's sister as we watch my brothers continue the Sono family legacy.
-            I built this site myself from scratch because a good story deserves a home built with a lot of love and a little bit of code.
-          </p>
+      <div class="services-dropdown">
+        <button id="servicesButton" class="btn-same" aria-expanded="false">
+          Leila's Services
+          <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" viewBox="0 0 20 20" fill="#BE185D"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06L10.53 13.3a.75.75 0 01-1.06 0L5.23 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd"/></svg>
+        </button>
+        <div id="servicesList" class="services-list" aria-hidden="true">
+          <a href="#" class="service-item">Player profile creation</a>
+          <a href="#" class="service-item">Supersport match highlight reels</a>
+          <a href="#" class="service-item">Content creation</a>
+          <a href="#" class="service-item">Website creation</a>
         </div>
       </div>
+    </div>
 
-      <!-- media kit buttons (View + Download) and Leila's Services dropdown -->
-      <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-        <a href="pdfs/LeilaSono-Media-Kit.pdf" target="_blank" class="btn-primary">View Media Kit</a>
+    <!-- Voice recording above the paragraph (per your request) -->
+    <div class="mt-6">
+      <h4 class="text-lg font-semibold mb-2 text-rose-700">A Quick Hello from Me:</h4>
+      <audio controls class="mx-auto" preload="none">
+        <source src="pdfs/footabllers sister vn.MP3" type="audio/mpeg">
+        Your browser does not support the audio element.
+      </audio>
 
-        <!-- Leila's Services dropdown (styled same as buttons) -->
-        <div class="services-dropdown">
-          <button id="servicesBtn" class="btn-outline inline-flex items-center gap-2">
-            Leila's Services
-            <svg class="h-4 w-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
-          </button>
-          <div id="servicesPanel" class="services-panel">
-            <a href="#" data-service="player-profile">Player profile creation</a>
-            <a href="#" data-service="highlight-reels">Supersport match highlight reels</a>
-            <a href="#" data-service="content-creation">Content creation</a>
-            <a href="#" data-service="website-creation">Website creation</a>
-          </div>
-        </div>
-
-        <!-- Download media kit (keeps consistent shape) -->
-        <a href="pdfs/LeilaSono-Media-Kit.pdf" download class="btn-outline">Download Media Kit</a>
+      <!-- Biography paragraph (formatted and spaced like screenshot) -->
+      <div class="mt-4 text-left max-w-2xl mx-auto text-gray-800" style="line-height:1.6;">
+        <p class="mb-3">Hello! I'm Leila, a storyteller, a content creator, and most importantly, a very proud sister.</p>
+        <p class="mb-3">I've spent my life on the sidelines, watching my brothers chase their football dreams. What started as just cheering them on has evolved into a passion for capturing the raw, unfiltered emotions and moments of the game, not just on the field, but off it as well.</p>
+        <p class="mb-3">Through my lens, you get to see the real story: the long hours of training, the special moments on and off the field, the silent moments of doubt, the family pride that fuels every victory, and the unwavering support that keeps a player going. I believe the heart of football isn't just in the goals, but in the journeys of the people who live and breathe it.</p>
+        <p class="mb-3">Join me as I share a perspective on the sport that's rooted in love, family, and the beautiful, unpredictable life of a footballer's sister as we watch my brothers continue the Sono family legacy.</p>
+        <p class="mb-0">I built this site myself from scratch because a good story deserves a home built with a lot of love and a little bit of code.</p>
       </div>
+    </div>
 
-      <!-- small note under the buttons (optional) -->
-      <div class="mt-4 text-sm text-gray-600">Want a custom package? Choose a service above and email <a href="mailto:hello@footballers-sister.com" class="text-rose-600">hello@footballers-sister.com</a></div>
+    <!-- TIMELINE -->
+    <div class="my-12 max-w-lg mx-auto text-left">
+      <h4 class="text-lg font-semibold mb-4 text-rose-700">Timeline</h4>
+      <ul class="timeline">
+        <li><span class="date">2023 :</span> Started the filming the boys games & created their football accounts on instagram.</li>
+        <li><span class="date">2024: </span>Kept recording their trainings, games and behind-the-scenes moments for their instagram pages and mine.</li>
+        <li><span class="date">April 2025: </span>Posted my 1st football vlog on tiktok & it went viral (currently at 250k views)!</li>
+        <li><span class="date">2025: </span>Continued my vlogs & bts moments, creating more viral content and growing my audience.</li>
+        <li><span class="date">June 2025: </span>Officialy started my "life as a footballer's sister" content & posting weekly as so many people loved the vlogs</li>
+        <li><span class="date">August 2025: </span>Created this website to share my journey and connect with all of you in one place!</li>
+      </ul>
+      <p class="mt-4 text-sm text-gray-700">Through my lens you see the long hours of training, the quiet moments of doubt, the family pride that fuels every victory, and the love that keeps a player going. Follow along — the journey is just getting started. 💕</p>
+    </div>
 
-      <!-- Timeline (formatted with pink bold dates) -->
-      <div class="timeline max-w-3xl mx-auto mt-14 px-4">
-        <div class="timeline-item">
-          <div><span class="timeline-date">2023 :</span> Started the filming the boys games & created their football accounts on instagram.</div>
+    <!-- GIF (centered, autoplay, loop, muted) placed BEFORE Q&A per Option B -->
+    <div class="my-8 centered-video">
+      <!-- Use mp4 source first; fall back to .mov if needed -->
+      <video id="jomoVid" class="rounded-lg shadow-lg" width="720" height="360" autoplay muted loop playsinline>
+        <source src="Jomo vid.mp4" type="video/mp4">
+        <source src="Jomo vid.mov" type="video/quicktime">
+        Your browser does not support the video element.
+      </video>
+    </div>
+    <p class="text-center text-sm text-gray-600 mt-2">Guess the legend — can you name the player in this clip?</p>
+
+    <!-- Q&A Box (end of page) -->
+    <div id="qa" class="mt-10 max-w-2xl mx-auto bg-white rounded-xl shadow p-6 text-left">
+      <h3 class="text-2xl font-bold text-rose-700 mb-3">Ask me anything — Q&A</h3>
+      <p class="text-sm text-gray-600 mb-4">Submit your question below and I might answer it on my next video.</p>
+
+      <form id="qa-form" class="space-y-3">
+        <div>
+          <label for="qa-name" class="sr-only">Name</label>
+          <input id="qa-name" type="text" placeholder="Your name" class="w-full border border-gray-200 rounded-lg px-4 py-2" required>
         </div>
-
-        <div class="timeline-item">
-          <div><span class="timeline-date">2024:</span> Kept recording their trainings, games and behind-the-scenes moments for their instagram pages and mine.</div>
+        <div>
+          <label for="qa-question" class="sr-only">Question</label>
+          <textarea id="qa-question" rows="4" placeholder="Write your question..." class="w-full border border-gray-200 rounded-lg px-4 py-2" required></textarea>
         </div>
-
-        <div class="timeline-item">
-          <div><span class="timeline-date">April 2025:</span> Posted my 1st football vlog on tiktok & it went viral (currently at 250k views)!</div>
+        <div class="flex gap-3 items-center">
+          <button type="submit" class="bg-rose-600 text-white px-5 py-2 rounded-full font-semibold">Send Question</button>
+          <a href="questions.html" class="text-rose-600 font-semibold hover:underline">View all questions</a>
+          <span id="qa-status" class="text-sm text-gray-600 ml-auto"></span>
         </div>
+      </form>
+    </div>
 
-        <div class="timeline-item">
-          <div><span class="timeline-date">2025:</span> Continued my vlogs & bts moments, creating more viral content and growing my audience.</div>
-        </div>
-
-        <div class="timeline-item">
-          <div><span class="timeline-date">June 2025:</span> Officialy started my "life as a footballer's sister" content & posting weekly as so many people loved the vlogs</div>
-        </div>
-
-        <div class="timeline-item">
-          <div><span class="timeline-date">August 2025:</span> Created this website to share my journey and connect with all of you in one place!</div>
-        </div>
-
-        <div class="timeline-item">
-          <div>The journey does not end there! You definitely will not want to miss out on this one! Follow along</div>
-        </div>
-      </div>
-
-      <!-- final paragraph line requested (placed at end of page) -->
-      <div class="mt-12 max-w-3xl mx-auto text-center px-4">
-        <p class="text-gray-700">
-          Through my lens you see the long hours of training, the quiet moments of doubt, the family pride that fuels every victory, and the love that keeps a player going. Follow along — the journey is just getting started. ❤️
-        </p>
-      </div>
-
-      <!-- Q&A form at the end (simple, with View All link) -->
-      <div class="mt-12 max-w-3xl mx-auto bg-white/50 p-6 rounded-xl shadow mt-10">
-        <h3 class="text-2xl font-bold text-rose-700 mb-3 text-center">Ask Me Anything!</h3>
-        <p class="text-sm text-gray-600 text-center mb-4">Got a question about football, family, or my journey? Ask below and I'll answer on the Q&A page!</p>
-
-        <form id="qaForm" class="space-y-3" onsubmit="handleQA(event)">
-          <input type="text" id="qa-name" placeholder="Your Name" class="w-full px-4 py-3 border rounded-full" required>
-          <textarea id="qa-question" rows="4" placeholder="Type your question..." class="w-full px-4 py-3 border rounded-xl" required></textarea>
-          <div class="flex items-center justify-center gap-4">
-            <button type="submit" class="btn-primary">Send Question</button>
-            <a href="questions.html" class="btn-outline">View All Q&A</a>
-          </div>
-          <div id="qa-status" class="text-sm text-center text-gray-600 mt-2"></div>
-        </form>
-      </div>
-
-      <!-- GIF / video at the end with centered caption -->
-      <div class="media-card" aria-hidden="false">
-        <!-- video tag with both sources for compatibility; muted + playsinline helps autoplay -->
-        <video id="jomoVideo" class="w-full rounded-lg" autoplay loop muted playsinline preload="auto" style="display:block;">
-          <source src="Jomo vid.mp4" type="video/mp4">
-          <source src="Jomo vid.mov" type="video/quicktime">
-          Your browser does not support the video tag.
-        </video>
-        <div class="media-caption">Guess the legend! 😍</div>
-      </div>
-
-    </section>
-  </main>
+  </section>
 
   <footer class="bg-pink-900 text-white text-center py-6">
     <p>&copy; <span id="year"></span> The Footballer’s Sister. All rights reserved.</p>
   </footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
+  <!-- Navbar dropdown script -->
   <script>
-    // set year
-    document.getElementById('year').textContent = new Date().getFullYear();
-
-    // nav title + highlight
     const navButton = document.getElementById('navButton');
     const dropdownMenu = document.getElementById('dropdownMenu');
     const navItems = document.querySelectorAll('.nav-item');
-    const navTitleEl = document.getElementById('navTitle');
+    const navTitle = document.getElementById('navTitle');
     const currentPage = window.location.pathname.split('/').pop();
     const pageTitles = {
       "index.html": "Home",
@@ -246,17 +176,14 @@
       "support-wall.html": "Support Wall",
       "fixtures.html": "Fixtures & Live Scores"
     };
-    navTitleEl.textContent = pageTitles[currentPage] || "Menu";
+    navTitle.textContent = pageTitles[currentPage] || "Menu";
     navItems.forEach(link => {
-      if (link.getAttribute('href') === currentPage) {
-        link.classList.add("font-semibold", "text-rose-600");
-      }
+      if (link.getAttribute('href') === currentPage) link.classList.add("font-semibold", "text-rose-600");
     });
-
-    navButton.addEventListener('click', (e)=>{
+    navButton.addEventListener('click', (e) => {
       e.stopPropagation();
       const isHidden = dropdownMenu.classList.contains('hidden');
-      if (isHidden){
+      if (isHidden) {
         dropdownMenu.classList.remove('hidden');
         setTimeout(()=>dropdownMenu.classList.add('dropdown-open'), 10);
       } else {
@@ -264,52 +191,96 @@
         setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
       }
     });
-
-    document.addEventListener('click', (e)=>{
+    document.addEventListener('click', (e) => {
       if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
         dropdownMenu.classList.remove('dropdown-open');
         setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
       }
     });
 
-    // Services dropdown toggling
-    const servicesBtn = document.getElementById('servicesBtn');
-    const servicesPanel = document.getElementById('servicesPanel');
-    servicesBtn.addEventListener('click', (e)=> {
+    // Services dropdown
+    const servicesBtn = document.getElementById('servicesButton');
+    const servicesList = document.getElementById('servicesList');
+    servicesBtn?.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (servicesPanel.style.display === 'block') servicesPanel.style.display = 'none';
-      else servicesPanel.style.display = 'block';
+      const visible = servicesList.style.display === 'block';
+      servicesList.style.display = visible ? 'none' : 'block';
+      servicesBtn.setAttribute('aria-expanded', String(!visible));
     });
-    document.addEventListener('click', ()=> servicesPanel.style.display = 'none');
+    document.addEventListener('click', (e)=> {
+      if (!servicesBtn?.contains(e.target) && !servicesList?.contains(e.target)) servicesList.style.display = 'none';
+    });
+  </script>
 
-    // simple Q&A form handler placeholder (you said you'll wire to Firestore)
-    function handleQA(e) {
-      e.preventDefault();
-      const name = document.getElementById('qa-name').value.trim();
-      const question = document.getElementById('qa-question').value.trim();
-      const status = document.getElementById('qa-status');
-      if (!name || !question) { status.textContent = 'Please fill both fields.'; return; }
+  <!-- Firebase wiring for Q&A (only runs if Firebase is available) -->
+  <script type="module">
+    // we try to import firebase modules dynamically; if you run this file on your site it will work
+    // using the same firebaseConfig you've been using on the site.
+    try {
+      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
+      const { getAuth, signInAnonymously, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
+      const { getFirestore, collection, addDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
 
-      // placeholder feedback - you can replace this with Firestore write later
-      status.textContent = 'Thanks for your question! Look out for the answer on the Q&A page soon.';
-      document.getElementById('qaForm').reset();
-      setTimeout(()=> status.textContent = '', 6000);
-    }
+      const firebaseConfig = {
+        apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
+        authDomain: "football-site-c3aa9.firebaseapp.com",
+        projectId: "football-site-c3aa9",
+        storageBucket: "football-site-c3aa9.appspot.com",
+        messagingSenderId: "65396604482",
+        appId: "1:65396604482:web:0f31625a714aa8352337db"
+      };
+      const appId = '1:65396604482:web:0f31625a714aa8352337db';
 
-    // Attempt to ensure autoplay: if video refused autoplay, try to play via JS (muted)
-    (function tryVideoPlay(){
-      const vid = document.getElementById('jomoVideo');
-      if (!vid) return;
-      vid.muted = true;
-      vid.playsInline = true;
-      const p = vid.play();
-      if (p && typeof p.then === 'function') {
-        p.catch(err => {
-          // silently ignore autoplay errors; user can click to play
-          console.warn('Autoplay prevented:', err);
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const auth = getAuth(app);
+
+      // anonymous sign-in to allow writes
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+          try { await signInAnonymously(auth); } catch(e){ console.warn('Auth failed', e); }
+        }
+      });
+
+      // handle Q&A form submit
+      const qaForm = document.getElementById('qa-form');
+      const qaStatus = document.getElementById('qa-status');
+      if (qaForm) {
+        qaForm.addEventListener('submit', async (ev) => {
+          ev.preventDefault();
+          qaStatus.textContent = 'Sending...';
+          const name = document.getElementById('qa-name').value.trim();
+          const question = document.getElementById('qa-question').value.trim();
+          if (!name || !question) { qaStatus.textContent = 'Please add name & question.'; return; }
+          try {
+            const path = `/artifacts/${appId}/public/data/questions`;
+            await addDoc(collection(db, path), {
+              name, question, timestamp: serverTimestamp()
+            });
+            qaStatus.textContent = 'Question sent — thank you!';
+            qaForm.reset();
+            setTimeout(()=> qaStatus.textContent = '', 3500);
+          } catch (err) {
+            console.error('Failed to send question', err);
+            qaStatus.textContent = 'Failed to send — check console.';
+          }
         });
       }
-    })();
+    } catch (err) {
+      // Firebase not available or import failed — keep form functional but non-saved.
+      console.warn('Firebase Q&A not initialized:', err);
+      const qaForm = document.getElementById('qa-form');
+      const qaStatus = document.getElementById('qa-status');
+      if (qaForm) {
+        qaForm.addEventListener('submit', (ev) => {
+          ev.preventDefault();
+          qaStatus.textContent = 'Question handled locally (no Firebase).';
+          setTimeout(()=> qaStatus.textContent = '', 3000);
+          qaForm.reset();
+        });
+      }
+    }
   </script>
+
 </body>
 </html>
