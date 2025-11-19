@@ -107,6 +107,25 @@
       </div>
     </div>
 
+    <!-- QUICK FACTS (RE-ADDED exactly after the paragraph and before the timeline) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 my-10 max-w-2xl mx-auto">
+      <div class="bg-white rounded-xl shadow p-4">
+        <span class="text-3xl">🎥</span>
+        <p class="font-bold mt-2">Favorite Content:</p>
+        <p class="text-gray-600 text-sm">Sideline vlogs & family moments</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-4">
+        <span class="text-3xl">⚽</span>
+        <p class="font-bold mt-2">Favourite Team:</p>
+        <p class="text-gray-600 text-sm">Anywhere my brothers are playing!🤭</p>
+      </div>
+      <div class="bg-white rounded-xl shadow p-4">
+        <span class="text-3xl">☕</span>
+        <p class="font-bold mt-2">Sideline Snack:</p>
+        <p class="text-gray-600 text-sm">Chai latte (for those cold morning games) & a chocolate muffin</p>
+      </div>
+    </div>
+
     <!-- TIMELINE -->
     <div class="my-12 max-w-lg mx-auto text-left">
       <h4 class="text-lg font-semibold mb-4 text-rose-700">Timeline</h4>
@@ -121,7 +140,7 @@
       <p class="mt-4 text-sm text-gray-700">Through my lens you see the long hours of training, the quiet moments of doubt, the family pride that fuels every victory, and the love that keeps a player going. Follow along — the journey is just getting started. 💕</p>
     </div>
 
-    <!-- GIF (centered, autoplay, loop, muted) placed BEFORE Q&A per Option B -->
+    <!-- GIF (centered, autoplay, loop, muted) placed BEFORE Q&A -->
     <div class="my-8 centered-video">
       <!-- Use mp4 source first; fall back to .mov if needed -->
       <video id="jomoVid" class="rounded-lg shadow-lg" width="720" height="360" autoplay muted loop playsinline>
@@ -214,8 +233,6 @@
 
   <!-- Firebase wiring for Q&A (only runs if Firebase is available) -->
   <script type="module">
-    // we try to import firebase modules dynamically; if you run this file on your site it will work
-    // using the same firebaseConfig you've been using on the site.
     try {
       const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
       const { getAuth, signInAnonymously, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
@@ -227,7 +244,7 @@
         projectId: "football-site-c3aa9",
         storageBucket: "football-site-c3aa9.appspot.com",
         messagingSenderId: "65396604482",
-        appId: "1:65396604482:web:0f31625a714aa8352337db"
+        appId: "1:65396604482:web:0f31625a714aa8357db"
       };
       const appId = '1:65396604482:web:0f31625a714aa8352337db';
 
@@ -267,7 +284,6 @@
         });
       }
     } catch (err) {
-      // Firebase not available or import failed — keep form functional but non-saved.
       console.warn('Firebase Q&A not initialized:', err);
       const qaForm = document.getElementById('qa-form');
       const qaStatus = document.getElementById('qa-status');
