@@ -16,25 +16,45 @@
     .media-btn { background:#BE185D; color:#fff; border-radius:9999px; padding:8px 14px; display:inline-flex; align-items:center; gap:8px; font-weight:600; text-decoration:none; }
     .services-menu { min-width:260px; }
 
-    /* Video wrapper */
-    .video-overlay { display:none; position:absolute; inset:0; align-items:center; justify-content:center; background:rgba(0,0,0,0.28); color:#fff; font-size:20px; border-radius:12px; cursor:pointer; }
-    .video-wrapper { position:relative; border-radius:12px; overflow:hidden; }
-
-    /* timeline aesthetic */
-    .timeline { background:#fff; border-radius:12px; padding:18px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
-    .timeline-item { display:flex; gap:12px; align-items:flex-start; }
-    .timeline-date { min-width:120px; font-weight:800; color:#BE185D; }
+    /* Timeline with dots */
+    .timeline { position:relative; padding-left:2rem; }
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 18px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, rgba(190,24,93,0.12), rgba(190,24,93,0.06));
+      border-radius:2px;
+    }
+    .timeline-item { position:relative; padding:18px 12px 18px 18px; display:flex; gap:12px; align-items:flex-start; }
+    .timeline-dot {
+      position:absolute;
+      left: 6px;
+      top: calc(50% - 8px);
+      width:16px;
+      height:16px;
+      border-radius:9999px;
+      background:#fff;
+      border:4px solid #BE185D;
+      box-shadow:0 2px 6px rgba(0,0,0,0.08);
+    }
+    .timeline-date { min-width:140px; font-weight:800; color:#BE185D; }
     .timeline-text { color:#374151; }
+
+    /* Video wrapper (smaller) */
+    .video-wrapper { max-width:520px; margin:0 auto; border-radius:12px; overflow:hidden; }
+    .video-caption { margin-top:8px; color:#374151; font-weight:600; text-align:center; }
 
     /* Q&A box */
     .qa-box { background:#fff; border:1px solid #f3d6df; border-radius:12px; padding:16px; box-shadow:0 2px 6px rgba(0,0,0,0.04); }
-    /* small utility */
     .muted { color:#6b7280; }
   </style>
 </head>
 <body class="bg-pink-50 text-black font-sans">
 
-  <!-- Smart animated dropdown header -->
+  <!-- Header -->
   <header class="fixed top-0 w-full bg-pink-100 shadow z-50">
     <div class="flex justify-between items-center px-6 py-4 max-w-6xl mx-auto">
       <h1 class="text-xl font-bold uppercase text-rose-600">THE FOOTBALLER’S SISTER</h1>
@@ -74,8 +94,8 @@
 
       <h2 class="text-4xl font-bold mb-2 text-rose-700">Meet Leila Sono ✨</h2>
 
-      <!-- Voice note (moved ABOVE paragraph as you requested) -->
-      <div class="mt-4 mb-4">
+      <!-- Voice note (kept above paragraph) -->
+      <div class="mt-4 mb-3">
         <h4 class="text-lg font-semibold mb-2 text-rose-700">A Quick Hello from Me:</h4>
         <audio controls class="mx-auto" style="outline:none;">
           <source src="pdfs/footabllers sister vn.MP3" type="audio/mpeg">
@@ -83,14 +103,13 @@
         </audio>
       </div>
 
-      <!-- Paragraph that should appear under the voice recording -->
+      <!-- Short paragraph under the voice recording (restored) -->
       <p class="text-lg text-gray-700 mb-6">
-        From sideline vlogs to life behind the games — welcome. This page shares the heartbeat behind the content, the people that make it real, and how you can work with me.
+        From sideline vlogs to life behind the games — welcome. This page shares the heartbeat behind the content and how you can work with me.
       </p>
 
-      <!-- Services dropdown + Media Kit button (side-by-side) -->
+      <!-- Services dropdown + Media Kit -->
       <div class="mt-4 flex items-center justify-center gap-4">
-        <!-- Services dropdown (only this one expands) -->
         <div class="relative inline-block text-left">
           <button id="servicesButton" class="services-btn">
             Leila's Services
@@ -109,7 +128,7 @@
           </div>
         </div>
 
-        <!-- View Media Kit button (direct link, same shape) -->
+        <!-- View Media Kit button -->
         <a href="pdfs/LeilaSono-Media-Kit.pdf" class="media-btn" title="Download Media Kit" target="_blank" rel="noreferrer">
           View My Media Kit
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="white" aria-hidden="true">
@@ -121,7 +140,7 @@
 
     </section>
 
-    <!-- Quick Facts Grid -->
+    <!-- Quick Facts -->
     <section class="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
       <div class="bg-white rounded-xl shadow p-4">
         <span class="text-3xl">🎥</span>
@@ -140,62 +159,69 @@
       </div>
     </section>
 
-    <!-- Timeline Section (aesthetic, bold pink dates) -->
+    <!-- Timeline with aesthetic dots -->
     <section class="my-8">
       <h4 class="text-lg font-semibold mb-4 text-rose-700">The start of the "Footballer’s Sister" Journey 📸⚽</h4>
-      <div class="timeline">
-        <div class="space-y-4">
-          <div class="timeline-item">
-            <div class="timeline-date">2023 :</div>
-            <div class="timeline-text">Started the filming the boys games & created their football accounts on instagram.</div>
-          </div>
-          <div class="timeline-item">
-            <div class="timeline-date">2024 :</div>
-            <div class="timeline-text">Kept recording their trainings, games and behind-the-scenes moments for their instagram pages and mine.</div>
-          </div>
-          <div class="timeline-item">
-            <div class="timeline-date">April 2025 :</div>
-            <div class="timeline-text">Posted my 1st football vlog on tiktok & it went viral (currently at 250k views)!</div>
-          </div>
-          <div class="timeline-item">
-            <div class="timeline-date">2025 :</div>
-            <div class="timeline-text">Continued my vlogs & bts moments, creating more viral content and growing my audience.</div>
-          </div>
-          <div class="timeline-item">
-            <div class="timeline-date">June 2025 :</div>
-            <div class="timeline-text">Officially started my "life as a footballer's sister" content & posting weekly as so many people loved the vlogs.</div>
-          </div>
-          <div class="timeline-item">
-            <div class="timeline-date">August 2025 :</div>
-            <div class="timeline-text">Created this website to share my journey and connect with all of you in one place!</div>
-          </div>
+      <div class="timeline bg-white rounded-xl p-4 shadow">
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">2023 :</div>
+          <div class="timeline-text">Started the filming the boys games & created their football accounts on instagram.</div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">2024 :</div>
+          <div class="timeline-text">Kept recording their trainings, games and behind-the-scenes moments for their instagram pages and mine.</div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">April 2025 :</div>
+          <div class="timeline-text">Posted my 1st football vlog on tiktok & it went viral (currently at 250k views)!</div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">2025 :</div>
+          <div class="timeline-text">Continued my vlogs & bts moments, creating more viral content and growing my audience.</div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">June 2025 :</div>
+          <div class="timeline-text">Officially started my "life as a footballer's sister" content & posting weekly as so many people loved the vlogs.</div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-date">August 2025 :</div>
+          <div class="timeline-text">Created this website to share my journey and connect with all of you in one place!</div>
         </div>
       </div>
     </section>
 
-    <!-- Centered Video/GIF (moved toward end) with caption -->
+    <!-- Smaller centered GIF / video with caption (caption under video) -->
     <section class="mt-8 text-center">
-      <div class="video-wrapper mx-auto" style="max-width:780px;">
+      <div class="video-wrapper">
         <video id="jomo-video" class="w-full rounded-lg" autoplay muted loop playsinline preload="auto" poster="images/jomo-poster.jpg">
+          <!-- Use your mp4; fallback webm -->
           <source src="images/Jomo vid.mp4" type="video/mp4">
           <source src="images/jomo-vid.webm" type="video/webm">
           Your browser does not support this video.
         </video>
-        <div id="videoOverlay" class="video-overlay">▶ Tap to play</div>
       </div>
-
-      <div class="text-gray-700 mt-3 font-semibold">Guess the legend! 😍</div>
-      <!-- small download + caption area if desired -->
+      <div class="video-caption">Guess the legend! 😍</div>
     </section>
 
-    <!-- Closing line at the end of page -->
+    <!-- Closing line (end of page) -->
     <section class="mt-8 text-gray-800 text-center">
       <p class="italic mt-6 max-w-3xl mx-auto">
         <strong class="text-rose-600">Through my lens</strong> you see the long hours of training, the quiet moments of doubt, the family pride that fuels every victory, and the love that keeps a player going. <strong>Follow along — the journey is just getting started. 💕</strong>
       </p>
     </section>
 
-    <!-- Q&A box placed at the very end -->
+    <!-- Q&A box at the end -->
     <section class="mt-8">
       <div class="qa-box max-w-2xl mx-auto">
         <h3 class="text-xl font-semibold text-rose-700 mb-3">Ask me anything — Q&A</h3>
@@ -207,8 +233,6 @@
           <div class="flex gap-3 items-center">
             <button type="submit" class="bg-rose-600 text-white px-4 py-2 rounded-full">Submit Question</button>
             <button type="button" id="qa-clear" class="bg-white border px-4 py-2 rounded-full">Clear</button>
-
-            <!-- view all questions button (added so people can go to the Q&A page to view submissions) -->
             <a href="questions.html" class="ml-auto inline-block text-rose-600 font-semibold hover:underline">View all questions</a>
           </div>
 
@@ -287,44 +311,22 @@
     })();
   </script>
 
-  <!-- Video autoplay fallback overlay -->
+  <!-- Video autoplay fallback (keeps it small and centered) -->
   <script>
     (function(){
       const video = document.getElementById('jomo-video');
-      const overlay = document.getElementById('videoOverlay');
-      if (!video || !overlay) return;
-
-      function tryPlay(){
-        video.play().then(()=> {
-          overlay.style.display = 'none';
-        }).catch((err) => {
-          // autoplay blocked → show overlay so user can tap to play
-          overlay.style.display = 'flex';
-        });
-      }
-
-      overlay.addEventListener('click', async () => {
-        try {
-          video.muted = false;
-          await video.play();
-          overlay.style.display = 'none';
-        } catch(e) {
-          console.error('Manual play failed', e);
-        }
-      });
-
-      window.addEventListener('load', ()=> setTimeout(tryPlay, 300));
-      document.addEventListener('visibilitychange', ()=> { if (!document.hidden) setTimeout(tryPlay,200); });
+      if (!video) return;
+      // try autoplay (muted) — if blocked it'll still show and loop after user press
+      video.play().catch(()=>{/* autoplay blocked; user can tap to play */});
     })();
   </script>
 
   <!-- FIREBASE: Q&A wiring (module) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // defaults to your appId/config (can be overridden by environment)
     const appId = typeof __app_id !== 'undefined' ? __app_id : '1:65396604482:web:0f31625a714aa8352337db';
     const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
@@ -334,13 +336,11 @@
       messagingSenderId: "65396604482",
       appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
-    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // Q&A form elements
     const qaForm = document.getElementById('leila-qa-form');
     const qaName = document.getElementById('qa-name');
     const qaQuestion = document.getElementById('qa-question');
@@ -348,77 +348,33 @@
     const qaClear = document.getElementById('qa-clear');
 
     let currentUid = null;
-
-    // Sign-in (anonymous or custom token if provided)
     onAuthStateChanged(auth, (user) => {
-      if (user) {
-        currentUid = user.uid;
-      } else {
-        // attempt sign-in
-        (async () => {
-          try {
-            if (initialAuthToken) {
-              await signInWithCustomToken(auth, initialAuthToken);
-            } else {
-              await signInAnonymously(auth);
-            }
-          } catch (err) {
-            console.error('Auth sign-in error', err);
-            if (qaStatus) { qaStatus.textContent = 'Authentication failed — questions may not save.'; qaStatus.style.color = 'darkred'; }
-          }
-        })();
-      }
+      if (user) currentUid = user.uid;
+      else signInAnonymously(auth).catch(()=>{});
     });
 
-    function setStatus(msg, color){
-      if (!qaStatus) return;
-      qaStatus.textContent = msg || '';
-      qaStatus.style.color = color || '#374151';
-    }
+    function setStatus(msg,color){ if (!qaStatus) return; qaStatus.textContent = msg; qaStatus.style.color = color||'#374151'; }
 
-    // submit handler - writes to Firestore
     if (qaForm) {
       qaForm.addEventListener('submit', async (ev) => {
         ev.preventDefault();
-        const qText = (qaQuestion.value || '').trim();
-        const nameText = (qaName.value || '').trim() || 'Anonymous';
-        if (!qText) { setStatus('Please type a question before submitting.', 'darkred'); return; }
-
-        setStatus('Submitting question...', '#374151');
-
+        const text = (qaQuestion.value||'').trim();
+        const name = (qaName.value||'').trim() || 'Anonymous';
+        if (!text) { setStatus('Please type a question before submitting.', 'darkred'); return; }
+        setStatus('Submitting...', '#374151');
         try {
-          if (!currentUid) {
-            try {
-              if (initialAuthToken) await signInWithCustomToken(auth, initialAuthToken);
-              else await signInAnonymously(auth);
-            } catch (e) {
-              console.warn('Auth retry failed', e);
-            }
-          }
-
-          const payload = {
-            name: nameText,
-            question: qText,
-            userId: currentUid || null,
-            timestamp: serverTimestamp()
-          };
-
-          await addDoc(collection(db, `/artifacts/${appId}/public/data/questions`), payload);
-
+          if (!currentUid) await signInAnonymously(auth);
+          await addDoc(collection(db, `/artifacts/${appId}/public/data/questions`), {
+            name, question: text, userId: currentUid || null, timestamp: serverTimestamp()
+          });
           setStatus('Thanks — your question was submitted!', '#059669');
-          qaQuestion.value = '';
-          qaName.value = '';
+          qaQuestion.value=''; qaName.value='';
         } catch (err) {
-          console.error('Error saving question', err);
-          setStatus('Failed to submit question — check console.', 'darkred');
+          console.error(err);
+          setStatus('Failed to submit question — try again later.', 'darkred');
         }
       });
-
-      qaClear.addEventListener('click', () => {
-        qaName.value = '';
-        qaQuestion.value = '';
-        setStatus('', '#374151');
-      });
+      if (qaClear) qaClear.addEventListener('click', ()=>{ qaName.value=''; qaQuestion.value=''; setStatus('',''); });
     }
   </script>
 
