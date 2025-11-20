@@ -28,10 +28,27 @@
     .services-list a:hover { background:#FEF2F8; color:#BE185D; }
     .muted { color:#6b7280; }
     .centered-video { display:flex; justify-content:center; align-items:center; }
-    /* modal */
-    .modal-hidden { display: none; }
-    /* narrower form container for certain services */
-    .narrow-form { max-width: 720px; margin-left: auto; margin-right: auto; }
+
+    /* Modal base styles (keeps everything else identical, only sizes changed) */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: none; align-items: center; justify-content: center; z-index: 80;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-content {
+      background: #fff; border-radius: 14px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      width: 720px; max-width: calc(100% - 48px);
+      /* IMPORTANT: smaller, scrollable area so user can see the form comfortably */
+      max-height: 75vh; overflow-y: auto;
+    }
+    /* make forms a bit slimmer for player + supersport specifically */
+    .modal-sm { width: 640px; max-width: calc(100% - 48px); }
+    @media (max-width: 768px) { .modal-content, .modal-sm { width: calc(100% - 32px); max-height: 80vh; } }
+
+    /* small visual tweaks for inputs inside modals */
+    .modal-content input, .modal-content textarea, .modal-content select { width: 100%; border: 1px solid #edf2f7; padding: 12px 14px; border-radius: 10px; }
+    .modal-content .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .modal-content label { font-weight: 600; color: #374151; margin-bottom: 6px; display:block; }
+    .modal-actions { display:flex; gap:12px; justify-content:flex-start; align-items:center; margin-top:12px; }
   </style>
 </head>
 <body class="bg-pink-50 text-black font-sans">
@@ -85,11 +102,11 @@
           <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" viewBox="0 0 20 20" fill="#BE185D"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06L10.53 13.3a.75.75 0 01-1.06 0L5.23 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd"/></svg>
         </button>
         <div id="servicesList" class="services-list" aria-hidden="true">
-          <a href="#" class="service-item">Player profile creation</a>
-          <a href="#" class="service-item">Supersport match highlight reels</a>
-          <a href="#" class="service-item">Content creation</a>
-          <a href="#" class="service-item">Website creation</a>
-          <a href="#" class="service-item">Player highlight video</a>
+          <a href="#" class="service-item" data-service="player">Player profile creation</a>
+          <a href="#" class="service-item" data-service="supersport">Supersport match highlight reels</a>
+          <a href="#" class="service-item" data-service="content">Content creation</a>
+          <a href="#" class="service-item" data-service="website">Website creation</a>
+          <a href="#" class="service-item" data-service="playerhighlight">Player highlight video</a>
         </div>
       </div>
     </div>
@@ -104,10 +121,10 @@
 
       <!-- Biography paragraph (formatted and spaced like screenshot) -->
       <div class="mt-4 text-left max-w-2xl mx-auto text-gray-800" style="line-height:1.6;">
-        <p class="mb-3">Hello! I'm Leila, a storyteller, a content creator, and most importantly, a very proud sister! 🙈</p>
+        <p class="mb-3">Hello! I'm Leila, a storyteller, a content creator, and most importantly, a very proud sister!</p>
         <p class="mb-3">I've spent my life on the sidelines, watching my brothers chase their football dreams. What started as just cheering them on has evolved into a passion for capturing the raw, unfiltered emotions and moments of the game, not just on the field, but off it as well.</p>
         <p class="mb-3">Through my lens, you get to see the real story: the long hours of training, the special moments on and off the field, the silent moments of doubt, the family pride that fuels every victory, and the unwavering support that keeps a player going. I believe the heart of football isn't just in the goals, but in the journeys of the people who live and breathe it.</p>
-        <p class="mb-3">Join me as I share a perspective on the sport that's rooted in love, family, and the beautiful, unpredictable life of a footballer's sister as we watch my brothers continue the Sono family legacy. 👑</p>
+        <p class="mb-3">Join me as I share a perspective on the sport that's rooted in love, family, and the beautiful, unpredictable life of a footballer's sister as we watch my brothers continue the Sono family legacy.</p>
         <p class="mb-0">I built this site myself from scratch because a good story deserves a home built with a lot of love and a little bit of code 😊</p>
       </div>
     </div>
@@ -135,21 +152,19 @@
     <div class="my-12 max-w-lg mx-auto text-left">
       <h4 class="text-lg font-semibold mb-4 text-rose-700">Footballer's Sister Timeline</h4>
       <ul class="timeline">
-        <li><span class="date">2020 :</span>Started the filming the boys games.</li>
-        <li><span class="date">2023 :</span>Created their football accounts on instagram.</li>
-        <li><span class="date">2024: </span>Kept recording their trainings, games and behind-the-scenes moments for their instagram pages and mine.</li>
-        <li><span class="date">April 2025: </span>Posted my 1st football vlog on tiktok & it went viral (currently at 540k views)!</li>
-        <li><span class="date">2025: </span>Continued my vlogs & bts moments, creating more viral content and growing my audience.</li>
-        <li><span class="date">June 2025: </span>Officialy started my "life as a footballer's sister" content & posting weekly as so many people loved the vlogs</li>
-        <li><span class="date">August 2025: </span>Created this website to share my journey and connect with all of you in one place!</li>
-        <li><span class="date"> 📆: </span>And so the journey continues!</li>
+        <li><span class="date">2023 :</span>Started the filming the boys games & created their football accounts on instagram.</li>
+        <li><span class="date">2024:</span>Kept recording their trainings, games and behind-the-scenes moments for their instagram pages and mine.</li>
+        <li><span class="date">April 2025:</span>Posted my 1st football vlog on tiktok & it went viral (currently at 250k views)!</li>
+        <li><span class="date">2025:</span>Continued my vlogs & bts moments, creating more viral content and growing my audience.</li>
+        <li><span class="date">June 2025:</span>Officialy started my "life as a footballer's sister" content & posting weekly as so many people loved the vlogs</li>
+        <li><span class="date">August 2025:</span>Created this website to share my journey and connect with all of you in one place!</li>
+        <li><span class="date"> </span>The journey does not end there! You definitely will not want to miss out on this one! Follow along</li>
       </ul>
     </div>
 
     <!-- GIF (centered, autoplay, loop, muted) placed BEFORE Q&A -->
     <div class="my-8 centered-video">
-      <!-- Use mp4 source first; fall back to .mov if needed
-           MADE SMALLER: responsive max-width 640px, width 100% so it scales on mobile -->
+      <!-- responsive max-width 540px so it's smaller on large screens and scales on mobile -->
       <video id="jomoVid" class="rounded-lg shadow-lg max-w-[540px] w-full" autoplay muted loop playsinline>
         <source src="images/Jomo vid.mp4" type="video/mp4">
         <source src="images/Jomo vid.mov" type="video/quicktime">
@@ -236,365 +251,117 @@
     document.addEventListener('click', (e)=> {
       if (!servicesBtn?.contains(e.target) && !servicesList?.contains(e.target)) servicesList.style.display = 'none';
     });
-  </script>
 
-  <!-- Firebase wiring for Q&A (only runs if Firebase is available) -->
-  <script type="module">
-    try {
-      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
-      const { getAuth, signInAnonymously, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
-      const { getFirestore, collection, addDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+    // open service-specific modals (player + supersport + content + website + playerhighlight)
+    function createModal(html, small=false){
+      const backdrop = document.createElement('div'); backdrop.className = 'modal-backdrop open';
+      const modal = document.createElement('div'); modal.className = 'modal-content' + (small? ' modal-sm':'');
+      modal.innerHTML = html;
+      backdrop.appendChild(modal);
+      document.body.appendChild(backdrop);
 
-      const firebaseConfig = {
-        apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
-        authDomain: "football-site-c3aa9.firebaseapp.com",
-        projectId: "football-site-c3aa9",
-        storageBucket: "football-site-c3aa9.appspot.com",
-        messagingSenderId: "65396604482",
-        appId: "1:65396604482:web:0f31625a714aa8357db"
-      };
-      const appId = '1:65396604482:web:0f31625a714aa8352337db';
-
-      const app = initializeApp(firebaseConfig);
-      const db = getFirestore(app);
-      const auth = getAuth(app);
-
-      // anonymous sign-in to allow writes
-      onAuthStateChanged(auth, async (user) => {
-        if (!user) {
-          try { await signInAnonymously(auth); } catch(e){ console.warn('Auth failed', e); }
-        }
+      // close logic
+      backdrop.addEventListener('click', (ev)=>{
+        if (ev.target === backdrop) document.body.removeChild(backdrop);
       });
+      // attach close buttons
+      modal.querySelectorAll('.modal-close').forEach(btn=> btn.addEventListener('click', ()=> { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); }));
+      return { backdrop, modal };
+    }
 
-      // handle Q&A form submit
-      const qaForm = document.getElementById('qa-form');
-      const qaStatus = document.getElementById('qa-status');
-      if (qaForm) {
-        qaForm.addEventListener('submit', async (ev) => {
-          ev.preventDefault();
-          qaStatus.textContent = 'Sending...';
-          const name = document.getElementById('qa-name').value.trim();
-          const question = document.getElementById('qa-question').value.trim();
-          if (!name || !question) { qaStatus.textContent = 'Please add name & question.'; return; }
-          try {
-            const path = `/artifacts/${appId}/public/data/questions`;
-            await addDoc(collection(db, path), {
-              name, question, timestamp: serverTimestamp()
-            });
-            qaStatus.textContent = 'Question sent — thank you!';
-            qaForm.reset();
-            setTimeout(()=> qaStatus.textContent = '', 3500);
-          } catch (err) {
-            console.error('Failed to send question', err);
-            qaStatus.textContent = 'Failed to send — check console.';
+    document.querySelectorAll('.service-item').forEach(el=> el.addEventListener('click', (ev)=>{
+      ev.preventDefault(); servicesList.style.display = 'none';
+      const svc = el.dataset.service;
+      if (svc === 'player'){
+        // smaller modal for player profile
+        createModal(`
+          <h3 class=\"text-xl font-bold text-rose-700 mb-3\">Player profile request</h3>
+          <form id=\"player-form\">
+            <div class=\"row\"><input placeholder=\"Player name\" name=\"name\" required /><input placeholder=\"Surname\" name=\"surname\" required /></div>
+            <div class=\"row\"><input placeholder=\"Nationality\" name=\"nationality\" /><input placeholder=\"Age\" name=\"age\" /></div>
+            <div class=\"row\"><input type=\"date\" name=\"dob\" placeholder=\"Date of birth\" /><input placeholder=\"Strong foot\" name=\"foot\" /></div>
+            <div class=\"row\"><input placeholder=\"Weight (kg)\" name=\"weight\" /><input placeholder=\"Height (cm)\" name=\"height\" /></div>
+            <div class=\"row\"><input placeholder=\"Position\" name=\"position\" /><input placeholder=\"Key attributes (comma separated)\" name=\"attributes\" /></div>
+            <label class=\"mt-3\">Experience & achievements</label>
+            <textarea name=\"experience\" rows=3 placeholder=\"Clubs, tournaments, awards...\"></textarea>
+            <div class=\"modal-actions\">
+              <button class=\"bg-rose-600 text-white px-4 py-2 rounded-full modal-submit\">Send request</button>
+              <button type=\"button\" class=\"modal-close border px-3 py-2 rounded-full\">Cancel</button>
+              <span id=\"player-status\" class=\"muted ml-2\"></span>
+            </div>
+          </form>
+        `, true);
+
+        // simple submit handler (sends email via mailto fallback or logs)
+        document.addEventListener('submit', async function handler(e){
+          if (e.target && e.target.id === 'player-form'){
+            e.preventDefault();
+            const form = new FormData(e.target);
+            const body = Array.from(form.entries()).map(([k,v])=> `${k}: ${v}`).join('\n');
+            // try mailto
+            window.location.href = `mailto:leilasono1@gmail.com?subject=Player profile request&body=${encodeURIComponent(body)}`;
+            const status = document.getElementById('player-status'); if (status) status.textContent = 'Opening email client...';
+            // remove handler once used
+            document.removeEventListener('submit', handler);
           }
         });
-      }
-    } catch (err) {
-      console.warn('Firebase Q&A not initialized:', err);
-      const qaForm = document.getElementById('qa-form');
-      const qaStatus = document.getElementById('qa-status');
-      if (qaForm) {
-        qaForm.addEventListener('submit', (ev) => {
-          ev.preventDefault();
-          qaStatus.textContent = 'Question handled locally (no Firebase).';
-          setTimeout(()=> qaStatus.textContent = '', 3000);
-          qaForm.reset();
+
+      } else if (svc === 'supersport'){
+        createModal(`
+          <h3 class=\"text-xl font-bold text-rose-700 mb-3\">Supersport match highlight request</h3>
+          <form id=\"supersport-form\">
+            <div class=\"row\"><input placeholder=\"Your full name\" name=\"name\" required /><input placeholder=\"Email address\" name=\"email\" required /></div>
+            <div class=\"row\"><input placeholder=\"Phone (optional)\" name=\"phone\" /><input type=\"date\" name=\"match_date\" /></div>
+            <div class=\"row\"><input type=\"date\" name=\"match_date2\" placeholder=\"Match date (if different)\" /><input placeholder=\"Teams played (Team A vs Team B)\" name=\"teams\" /></div>
+            <label class=\"mt-3\">Supersport link (if available)</label>
+            <input name=\"supersport_link\" placeholder=\"Supersport link (if available)\" />
+            <label class=\"mt-3\">Project / Request details</label>
+            <textarea name=\"details\" rows=3 placeholder=\"Give as many details as possible...\"></textarea>
+            <div class=\"modal-actions\">
+              <button class=\"bg-rose-600 text-white px-4 py-2 rounded-full modal-submit\">Send request</button>
+              <button type=\"button\" class=\"modal-close border px-3 py-2 rounded-full\">Cancel</button>
+              <span id=\"supersport-status\" class=\"muted ml-2\"></span>
+            </div>
+          </form>
+        `, true);
+
+        document.addEventListener('submit', function handler(e){
+          if (e.target && e.target.id === 'supersport-form'){
+            e.preventDefault();
+            const form = new FormData(e.target);
+            const body = Array.from(form.entries()).map(([k,v])=> `${k}: ${v}`).join('\n');
+            window.location.href = `mailto:leilasono1@gmail.com?subject=Supersport highlight request&body=${encodeURIComponent(body)}`;
+            const status = document.getElementById('supersport-status'); if (status) status.textContent = 'Opening email client...';
+            document.removeEventListener('submit', handler);
+          }
         });
-      }
-    }
-  </script>
 
-  <!-- START: Services modal + JS -->
-  <!-- Modal container -->
-  <div id="serviceModal" class="fixed inset-0 z-60 modal-hidden items-center justify-center bg-black/40 p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-auto p-6 relative">
-      <button id="serviceModalClose" aria-label="Close" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800">✕</button>
-      <h3 id="serviceModalTitle" class="text-2xl font-bold text-rose-700 mb-2">Request: </h3>
-      <p id="serviceModalSubtitle" class="text-sm text-gray-600 mb-4">Fill in the details and we'll get back to you.</p>
-
-      <form id="serviceForm" class="space-y-4">
-        <!-- common fields -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <input type="text" id="sr-name" placeholder="Your full name" required class="px-4 py-2 border rounded-lg" />
-          <input type="email" id="sr-email" placeholder="Email address" required class="px-4 py-2 border rounded-lg" />
-          <input type="tel" id="sr-phone" placeholder="Phone (optional)" class="px-4 py-2 border rounded-lg" />
-          <input type="date" id="sr-date" class="px-4 py-2 border rounded-lg" />
-        </div>
-
-        <div id="serviceSpecificFields" class="space-y-3">
-          <!-- dynamically injected fields for each service -->
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Project / Request details</label>
-          <textarea id="sr-details" rows="4" placeholder="Give as many details as possible..." class="w-full px-4 py-2 border rounded-lg" required></textarea>
-        </div>
-
-        <div class="flex items-center gap-3">
-          <button id="sr-submit" type="submit" class="bg-rose-600 text-white px-5 py-2 rounded-full font-semibold">Send Request</button>
-          <button id="sr-cancel" type="button" class="px-4 py-2 rounded-full border">Cancel</button>
-          <div id="sr-feedback" class="ml-auto text-sm text-gray-600"></div>
-        </div>
-      </form>
-
-      <!-- Area for content-only or email-only services -->
-      <div id="serviceStatic" class="hidden">
-        <div id="serviceStaticContent" class="text-left text-gray-800"></div>
-        <div class="mt-4 flex gap-3">
-          <a id="serviceStaticEmail" class="btn-same" href="#" target="_blank">Contact via email</a>
-          <button id="serviceStaticClose" class="px-4 py-2 rounded-full border">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-  (function(){
-    // Recipient email
-    const RECIPIENT_EMAIL = "leilasono1@gmail.com";
-
-    const serviceItems = document.querySelectorAll('.service-item');
-    const modal = document.getElementById('serviceModal');
-    const modalTitle = document.getElementById('serviceModalTitle');
-    const modalSubtitle = document.getElementById('serviceModalSubtitle');
-    const specificFields = document.getElementById('serviceSpecificFields');
-    const form = document.getElementById('serviceForm');
-    const feedbackEl = document.getElementById('sr-feedback');
-    const closeBtn = document.getElementById('serviceModalClose');
-    const cancelBtn = document.getElementById('sr-cancel');
-    const submitBtn = document.getElementById('sr-submit');
-    const serviceStatic = document.getElementById('serviceStatic');
-    const serviceStaticContent = document.getElementById('serviceStaticContent');
-    const serviceStaticEmail = document.getElementById('serviceStaticEmail');
-    const serviceStaticClose = document.getElementById('serviceStaticClose');
-
-    function showModalFor(serviceName){
-      // Decide behavior per service
-      modal.classList.remove('modal-hidden');
-      modal.style.display = 'flex';
-      modalTitle.textContent = `Request: ${serviceName}`;
-      modalSubtitle.textContent = `Complete the short form to request ${serviceName.toLowerCase()}.`;
-      specificFields.innerHTML = '';
-      // remove narrow-form by default
-      specificFields.classList.remove('narrow-form');
-      serviceStatic.classList.add('hidden');
-      form.style.display = 'block';
-      submitBtn.style.display = 'inline-block';
-
-      if (serviceName === 'Player profile creation') {
-        // make form narrower for this service
-        specificFields.classList.add('narrow-form');
-
-        specificFields.innerHTML = `
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <input id="sr-player-first" placeholder="Player name" class="px-4 py-2 border rounded-lg" />
-            <input id="sr-player-surname" placeholder="Player surname" class="px-4 py-2 border rounded-lg" />
-            <input id="sr-player-nationality" placeholder="Nationality" class="px-4 py-2 border rounded-lg" />
-            <input id="sr-player-age" placeholder="Age" class="px-4 py-2 border rounded-lg" />
-            <input id="sr-player-dob" type="date" placeholder="Date of birth" class="px-4 py-2 border rounded-lg" />
-            <input id="sr-player-foot" placeholder="Strong foot" class="px-4 py-2 border rounded-lg" />
-            <input id="sr-player-weight" placeholder="Weight (kg)" class="px-4 py-2 border rounded-lg" />
-            <input id="sr-player-height" placeholder="Height (cm)" class="px-4 py-2 border rounded-lg" />
-            <input id="sr-player-position" placeholder="Position" class="px-4 py-2 border rounded-lg" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Key attributes</label>
-            <textarea id="sr-player-attributes" rows="3" class="w-full px-4 py-2 border rounded-lg" placeholder="Dribbling, passing, tackling..."></textarea>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Experience & achievements</label>
-            <textarea id="sr-player-experience" rows="3" class="w-full px-4 py-2 border rounded-lg" placeholder="Clubs, tournaments, awards..."></textarea>
-          </div>
-        `;
-      } else if (serviceName === 'Supersport match highlight reels') {
-        // make this form a bit narrower too
-        specificFields.classList.add('narrow-form');
-
-        specificFields.innerHTML = `
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <input id="sr-match-date" type="date" class="px-4 py-2 border rounded-lg" />
-            <input id="sr-teams-played" placeholder="Teams played (Team A vs Team B)" class="px-4 py-2 border rounded-lg" />
-          </div>
-          <div>
-            <input id="sr-supersport-link" placeholder="Supersport link (if available)" class="w-full px-4 py-2 border rounded-lg" />
-          </div>
-        `;
-      } else if (serviceName === 'Content creation') {
-        // show static price/modal (no form submit)
-        form.style.display = 'none';
-        serviceStatic.classList.remove('hidden');
-        serviceStaticContent.innerHTML = `
-          <h4 class="font-semibold text-rose-700 mb-2">Content creation — price guide</h4>
-          <ul class="text-sm space-y-2">
-            <li><strong>Behind the scenes content</strong> — Short packages from ZAR 800</li>
-            <li><strong>Match day videos</strong> — Highlight edits from ZAR 1,500</li>
-            <li><strong>Advertising / product content</strong> — From ZAR 2,500 (quote available)</li>
+      } else if (svc === 'content'){
+        createModal(`
+          <h3 class=\"text-xl font-bold text-rose-700 mb-3\">Content creation - pricing</h3>
+          <div class=\"muted\">Below are starting prices. Final quotes depend on scope.</div>
+          <ul class=\"mt-3\">
+            <li>Behind the scenes content: ZAR 1,200 / short clip</li>
+            <li>Match day videos: ZAR 2,500 / highlights package</li>
+            <li>Advertising / product videos: starting ZAR 4,000</li>
           </ul>
-          <p class="mt-3 text-gray-600">Prices are guides — final quote depends on scope. To enquire, use the contact button below or email directly.</p>
-        `;
-        serviceStaticEmail.href = `mailto:${RECIPIENT_EMAIL}?subject=${encodeURIComponent('Content creation enquiry')}&body=${encodeURIComponent('Hi Leila,%0A%0AI am enquiring about content creation packages. Please send more info and a quote.%0A%0AThanks.')}`;
-        serviceStaticEmail.textContent = 'Email about content creation';
-        serviceStatic.style.display = 'block';
-      } else if (serviceName === 'Website creation') {
-        form.style.display = 'none';
-        serviceStatic.classList.remove('hidden');
-        serviceStaticContent.innerHTML = `
-          <h4 class="font-semibold text-rose-700 mb-2">Website creation</h4>
-          <p class="text-sm text-gray-700">Send your website requirements to my email. Tell me your goals, pages needed, example sites you like, and any domain/hosting info.</p>
-        `;
-        serviceStaticEmail.href = `mailto:${RECIPIENT_EMAIL}?subject=${encodeURIComponent('Website creation enquiry')}&body=${encodeURIComponent('Hi Leila,%0A%0AI would like a website. My requirements are: (paste your brief here).%0A%0AThanks.')}`;
-        serviceStaticEmail.textContent = 'Email about website creation';
-        serviceStatic.style.display = 'block';
-      } else if (serviceName === 'Player highlight video') {
-        form.style.display = 'none';
-        serviceStatic.classList.remove('hidden');
-        serviceStaticContent.innerHTML = `
-          <h4 class="font-semibold text-rose-700 mb-2">Player highlight video</h4>
-          <p class="text-sm text-gray-700">Please forward your video clips via WeTransfer to my email with a note including player name, match date and any timestamps you want included.</p>
-        `;
-        serviceStaticEmail.href = `mailto:${RECIPIENT_EMAIL}?subject=${encodeURIComponent('Player highlight video - clips via WeTransfer')}&body=${encodeURIComponent('Hi Leila,%0A%0AI will send clips via WeTransfer for the player highlight video. Player name:%0AMatch date:%0AWeTransfer link:%0AAny notes:%0A%0AThanks.')}`;
-        serviceStaticEmail.textContent = 'Email instructions (WeTransfer)';
-        serviceStatic.style.display = 'block';
+          <div class=\"modal-actions\"><button class=\"modal-close border px-3 py-2 rounded-full\">Close</button></div>
+        `);
+      } else if (svc === 'website'){
+        createModal(`
+          <h3 class=\"text-xl font-bold text-rose-700 mb-3\">Website creation</h3>
+          <p class=\"muted\">Email me at <strong>leilasono1@gmail.com</strong> with your idea. Include: purpose, pages needed, example sites, and any assets.</p>
+          <div class=\"modal-actions\"><button class=\"modal-close border px-3 py-2 rounded-full\">Close</button></div>
+        `);
+      } else if (svc === 'playerhighlight'){
+        createModal(`
+          <h3 class=\"text-xl font-bold text-rose-700 mb-3\">Player highlight video</h3>
+          <p class=\"muted\">Please send clips via WeTransfer to <strong>leilasono1@gmail.com</strong>. Include player name & match context.</p>
+          <div class=\"modal-actions\"><button class=\"modal-close border px-3 py-2 rounded-full\">Close</button></div>
+        `);
       }
-    }
-
-    function closeModal(){
-      modal.classList.add('modal-hidden');
-      modal.style.display = 'none';
-      // clean up specific fields
-      specificFields.innerHTML = '';
-      specificFields.classList.remove('narrow-form');
-      serviceStatic.classList.add('hidden');
-    }
-
-    // attach click to service items
-    serviceItems.forEach(el => {
-      el.addEventListener('click', (e) => {
-        e.preventDefault();
-        const serviceName = el.textContent.trim();
-        // hide dropdown
-        if (servicesList) servicesList.style.display = 'none';
-        showModalFor(serviceName);
-      });
-    });
-
-    closeBtn.addEventListener('click', closeModal);
-    serviceStaticClose.addEventListener('click', closeModal);
-    cancelBtn.addEventListener('click', closeModal);
-    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-
-    // form submit handler (for services that use the form)
-    form.addEventListener('submit', async (ev) => {
-      ev.preventDefault();
-      feedbackEl.textContent = 'Sending...';
-      const service = modalTitle.textContent.replace('Request: ','').trim();
-
-      // collect common fields
-      const payload = {
-        service,
-        name: document.getElementById('sr-name')?.value || '',
-        email: document.getElementById('sr-email')?.value || '',
-        phone: document.getElementById('sr-phone')?.value || '',
-        preferredDate: document.getElementById('sr-date')?.value || '',
-        details: document.getElementById('sr-details')?.value || '',
-        createdAt: new Date().toISOString()
-      };
-
-      // collect extras depending on service
-      const extras = {};
-      // player profile extras
-      const playerFields = ['sr-player-first','sr-player-surname','sr-player-nationality','sr-player-age','sr-player-dob','sr-player-foot','sr-player-weight','sr-player-height','sr-player-position','sr-player-attributes','sr-player-experience'];
-      playerFields.forEach(id => { const el = document.getElementById(id); if (el) extras[id] = el.value || el.checked || ''; });
-
-      // supersport extras
-      ['sr-match-date','sr-teams-played','sr-supersport-link'].forEach(id => { const el = document.getElementById(id); if (el) extras[id] = el ? el.value : ''; });
-
-      payload.extras = extras;
-
-      if (!payload.name || !payload.email || !payload.details) {
-        feedbackEl.textContent = 'Please fill name, email and details.';
-        return;
-      }
-
-      // attempt Firestore write, then fallback to mailto if it fails
-      const theAppId = (typeof appId !== 'undefined' && appId) ? appId : '1:65396604482:web:0f31625a714aa8352337db';
-      const path = `/artifacts/${theAppId}/public/data/serviceRequests`;
-
-      async function tryFirestoreWrite() {
-        // If global helper functions exist, use them
-        if (window.db && typeof window.addDoc !== 'undefined' && typeof window.collection !== 'undefined') {
-          return window.addDoc(window.collection(window.db, path), payload);
-        }
-        // dynamic import and write
-        const appMod = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
-        const authMod = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
-        const fsMod = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-        let firebaseConfig = (typeof __firebase_config !== 'undefined') ? JSON.parse(__firebase_config) : {
-          apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
-          authDomain: "football-site-c3aa9.firebaseapp.com",
-          projectId: "football-site-c3aa9",
-          storageBucket: "football-site-c3aa9.appspot.com",
-          messagingSenderId: "65396604482",
-          appId: theAppId
-        };
-        let appRef;
-        try { appRef = appMod.getApp(); } catch(e) { appRef = appMod.initializeApp(firebaseConfig); }
-        const auth = authMod.getAuth(appRef);
-        try { if (!auth.currentUser) await authMod.signInAnonymously(auth); } catch(e){ /* ignore */ }
-        const db = fsMod.getFirestore(appRef);
-        return fsMod.addDoc(fsMod.collection(db, path), { ...payload, timestamp: fsMod.serverTimestamp ? fsMod.serverTimestamp() : new Date().toISOString() });
-      }
-
-      try {
-        await tryFirestoreWrite();
-        feedbackEl.textContent = 'Request saved — thank you!';
-        feedbackEl.style.color = 'green';
-        // small success animation
-        const btn = submitBtn;
-        if (btn) btn.animate([{transform:'scale(1)'},{transform:'scale(1.03)'},{transform:'scale(1)'}],{duration:350});
-        setTimeout(()=> closeModal(), 900);
-
-        // also open mailto draft to ensure email copy
-        try {
-          const subject = encodeURIComponent(`New service request — ${payload.service}`);
-          const bodyLines = [
-            `Service: ${payload.service}`,
-            `Name: ${payload.name}`,
-            `Email: ${payload.email}`,
-            `Phone: ${payload.phone || ''}`,
-            `Preferred date: ${payload.preferredDate || ''}`,
-            `Details: ${payload.details}`,
-            `Extras: ${JSON.stringify(payload.extras, null, 2)}`
-          ];
-          const body = encodeURIComponent(bodyLines.join('\n'));
-          window.open(`mailto:${RECIPIENT_EMAIL}?subject=${subject}&body=${body}`, '_blank');
-        } catch(e) { /* ignore mailto errors */ }
-
-      } catch (err) {
-        console.warn('Firestore write failed, falling back to mailto:', err);
-        // fallback mailto
-        const subject = encodeURIComponent(`Service request (offline) — ${payload.service}`);
-        const bodyLines = [
-          `Service: ${payload.service}`,
-          `Name: ${payload.name}`,
-          `Email: ${payload.email}`,
-          `Phone: ${payload.phone || ''}`,
-          `Preferred date: ${payload.preferredDate || ''}`,
-          `Details: ${payload.details}`,
-          `Extras: ${JSON.stringify(payload.extras, null, 2)}`
-        ];
-        const body = encodeURIComponent(bodyLines.join('\n'));
-        window.open(`mailto:${RECIPIENT_EMAIL}?subject=${subject}&body=${body}`, '_blank');
-        feedbackEl.textContent = 'Unable to save online — opened email draft.';
-        feedbackEl.style.color = '#b45309';
-        setTimeout(()=> closeModal(), 1600);
-      }
-    });
-
-  })();
+    }));
   </script>
-  <!-- END: Services modal + JS -->
 
 </body>
 </html>
