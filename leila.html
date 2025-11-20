@@ -64,7 +64,7 @@
     .modal-hero {
       display:flex; gap:12px; align-items:flex-start; margin-bottom:12px;
     }
-    /* UPDATED: use your stored logo image as the circular icon for all modals */
+    /* use your stored logo image as the circular icon for all modals */
     .modal-hero .icon {
       width:56px;
       height:56px;
@@ -92,6 +92,19 @@
     .modal-cta-row { display:flex; gap:8px; justify-content:flex-end; align-items:center; margin-top:10px; }
     .modal-cta { background:#BE185D; color:white; padding:10px 14px; border-radius:9999px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:8px; }
     .modal-outline-btn { background:transparent; border:1px solid #FBCFE8; padding:8px 12px; border-radius:9999px; color:#BE185D; font-weight:600; cursor:pointer; }
+
+    /* price badge – neater, on-brand */
+    .price-badge {
+      display:inline-block;
+      background: linear-gradient(180deg,#ffdfee,#ffd0e6);
+      color:#9b1140;
+      border: 1px solid #f6bfd3;
+      padding:6px 10px;
+      border-radius:999px;
+      font-weight:800;
+      font-size:0.95rem;
+      margin-top:8px;
+    }
 
     /* website creation specifics */
     .website-reqs { text-align:left; margin-top:8px; padding-left:10px; }
@@ -322,7 +335,8 @@
           <div>
             <h3>Player Profile Request</h3>
             <div class="muted" style="font-size:0.9rem;margin-top:6px;">Fill in the fields below and I'll get back to you about the profile package.</div>
-          <span class="price"> Price R150</span></div>
+            <div class="price-badge">R150</div>
+          </div>
           <button class="modal-close" id="modalCloseBtn" title="Close">✕</button>
         </div>
 
@@ -350,6 +364,7 @@
           <div>
             <h3>Supersport Match Highlight Request</h3>
             <div class="muted" style="font-size:0.9rem;margin-top:6px;">Share the match details and link; I'll prepare a highlight package.</div>
+            <div class="price-badge">From R200</div>
           </div>
           <button class="modal-close" id="modalCloseBtn" title="Close">✕</button>
         </div>
@@ -593,7 +608,7 @@
             });
             qaStatus.textContent = 'Question sent — thank you!';
             qaForm.reset();
-            setTimeout(()=> qaStatus.textContent = '', 3500);
+            setTimeout(()=>qaStatus.textContent = '', 3500);
           } catch (err) {
             console.error('Failed to send question', err);
             qaStatus.textContent = 'Failed to send — check console.';
@@ -608,7 +623,7 @@
         qaForm.addEventListener('submit', (ev) => {
           ev.preventDefault();
           qaStatus.textContent = 'Question handled locally (no Firebase).';
-          setTimeout(()=> qaStatus.textContent = '', 3000);
+          setTimeout(()=>qaStatus.textContent = '', 3000);
           qaForm.reset();
         });
       }
