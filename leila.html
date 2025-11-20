@@ -486,10 +486,25 @@
         playerForm.addEventListener('submit', async (e) => {
           e.preventDefault();
           // gather values
-          const data = Object.fromEntries(new FormData(playerForm).entries());
-          // send email via mailto fallback and also optionally store locally — preferred: email
-          const subject = encodeURIComponent('Player Profile Request: ' + (data.name || 'Unnamed'));
-          const body = encodeURIComponent(JSON.stringify(data, null, 2));
+          const fd = Object.fromEntries(new FormData(playerForm).entries());
+
+          // Build neat email body
+          const bodyLines = [
+            `Player name: ${fd.name || ''}`,
+            `Age: ${fd.age || ''}`,
+            `Date of birth: ${fd.dob || ''}`,
+            `Nationality: ${fd.nationality || ''}`,
+            `Strong foot: ${fd.strongFoot || ''}`,
+            `Position: ${fd.position || ''}`,
+            `Height (cm): ${fd.height || ''}`,
+            `Weight (kg): ${fd.weight || ''}`,
+            `Key attributes: ${fd.attributes || ''}`,
+            `Experience & achievements: ${fd.experience || ''}`
+          ];
+          const subject = encodeURIComponent(`Player Profile Request: ${fd.name || 'Unnamed'}`);
+          const body = encodeURIComponent(bodyLines.join('\n'));
+
+          // Open user's mail client with nicely formatted body
           window.location.href = `mailto:leilasono1@gmail.com?subject=${subject}&body=${body}`;
           closeModal();
         });
@@ -499,9 +514,20 @@
       if (superForm) {
         superForm.addEventListener('submit', async (e) => {
           e.preventDefault();
-          const data = Object.fromEntries(new FormData(superForm).entries());
-          const subject = encodeURIComponent('Supersport Highlight Request: ' + (data.matchDate || 'date'));
-          const body = encodeURIComponent(JSON.stringify(data, null, 2));
+          const fd = Object.fromEntries(new FormData(superForm).entries());
+
+          // Build neat email body
+          const bodyLines = [
+            `Match date: ${fd.matchDate || ''}`,
+            `Teams played: ${fd.teams || ''}`,
+            `Supersport link: ${fd.link || ''}`,
+            ``,
+            `Submitted from: Leila site (leilasono1@gmail.com)`
+          ];
+          const subject = encodeURIComponent(`Supersport Highlight Request: ${fd.matchDate || 'date'}`);
+          const body = encodeURIComponent(bodyLines.join('\n'));
+
+          // Open mail client
           window.location.href = `mailto:leilasono1@gmail.com?subject=${subject}&body=${body}`;
           closeModal();
         });
