@@ -28,6 +28,8 @@
     .services-list a:hover { background:#FEF2F8; color:#BE185D; }
     .muted { color:#6b7280; }
     .centered-video { display:flex; justify-content:center; align-items:center; }
+    /* modal */
+    .modal-hidden { display: none; }
   </style>
 </head>
 <body class="bg-pink-50 text-black font-sans">
@@ -85,6 +87,7 @@
           <a href="#" class="service-item">Supersport match highlight reels</a>
           <a href="#" class="service-item">Content creation</a>
           <a href="#" class="service-item">Website creation</a>
+          <a href="#" class="service-item">Player highlight video</a>
         </div>
       </div>
     </div>
@@ -299,6 +302,285 @@
       }
     }
   </script>
+
+  <!-- START: Services modal + JS -->
+  <!-- Modal container -->
+  <div id="serviceModal" class="fixed inset-0 z-60 modal-hidden items-center justify-center bg-black/40 p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-auto p-6 relative">
+      <button id="serviceModalClose" aria-label="Close" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800">✕</button>
+      <h3 id="serviceModalTitle" class="text-2xl font-bold text-rose-700 mb-2">Request: </h3>
+      <p id="serviceModalSubtitle" class="text-sm text-gray-600 mb-4">Fill in the details and we'll get back to you.</p>
+
+      <form id="serviceForm" class="space-y-4">
+        <!-- common fields -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <input type="text" id="sr-name" placeholder="Your full name" required class="px-4 py-2 border rounded-lg" />
+          <input type="email" id="sr-email" placeholder="Email address" required class="px-4 py-2 border rounded-lg" />
+          <input type="tel" id="sr-phone" placeholder="Phone (optional)" class="px-4 py-2 border rounded-lg" />
+          <input type="date" id="sr-date" class="px-4 py-2 border rounded-lg" />
+        </div>
+
+        <div id="serviceSpecificFields" class="space-y-3">
+          <!-- dynamically injected fields for each service -->
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Project / Request details</label>
+          <textarea id="sr-details" rows="4" placeholder="Give as many details as possible..." class="w-full px-4 py-2 border rounded-lg" required></textarea>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button id="sr-submit" type="submit" class="bg-rose-600 text-white px-5 py-2 rounded-full font-semibold">Send Request</button>
+          <button id="sr-cancel" type="button" class="px-4 py-2 rounded-full border">Cancel</button>
+          <div id="sr-feedback" class="ml-auto text-sm text-gray-600"></div>
+        </div>
+      </form>
+
+      <!-- Area for content-only or email-only services -->
+      <div id="serviceStatic" class="hidden">
+        <div id="serviceStaticContent" class="text-left text-gray-800"></div>
+        <div class="mt-4 flex gap-3">
+          <a id="serviceStaticEmail" class="btn-same" href="#" target="_blank">Contact via email</a>
+          <button id="serviceStaticClose" class="px-4 py-2 rounded-full border">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    // Recipient email
+    const RECIPIENT_EMAIL = "leilasono1@gmail.com";
+
+    const serviceItems = document.querySelectorAll('.service-item');
+    const modal = document.getElementById('serviceModal');
+    const modalTitle = document.getElementById('serviceModalTitle');
+    const modalSubtitle = document.getElementById('serviceModalSubtitle');
+    const specificFields = document.getElementById('serviceSpecificFields');
+    const form = document.getElementById('serviceForm');
+    const feedbackEl = document.getElementById('sr-feedback');
+    const closeBtn = document.getElementById('serviceModalClose');
+    const cancelBtn = document.getElementById('sr-cancel');
+    const submitBtn = document.getElementById('sr-submit');
+    const serviceStatic = document.getElementById('serviceStatic');
+    const serviceStaticContent = document.getElementById('serviceStaticContent');
+    const serviceStaticEmail = document.getElementById('serviceStaticEmail');
+    const serviceStaticClose = document.getElementById('serviceStaticClose');
+
+    function showModalFor(serviceName){
+      // Decide behavior per service
+      modal.classList.remove('modal-hidden');
+      modal.style.display = 'flex';
+      modalTitle.textContent = `Request: ${serviceName}`;
+      modalSubtitle.textContent = `Complete the short form to request ${serviceName.toLowerCase()}.`;
+      specificFields.innerHTML = '';
+      serviceStatic.classList.add('hidden');
+      form.style.display = 'block';
+      submitBtn.style.display = 'inline-block';
+
+      if (serviceName === 'Player profile creation') {
+        specificFields.innerHTML = `
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input id="sr-player-first" placeholder="Player name" class="px-4 py-2 border rounded-lg" />
+            <input id="sr-player-surname" placeholder="Player surname" class="px-4 py-2 border rounded-lg" />
+            <input id="sr-player-nationality" placeholder="Nationality" class="px-4 py-2 border rounded-lg" />
+            <input id="sr-player-age" placeholder="Age" class="px-4 py-2 border rounded-lg" />
+            <input id="sr-player-dob" type="date" placeholder="Date of birth" class="px-4 py-2 border rounded-lg" />
+            <input id="sr-player-foot" placeholder="Strong foot" class="px-4 py-2 border rounded-lg" />
+            <input id="sr-player-weight" placeholder="Weight (kg)" class="px-4 py-2 border rounded-lg" />
+            <input id="sr-player-height" placeholder="Height (cm)" class="px-4 py-2 border rounded-lg" />
+            <input id="sr-player-position" placeholder="Position" class="px-4 py-2 border rounded-lg" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Key attributes</label>
+            <textarea id="sr-player-attributes" rows="3" class="w-full px-4 py-2 border rounded-lg" placeholder="Dribbling, passing, tackling..."></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Experience & achievements</label>
+            <textarea id="sr-player-experience" rows="3" class="w-full px-4 py-2 border rounded-lg" placeholder="Clubs, tournaments, awards..."></textarea>
+          </div>
+        `;
+      } else if (serviceName === 'Supersport match highlight reels') {
+        specificFields.innerHTML = `
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input id="sr-match-date" type="date" class="px-4 py-2 border rounded-lg" />
+            <input id="sr-teams-played" placeholder="Teams played (Team A vs Team B)" class="px-4 py-2 border rounded-lg" />
+          </div>
+          <div>
+            <input id="sr-supersport-link" placeholder="Supersport link (if available)" class="w-full px-4 py-2 border rounded-lg" />
+          </div>
+        `;
+      } else if (serviceName === 'Content creation') {
+        // show static price/modal (no form submit)
+        form.style.display = 'none';
+        serviceStatic.classList.remove('hidden');
+        serviceStaticContent.innerHTML = `
+          <h4 class="font-semibold text-rose-700 mb-2">Content creation — price guide</h4>
+          <ul class="text-sm space-y-2">
+            <li><strong>Behind the scenes content</strong> — Short packages from ZAR 800</li>
+            <li><strong>Match day videos</strong> — Highlight edits from ZAR 1,500</li>
+            <li><strong>Advertising / product content</strong> — From ZAR 2,500 (quote available)</li>
+          </ul>
+          <p class="mt-3 text-gray-600">Prices are guides — final quote depends on scope. To enquire, use the contact button below or email directly.</p>
+        `;
+        serviceStaticEmail.href = `mailto:${RECIPIENT_EMAIL}?subject=${encodeURIComponent('Content creation enquiry')}&body=${encodeURIComponent('Hi Leila,%0A%0AI am enquiring about content creation packages. Please send more info and a quote.%0A%0AThanks.')}`;
+        serviceStaticEmail.textContent = 'Email about content creation';
+        serviceStatic.style.display = 'block';
+      } else if (serviceName === 'Website creation') {
+        form.style.display = 'none';
+        serviceStatic.classList.remove('hidden');
+        serviceStaticContent.innerHTML = `
+          <h4 class="font-semibold text-rose-700 mb-2">Website creation</h4>
+          <p class="text-sm text-gray-700">Send your website requirements to my email. Tell me your goals, pages needed, example sites you like, and any domain/hosting info.</p>
+        `;
+        serviceStaticEmail.href = `mailto:${RECIPIENT_EMAIL}?subject=${encodeURIComponent('Website creation enquiry')}&body=${encodeURIComponent('Hi Leila,%0A%0AI would like a website. My requirements are: (paste your brief here).%0A%0AThanks.')}`;
+        serviceStaticEmail.textContent = 'Email about website creation';
+        serviceStatic.style.display = 'block';
+      } else if (serviceName === 'Player highlight video') {
+        form.style.display = 'none';
+        serviceStatic.classList.remove('hidden');
+        serviceStaticContent.innerHTML = `
+          <h4 class="font-semibold text-rose-700 mb-2">Player highlight video</h4>
+          <p class="text-sm text-gray-700">Please forward your video clips via WeTransfer to my email with a note including player name, match date and any timestamps you want included.</p>
+        `;
+        serviceStaticEmail.href = `mailto:${RECIPIENT_EMAIL}?subject=${encodeURIComponent('Player highlight video - clips via WeTransfer')}&body=${encodeURIComponent('Hi Leila,%0A%0AI will send clips via WeTransfer for the player highlight video. Player name:%0AMatch date:%0AWeTransfer link:%0AAny notes:%0A%0AThanks.')}`;
+        serviceStaticEmail.textContent = 'Email instructions (WeTransfer)';
+        serviceStatic.style.display = 'block';
+      }
+    }
+
+    function closeModal(){
+      modal.classList.add('modal-hidden');
+      modal.style.display = 'none';
+    }
+
+    // attach click to service items
+    serviceItems.forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        const serviceName = el.textContent.trim();
+        // hide dropdown
+        if (servicesList) servicesList.style.display = 'none';
+        showModalFor(serviceName);
+      });
+    });
+
+    closeBtn.addEventListener('click', closeModal);
+    serviceStaticClose.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+    // form submit handler (for services that use the form)
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      feedbackEl.textContent = 'Sending...';
+      const service = modalTitle.textContent.replace('Request: ','').trim();
+
+      // collect common fields
+      const payload = {
+        service,
+        name: document.getElementById('sr-name')?.value || '',
+        email: document.getElementById('sr-email')?.value || '',
+        phone: document.getElementById('sr-phone')?.value || '',
+        preferredDate: document.getElementById('sr-date')?.value || '',
+        details: document.getElementById('sr-details')?.value || '',
+        createdAt: new Date().toISOString()
+      };
+
+      // collect extras depending on service
+      const extras = {};
+      // player profile extras
+      const playerFields = ['sr-player-first','sr-player-surname','sr-player-nationality','sr-player-age','sr-player-dob','sr-player-foot','sr-player-weight','sr-player-height','sr-player-position','sr-player-attributes','sr-player-experience'];
+      playerFields.forEach(id => { const el = document.getElementById(id); if (el) extras[id] = el.value || el.checked || ''; });
+
+      // supersport extras
+      ['sr-match-date','sr-teams-played','sr-supersport-link'].forEach(id => { const el = document.getElementById(id); if (el) extras[id] = el ? el.value : ''; });
+
+      payload.extras = extras;
+
+      if (!payload.name || !payload.email || !payload.details) {
+        feedbackEl.textContent = 'Please fill name, email and details.';
+        return;
+      }
+
+      // attempt Firestore write, then fallback to mailto if it fails
+      const theAppId = (typeof appId !== 'undefined' && appId) ? appId : '1:65396604482:web:0f31625a714aa8352337db';
+      const path = `/artifacts/${theAppId}/public/data/serviceRequests`;
+
+      async function tryFirestoreWrite() {
+        // If global helper functions exist, use them
+        if (window.db && typeof window.addDoc !== 'undefined' && typeof window.collection !== 'undefined') {
+          return window.addDoc(window.collection(window.db, path), payload);
+        }
+        // dynamic import and write
+        const appMod = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
+        const authMod = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
+        const fsMod = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+        let firebaseConfig = (typeof __firebase_config !== 'undefined') ? JSON.parse(__firebase_config) : {
+          apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
+          authDomain: "football-site-c3aa9.firebaseapp.com",
+          projectId: "football-site-c3aa9",
+          storageBucket: "football-site-c3aa9.appspot.com",
+          messagingSenderId: "65396604482",
+          appId: theAppId
+        };
+        let appRef;
+        try { appRef = appMod.getApp(); } catch(e) { appRef = appMod.initializeApp(firebaseConfig); }
+        const auth = authMod.getAuth(appRef);
+        try { if (!auth.currentUser) await authMod.signInAnonymously(auth); } catch(e){ /* ignore */ }
+        const db = fsMod.getFirestore(appRef);
+        return fsMod.addDoc(fsMod.collection(db, path), { ...payload, timestamp: fsMod.serverTimestamp ? fsMod.serverTimestamp() : new Date().toISOString() });
+      }
+
+      try {
+        await tryFirestoreWrite();
+        feedbackEl.textContent = 'Request saved — thank you!';
+        feedbackEl.style.color = 'green';
+        // small success animation
+        const btn = submitBtn;
+        if (btn) btn.animate([{transform:'scale(1)'},{transform:'scale(1.03)'},{transform:'scale(1)'}],{duration:350});
+        setTimeout(()=> closeModal(), 900);
+
+        // also open mailto draft to ensure email copy
+        try {
+          const subject = encodeURIComponent(`New service request — ${payload.service}`);
+          const bodyLines = [
+            `Service: ${payload.service}`,
+            `Name: ${payload.name}`,
+            `Email: ${payload.email}`,
+            `Phone: ${payload.phone || ''}`,
+            `Preferred date: ${payload.preferredDate || ''}`,
+            `Details: ${payload.details}`,
+            `Extras: ${JSON.stringify(payload.extras, null, 2)}`
+          ];
+          const body = encodeURIComponent(bodyLines.join('\n'));
+          window.open(`mailto:${RECIPIENT_EMAIL}?subject=${subject}&body=${body}`, '_blank');
+        } catch(e) { /* ignore mailto errors */ }
+
+      } catch (err) {
+        console.warn('Firestore write failed, falling back to mailto:', err);
+        // fallback mailto
+        const subject = encodeURIComponent(`Service request (offline) — ${payload.service}`);
+        const bodyLines = [
+          `Service: ${payload.service}`,
+          `Name: ${payload.name}`,
+          `Email: ${payload.email}`,
+          `Phone: ${payload.phone || ''}`,
+          `Preferred date: ${payload.preferredDate || ''}`,
+          `Details: ${payload.details}`,
+          `Extras: ${JSON.stringify(payload.extras, null, 2)}`
+        ];
+        const body = encodeURIComponent(bodyLines.join('\n'));
+        window.open(`mailto:${RECIPIENT_EMAIL}?subject=${subject}&body=${body}`, '_blank');
+        feedbackEl.textContent = 'Unable to save online — opened email draft.';
+        feedbackEl.style.color = '#b45309';
+        setTimeout(()=> closeModal(), 1600);
+      }
+    });
+
+  })();
+  </script>
+  <!-- END: Services modal + JS -->
 
 </body>
 </html>
