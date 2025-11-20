@@ -169,9 +169,11 @@
 
   <!-- TikTok Carousel + Collaborations side-by-side -->
   <section class="px-6 max-w-5xl mx-auto mb-10">
-    <div class="grid md:grid-cols-2 gap-8 items-start">
+    <!-- Added grid justify-items classes so stacked items are centered on mobile,
+         and remain stretched on md+ (desktop) -->
+    <div class="grid md:grid-cols-2 gap-8 items-start justify-items-center md:justify-items-stretch">
       <!-- LEFT: TikTok -->
-      <div>
+      <div class="w-full max-w-md">
         <h3 class="text-2xl font-bold mb-4 text-rose-700 text-center">My Vlogs & Highlights</h3>
         <div id="video-carousel" class="relative overflow-hidden rounded-lg shadow-lg mx-auto w-full md:max-w-sm">
           <div id="video-slides-container" class="flex transition-transform duration-500 ease-in-out">
@@ -195,13 +197,12 @@
             </svg>
           </button>
         </div>
-        <blockquote class="italic text-xl text-rose-800 mt-6 text-center">“You don’t have to wear the jersey to feel the pressure.”</blockquote>
       </div>
 
       <!-- RIGHT: Collaborations (reads Firestore gallery) -->
-      <div>
+      <div class="w-full max-w-md">
         <h3 class="text-2xl font-bold mb-4 text-rose-700 text-center">Collaborations</h3>
-        <div id="collab-carousel" class="relative overflow-hidden rounded-lg shadow-lg mx-auto w-full">
+        <div id="collab-carousel" class="relative overflow-hidden rounded-lg shadow-lg mx-auto w-full md:max-w-sm">
           <div id="collab-slides" class="flex transition-transform duration-400 ease-in-out">
             <div class="w-full flex-shrink-0 p-8 text-center muted">Loading collaborations...</div>
           </div>
