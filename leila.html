@@ -64,11 +64,25 @@
     .modal-hero {
       display:flex; gap:12px; align-items:flex-start; margin-bottom:12px;
     }
+    /* UPDATED: use your stored logo image as the circular icon for all modals */
     .modal-hero .icon {
-      width:56px; height:56px; border-radius:12px; display:flex; align-items:center; justify-content:center; background: linear-gradient(180deg,#fff0f6,#fff); border:1px solid #FBCFE8; color:#BE185D; font-weight:800; font-size:20px;
-      overflow:hidden;
+      width:56px;
+      height:56px;
+      border-radius:9999px;             /* make it a perfect circle */
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: #fff0f6;              /* light fallback background */
+      border:1px solid #FBCFE8;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+      background-image: url('images/football-sis-logo.png'); /* <-- your file */
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: cover;
+      color: transparent;               /* hide any inner text like "PP" so the logo shows clean */
+      overflow: hidden;
+      flex-shrink:0;
     }
-    .modal-hero .icon img { width:100%; height:100%; object-fit:cover; display:block; }
     .modal-hero h3 { margin:0; color:#BE185D; font-size:1.05rem; }
     .modal-note { background:#FEF6FB; border:1px solid #FBDDEC; padding:10px 12px; border-radius:10px; color:#6b213f; font-size:0.95rem; margin-bottom:12px; }
     .modal-list { list-style:none; padding:0; margin:0 0 12px 0; display:grid; gap:8px; }
@@ -304,7 +318,7 @@
     function createPlayerProfileFormHtml() {
       return `
         <div class="modal-hero">
-          <div class="icon"><images/football-sis-logo.png" alt="logo icon"></div>
+          <div class="icon">PP</div>
           <div>
             <h3>Player Profile Request</h3>
             <div class="muted" style="font-size:0.9rem;margin-top:6px;">Fill in the fields below and I'll get back to you about the profile package.</div>
@@ -332,7 +346,7 @@
     function createSupersportFormHtml() {
       return `
         <div class="modal-hero">
-          <div class="icon"><img src="/mnt/data/ChatGPT Image Nov 20, 2025, 05_22_56 PM.png" alt="logo icon"></div>
+          <div class="icon">SS</div>
           <div>
             <h3>Supersport Match Highlight Request</h3>
             <div class="muted" style="font-size:0.9rem;margin-top:6px;">Share the match details and link; I'll prepare a highlight package.</div>
@@ -356,7 +370,7 @@
     function createContentCreationHtml() {
       return `
         <div class="modal-hero">
-          <div class="icon"><img src="/mnt/data/ChatGPT Image Nov 20, 2025, 05_22_56 PM.png" alt="logo icon"></div>
+          <div class="icon">CC</div>
           <div>
             <h3>Content Creation — Prices & Options</h3>
             <div class="muted" style="font-size:0.9rem;margin-top:6px;">Choose a package below then email to book — quick pricing guide.</div>
@@ -382,7 +396,7 @@
     function createWebsiteCreationHtml() {
       return `
         <div class="modal-hero">
-          <div class="icon"><img src="/mnt/data/ChatGPT Image Nov 20, 2025, 05_22_56 PM.png" alt="logo icon"></div>
+          <div class="icon">WC</div>
           <div>
             <h3>Website Creation</h3>
             <div class="muted" style="font-size:0.9rem;margin-top:6px;">Tell me about your idea — include these basics in your email for a faster quote.</div>
@@ -408,7 +422,7 @@
     function createPlayerHighlightHtml() {
       return `
         <div class="modal-hero">
-          <div class="icon"><img src="/mnt/data/ChatGPT Image Nov 20, 2025, 05_22_56 PM.png" alt="logo icon"></div>
+          <div class="icon">PH</div>
           <div>
             <h3>Player Highlight Video</h3>
             <div class="muted" style="font-size:0.9rem;margin-top:6px;">Fast instructions for sending clips via WeTransfer and booking an edit.</div>
