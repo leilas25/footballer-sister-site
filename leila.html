@@ -10,6 +10,7 @@
     .tweet-card { background:#fff; border:1px solid #e0e0e0; border-radius:16px; padding:1rem; box-shadow:0 1px 3px rgba(0,0,0,.1); margin-bottom:1rem; display:flex; align-items:flex-start; gap:1rem; }
     .tweet-avatar { width:48px; height:48px; border-radius:9999px; background-color:#fce7f3; flex-shrink:0; }
     .dropdown-open { opacity:1!important; transform:scale(1)!important; }
+
     /* timeline dots & spacing */
     .timeline { position: relative; padding-left: 1rem; }
     .timeline li { position: relative; padding-left: 1.25rem; margin-bottom: 0.9rem; line-height: 1.45; }
@@ -20,35 +21,69 @@
       position: absolute; left: -1.25rem; top: 0.5rem;
     }
     .timeline .date { font-weight:800; color:#BE185D; margin-right:6px; }
+
     /* media kit / services group */
-    .btn-same { display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:9999px; border:1px solid #FBCFE8; background:#fff; color:#BE185D; font-weight:600; text-decoration:none; }
+    .btn-same { display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:9999px; border:1px solid #FBCFE8; background:#fff; color:#BE185D; font-weight:600; text-decoration:none; cursor:pointer; }
     .services-dropdown { position: relative; display:inline-block; }
     .services-list { position: absolute; right:0; top:calc(100% + 8px); background:white; border:1px solid #eee; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.06); padding:8px; display:none; min-width:220px; z-index:60; }
-    .services-list a { display:block; padding:8px 10px; color:#333; border-radius:6px; }
-    .services-list a:hover { background:#FEF2F8; color:#BE185D; }
+    .services-list a, .services-list button { display:block; padding:8px 10px; color:#333; border-radius:6px; text-align:left; background:none; border:none; width:100%; cursor:pointer; }
+    .services-list a:hover, .services-list button:hover { background:#FEF2F8; color:#BE185D; }
+
     .muted { color:#6b7280; }
     .centered-video { display:flex; justify-content:center; align-items:center; }
 
-    /* Modal base styles (keeps everything else identical, only sizes changed) */
+    /* Modal base */
     .modal-backdrop {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: none; align-items: center; justify-content: center; z-index: 80;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: none; align-items: center; justify-content: center; z-index:80;
     }
-    .modal-backdrop.open { display: flex; }
-    .modal-content {
-      background: #fff; border-radius: 14px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-      width: 720px; max-width: calc(100% - 48px);
-      /* IMPORTANT: smaller, scrollable area so user can see the form comfortably */
-      max-height: 75vh; overflow-y: auto;
+    .modal {
+      background: #fff; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      padding: 18px; max-height: 90vh; overflow-y: auto;
     }
-    /* make forms a bit slimmer for player + supersport specifically */
-    .modal-sm { width: 640px; max-width: calc(100% - 48px); }
-    @media (max-width: 768px) { .modal-content, .modal-sm { width: calc(100% - 32px); max-height: 80vh; } }
+    .modal-close {
+      background: transparent; border: none; font-weight:700; color:#666; cursor:pointer;
+    }
 
-    /* small visual tweaks for inputs inside modals */
-    .modal-content input, .modal-content textarea, .modal-content select { width: 100%; border: 1px solid #edf2f7; padding: 12px 14px; border-radius: 10px; }
-    .modal-content .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .modal-content label { font-weight: 600; color: #374151; margin-bottom: 6px; display:block; }
-    .modal-actions { display:flex; gap:12px; justify-content:flex-start; align-items:center; margin-top:12px; }
+    /* sizes: small for the two forms you asked (player profile & supersport) */
+    .modal--small { max-width: 560px; width: calc(100% - 32px); }
+    /* default modal width for other modal types */
+    .modal--default { max-width: 720px; width: calc(100% - 32px); }
+
+    /* form tweaks */
+    .form-row { margin-bottom: 0.6rem; }
+    .form-row label { display:block; font-size:0.9rem; margin-bottom:0.25rem; color:#374151; font-weight:600; }
+    .form-row input, .form-row textarea, .form-row select { width:100%; padding:10px; border-radius:8px; border:1px solid #E6E6E6; }
+    .modal-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:10px; }
+
+    @media (max-width:640px) {
+      .modal { padding: 14px; }
+      .btn-same { padding:8px 12px; }
+    }
+
+    /* === New modal-specific styling (only for the three modals you asked) === */
+    .modal-hero {
+      display:flex; gap:12px; align-items:flex-start; margin-bottom:12px;
+    }
+    .modal-hero .icon {
+      width:56px; height:56px; border-radius:12px; display:flex; align-items:center; justify-content:center; background: linear-gradient(180deg,#fff0f6,#fff); border:1px solid #FBCFE8; color:#BE185D; font-weight:800; font-size:20px;
+    }
+    .modal-hero h3 { margin:0; color:#BE185D; font-size:1.05rem; }
+    .modal-note { background:#FEF6FB; border:1px solid #FBDDEC; padding:10px 12px; border-radius:10px; color:#6b213f; font-size:0.95rem; margin-bottom:12px; }
+    .modal-list { list-style:none; padding:0; margin:0 0 12px 0; display:grid; gap:8px; }
+    .modal-list li { padding:8px 10px; border-radius:10px; border:1px solid #F3D3E2; background:linear-gradient(180deg,#fff,#fffaf6); display:flex; justify-content:space-between; align-items:center; }
+    .modal-list li .label { font-weight:600; color:#333; }
+    .modal-list li .price { color:#BE185D; font-weight:700; }
+    .modal-cta-row { display:flex; gap:8px; justify-content:flex-end; align-items:center; margin-top:10px; }
+    .modal-cta { background:#BE185D; color:white; padding:10px 14px; border-radius:9999px; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:8px; }
+    .modal-outline-btn { background:transparent; border:1px solid #FBCFE8; padding:8px 12px; border-radius:9999px; color:#BE185D; font-weight:600; cursor:pointer; }
+
+    /* website creation specifics */
+    .website-reqs { text-align:left; margin-top:8px; padding-left:10px; }
+    .website-reqs li { margin-bottom:6px; color:#374151; }
+
+    /* player highlight specifics */
+    .player-highlight-note { margin-bottom:10px; color:#374151; }
+
   </style>
 </head>
 <body class="bg-pink-50 text-black font-sans">
@@ -97,16 +132,16 @@
       </a>
 
       <div class="services-dropdown">
-        <button id="servicesButton" class="btn-same" aria-expanded="false">
+        <button id="servicesButton" class="btn-same" aria-expanded="false" type="button">
           Leila's Services
           <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" viewBox="0 0 20 20" fill="#BE185D"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06L10.53 13.3a.75.75 0 01-1.06 0L5.23 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd"/></svg>
         </button>
         <div id="servicesList" class="services-list" aria-hidden="true">
-          <a href="#" class="service-item" data-service="player">Player profile creation</a>
-          <a href="#" class="service-item" data-service="supersport">Supersport match highlight reels</a>
-          <a href="#" class="service-item" data-service="content">Content creation</a>
-          <a href="#" class="service-item" data-service="website">Website creation</a>
-          <a href="#" class="service-item" data-service="playerhighlight">Player highlight video</a>
+          <button data-service="player-profile" class="service-item">Player profile creation</button>
+          <button data-service="supersport" class="service-item">Supersport match highlight reels</button>
+          <button data-service="content-creation" class="service-item">Content creation</button>
+          <button data-service="website-creation" class="service-item">Website creation</button>
+          <button data-service="player-highlight" class="service-item">Player highlight video</button>
         </div>
       </div>
     </div>
@@ -121,10 +156,10 @@
 
       <!-- Biography paragraph (formatted and spaced like screenshot) -->
       <div class="mt-4 text-left max-w-2xl mx-auto text-gray-800" style="line-height:1.6;">
-        <p class="mb-3">Hello! I'm Leila, a storyteller, a content creator, and most importantly, a very proud sister!</p>
+        <p class="mb-3">Hello! I'm Leila, a storyteller, a content creator, and most importantly, a very proud sister! 🙈</p>
         <p class="mb-3">I've spent my life on the sidelines, watching my brothers chase their football dreams. What started as just cheering them on has evolved into a passion for capturing the raw, unfiltered emotions and moments of the game, not just on the field, but off it as well.</p>
         <p class="mb-3">Through my lens, you get to see the real story: the long hours of training, the special moments on and off the field, the silent moments of doubt, the family pride that fuels every victory, and the unwavering support that keeps a player going. I believe the heart of football isn't just in the goals, but in the journeys of the people who live and breathe it.</p>
-        <p class="mb-3">Join me as I share a perspective on the sport that's rooted in love, family, and the beautiful, unpredictable life of a footballer's sister as we watch my brothers continue the Sono family legacy.</p>
+        <p class="mb-3">Join me as I share a perspective on the sport that's rooted in love, family, and the beautiful, unpredictable life of a footballer's sister as we watch my brothers continue the Sono family legacy. 👑</p>
         <p class="mb-0">I built this site myself from scratch because a good story deserves a home built with a lot of love and a little bit of code 😊</p>
       </div>
     </div>
@@ -153,18 +188,19 @@
       <h4 class="text-lg font-semibold mb-4 text-rose-700">Footballer's Sister Timeline</h4>
       <ul class="timeline">
         <li><span class="date">2023 :</span>Started the filming the boys games & created their football accounts on instagram.</li>
-        <li><span class="date">2024:</span>Kept recording their trainings, games and behind-the-scenes moments for their instagram pages and mine.</li>
-        <li><span class="date">April 2025:</span>Posted my 1st football vlog on tiktok & it went viral (currently at 250k views)!</li>
-        <li><span class="date">2025:</span>Continued my vlogs & bts moments, creating more viral content and growing my audience.</li>
-        <li><span class="date">June 2025:</span>Officialy started my "life as a footballer's sister" content & posting weekly as so many people loved the vlogs</li>
-        <li><span class="date">August 2025:</span>Created this website to share my journey and connect with all of you in one place!</li>
+        <li><span class="date">2024 :</span>Kept recording their trainings, games and behind-the-scenes moments for their instagram pages and mine.</li>
+        <li><span class="date">April 2025:</span> Posted my 1st football vlog on tiktok & it went viral (currently at 250k views)!</li>
+        <li><span class="date">2025 :</span> Continued my vlogs & bts moments, creating more viral content and growing my audience.</li>
+        <li><span class="date">June 2025:</span> Officialy started my "life as a footballer's sister" content & posting weekly as so many people loved the vlogs</li>
+        <li><span class="date">August 2025:</span> Created this website to share my journey and connect with all of you in one place!</li>
         <li><span class="date"> </span>The journey does not end there! You definitely will not want to miss out on this one! Follow along</li>
       </ul>
     </div>
 
     <!-- GIF (centered, autoplay, loop, muted) placed BEFORE Q&A -->
     <div class="my-8 centered-video">
-      <!-- responsive max-width 540px so it's smaller on large screens and scales on mobile -->
+      <!-- Use mp4 source first; fall back to .mov if needed
+           MADE SMALLER: responsive max-width 640px, width 100% so it scales on mobile -->
       <video id="jomoVid" class="rounded-lg shadow-lg max-w-[540px] w-full" autoplay muted loop playsinline>
         <source src="images/Jomo vid.mp4" type="video/mp4">
         <source src="images/Jomo vid.mov" type="video/quicktime">
@@ -222,7 +258,6 @@
       if (link.getAttribute('href') === currentPage) link.classList.add("font-semibold", "text-rose-600");
     });
     navButton.addEventListener('click', (e) => {
-      e.stopPropagation();
       const isHidden = dropdownMenu.classList.contains('hidden');
       if (isHidden) {
         dropdownMenu.classList.remove('hidden');
@@ -239,7 +274,7 @@
       }
     });
 
-    // Services dropdown
+    // Services dropdown (toggle)
     const servicesBtn = document.getElementById('servicesButton');
     const servicesList = document.getElementById('servicesList');
     servicesBtn?.addEventListener('click', (e) => {
@@ -251,116 +286,317 @@
     document.addEventListener('click', (e)=> {
       if (!servicesBtn?.contains(e.target) && !servicesList?.contains(e.target)) servicesList.style.display = 'none';
     });
+  </script>
 
-    // open service-specific modals (player + supersport + content + website + playerhighlight)
-    function createModal(html, small=false){
-      const backdrop = document.createElement('div'); backdrop.className = 'modal-backdrop open';
-      const modal = document.createElement('div'); modal.className = 'modal-content' + (small? ' modal-sm':'');
-      modal.innerHTML = html;
-      backdrop.appendChild(modal);
-      document.body.appendChild(backdrop);
+  <!-- Modals: added markup (hidden), and JS to open/close them properly -->
+  <!-- Backdrops and modals -->
+  <div id="modalBackdrop" class="modal-backdrop" aria-hidden="true">
+    <!-- Placeholder for dynamic modal content; we'll inject content into modalContainer -->
+    <div id="modalContainer" class="modal modal--default" role="dialog" aria-modal="true" style="display:none;">
+      <!-- modal content inserted dynamically by JS -->
+    </div>
+  </div>
 
-      // close logic
-      backdrop.addEventListener('click', (ev)=>{
-        if (ev.target === backdrop) document.body.removeChild(backdrop);
-      });
-      // attach close buttons
-      modal.querySelectorAll('.modal-close').forEach(btn=> btn.addEventListener('click', ()=> { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); }));
-      return { backdrop, modal };
+  <script>
+    // Utility for creating form HTML snippets
+    function createPlayerProfileFormHtml() {
+      return `
+        <div class="modal-hero">
+          <div class="icon">PP</div>
+          <div>
+            <h3>Player Profile Request</h3>
+            <div class="muted" style="font-size:0.9rem;margin-top:6px;">Fill in the fields below and I'll get back to you about the profile package.</div>
+          </div>
+          <button class="modal-close" id="modalCloseBtn" title="Close">✕</button>
+        </div>
+
+        <form id="playerProfileForm">
+          <div class="form-row"><label>Player name & surname</label><input name="name" required></div>
+          <div class="form-row"><label>Nationality</label><input name="nationality"></div>
+          <div class="form-row" style="display:flex;gap:8px;"><div style="flex:1"><label>Age</label><input name="age" type="number"></div><div style="flex:1"><label>Date of birth</label><input name="dob" type="date"></div></div>
+          <div class="form-row" style="display:flex;gap:8px;"><div style="flex:1"><label>Strong foot</label><select name="strongFoot"><option>Right</option><option>Left</option><option>Both</option></select></div><div style="flex:1"><label>Position</label><input name="position"></div></div>
+          <div class="form-row" style="display:flex;gap:8px;"><div style="flex:1"><label>Height (cm)</label><input name="height" type="number"></div><div style="flex:1"><label>Weight (kg)</label><input name="weight" type="number"></div></div>
+          <div class="form-row"><label>Key attributes</label><textarea name="attributes" rows="3"></textarea></div>
+          <div class="form-row"><label>Experience & achievements</label><textarea name="experience" rows="3"></textarea></div>
+
+          <div class="modal-actions">
+            <button type="button" id="playerCancel" class="modal-outline-btn">Cancel</button>
+            <button type="submit" class="modal-cta">Send Request</button>
+          </div>
+        </form>
+      `;
     }
 
-    document.querySelectorAll('.service-item').forEach(el=> el.addEventListener('click', (ev)=>{
-      ev.preventDefault(); servicesList.style.display = 'none';
-      const svc = el.dataset.service;
-      if (svc === 'player'){
-        // smaller modal for player profile
-        createModal(`
-          <h3 class=\"text-xl font-bold text-rose-700 mb-3\">Player profile request</h3>
-          <form id=\"player-form\">
-            <div class=\"row\"><input placeholder=\"Player name\" name=\"name\" required /><input placeholder=\"Surname\" name=\"surname\" required /></div>
-            <div class=\"row\"><input placeholder=\"Nationality\" name=\"nationality\" /><input placeholder=\"Age\" name=\"age\" /></div>
-            <div class=\"row\"><input type=\"date\" name=\"dob\" placeholder=\"Date of birth\" /><input placeholder=\"Strong foot\" name=\"foot\" /></div>
-            <div class=\"row\"><input placeholder=\"Weight (kg)\" name=\"weight\" /><input placeholder=\"Height (cm)\" name=\"height\" /></div>
-            <div class=\"row\"><input placeholder=\"Position\" name=\"position\" /><input placeholder=\"Key attributes (comma separated)\" name=\"attributes\" /></div>
-            <label class=\"mt-3\">Experience & achievements</label>
-            <textarea name=\"experience\" rows=3 placeholder=\"Clubs, tournaments, awards...\"></textarea>
-            <div class=\"modal-actions\">
-              <button class=\"bg-rose-600 text-white px-4 py-2 rounded-full modal-submit\">Send request</button>
-              <button type=\"button\" class=\"modal-close border px-3 py-2 rounded-full\">Cancel</button>
-              <span id=\"player-status\" class=\"muted ml-2\"></span>
-            </div>
-          </form>
-        `, true);
+    function createSupersportFormHtml() {
+      return `
+        <div class="modal-hero">
+          <div class="icon">SS</div>
+          <div>
+            <h3>Supersport Highlight Request</h3>
+            <div class="muted" style="font-size:0.9rem;margin-top:6px;">Share the match details and link; I'll prepare a highlight package.</div>
+          </div>
+          <button class="modal-close" id="modalCloseBtn" title="Close">✕</button>
+        </div>
 
-        // simple submit handler (sends email via mailto fallback or logs)
-        document.addEventListener('submit', async function handler(e){
-          if (e.target && e.target.id === 'player-form'){
-            e.preventDefault();
-            const form = new FormData(e.target);
-            const body = Array.from(form.entries()).map(([k,v])=> `${k}: ${v}`).join('\n');
-            // try mailto
-            window.location.href = `mailto:leilasono1@gmail.com?subject=Player profile request&body=${encodeURIComponent(body)}`;
-            const status = document.getElementById('player-status'); if (status) status.textContent = 'Opening email client...';
-            // remove handler once used
-            document.removeEventListener('submit', handler);
-          }
+        <form id="supersportForm">
+          <div class="form-row"><label>Match date</label><input name="matchDate" type="date" required></div>
+          <div class="form-row"><label>Teams played</label><input name="teams" required></div>
+          <div class="form-row"><label>Supersport link</label><input name="link" type="url"></div>
+
+          <div class="modal-actions">
+            <button type="button" id="supersportCancel" class="modal-outline-btn">Cancel</button>
+            <button type="submit" class="modal-cta">Send Request</button>
+          </div>
+        </form>
+      `;
+    }
+
+    function createContentCreationHtml() {
+      return `
+        <div class="modal-hero">
+          <div class="icon">CC</div>
+          <div>
+            <h3>Content Creation — Prices & Options</h3>
+            <div class="muted" style="font-size:0.9rem;margin-top:6px;">Choose a package below then email to book — quick pricing guide.</div>
+          </div>
+          <button class="modal-close" id="modalCloseBtn" title="Close">✕</button>
+        </div>
+
+        <div class="modal-note">All packages include basic editing, colour grade and 1 round of minor revisions. Custom quotes available for brand work.</div>
+
+        <ul class="modal-list">
+          <li><span class="label">Behind the scenes content</span><span class="price">from R750</span></li>
+          <li><span class="label">Match day videos</span><span class="price">from R1200</span></li>
+          <li><span class="label">Advertising / product content</span><span class="price">Quote</span></li>
+        </ul>
+
+        <div class="modal-cta-row">
+          <button id="contentClose" class="modal-outline-btn">Close</button>
+          <a href="mailto:leilasono1@gmail.com?subject=Content%20Creation%20Inquiry" class="modal-cta">Email to Book</a>
+        </div>
+      `;
+    }
+
+    function createWebsiteCreationHtml() {
+      return `
+        <div class="modal-hero">
+          <div class="icon">WC</div>
+          <div>
+            <h3>Website Creation</h3>
+            <div class="muted" style="font-size:0.9rem;margin-top:6px;">Tell me about your idea — include these basics in your email for a faster quote.</div>
+          </div>
+          <button class="modal-close" id="modalCloseBtn" title="Close">✕</button>
+        </div>
+
+        <ul class="website-reqs">
+          <li>- Purpose of website (portfolio, club, business)</li>
+          <li>- Example sites you like</li>
+          <li>- Pages required (e.g. home, gallery, contact)</li>
+          <li>- Any brand assets (logo, colours)</li>
+          <li>- Budget range (optional)</li>
+        </ul>
+
+        <div class="modal-cta-row">
+          <button id="websiteClose" class="modal-outline-btn">Close</button>
+          <a href="mailto:leilasono1@gmail.com?subject=Website%20Creation%20Inquiry" class="modal-cta">Email Me</a>
+        </div>
+      `;
+    }
+
+    function createPlayerHighlightHtml() {
+      return `
+        <div class="modal-hero">
+          <div class="icon">PH</div>
+          <div>
+            <h3>Player Highlight Video</h3>
+            <div class="muted" style="font-size:0.9rem;margin-top:6px;">Fast instructions for sending clips via WeTransfer and booking an edit.</div>
+          </div>
+          <button class="modal-close" id="modalCloseBtn" title="Close">✕</button>
+        </div>
+
+        <div class="player-highlight-note">Please send clips via WeTransfer to <strong>leilasono1@gmail.com</strong>. Include player's full name and preferred edit style (short/long, music preference).</div>
+
+        <ul class="modal-list">
+          <li><span class="label">Standard highlight (60–90s)</span><span class="price">from R900</span></li>
+          <li><span class="label">Extended cut (2–4 min)</span><span class="price">from R1600</span></li>
+          <li><span class="label">Social cut (15–30s)</span><span class="price">from R350</span></li>
+        </ul>
+
+        <div class="modal-cta-row">
+          <a href="mailto:leilasono1@gmail.com?subject=Player%20Highlight%20Video" class="modal-cta">Email for Instructions</a>
+          <button id="playerHighlightClose" class="modal-outline-btn">Close</button>
+        </div>
+      `;
+    }
+
+    // Modal open/close helpers
+    const backdrop = document.getElementById('modalBackdrop');
+    const container = document.getElementById('modalContainer');
+
+    function openModal({ html, size = 'default' }) {
+      // set classes and insert html
+      container.classList.remove('modal--small','modal--default');
+      container.classList.add(size === 'small' ? 'modal--small' : 'modal--default');
+      container.innerHTML = html;
+      backdrop.style.display = 'flex';
+      container.style.display = 'block';
+      backdrop.setAttribute('aria-hidden', 'false');
+
+      // attach close handlers
+      const closeBtn = container.querySelector('#modalCloseBtn');
+      if (closeBtn) closeBtn.addEventListener('click', closeModal);
+      // generic cancel or close buttons
+      container.querySelectorAll('#playerCancel, #supersportCancel, #contentClose, #websiteClose, #playerHighlightClose')
+        .forEach(btn => btn.addEventListener('click', closeModal));
+
+      // intercept forms
+      const playerForm = container.querySelector('#playerProfileForm');
+      if (playerForm) {
+        playerForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          // gather values
+          const data = Object.fromEntries(new FormData(playerForm).entries());
+          // send email via mailto fallback and also optionally store locally — preferred: email
+          const subject = encodeURIComponent('Player Profile Request: ' + (data.name || 'Unnamed'));
+          const body = encodeURIComponent(JSON.stringify(data, null, 2));
+          window.location.href = `mailto:leilasono1@gmail.com?subject=${subject}&body=${body}`;
+          closeModal();
         });
-
-      } else if (svc === 'supersport'){
-        createModal(`
-          <h3 class=\"text-xl font-bold text-rose-700 mb-3\">Supersport match highlight request</h3>
-          <form id=\"supersport-form\">
-            <div class=\"row\"><input placeholder=\"Your full name\" name=\"name\" required /><input placeholder=\"Email address\" name=\"email\" required /></div>
-            <div class=\"row\"><input placeholder=\"Phone (optional)\" name=\"phone\" /><input type=\"date\" name=\"match_date\" /></div>
-            <div class=\"row\"><input type=\"date\" name=\"match_date2\" placeholder=\"Match date (if different)\" /><input placeholder=\"Teams played (Team A vs Team B)\" name=\"teams\" /></div>
-            <label class=\"mt-3\">Supersport link (if available)</label>
-            <input name=\"supersport_link\" placeholder=\"Supersport link (if available)\" />
-            <label class=\"mt-3\">Project / Request details</label>
-            <textarea name=\"details\" rows=3 placeholder=\"Give as many details as possible...\"></textarea>
-            <div class=\"modal-actions\">
-              <button class=\"bg-rose-600 text-white px-4 py-2 rounded-full modal-submit\">Send request</button>
-              <button type=\"button\" class=\"modal-close border px-3 py-2 rounded-full\">Cancel</button>
-              <span id=\"supersport-status\" class=\"muted ml-2\"></span>
-            </div>
-          </form>
-        `, true);
-
-        document.addEventListener('submit', function handler(e){
-          if (e.target && e.target.id === 'supersport-form'){
-            e.preventDefault();
-            const form = new FormData(e.target);
-            const body = Array.from(form.entries()).map(([k,v])=> `${k}: ${v}`).join('\n');
-            window.location.href = `mailto:leilasono1@gmail.com?subject=Supersport highlight request&body=${encodeURIComponent(body)}`;
-            const status = document.getElementById('supersport-status'); if (status) status.textContent = 'Opening email client...';
-            document.removeEventListener('submit', handler);
-          }
-        });
-
-      } else if (svc === 'content'){
-        createModal(`
-          <h3 class=\"text-xl font-bold text-rose-700 mb-3\">Content creation - pricing</h3>
-          <div class=\"muted\">Below are starting prices. Final quotes depend on scope.</div>
-          <ul class=\"mt-3\">
-            <li>Behind the scenes content: ZAR 1,200 / short clip</li>
-            <li>Match day videos: ZAR 2,500 / highlights package</li>
-            <li>Advertising / product videos: starting ZAR 4,000</li>
-          </ul>
-          <div class=\"modal-actions\"><button class=\"modal-close border px-3 py-2 rounded-full\">Close</button></div>
-        `);
-      } else if (svc === 'website'){
-        createModal(`
-          <h3 class=\"text-xl font-bold text-rose-700 mb-3\">Website creation</h3>
-          <p class=\"muted\">Email me at <strong>leilasono1@gmail.com</strong> with your idea. Include: purpose, pages needed, example sites, and any assets.</p>
-          <div class=\"modal-actions\"><button class=\"modal-close border px-3 py-2 rounded-full\">Close</button></div>
-        `);
-      } else if (svc === 'playerhighlight'){
-        createModal(`
-          <h3 class=\"text-xl font-bold text-rose-700 mb-3\">Player highlight video</h3>
-          <p class=\"muted\">Please send clips via WeTransfer to <strong>leilasono1@gmail.com</strong>. Include player name & match context.</p>
-          <div class=\"modal-actions\"><button class=\"modal-close border px-3 py-2 rounded-full\">Close</button></div>
-        `);
       }
-    }));
+
+      const superForm = container.querySelector('#supersportForm');
+      if (superForm) {
+        superForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const data = Object.fromEntries(new FormData(superForm).entries());
+          const subject = encodeURIComponent('Supersport Highlight Request: ' + (data.matchDate || 'date'));
+          const body = encodeURIComponent(JSON.stringify(data, null, 2));
+          window.location.href = `mailto:leilasono1@gmail.com?subject=${subject}&body=${body}`;
+          closeModal();
+        });
+      }
+
+      // focus the first input if present
+      const firstInput = container.querySelector('input, textarea, button, select');
+      if (firstInput) firstInput.focus();
+    }
+
+    function closeModal() {
+      backdrop.style.display = 'none';
+      container.style.display = 'none';
+      container.innerHTML = '';
+      backdrop.setAttribute('aria-hidden', 'true');
+    }
+
+    // close on backdrop click (but not when clicking inside modal)
+    backdrop.addEventListener('click', (ev) => {
+      if (ev.target === backdrop) closeModal();
+    });
+
+    // close on escape
+    document.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Escape') closeModal();
+    });
+
+    // Wire service buttons
+    document.querySelectorAll('.service-item').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const service = btn.dataset.service;
+        // hide services list immediately for UX
+        servicesList.style.display = 'none';
+        servicesBtn.setAttribute('aria-expanded', 'false');
+
+        if (service === 'player-profile') {
+          openModal({ html: createPlayerProfileFormHtml(), size: 'small' });
+        } else if (service === 'supersport') {
+          openModal({ html: createSupersportFormHtml(), size: 'small' });
+        } else if (service === 'content-creation') {
+          openModal({ html: createContentCreationHtml(), size: 'default' });
+        } else if (service === 'website-creation') {
+          openModal({ html: createWebsiteCreationHtml(), size: 'default' });
+        } else if (service === 'player-highlight') {
+          openModal({ html: createPlayerHighlightHtml(), size: 'default' });
+        }
+      });
+    });
+
+    // keep servicesList accessible if keyboard used
+    servicesBtn?.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        servicesList.style.display = 'block';
+        servicesBtn.setAttribute('aria-expanded', 'true');
+        const first = servicesList.querySelector('button, a');
+        if (first) first.focus();
+      }
+    });
+  </script>
+
+  <!-- Firebase wiring for Q&A (only runs if Firebase is available) -->
+  <script type="module">
+    try {
+      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
+      const { getAuth, signInAnonymously, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
+      const { getFirestore, collection, addDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
+        authDomain: "football-site-c3aa9.firebaseapp.com",
+        projectId: "football-site-c3aa9",
+        storageBucket: "football-site-c3aa9.appspot.com",
+        messagingSenderId: "65396604482",
+        appId: "1:65396604482:web:0f31625a714aa8357db"
+      };
+      const appId = '1:65396604482:web:0f31625a714aa8352337db';
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const auth = getAuth(app);
+
+      // anonymous sign-in to allow writes
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+          try { await signInAnonymously(auth); } catch(e){ console.warn('Auth failed', e); }
+        }
+      });
+
+      // handle Q&A form submit
+      const qaForm = document.getElementById('qa-form');
+      const qaStatus = document.getElementById('qa-status');
+      if (qaForm) {
+        qaForm.addEventListener('submit', async (ev) => {
+          ev.preventDefault();
+          qaStatus.textContent = 'Sending...';
+          const name = document.getElementById('qa-name').value.trim();
+          const question = document.getElementById('qa-question').value.trim();
+          if (!name || !question) { qaStatus.textContent = 'Please add name & question.'; return; }
+          try {
+            const path = `/artifacts/${appId}/public/data/questions`;
+            await addDoc(collection(db, path), {
+              name, question, timestamp: serverTimestamp()
+            });
+            qaStatus.textContent = 'Question sent — thank you!';
+            qaForm.reset();
+            setTimeout(()=> qaStatus.textContent = '', 3500);
+          } catch (err) {
+            console.error('Failed to send question', err);
+            qaStatus.textContent = 'Failed to send — check console.';
+          }
+        });
+      }
+    } catch (err) {
+      console.warn('Firebase Q&A not initialized:', err);
+      const qaForm = document.getElementById('qa-form');
+      const qaStatus = document.getElementById('qa-status');
+      if (qaForm) {
+        qaForm.addEventListener('submit', (ev) => {
+          ev.preventDefault();
+          qaStatus.textContent = 'Question handled locally (no Firebase).';
+          setTimeout(()=> qaStatus.textContent = '', 3000);
+          qaForm.reset();
+        });
+      }
+    }
   </script>
 
 </body>
