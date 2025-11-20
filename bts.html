@@ -6,37 +6,22 @@
   <title>Behind the Game – The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* reset any default page spacing that causes visible white bars on mobile */
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      background: #fff0f6; /* keep page pink-ish behind content to match theme */
-      -webkit-text-size-adjust: 100%;
-    }
+    /* reset page spacing */
+    html, body { height:100%; margin:0; padding:0; -webkit-text-size-adjust:100%; }
+    body { background: #fff0f6; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
 
-    /* container for page content to keep consistent background */
-    body { background: linear-gradient(#fff0f6, #fff0f6); }
-
-    /* IMPORTANT: embed container */
+    /* common embed container */
     .embed-wrap {
       position: relative;
       width: 100%;
       overflow: hidden;
-      border-radius: 12px;
       background: transparent !important;
       box-shadow: 0 8px 20px rgba(0,0,0,0.06);
       margin: 0 auto;
+      border-radius: 12px;
     }
-    /* 16:9 aspect ratio by default */
-    .embed-wrap::before {
-      content: "";
-      display: block;
-      padding-top: 56.25%;
-    }
-    /* classic tall tiktok look if needed: .embed-wrap.tall::before { padding-top: 177.77%; } */
-
-    /* ensure iframe fills container exactly and has no border or background */
+    /* default aspect: tall tiktok */
+    .embed-wrap::before { content:""; display:block; padding-top:177.77%; } /* matches your previous tall aspect */
     .embed-wrap iframe {
       position: absolute !important;
       top: 0 !important;
@@ -50,46 +35,59 @@
       background: transparent !important;
     }
 
-    /* Some TikTok embeds add internal padding via shadow DOM — this helps hide any faint gap */
-    .carousel-shell { width: 100% !important; max-width: 720px; margin: 0 auto; }
+    /* layout helpers */
+    .carousel-shell { width:100%; max-width:720px; margin:0 auto; }
     .grid-center-mobile { justify-items: center; }
-    @media (min-width: 768px) { .grid-center-mobile { justify-items: stretch; } }
+    @media (min-width:768px) { .grid-center-mobile { justify-items: stretch; } }
 
-    /* make sure slide wrappers don't add side gutters */
     #video-slides-container, #collab-slides { display:flex; width:100%; margin:0; padding:0; }
     #video-slides-container > .slide, #collab-slides > .slide { min-width:100%; box-sizing:border-box; margin:0; padding:0; }
 
-    /* nav dropdown animation (kept) */
+    /* dropdown animation */
     .dropdown-open { opacity:1 !important; transform:scale(1) !important; }
 
-    /* remove body-white flash on mobile when iframes initialize */
+    /* ---------- MOBILE MASKING: stronger rules to hide TikTok's inner white gutters ---------- */
     @media (max-width: 640px) {
-      /* ensure the page background behind embeds is the pink tone */
-      body { background: #fff0f6; }
-      .embed-wrap { background: transparent !important; }
+      /* remove rounded corners on embed so iframe can overdraw edges */
+      .embed-wrap { border-radius: 0 !important; box-shadow: none; }
+
+      /* make the iframe intentionally wider than the viewport and center it.
+         this hides any white gutters that TikTok's embed adds inside the iframe */
+      .embed-wrap iframe {
+        left: 50% !important;
+        width: 120vw !important;    /* widen the iframe */
+        transform: translateX(-50%) !important;
+        max-width: none !important;
+        min-width: 120vw !important;
+      }
+
+      /* reduce padding-top slightly so the taller iframe doesn't overflow too far on very small screens */
+      .embed-wrap::before { padding-top:170%; }
+
+      /* ensure surrounding containers don't add side padding that reveals white */
+      body, section, .carousel-shell { background: #fff0f6; padding-left:0; padding-right:0; }
+      .carousel-shell { max-width:100% !important; padding:0 12px; box-sizing:border-box; }
+    }
+
+    /* optional small-viewport nudge to avoid tiny rounding artifacts on some browsers */
+    @supports (-webkit-touch-callout: none) {
+      .embed-wrap iframe { transform: translateX(-50%) translateZ(0); }
     }
   </style>
 </head>
 <body class="bg-pink-50 text-black font-sans">
 
-  <!-- Header with dropdown navigation -->
+  <!-- Header -->
   <header class="fixed top-0 w-full bg-pink-100 shadow z-50">
     <div class="flex justify-between items-center px-6 py-4">
       <h1 class="text-xl font-bold uppercase text-rose-600">THE FOOTBALLER’S SISTER</h1>
-
-      <!-- Dropdown Navigation -->
       <div class="relative inline-block text-left">
-        <button id="navButton"
-          class="inline-flex justify-center items-center rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
+        <button id="navButton" class="inline-flex justify-center items-center rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
           <span id="navTitle">Loading...</span>
-          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
-          </svg>
+          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd"/></svg>
         </button>
 
-        <!-- Dropdown menu -->
-        <div id="dropdownMenu"
-          class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
+        <div id="dropdownMenu" class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
           <div class="py-1">
             <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
             <a href="bts.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
@@ -106,12 +104,10 @@
   <!-- Hero -->
   <section class="pt-28 px-6 text-center max-w-3xl mx-auto">
     <h2 class="text-4xl font-bold mb-4 text-rose-700">Behind the Game 📸⚽</h2>
-    <p class="text-lg text-gray-600 mb-10">
-      From pre-match rituals to post-match reflections, skills on the field and creative vlogs — Welcome to the real story. This is football, sister-style.
-    </p>
+    <p class="text-lg text-gray-600 mb-10">From pre-match rituals to post-match reflections, skills on the field and creative vlogs — Welcome to the real story. This is football, sister-style.</p>
   </section>
 
-  <!-- Player Profiles Section (HARD-CODED) -->
+  <!-- Player cards -->
   <section class="grid grid-cols-1 md:grid-cols-2 gap-6 px-6 max-w-4xl mx-auto mb-20">
     <h3 class="md:col-span-2 text-3xl font-bold mb-4 text-rose-700 text-center">Meet the Brothers</h3>
 
@@ -119,24 +115,23 @@
       <img src="images/elijah2.jpeg" alt="Elijah Sono" class="rounded-lg mb-4 w-full h-96 object-cover" />
       <h4 class="text-2xl font-bold text-rose-700">Elijah Sono</h4>
       <p class="text-gray-600 mt-1"><strong>Position:</strong> Midfielder</p>
-      <a href="pdfs/ELIJAHSONO-player-profile.pdf" target="_blank" rel="noreferrer" class="mt-6 inline-block bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">View Player Profile</a>
+      <a href="pdfs/ELIJAHSONO-player-profile.pdf" target="_blank" class="mt-6 inline-block bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">View Player Profile</a>
     </div>
 
     <div class="bg-white p-5 rounded-lg shadow-md flex flex-col items-center text-center">
       <img src="images/Bamuza.jpeg" alt="Bamuza Sono" class="rounded-lg mb-4 w-full h-96 object-cover" />
       <h4 class="text-2xl font-bold text-rose-700">Bamuza Sono Jnr</h4>
       <p class="text-gray-600 mt-1"><strong>Position:</strong> Midfielder</p>
-      <a href="pdfs/BAMUZASONO-player-profile.pdf" target="_blank" rel="noreferrer" class="mt-6 inline-block bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">View Player Profile</a>
+      <a href="pdfs/BAMUZASONO-player-profile.pdf" target="_blank" class="mt-6 inline-block bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">View Player Profile</a>
     </div>
   </section>
 
-  <!-- TikTok Carousel + Collaborations side-by-side -->
+  <!-- TikTok + Collabs -->
   <section class="px-6 max-w-5xl mx-auto mb-10">
     <div class="grid md:grid-cols-2 gap-8 items-start grid-center-mobile">
-      <!-- LEFT: TikTok -->
+      <!-- TIKTOK -->
       <div class="w-full carousel-shell">
         <h3 class="text-2xl font-bold mb-4 text-rose-700 text-center">My Vlogs & Highlights</h3>
-
         <div id="video-carousel" class="relative mx-auto w-full">
           <div id="video-slides-container" class="flex transition-transform duration-500 ease-in-out">
             <div class="slide w-full flex-shrink-0 p-0">
@@ -160,16 +155,12 @@
             </div>
           </div>
 
-          <button id="prevBtn" class="absolute top-1/2 left-4 transform -translate-y-1/2 bg-white/50 text-gray-800 p-2 rounded-full hover:bg-white/80 transition-colors">
-            ‹
-          </button>
-          <button id="nextBtn" class="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white/50 text-gray-800 p-2 rounded-full hover:bg-white/80 transition-colors">
-            ›
-          </button>
+          <button id="prevBtn" class="absolute top-1/2 left-4 transform -translate-y-1/2 bg-white/50 text-gray-800 p-2 rounded-full hover:bg-white/80 transition-colors">‹</button>
+          <button id="nextBtn" class="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white/50 text-gray-800 p-2 rounded-full hover:bg-white/80 transition-colors">›</button>
         </div>
       </div>
 
-      <!-- RIGHT: Collaborations -->
+      <!-- COLLABS -->
       <div class="w-full carousel-shell">
         <h3 class="text-2xl font-bold mb-4 text-rose-700 text-center">Collaborations</h3>
         <div id="collab-carousel" class="relative overflow-hidden rounded-lg shadow-lg mx-auto w-full">
@@ -185,7 +176,7 @@
     </div>
   </section>
 
-  <!-- Support Wall Section, Footer etc. (unchanged) -->
+  <!-- Support wall and footer -->
   <section class="px-6 max-w-2xl mx-auto mb-20 bg-pink-100 p-8 rounded-xl shadow-lg">
     <h3 class="text-2xl font-bold mb-4 text-rose-700 text-center">The Support Wall ❤️</h3>
     <form id="support-form" class="space-y-4">
@@ -195,18 +186,11 @@
     </form>
   </section>
 
-  <div class="text-center mb-20">
-    <a href="index.html" class="bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition">Back to Home</a>
-  </div>
+  <div class="text-center mb-20"><a href="index.html" class="bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition">Back to Home</a></div>
+  <footer class="bg-pink-900 text-white text-center py-6"><p>&copy; 2025 The Footballer’s Sister. All rights reserved.</p></footer>
 
-  <footer class="bg-pink-900 text-white text-center py-6">
-    <p>&copy; 2025 The Footballer’s Sister. All rights reserved.</p>
-  </footer>
-
-  <!-- TikTok embed script -->
   <script async src="https://www.tiktok.com/embed.js"></script>
 
-  <!-- Dropdown and carousel scripts (kept lightweight) -->
   <script>
     // dropdown
     const navButton = document.getElementById('navButton');
@@ -219,22 +203,12 @@
     navButton.addEventListener('click', (e)=> {
       e.stopPropagation();
       const isHidden = dropdownMenu.classList.contains('hidden');
-      if (isHidden) {
-        dropdownMenu.classList.remove('hidden');
-        setTimeout(()=>dropdownMenu.classList.add('dropdown-open'), 10);
-      } else {
-        dropdownMenu.classList.remove('dropdown-open');
-        setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
-      }
+      if (isHidden) { dropdownMenu.classList.remove('hidden'); setTimeout(()=>dropdownMenu.classList.add('dropdown-open'), 10); }
+      else { dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'), 200); }
     });
-    document.addEventListener('click', (e)=> {
-      if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
-        dropdownMenu.classList.remove('dropdown-open');
-        setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
-      }
-    });
+    document.addEventListener('click', (e)=> { if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) { dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'), 200); } });
 
-    // simple tiktok carousel
+    // tiktok carousel (simple)
     (function(){
       const slidesContainer = document.getElementById('video-slides-container');
       const prevBtn = document.getElementById('prevBtn');
@@ -259,7 +233,7 @@
       }
     })();
 
-    // small helper: if user still sees gap, force repaint after embeds load
+    // small repaint to help mobile browsers after embed loads
     window.addEventListener('load', ()=> {
       setTimeout(()=> {
         document.querySelectorAll('.embed-wrap iframe').forEach(iframe => {
@@ -268,6 +242,5 @@
       }, 700);
     });
   </script>
-
 </body>
 </html>
