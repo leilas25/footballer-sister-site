@@ -30,6 +30,8 @@
     .centered-video { display:flex; justify-content:center; align-items:center; }
     /* modal */
     .modal-hidden { display: none; }
+    /* narrower form container for certain services */
+    .narrow-form { max-width: 720px; margin-left: auto; margin-right: auto; }
   </style>
 </head>
 <body class="bg-pink-50 text-black font-sans">
@@ -374,11 +376,16 @@
       modalTitle.textContent = `Request: ${serviceName}`;
       modalSubtitle.textContent = `Complete the short form to request ${serviceName.toLowerCase()}.`;
       specificFields.innerHTML = '';
+      // remove narrow-form by default
+      specificFields.classList.remove('narrow-form');
       serviceStatic.classList.add('hidden');
       form.style.display = 'block';
       submitBtn.style.display = 'inline-block';
 
       if (serviceName === 'Player profile creation') {
+        // make form narrower for this service
+        specificFields.classList.add('narrow-form');
+
         specificFields.innerHTML = `
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             <input id="sr-player-first" placeholder="Player name" class="px-4 py-2 border rounded-lg" />
@@ -401,6 +408,9 @@
           </div>
         `;
       } else if (serviceName === 'Supersport match highlight reels') {
+        // make this form a bit narrower too
+        specificFields.classList.add('narrow-form');
+
         specificFields.innerHTML = `
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             <input id="sr-match-date" type="date" class="px-4 py-2 border rounded-lg" />
@@ -452,6 +462,10 @@
     function closeModal(){
       modal.classList.add('modal-hidden');
       modal.style.display = 'none';
+      // clean up specific fields
+      specificFields.innerHTML = '';
+      specificFields.classList.remove('narrow-form');
+      serviceStatic.classList.add('hidden');
     }
 
     // attach click to service items
