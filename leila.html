@@ -29,22 +29,26 @@
     .muted { color:#6b7280; }
     .centered-video { display:flex; justify-content:center; align-items:center; }
 
-    /* -------------------------- */
-    /* Modal sizing tweaks requested (Option 1 - Small) */
-    /* Only change: make player profile and supersport modals smaller (max-width: 560px)
-       These rules are intentionally specific and scoped so they don't affect other elements. */
-    #playerModal .modal-content, #supersportModal .modal-content {
-      max-width: 560px;
-      width: 100%;
-      margin: 0 auto; /* keep it centered */
+    /* Modal base styles (keeps everything else identical, only sizes changed) */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: none; align-items: center; justify-content: center; z-index: 80;
     }
-
-    /* Fallback selector if your modal uses a different structure (still safe): */
-    .player-modal, .supersport-modal {
-      max-width: 560px !important;
-      width: 100% !important;
+    .modal-backdrop.open { display: flex; }
+    .modal-content {
+      background: #fff; border-radius: 14px; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      width: 720px; max-width: calc(100% - 48px);
+      /* IMPORTANT: smaller, scrollable area so user can see the form comfortably */
+      max-height: 75vh; overflow-y: auto;
     }
+    /* make forms a bit slimmer for player + supersport specifically */
+    .modal-sm { width: 640px; max-width: calc(100% - 48px); }
+    @media (max-width: 768px) { .modal-content, .modal-sm { width: calc(100% - 32px); max-height: 80vh; } }
 
+    /* small visual tweaks for inputs inside modals */
+    .modal-content input, .modal-content textarea, .modal-content select { width: 100%; border: 1px solid #edf2f7; padding: 12px 14px; border-radius: 10px; }
+    .modal-content .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .modal-content label { font-weight: 600; color: #374151; margin-bottom: 6px; display:block; }
+    .modal-actions { display:flex; gap:12px; justify-content:flex-start; align-items:center; margin-top:12px; }
   </style>
 </head>
 <body class="bg-pink-50 text-black font-sans">
@@ -102,7 +106,7 @@
           <a href="#" class="service-item" data-service="supersport">Supersport match highlight reels</a>
           <a href="#" class="service-item" data-service="content">Content creation</a>
           <a href="#" class="service-item" data-service="website">Website creation</a>
-          <a href="#" class="service-item" data-service="highlight">Player highlight video</a>
+          <a href="#" class="service-item" data-service="playerhighlight">Player highlight video</a>
         </div>
       </div>
     </div>
@@ -117,10 +121,10 @@
 
       <!-- Biography paragraph (formatted and spaced like screenshot) -->
       <div class="mt-4 text-left max-w-2xl mx-auto text-gray-800" style="line-height:1.6;">
-        <p class="mb-3">Hello! I'm Leila, a storyteller, a content creator, and most importantly, a very proud sister! 🙈</p>
+        <p class="mb-3">Hello! I'm Leila, a storyteller, a content creator, and most importantly, a very proud sister!</p>
         <p class="mb-3">I've spent my life on the sidelines, watching my brothers chase their football dreams. What started as just cheering them on has evolved into a passion for capturing the raw, unfiltered emotions and moments of the game, not just on the field, but off it as well.</p>
         <p class="mb-3">Through my lens, you get to see the real story: the long hours of training, the special moments on and off the field, the silent moments of doubt, the family pride that fuels every victory, and the unwavering support that keeps a player going. I believe the heart of football isn't just in the goals, but in the journeys of the people who live and breathe it.</p>
-        <p class="mb-3">Join me as I share a perspective on the sport that's rooted in love, family, and the beautiful, unpredictable life of a footballer's sister as we watch my brothers continue the Sono family legacy. 👑</p>
+        <p class="mb-3">Join me as I share a perspective on the sport that's rooted in love, family, and the beautiful, unpredictable life of a footballer's sister as we watch my brothers continue the Sono family legacy.</p>
         <p class="mb-0">I built this site myself from scratch because a good story deserves a home built with a lot of love and a little bit of code 😊</p>
       </div>
     </div>
@@ -148,20 +152,19 @@
     <div class="my-12 max-w-lg mx-auto text-left">
       <h4 class="text-lg font-semibold mb-4 text-rose-700">Footballer's Sister Timeline</h4>
       <ul class="timeline">
-        <li><span class="date">2023 :</span> Started the filming the boys games & created their football accounts on instagram.</li>
-        <li><span class="date">2024:</span> Kept recording their trainings, games and behind-the-scenes moments for their instagram pages and mine.</li>
-        <li><span class="date">April 2025:</span> Posted my 1st football vlog on tiktok & it went viral (currently at 250k views)!</li>
-        <li><span class="date">2025:</span> Continued my vlogs & bts moments, creating more viral content and growing my audience.</li>
-        <li><span class="date">June 2025:</span> Officialy started my "life as a footballer's sister" content & posting weekly as so many people loved the vlogs</li>
-        <li><span class="date">August 2025:</span> Created this website to share my journey and connect with all of you in one place!</li>
-        <li> The journey does not end there! You definitely will not want to miss out on this one! Follow along</li>
+        <li><span class="date">2023 :</span>Started the filming the boys games & created their football accounts on instagram.</li>
+        <li><span class="date">2024:</span>Kept recording their trainings, games and behind-the-scenes moments for their instagram pages and mine.</li>
+        <li><span class="date">April 2025:</span>Posted my 1st football vlog on tiktok & it went viral (currently at 250k views)!</li>
+        <li><span class="date">2025:</span>Continued my vlogs & bts moments, creating more viral content and growing my audience.</li>
+        <li><span class="date">June 2025:</span>Officialy started my "life as a footballer's sister" content & posting weekly as so many people loved the vlogs</li>
+        <li><span class="date">August 2025:</span>Created this website to share my journey and connect with all of you in one place!</li>
+        <li><span class="date"> </span>The journey does not end there! You definitely will not want to miss out on this one! Follow along</li>
       </ul>
     </div>
 
     <!-- GIF (centered, autoplay, loop, muted) placed BEFORE Q&A -->
     <div class="my-8 centered-video">
-      <!-- Use mp4 source first; fall back to .mov if needed
-           MADE SMALLER: responsive max-width 540px, width 100% so it scales on mobile -->
+      <!-- responsive max-width 540px so it's smaller on large screens and scales on mobile -->
       <video id="jomoVid" class="rounded-lg shadow-lg max-w-[540px] w-full" autoplay muted loop playsinline>
         <source src="images/Jomo vid.mp4" type="video/mp4">
         <source src="images/Jomo vid.mov" type="video/quicktime">
@@ -249,84 +252,115 @@
       if (!servicesBtn?.contains(e.target) && !servicesList?.contains(e.target)) servicesList.style.display = 'none';
     });
 
-    // (Non-invasive) helper: if your existing modal open logic relies on data-service attributes,
-    // keep it — this script simply dispatches a custom event if you need to hook into it.
-    document.querySelectorAll('.service-item').forEach(el=>{
-      el.addEventListener('click', (ev)=>{
-        ev.preventDefault();
-        const s = el.dataset.service;
-        // dispatch a custom event so existing modal code can listen for it
-        document.dispatchEvent(new CustomEvent('openServiceModal', { detail: { service: s }}));
+    // open service-specific modals (player + supersport + content + website + playerhighlight)
+    function createModal(html, small=false){
+      const backdrop = document.createElement('div'); backdrop.className = 'modal-backdrop open';
+      const modal = document.createElement('div'); modal.className = 'modal-content' + (small? ' modal-sm':'');
+      modal.innerHTML = html;
+      backdrop.appendChild(modal);
+      document.body.appendChild(backdrop);
+
+      // close logic
+      backdrop.addEventListener('click', (ev)=>{
+        if (ev.target === backdrop) document.body.removeChild(backdrop);
       });
-    });
+      // attach close buttons
+      modal.querySelectorAll('.modal-close').forEach(btn=> btn.addEventListener('click', ()=> { if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); }));
+      return { backdrop, modal };
+    }
 
-  </script>
+    document.querySelectorAll('.service-item').forEach(el=> el.addEventListener('click', (ev)=>{
+      ev.preventDefault(); servicesList.style.display = 'none';
+      const svc = el.dataset.service;
+      if (svc === 'player'){
+        // smaller modal for player profile
+        createModal(`
+          <h3 class=\"text-xl font-bold text-rose-700 mb-3\">Player profile request</h3>
+          <form id=\"player-form\">
+            <div class=\"row\"><input placeholder=\"Player name\" name=\"name\" required /><input placeholder=\"Surname\" name=\"surname\" required /></div>
+            <div class=\"row\"><input placeholder=\"Nationality\" name=\"nationality\" /><input placeholder=\"Age\" name=\"age\" /></div>
+            <div class=\"row\"><input type=\"date\" name=\"dob\" placeholder=\"Date of birth\" /><input placeholder=\"Strong foot\" name=\"foot\" /></div>
+            <div class=\"row\"><input placeholder=\"Weight (kg)\" name=\"weight\" /><input placeholder=\"Height (cm)\" name=\"height\" /></div>
+            <div class=\"row\"><input placeholder=\"Position\" name=\"position\" /><input placeholder=\"Key attributes (comma separated)\" name=\"attributes\" /></div>
+            <label class=\"mt-3\">Experience & achievements</label>
+            <textarea name=\"experience\" rows=3 placeholder=\"Clubs, tournaments, awards...\"></textarea>
+            <div class=\"modal-actions\">
+              <button class=\"bg-rose-600 text-white px-4 py-2 rounded-full modal-submit\">Send request</button>
+              <button type=\"button\" class=\"modal-close border px-3 py-2 rounded-full\">Cancel</button>
+              <span id=\"player-status\" class=\"muted ml-2\"></span>
+            </div>
+          </form>
+        `, true);
 
-  <!-- Firebase wiring for Q&A (only runs if Firebase is available) -->
-  <script type="module">
-    try {
-      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
-      const { getAuth, signInAnonymously, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
-      const { getFirestore, collection, addDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-
-      const firebaseConfig = {
-        apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
-        authDomain: "football-site-c3aa9.firebaseapp.com",
-        projectId: "football-site-c3aa9",
-        storageBucket: "football-site-c3aa9.appspot.com",
-        messagingSenderId: "65396604482",
-        appId: "1:65396604482:web:0f31625a714aa8357db"
-      };
-      const appId = '1:65396604482:web:0f31625a714aa8352337db';
-
-      const app = initializeApp(firebaseConfig);
-      const db = getFirestore(app);
-      const auth = getAuth(app);
-
-      // anonymous sign-in to allow writes
-      onAuthStateChanged(auth, async (user) => {
-        if (!user) {
-          try { await signInAnonymously(auth); } catch(e){ console.warn('Auth failed', e); }
-        }
-      });
-
-      // handle Q&A form submit
-      const qaForm = document.getElementById('qa-form');
-      const qaStatus = document.getElementById('qa-status');
-      if (qaForm) {
-        qaForm.addEventListener('submit', async (ev) => {
-          ev.preventDefault();
-          qaStatus.textContent = 'Sending...';
-          const name = document.getElementById('qa-name').value.trim();
-          const question = document.getElementById('qa-question').value.trim();
-          if (!name || !question) { qaStatus.textContent = 'Please add name & question.'; return; }
-          try {
-            const path = `/artifacts/${appId}/public/data/questions`;
-            await addDoc(collection(db, path), {
-              name, question, timestamp: serverTimestamp()
-            });
-            qaStatus.textContent = 'Question sent — thank you!';
-            qaForm.reset();
-            setTimeout(()=> qaStatus.textContent = '', 3500);
-          } catch (err) {
-            console.error('Failed to send question', err);
-            qaStatus.textContent = 'Failed to send — check console.';
+        // simple submit handler (sends email via mailto fallback or logs)
+        document.addEventListener('submit', async function handler(e){
+          if (e.target && e.target.id === 'player-form'){
+            e.preventDefault();
+            const form = new FormData(e.target);
+            const body = Array.from(form.entries()).map(([k,v])=> `${k}: ${v}`).join('\n');
+            // try mailto
+            window.location.href = `mailto:leilasono1@gmail.com?subject=Player profile request&body=${encodeURIComponent(body)}`;
+            const status = document.getElementById('player-status'); if (status) status.textContent = 'Opening email client...';
+            // remove handler once used
+            document.removeEventListener('submit', handler);
           }
         });
-      }
-    } catch (err) {
-      console.warn('Firebase Q&A not initialized:', err);
-      const qaForm = document.getElementById('qa-form');
-      const qaStatus = document.getElementById('qa-status');
-      if (qaForm) {
-        qaForm.addEventListener('submit', (ev) => {
-          ev.preventDefault();
-          qaStatus.textContent = 'Question handled locally (no Firebase).';
-          setTimeout(()=> qaStatus.textContent = '', 3000);
-          qaForm.reset();
+
+      } else if (svc === 'supersport'){
+        createModal(`
+          <h3 class=\"text-xl font-bold text-rose-700 mb-3\">Supersport match highlight request</h3>
+          <form id=\"supersport-form\">
+            <div class=\"row\"><input placeholder=\"Your full name\" name=\"name\" required /><input placeholder=\"Email address\" name=\"email\" required /></div>
+            <div class=\"row\"><input placeholder=\"Phone (optional)\" name=\"phone\" /><input type=\"date\" name=\"match_date\" /></div>
+            <div class=\"row\"><input type=\"date\" name=\"match_date2\" placeholder=\"Match date (if different)\" /><input placeholder=\"Teams played (Team A vs Team B)\" name=\"teams\" /></div>
+            <label class=\"mt-3\">Supersport link (if available)</label>
+            <input name=\"supersport_link\" placeholder=\"Supersport link (if available)\" />
+            <label class=\"mt-3\">Project / Request details</label>
+            <textarea name=\"details\" rows=3 placeholder=\"Give as many details as possible...\"></textarea>
+            <div class=\"modal-actions\">
+              <button class=\"bg-rose-600 text-white px-4 py-2 rounded-full modal-submit\">Send request</button>
+              <button type=\"button\" class=\"modal-close border px-3 py-2 rounded-full\">Cancel</button>
+              <span id=\"supersport-status\" class=\"muted ml-2\"></span>
+            </div>
+          </form>
+        `, true);
+
+        document.addEventListener('submit', function handler(e){
+          if (e.target && e.target.id === 'supersport-form'){
+            e.preventDefault();
+            const form = new FormData(e.target);
+            const body = Array.from(form.entries()).map(([k,v])=> `${k}: ${v}`).join('\n');
+            window.location.href = `mailto:leilasono1@gmail.com?subject=Supersport highlight request&body=${encodeURIComponent(body)}`;
+            const status = document.getElementById('supersport-status'); if (status) status.textContent = 'Opening email client...';
+            document.removeEventListener('submit', handler);
+          }
         });
+
+      } else if (svc === 'content'){
+        createModal(`
+          <h3 class=\"text-xl font-bold text-rose-700 mb-3\">Content creation - pricing</h3>
+          <div class=\"muted\">Below are starting prices. Final quotes depend on scope.</div>
+          <ul class=\"mt-3\">
+            <li>Behind the scenes content: ZAR 1,200 / short clip</li>
+            <li>Match day videos: ZAR 2,500 / highlights package</li>
+            <li>Advertising / product videos: starting ZAR 4,000</li>
+          </ul>
+          <div class=\"modal-actions\"><button class=\"modal-close border px-3 py-2 rounded-full\">Close</button></div>
+        `);
+      } else if (svc === 'website'){
+        createModal(`
+          <h3 class=\"text-xl font-bold text-rose-700 mb-3\">Website creation</h3>
+          <p class=\"muted\">Email me at <strong>leilasono1@gmail.com</strong> with your idea. Include: purpose, pages needed, example sites, and any assets.</p>
+          <div class=\"modal-actions\"><button class=\"modal-close border px-3 py-2 rounded-full\">Close</button></div>
+        `);
+      } else if (svc === 'playerhighlight'){
+        createModal(`
+          <h3 class=\"text-xl font-bold text-rose-700 mb-3\">Player highlight video</h3>
+          <p class=\"muted\">Please send clips via WeTransfer to <strong>leilasono1@gmail.com</strong>. Include player name & match context.</p>
+          <div class=\"modal-actions\"><button class=\"modal-close border px-3 py-2 rounded-full\">Close</button></div>
+        `);
       }
-    }
+    }));
   </script>
 
 </body>
