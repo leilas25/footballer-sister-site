@@ -5,6 +5,62 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Behind the Game – The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Small custom fixes */
+    /* Remove white / default iframe background and make sure iframe fills its container */
+    .embed-wrap {
+      position: relative;
+      width: 100%;
+      background: transparent; /* remove white box behind embeds */
+      overflow: hidden;
+      border-radius: 12px;
+    }
+    .embed-wrap::before {
+      /* padding trick for fixed aspect ratio (56.25% = 16:9) */
+      content: "";
+      display: block;
+      padding-top: 56.25%;
+    }
+    .embed-wrap iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: transparent;
+      display: block;
+    }
+
+    /* For very tall mobile TikTok aesthetic while keeping borders removed, we give a small variant */
+    .embed-wrap.tall::before { padding-top: 177.77%; } /* if you ever want to switch back */
+
+    /* Ensure slide containers are full width and no unexpected gaps */
+    #video-slides-container, #collab-slides {
+      display: flex;
+      width: 100%;
+      will-change: transform;
+    }
+    #video-slides-container > .slide, #collab-slides > .slide {
+      min-width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Center stacked grid items on small screens */
+    .grid-center-mobile { justify-items: center; }
+    @media (min-width: 768px) { /* md+ */
+      .grid-center-mobile { justify-items: stretch; }
+    }
+
+    /* ensure carousel shadows & rounded appear correctly */
+    .carousel-shell { width: 100%; max-width: 540px; }
+
+    /* small adjustments to nav dropdown animation (kept from your original) */
+    .dropdown-open {
+      opacity: 1 !important;
+      transform: scale(1) !important;
+    }
+  </style>
 </head>
 <body class="bg-pink-50 text-black font-sans">
 
@@ -39,14 +95,6 @@
     </div>
   </header>
 
-  <style>
-    /* Animation for dropdown open */
-    .dropdown-open {
-      opacity: 1 !important;
-      transform: scale(1) !important;
-    }
-  </style>
-
   <!-- Hero -->
   <section class="pt-28 px-6 text-center max-w-3xl mx-auto">
     <h2 class="text-4xl font-bold mb-4 text-rose-700">Behind the Game 📸⚽</h2>
@@ -61,13 +109,11 @@
 
     <!-- Elijah (hard-coded) -->
     <div class="bg-white p-5 rounded-lg shadow-md flex flex-col items-center text-center">
-      <!-- FIXED HEIGHT: both images use the same height so cards are uniform -->
       <img src="images/elijah2.jpeg" alt="Elijah Sono"
            class="rounded-lg mb-4 w-full h-96 object-cover" />
       <h4 class="text-2xl font-bold text-rose-700 flex items-center gap-3">
         <span>Elijah Sono</span>
         <span class="inline-flex items-center gap-2 ml-2">
-          <!-- Instagram icon -->
           <a id="elijah-instagram" href="https://www.instagram.com/elijah_sono?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" title="Instagram">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <rect x="2" y="2" width="20" height="20" rx="5" stroke="#BE185D" stroke-width="1.5" fill="none"/>
@@ -76,7 +122,6 @@
             </svg>
           </a>
 
-          <!-- TikTok icon (resized to match Instagram visual weight) -->
           <a id="elijah-tiktok" href="https://www.tiktok.com/@elijah_sono_?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" title="TikTok">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                  xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -115,7 +160,6 @@
 
     <!-- Bamuza (hard-coded) -->
     <div class="bg-white p-5 rounded-lg shadow-md flex flex-col items-center text-center">
-      <!-- FIXED HEIGHT: same h-96 to match Elijah -->
       <img src="images/Bamuza.jpeg" alt="Bamuza Sono"
            class="rounded-lg mb-4 w-full h-96 object-cover" />
       <h4 class="text-2xl font-bold text-rose-700 flex items-center gap-3">
@@ -129,7 +173,6 @@
             </svg>
           </a>
 
-          <!-- TikTok icon (resized to match Instagram visual weight) -->
           <a id="bamuza-tiktok" href="https://www.tiktok.com/@bamuza_sono?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" title="TikTok">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                  xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -169,19 +212,25 @@
 
   <!-- TikTok Carousel + Collaborations side-by-side -->
   <section class="px-6 max-w-5xl mx-auto mb-10">
-    <!-- Added grid justify-items classes so stacked items are centered on mobile,
-         and remain stretched on md+ (desktop) -->
-    <div class="grid md:grid-cols-2 gap-8 items-start justify-items-center md:justify-items-stretch">
+    <!-- Added grid-center-mobile so stacked items are centered on mobile, stretched on md+ -->
+    <div class="grid md:grid-cols-2 gap-8 items-start grid-center-mobile">
       <!-- LEFT: TikTok -->
-      <div class="w-full max-w-md">
+      <div class="w-full carousel-shell">
         <h3 class="text-2xl font-bold mb-4 text-rose-700 text-center">My Vlogs & Highlights</h3>
-        <div id="video-carousel" class="relative overflow-hidden rounded-lg shadow-lg mx-auto w-full md:max-w-sm">
+
+        <!-- Using embed-wrap (56.25% aspect) to remove the white border & center the video on mobile -->
+        <div id="video-carousel" class="relative overflow-hidden rounded-lg shadow-lg mx-auto w-full">
           <div id="video-slides-container" class="flex transition-transform duration-500 ease-in-out">
-            <div class="w-full flex-shrink-0 relative" style="padding-top: 177.77%;">
-              <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" allowfullscreen class="absolute top-0 left-0 w-full h-full"></iframe>
+            <div class="slide w-full flex-shrink-0 p-0">
+              <div class="embed-wrap">
+                <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" allowfullscreen allow="autoplay; fullscreen; encrypted-media"></iframe>
+              </div>
             </div>
-            <div class="w-full flex-shrink-0 relative" style="padding-top: 177.77%;">
-              <iframe src="https://www.tiktok.com/embed/v2/7514262969786567943" allowfullscreen class="absolute top-0 left-0 w-full h-full"></iframe>
+
+            <div class="slide w-full flex-shrink-0 p-0">
+              <div class="embed-wrap">
+                <iframe src="https://www.tiktok.com/embed/v2/7514262969786567943" allowfullscreen allow="autoplay; fullscreen; encrypted-media"></iframe>
+              </div>
             </div>
             <!-- add more iframes as needed -->
           </div>
@@ -200,11 +249,11 @@
       </div>
 
       <!-- RIGHT: Collaborations (reads Firestore gallery) -->
-      <div class="w-full max-w-md">
+      <div class="w-full carousel-shell">
         <h3 class="text-2xl font-bold mb-4 text-rose-700 text-center">Collaborations</h3>
-        <div id="collab-carousel" class="relative overflow-hidden rounded-lg shadow-lg mx-auto w-full md:max-w-sm">
+        <div id="collab-carousel" class="relative overflow-hidden rounded-lg shadow-lg mx-auto w-full">
           <div id="collab-slides" class="flex transition-transform duration-400 ease-in-out">
-            <div class="w-full flex-shrink-0 p-8 text-center muted">Loading collaborations...</div>
+            <div class="slide w-full flex-shrink-0 p-8 text-center muted">Loading collaborations...</div>
           </div>
 
           <button id="collabPrev" class="absolute top-1/2 left-3 transform -translate-y-1/2 bg-white/60 text-gray-800 p-2 rounded-full hover:bg-white transition-colors">‹</button>
@@ -400,7 +449,7 @@
         }
         items.forEach(it => {
           const slide = document.createElement('div');
-          slide.className = 'w-full flex-shrink-0 p-4';
+          slide.className = 'w-full flex-shrink-0 p-4 slide';
           slide.innerHTML = `
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
               <a href="${escapeHtml(it.link || it.imageUrl || '#')}" target="_blank" rel="noreferrer">
