@@ -349,7 +349,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const appId = typeof __app_id !== 'undefined' ? __app_id : '1:65396604482:web:0f31625a714aa8352337db';
     const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
@@ -496,19 +496,50 @@
         });
       }
 
-      const galleryPaths = [
-        `/artifacts/${appId}/public/data/gallery`,
-        `/public/data/gallery`,
-        `gallery`
-      ];
-      let subscribed = false;
+      // Normalise potential artifact IDs (some tools include "web:" parts etc.)
+      function normalizeArtifactId(raw) {
+        if (!raw) return raw;
+        // if looks like "1:65396604482:web:0f31625a714aa8352337db" -> keep whole and also provide a short form
+        return raw;
+      }
 
-      galleryPaths.forEach(p => {
+      // Build a list of candidate paths to try (tries many variants so admin+public pages match)
+      const candidates = [];
+      // Using firebaseConfig.appId (full) and the provided appId var
+      try {
+        const fullAppId = firebaseConfig && firebaseConfig.appId ? firebaseConfig.appId : appId;
+        const projectId = firebaseConfig && firebaseConfig.projectId ? firebaseConfig.projectId : '';
+        // common variants:
+        candidates.push(`/artifacts/${fullAppId}/public/data/gallery`);
+        candidates.push(`/artifacts/${fullAppId}/public/gallery`);
+        // fallback using only projectId
+        if (projectId) {
+          candidates.push(`/artifacts/${projectId}/public/data/gallery`);
+          candidates.push(`/artifacts/${projectId}/public/gallery`);
+        }
+        // simpler fallbacks
+        candidates.push(`/public/data/gallery`);
+        candidates.push(`/public/gallery`);
+        candidates.push(`gallery`);
+      } catch (e) {
+        candidates.push(`/public/data/gallery`, `gallery`);
+      }
+
+      // Track subscriptions so we can prefer the first working one
+      let unsubscribes = [];
+      let found = false;
+
+      // try each candidate path with a realtime subscription
+      candidates.forEach(p => {
         try {
           const q = query(collection(db, p), orderBy('createdAt','desc'));
-          onSnapshot(q, snap => {
-            const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }) );
-            // prefer items explicitly marked as collab; fallback to all
+          const unsub = onSnapshot(q, snap => {
+            // If we've already found a working path and this one triggered later, ignore unless it's the first success
+            const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }));
+            if (!docs.length && !found) {
+              // If no docs here, still continue looking at other candidates
+            }
+            // Compose collab items (prefer explicit collab flag)
             const collabs = docs.filter(d => {
               const meta = d.data || {};
               if (meta.collab === true) return true;
@@ -520,28 +551,81 @@
               return { imageUrl: data.imageUrl || data.image || data.url || '', caption: data.caption || data.title || '', link: data.link || data.target || '' };
             });
 
-            const collabItems = collabs.length ? collabs : docs.map(d => {
+            const resultItems = (collabs.length ? collabs : docs.map(d => {
               const data = d.data || {};
               return { imageUrl: data.imageUrl || data.image || data.url || '', caption: data.caption || data.title || '', link: data.link || data.target || '' };
-            });
+            })).filter(it => it.imageUrl);
 
-            items = collabItems.filter(it => it.imageUrl);
-            idx = 0;
-            renderSlides();
-            subscribed = true;
-            if (debugEl) debugEl.textContent = `Loaded ${items.length} collabs from ${p}`;
+            // If this snapshot gives any items, mark found and use them
+            if (resultItems && resultItems.length > 0) {
+              found = true;
+              items = resultItems;
+              idx = 0;
+              renderSlides();
+              if (debugEl) debugEl.textContent = `Loaded ${items.length} collabs from ${p}`;
+            } else {
+              // if not found yet, still show helpful debug
+              if (!found && debugEl) debugEl.textContent = `No collabs at ${p} (0 docs)`;
+            }
           }, err => {
             console.warn('gallery onSnapshot error for', p, err);
+            // keep trying other paths
+            if (debugEl) debugEl.textContent = `Realtime error for ${p}: ${err && err.message ? err.message : String(err)}`;
           });
-        } catch (e) {
-          // ignore and continue trying other paths
+          unsubscribes.push(unsub);
+        } catch (err) {
+          console.warn('subscribe attempt failed for', p, err);
         }
       });
 
-      setTimeout(() => {
-        if (!subscribed && (!items || items.length === 0)) {
-          if (debugEl) debugEl.textContent = 'No realtime subscription available for gallery - check collection path or rules.';
+      // If, after a short delay, nothing subscribed or nothing returned items, try a one-off read to give clearer feedback
+      setTimeout(async () => {
+        if (found) return;
+        // try one-off getDocs on candidates to see whether they exist and return helpful debug
+        for (const p of candidates) {
+          try {
+            const collRef = collection(db, p);
+            const q = query(collRef, orderBy('createdAt','desc'));
+            const snap = await getDocs(q);
+            if (!snap.empty) {
+              const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }));
+              const collabs = docs.filter(d => {
+                const meta = d.data || {};
+                if (meta.collab === true) return true;
+                if ((meta.type||'').toLowerCase() === 'collab') return true;
+                if ((meta.caption||'').toLowerCase().includes('collab')) return true;
+                return false;
+              }).map(d => {
+                const data = d.data || {};
+                return { imageUrl: data.imageUrl || data.image || data.url || '', caption: data.caption || data.title || '', link: data.link || data.target || '' };
+              });
+
+              const resultItems = (collabs.length ? collabs : docs.map(d => {
+                const data = d.data || {};
+                return { imageUrl: data.imageUrl || data.image || data.url || '', caption: data.caption || data.title || '', link: data.link || data.target || '' };
+              })).filter(it => it.imageUrl);
+
+              if (resultItems && resultItems.length > 0) {
+                found = true;
+                items = resultItems;
+                idx = 0;
+                renderSlides();
+                if (debugEl) debugEl.textContent = `Loaded ${items.length} collabs from ${p} (one-off read)`;
+                return;
+              } else {
+                if (debugEl) debugEl.textContent = `Collection ${p} exists but contains no collab images.`;
+              }
+            } else {
+              if (debugEl) debugEl.textContent = `Collection ${p} appears empty.`;
+            }
+          } catch (err) {
+            // permission or not found — show message
+            if (debugEl) debugEl.textContent = `Could not read ${p}: ${err && err.message ? err.message : String(err)}. Check rules or path.`;
+          }
         }
+
+        // if still not found
+        if (!found && debugEl) debugEl.textContent = 'No realtime subscription available for gallery — check collection path or Firestore rules (permission-denied).';
       }, 900);
     })();
   </script>
