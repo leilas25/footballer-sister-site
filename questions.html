@@ -14,8 +14,9 @@
 <body class="bg-pink-50 min-h-screen font-sans text-black">
 
   <header class="bg-pink-100 fixed top-0 left-0 right-0 z-40">
-    <div class="max-w-6xl mx-auto px-6 py-4">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
       <h1 class="text-xl font-bold text-rose-600">THE FOOTBALLER’S SISTER</h1>
+      <div class="text-sm muted">Reading from: <span id="publicDetectedPath" style="font-weight:700;color:#6b2150">detecting…</span></div>
     </div>
   </header>
   <div class="pt-24"></div>
@@ -36,7 +37,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // ---------- config (matches your project)
     const firebaseConfig = {
@@ -51,64 +52,22 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    const appId = firebaseConfig.appId;
 
-    // Candidate bases to try (same idea as admin page)
-    const CANDIDATE_BASES = [
-      `artifacts/${appId}/public/data`,
-      `artifacts/${appId}/public`,
-      `artifacts/${appId}`,
-      `public/data`,
-      '' // top-level
-    ];
+    // === IMPORTANT: explicit collection path based on what you pasted
+    // Normalized (no leading slash) for the SDK:
+    const QUESTIONS_COLLECTION_PATH = "artifacts/1:65396604482:web:0f31625a714aa8352337db/public/data/questions";
 
     // DOM
     const listEl = document.getElementById('questionsList');
     const loadingEl = document.getElementById('loading');
     const errorBox = document.getElementById('errorBox');
+    const publicDetectedPath = document.getElementById('publicDetectedPath');
 
     function escapeHtml(str) {
       if (!str) return '';
       return String(str).replace(/[&<>"']/g, (s) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]);
     }
 
-    // try reading collection to detect which base works
-    async function tryReadCollectionAtBase(base, collectionName) {
-      const path = base ? `${base}/${collectionName}` : collectionName;
-      try {
-        // quick test read
-        await getDocs(collection(db, path));
-        return { success: true, base, path };
-      } catch (err) {
-        return { success: false, error: err, base, path };
-      }
-    }
-
-    // auto-detect an accessible base, then subscribe with onSnapshot
-    async function autoDetectAndSubscribe(collectionName, onUpdate, onError) {
-      let firstError = null;
-      for (const base of CANDIDATE_BASES) {
-        const res = await tryReadCollectionAtBase(base, collectionName);
-        if (res.success) {
-          // subscribe
-          const collRef = collection(db, res.path);
-          // attach real-time listener
-          const unsub = onSnapshot(collRef, (snap) => {
-            const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }));
-            onUpdate({ docs, base: res.base, path: res.path, unsubscribe: unsub });
-          }, (err) => {
-            if (onError) onError({ error: err, base: res.base, path: res.path });
-          });
-          return { success: true, base: res.base, path: res.path, unsubscribe: unsub };
-        } else {
-          if (!firstError) firstError = res;
-          console.warn('Path read error:', res.path, res.error && res.error.code ? res.error.code : res.error);
-        }
-      }
-      return firstError;
-    }
-
-    // render helper (sorts by createdAt.seconds desc when possible)
     function renderDocs(docs) {
       listEl.innerHTML = '';
       if (!docs || !docs.length) {
@@ -116,7 +75,7 @@
         return;
       }
 
-      // sort: newest first (safe even if createdAt missing)
+      // sort newest first
       docs.sort((a,b) => {
         const ta = a.data.createdAt && a.data.createdAt.seconds ? a.data.createdAt.seconds : 0;
         const tb = b.data.createdAt && b.data.createdAt.seconds ? b.data.createdAt.seconds : 0;
@@ -152,36 +111,37 @@
       });
     }
 
-    // show friendly error when detection fails
-    function showDetectError(errObj) {
-      loadingEl.classList.add('hidden');
-      errorBox.classList.remove('hidden');
-      if (!errObj) {
-        errorBox.textContent = 'Could not find questions collection (no path worked).';
-        return;
-      }
-      errorBox.innerHTML = `Could not access questions collection. Last attempted path: <code>${escapeHtml(errObj.path || '')}</code>. Error: ${escapeHtml(errObj.error && (errObj.error.message || errObj.error.code) || String(errObj.error))}`;
-      console.error('Auto-detect failed:', errObj);
-    }
-
-    // start: try anonymous auth then subscribe
-    onAuthStateChanged(auth, (user) => {
-      // always attempt to subscribe even if anonymous sign-in fails — reads may still be allowed
-      autoDetectAndSubscribe('questions',
-        ({ docs, base, path, unsubscribe }) => {
+    // Subscribe directly to the explicit collection path
+    let unsubscribe = null;
+    function subscribeToQuestions() {
+      if (unsubscribe) unsubscribe();
+      loadingEl.classList.remove('hidden');
+      errorBox.classList.add('hidden');
+      try {
+        const collRef = collection(db, QUESTIONS_COLLECTION_PATH);
+        publicDetectedPath.textContent = QUESTIONS_COLLECTION_PATH;
+        unsubscribe = onSnapshot(collRef, (snap) => {
+          const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }));
           loadingEl.classList.add('hidden');
           errorBox.classList.add('hidden');
           renderDocs(docs);
-        },
-        (err) => {
-          showDetectError(err);
-        }
-      ).then(res => {
-        if (!res || !res.success) {
-          showDetectError(res);
-        }
-      });
+        }, (err) => {
+          console.error('onSnapshot error', err);
+          loadingEl.classList.add('hidden');
+          errorBox.classList.remove('hidden');
+          errorBox.textContent = 'Realtime read failed: ' + (err.message || err.code || err);
+        });
+      } catch (err) {
+        console.error('Subscribe failed', err);
+        loadingEl.classList.add('hidden');
+        errorBox.classList.remove('hidden');
+        errorBox.textContent = 'Could not subscribe to questions: ' + (err.message || err.code || err);
+      }
+    }
 
+    // Ensure auth then subscribe (anonymous sign-in if necessary)
+    onAuthStateChanged(auth, (user) => {
+      subscribeToQuestions();
       if (!user) {
         signInAnonymously(auth).catch(err => {
           console.warn('Anonymous sign-in failed (continuing read-only):', err);
