@@ -6,36 +6,88 @@
   <title>Q&A – The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .qa-card { background:#fff; padding:1rem; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.06); }
-    .muted { color:#6b7280; }
-    .chip { font-size:.75rem; padding:.15rem .5rem; border-radius:9999px; }
-    .answered { background:#ecfeff; border:1px solid #c7f9ff; color:#064e3b; padding:.5rem .75rem; border-radius:8px; display:inline-block; font-weight:700; }
-    .unanswered { color:#6b7280; }
-    .raw-box { background:#0f172a; color:#e6eef8; padding:.8rem; border-radius:8px; font-family: monospace; white-space:pre-wrap; max-height:320px; overflow:auto; margin-top:.5rem; }
-    .toggle-btn { cursor:pointer; color:#7c2d5b; font-weight:700; text-decoration:underline; }
+    :root{
+      --bg: #fff7fb;
+      --accent: #be185d;
+      --muted: #6b7280;
+      --card: #ffffff;
+      --shadow: 0 10px 30px rgba(11,7,17,0.06);
+    }
+    body { background: #fff2f6; color: #111827; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+    header {
+      background: linear-gradient(180deg, rgba(246,213,239,0.6), rgba(255,241,248,0.6));
+      border-bottom: 1px solid rgba(235,200,215,0.6);
+      backdrop-filter: blur(4px);
+    }
+    .site-title { color: var(--accent); font-weight: 800; letter-spacing: .02em; }
+    main { padding-bottom: 6rem; }
+
+    /* cards */
+    .qa-card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 1.25rem 1.5rem;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(235,224,232,0.6);
+    }
+    .qa-grid { display:grid; grid-template-columns: 1fr; gap:1.25rem; }
+    .qa-title { font-weight:800; font-size:1.05rem; color:#111827; }
+    .qa-text { color:#374151; margin-top:.5rem; line-height:1.45; }
+    .meta-row { display:flex; gap:.75rem; align-items:center; margin-top:.65rem; color:var(--muted); font-size:.9rem; }
+    .chip-answered { background: linear-gradient(180deg,#ecfdf5,#dcfce7); color:#065f46; font-weight:700; padding:.4rem .6rem; border-radius:999px; font-size:.8rem; border:1px solid rgba(16,185,129,0.08); }
+    .chip-unanswered { color:var(--muted); font-weight:600; font-size:.9rem; }
+
+    /* layout */
+    .container { max-width:920px; margin:0 auto; padding:2.25rem 1.5rem; }
+    .page-head { display:flex; align-items:center; gap:1rem; margin-bottom:1rem; }
+    .page-h1 { font-size:2rem; font-weight:900; color:var(--accent); }
+    .subtle { color:var(--muted); }
+
+    /* pagination controls */
+    .pager { display:flex; justify-content:center; margin-top:1.25rem; gap:.75rem; align-items:center; }
+    .btn-pager { padding:.6rem 1rem; border-radius:999px; font-weight:700; background:white; border:1px solid rgba(0,0,0,0.06); cursor:pointer; box-shadow:0 6px 18px rgba(11,7,17,0.04); }
+    .btn-primary { background: linear-gradient(90deg,#be185d,#f472b6); color:white; border:none; }
+
+    /* responsive */
+    @media (min-width:768px){
+      .qa-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
-<body class="bg-pink-50 min-h-screen font-sans text-black">
+<body>
 
-  <header class="bg-pink-100 fixed top-0 left-0 right-0 z-40">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-      <h1 class="text-xl font-bold text-rose-600">THE FOOTBALLER’S SISTER</h1>
-      <div class="text-sm muted">Reading from: <span id="publicDetectedPath" style="font-weight:700;color:#6b2150">detecting…</span></div>
+  <header class="sticky top-0 z-40">
+    <div class="container" style="display:flex;justify-content:space-between;align-items:center;padding-top:1rem;padding-bottom:1rem;">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <div class="site-title" style="font-size:1.1rem;">THE FOOTBALLER’S SISTER</div>
+      </div>
+      <!-- intentionally left blank (no debug path shown) -->
     </div>
   </header>
-  <div class="pt-24"></div>
 
-  <main class="max-w-4xl mx-auto px-6 pb-20">
-    <h2 class="text-3xl font-bold text-rose-700 mb-3">Q&A</h2>
-    <p class="text-gray-600 mb-6">Questions from the community. Admin replies (if any) are shown below.</p>
+  <main class="container">
+    <div class="page-head">
+      <h1 class="page-h1">Q&amp;A</h1>
+    </div>
 
-    <div id="questionsList" class="space-y-4"></div>
+    <section id="questionsSection" aria-label="Community questions">
+      <div id="questionsList" class="qa-grid"></div>
 
-    <p id="loading" class="text-gray-500 mt-6">Loading questions...</p>
-    <p id="errorBox" class="text-red-600 mt-6 hidden"></p>
+      <div class="pager" id="pagerControls" style="display:none;">
+        <button id="loadMoreBtn" class="btn-pager btn-primary">Load more</button>
+        <button id="resetBtn" class="btn-pager" style="display:none;">Show fewer</button>
+      </div>
+
+      <p id="loading" class="subtle" style="margin-top:1.25rem;">Loading questions…</p>
+      <p id="errorBox" class="subtle" style="margin-top:1rem; color:#b91c1c; display:none;"></p>
+    </section>
   </main>
 
-  <footer class="mt-12 bg-pink-900 text-white text-center py-6">© <span id="year"></span> The Footballer’s Sister</footer>
+  <footer style="margin-top:3rem;">
+    <div class="container" style="text-align:center;padding-top:1rem;padding-bottom:2rem;">
+      <small style="color:rgba(255,255,255,0.95);background:linear-gradient(90deg,#be185d,#f472b6);padding:.4rem .8rem;border-radius:999px;">© <span id="year"></span> The Footballer’s Sister</small>
+    </div>
+  </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
   <script type="module">
@@ -43,7 +95,7 @@
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // ---------- config (your project)
+    // Firebase config (your project)
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
@@ -52,41 +104,46 @@
       messagingSenderId: "65396604482",
       appId: "1:65396604482:web:0f31625a714aa8357db"
     };
-
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // === Use your exact collection path
+    // exact collection path you provided earlier
     const QUESTIONS_COLLECTION_PATH = "artifacts/1:65396604482:web:0f31625a714aa8352337db/public/data/questions";
 
+    // DOM
     const listEl = document.getElementById('questionsList');
     const loadingEl = document.getElementById('loading');
     const errorBox = document.getElementById('errorBox');
-    const publicDetectedPath = document.getElementById('publicDetectedPath');
+    const pagerControls = document.getElementById('pagerControls');
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    const resetBtn = document.getElementById('resetBtn');
 
+    // pagination config
+    const itemsPerPage = 6;        // how many per "page" (change if you want)
+    let visibleCount = itemsPerPage;
+    let allDocs = [];             // full list from Firestore (keeps updated by onSnapshot)
+
+    // helper: escape
     function escapeHtml(str) {
       if (!str) return '';
       return String(str).replace(/[&<>"']/g, (s) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]);
     }
 
-    // deep string finder: tries many keys, camel/snake variants, then nested search
+    // robust field-finder (aggressive: many variants + nested search)
     function getQuestionText(data) {
       if (!data || typeof data !== 'object') return '';
 
-      // normalized candidate keys (common names & variants)
       const keys = [
         'body','message','question','text','q','description','content','msg',
         'questionText','question_text','questionBody','question_body','questionTxt',
-        'question_message','message_text','bodyText','body_text','contentText','content_text'
+        'question_message','message_text','bodyText','body_text','contentText','content_text',
+        'ask','ask_text','userQuestion','user_question','input','questionValue'
       ];
 
-      // helper to check key variants (case-insensitive)
       const hasKeyWithValue = (obj, key) => {
         if (!obj) return null;
-        // direct
         if (Object.prototype.hasOwnProperty.call(obj, key) && obj[key] && String(obj[key]).trim()) return String(obj[key]);
-        // try case-insensitive match
         const lower = key.toLowerCase();
         for (const k of Object.keys(obj)) {
           if (k.toLowerCase() === lower && obj[k] && String(obj[k]).trim()) return String(obj[k]);
@@ -94,42 +151,40 @@
         return null;
       };
 
-      // 1) direct candidate keys
+      // 1) named candidates
       for (const k of keys) {
         const v = hasKeyWithValue(data, k);
         if (v) return v;
       }
 
-      // 2) first string field at top-level
+      // 2) first top-level string
       for (const k of Object.keys(data)) {
         const v = data[k];
         if (typeof v === 'string' && v.trim()) return v;
       }
 
-      // 3) search nested objects (one level deep), prefer string fields
+      // 3) nested (one level)
       for (const k of Object.keys(data)) {
         const v = data[k];
         if (v && typeof v === 'object') {
-          // look for candidate keys inside nested object
           for (const cand of keys) {
             const nested = hasKeyWithValue(v, cand);
             if (nested) return nested;
           }
-          // fallback: any string field in nested
           for (const nk of Object.keys(v)) {
-            if (typeof v[nk] === 'string' && v[nk].trim()) return v[nk];
+            if (typeof v[nk] === 'string' && String(v[nk]).trim()) return v[nk];
           }
         }
       }
 
-      // 4) deeper nested search (2 levels) - breadth-first up to small depth
-      const queue = [{obj:data, depth:0}];
+      // 4) BFS up to depth 2
+      const queue = [{obj:data,depth:0}];
       const seen = new Set();
       while (queue.length) {
-        const { obj, depth } = queue.shift();
+        const {obj, depth} = queue.shift();
         if (!obj || typeof obj !== 'object' || depth > 2) continue;
-        for (const k of Object.keys(obj)) {
-          const val = obj[k];
+        for (const key of Object.keys(obj)) {
+          const val = obj[key];
           if (typeof val === 'string' && val.trim()) return val;
           if (val && typeof val === 'object' && !seen.has(val)) {
             seen.add(val);
@@ -138,117 +193,122 @@
         }
       }
 
-      // 5) nothing found
       return '';
     }
 
-    function renderDocs(docs, debug=false) {
+    // render only visibleCount items from allDocs (most recent first)
+    function renderVisible() {
       listEl.innerHTML = '';
-      if (!docs || !docs.length) {
-        listEl.innerHTML = '<div class="text-gray-500">No questions yet.</div>';
+      if (!allDocs || !allDocs.length) {
+        listEl.innerHTML = '<div class="subtle">No questions yet.</div>';
+        pagerControls.style.display = 'none';
         return;
       }
 
-      // sort newest first using createdAt.seconds when available
-      docs.sort((a,b) => {
+      // sort newest first by createdAt if possible
+      const docs = allDocs.slice().sort((a,b) => {
         const ta = a.data.createdAt && a.data.createdAt.seconds ? a.data.createdAt.seconds : 0;
         const tb = b.data.createdAt && b.data.createdAt.seconds ? b.data.createdAt.seconds : 0;
         return tb - ta;
       });
 
-      docs.forEach(it => {
+      // slice for pagination
+      const slice = docs.slice(0, visibleCount);
+
+      slice.forEach(it => {
         const d = it.data || {};
-        const createdAt = d.createdAt && d.createdAt.seconds ? new Date(d.createdAt.seconds * 1000).toLocaleString() : 'Unknown';
+        const createdAt = d.createdAt && d.createdAt.seconds ? new Date(d.createdAt.seconds * 1000).toLocaleString() : '';
         const title = d.title || 'Question';
-        const name = d.name || d.userName || d.user || d.username || 'Anonymous';
+        const name = d.name || d.userName || d.user || d.username || '';
         const qText = getQuestionText(d);
         const adminResponse = d.adminResponse || null;
 
         const card = document.createElement('article');
         card.className = 'qa-card';
         card.innerHTML = `
-          <div class="flex justify-between items-start">
-            <div style="flex:1">
-              <div class="font-semibold">${escapeHtml(title)}</div>
-              <div class="text-sm text-gray-700 mt-2">${ qText ? escapeHtml(qText) : '<span class="muted">[Question text unavailable]</span>' }</div>
-              <div class="text-xs muted mt-2">Asked by ${escapeHtml(name)} · ${createdAt}</div>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;">
+            <div style="flex:1;">
+              <div class="qa-title">${escapeHtml(title)}</div>
+              <div class="qa-text">${ qText ? escapeHtml(qText) : '<span class="subtle">[Question text unavailable]</span>' }</div>
+              <div class="meta-row">
+                ${ name ? `<div>Asked by ${escapeHtml(name)}</div>` : '' }
+                ${ createdAt ? `<div>· ${escapeHtml(createdAt)}</div>` : '' }
+              </div>
             </div>
-            <div style="margin-left:12px;text-align:right;">
-              ${ adminResponse ? '<span class="answered">Answered</span>' : '<span class="unanswered">Unanswered</span>' }
+            <div style="min-width:110px;text-align:right;">
+              ${ adminResponse ? '<div class="chip-answered">Answered</div>' : '<div class="chip-unanswered">Unanswered</div>' }
             </div>
           </div>
-
-          ${ adminResponse
-            ? `<div class="mt-4 p-3 rounded bg-gray-50 border"><strong>Reply:</strong> ${escapeHtml(adminResponse)}</div>`
-            : ``
-          }
+          ${ adminResponse ? `<div style="margin-top:1rem;padding:1rem;border-radius:10px;background:#f8fafc;border:1px solid rgba(226,232,240,0.6);"><strong>Reply:</strong> ${escapeHtml(adminResponse)}</div>` : '' }
         `;
-
-        // add optional debug toggle if debug flag set
-        if (debug) {
-          const rawWrapper = document.createElement('div');
-          rawWrapper.style.marginTop = '8px';
-          const toggle = document.createElement('div');
-          toggle.className = 'toggle-btn';
-          toggle.textContent = 'Show raw';
-          const rawBox = document.createElement('div');
-          rawBox.className = 'raw-box';
-          rawBox.style.display = 'none';
-          rawBox.textContent = JSON.stringify(d, null, 2);
-
-          toggle.addEventListener('click', () => {
-            if (rawBox.style.display === 'none') {
-              rawBox.style.display = 'block';
-              toggle.textContent = 'Hide raw';
-            } else {
-              rawBox.style.display = 'none';
-              toggle.textContent = 'Show raw';
-            }
-          });
-          rawWrapper.appendChild(toggle);
-          rawWrapper.appendChild(rawBox);
-          card.appendChild(rawWrapper);
-        }
-
         listEl.appendChild(card);
       });
+
+      // pager display logic
+      if (allDocs.length > itemsPerPage) {
+        pagerControls.style.display = '';
+        if (visibleCount >= allDocs.length) {
+          loadMoreBtn.style.display = 'none';
+          resetBtn.style.display = '';
+        } else {
+          loadMoreBtn.style.display = '';
+          resetBtn.style.display = 'none';
+        }
+      } else {
+        pagerControls.style.display = 'none';
+      }
     }
 
-    // Subscribe with realtime updates
+    // update allDocs and re-render visible
+    function updateDocs(newDocs) {
+      allDocs = newDocs;
+      // if visibleCount is greater than total docs (e.g., docs deleted), clamp it
+      if (visibleCount > allDocs.length) visibleCount = itemsPerPage;
+      renderVisible();
+    }
+
+    // subscribe with realtime updates
     let unsubscribe = null;
     function subscribeToQuestions() {
       if (unsubscribe) unsubscribe();
-      loadingEl.classList.remove('hidden');
-      errorBox.classList.add('hidden');
+      loadingEl.style.display = '';
+      errorBox.style.display = 'none';
 
       try {
         const collRef = collection(db, QUESTIONS_COLLECTION_PATH);
-        publicDetectedPath.textContent = QUESTIONS_COLLECTION_PATH;
-
-        // If URL contains ?debug=1 then enable raw debug toggle in UI
-        const urlParams = new URLSearchParams(window.location.search);
-        const debug = urlParams.get('debug') === '1';
-
         unsubscribe = onSnapshot(collRef, (snap) => {
           const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }));
-          loadingEl.classList.add('hidden');
-          errorBox.classList.add('hidden');
-          renderDocs(docs, debug);
+          loadingEl.style.display = 'none';
+          errorBox.style.display = 'none';
+          updateDocs(docs);
         }, (err) => {
           console.error('onSnapshot error', err);
-          loadingEl.classList.add('hidden');
-          errorBox.classList.remove('hidden');
+          loadingEl.style.display = 'none';
+          errorBox.style.display = '';
           errorBox.textContent = 'Realtime read failed: ' + (err.message || err.code || err);
         });
       } catch (err) {
         console.error('Subscribe failed', err);
-        loadingEl.classList.add('hidden');
-        errorBox.classList.remove('hidden');
+        loadingEl.style.display = 'none';
+        errorBox.style.display = '';
         errorBox.textContent = 'Could not subscribe to questions: ' + (err.message || err.code || err);
       }
     }
 
-    // Ensure auth then subscribe (anonymous sign-in if necessary)
+    // pager button handlers
+    loadMoreBtn.addEventListener('click', () => {
+      visibleCount = visibleCount + itemsPerPage;
+      renderVisible();
+      window.scrollTo({ top: document.getElementById('questionsList').offsetTop - 80, behavior: 'smooth' });
+    });
+
+    resetBtn.addEventListener('click', () => {
+      visibleCount = itemsPerPage;
+      renderVisible();
+      window.scrollTo({ top: document.getElementById('questionsList').offsetTop - 80, behavior: 'smooth' });
+    });
+
+    // ensure auth then subscribe (anonymous if needed)
     onAuthStateChanged(auth, (user) => {
       subscribeToQuestions();
       if (!user) {
@@ -257,6 +317,7 @@
         });
       }
     });
+
   </script>
 </body>
 </html>
