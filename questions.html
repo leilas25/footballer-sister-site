@@ -8,7 +8,9 @@
   <style>
     .qa-card { background:#fff; padding:1rem; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.06); }
     .muted { color:#6b7280; }
-    .error { color:#b91c1c; }
+    .chip { font-size:.75rem; padding:.15rem .5rem; border-radius:9999px; }
+    .answered { background:#ecfeff; border:1px solid #c7f9ff; color:#064e3b; padding:.5rem .75rem; border-radius:8px; display:inline-block; font-weight:700; }
+    .unanswered { color:#6b7280; }
   </style>
 </head>
 <body class="bg-pink-50 min-h-screen font-sans text-black">
@@ -53,8 +55,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // === IMPORTANT: explicit collection path based on what you pasted
-    // Normalized (no leading slash) for the SDK:
+    // === Use the exact path you provided
     const QUESTIONS_COLLECTION_PATH = "artifacts/1:65396604482:web:0f31625a714aa8352337db/public/data/questions";
 
     // DOM
@@ -68,6 +69,21 @@
       return String(str).replace(/[&<>"']/g, (s) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]);
     }
 
+    // Choose the best candidate field to display as the question text
+    function getQuestionText(data) {
+      if (!data) return '';
+      const candidates = ['body','message','question','text','q','description','content','msg'];
+      for (const k of candidates) {
+        if (data[k] && String(data[k]).trim()) return String(data[k]);
+      }
+      // fallback: first non-empty string field
+      for (const key of Object.keys(data)) {
+        if (typeof data[key] === 'string' && data[key].trim()) return data[key];
+      }
+      // fallback to a JSON excerpt of the doc if nothing found
+      return '';
+    }
+
     function renderDocs(docs) {
       listEl.innerHTML = '';
       if (!docs || !docs.length) {
@@ -75,7 +91,7 @@
         return;
       }
 
-      // sort newest first
+      // sort newest first using createdAt.seconds when available
       docs.sort((a,b) => {
         const ta = a.data.createdAt && a.data.createdAt.seconds ? a.data.createdAt.seconds : 0;
         const tb = b.data.createdAt && b.data.createdAt.seconds ? b.data.createdAt.seconds : 0;
@@ -86,32 +102,34 @@
         const d = it.data || {};
         const createdAt = d.createdAt && d.createdAt.seconds ? new Date(d.createdAt.seconds * 1000).toLocaleString() : 'Unknown';
         const title = d.title || 'Question';
-        const body = d.body || '';
-        const name = d.name || 'Anonymous';
+        const name = d.name || d.userName || d.user || 'Anonymous';
+        const qText = getQuestionText(d);
         const adminResponse = d.adminResponse || null;
 
         const card = document.createElement('article');
         card.className = 'qa-card';
         card.innerHTML = `
           <div class="flex justify-between items-start">
-            <div>
+            <div style="flex:1">
               <div class="font-semibold">${escapeHtml(title)}</div>
-              <div class="text-sm text-gray-700 mt-2">${escapeHtml(body)}</div>
+              <div class="text-sm text-gray-700 mt-2">${ qText ? escapeHtml(qText) : '<span class="muted">[Question text unavailable]</span>' }</div>
               <div class="text-xs muted mt-2">Asked by ${escapeHtml(name)} · ${createdAt}</div>
             </div>
+            <div style="margin-left:12px;text-align:right;">
+              ${ adminResponse ? '<span class="answered">Answered</span>' : '<span class="unanswered">Unanswered</span>' }
+            </div>
           </div>
-          <div class="mt-4">
-            ${ adminResponse
-              ? `<div class="p-3 rounded bg-gray-50 border"><strong>Reply:</strong> ${escapeHtml(adminResponse)}</div>`
-              : `<div class="text-sm text-gray-500">No reply yet.</div>`
-            }
-          </div>
+
+          ${ adminResponse
+            ? `<div class="mt-4 p-3 rounded bg-gray-50 border"><strong>Reply:</strong> ${escapeHtml(adminResponse)}</div>`
+            : ``
+          }
         `;
         listEl.appendChild(card);
       });
     }
 
-    // Subscribe directly to the explicit collection path
+    // Subscribe with realtime updates
     let unsubscribe = null;
     function subscribeToQuestions() {
       if (unsubscribe) unsubscribe();
