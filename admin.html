@@ -13,6 +13,12 @@
     .muted { color:#6b7280; }
     .response-box { width:100%; min-height:70px; padding:.5rem; border:1px solid #e5e7eb; border-radius:8px; }
     .error-box { background:#fff1f2; border:1px solid #fecaca; padding:.75rem; border-radius:8px; color:#991b1b; }
+    /* gallery list */
+    .collab-grid { display:grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap:12px; margin-top:12px;}
+    .collab-card { border-radius:12px; overflow:hidden; background:#fff; border:1px solid rgba(0,0,0,0.04); box-shadow:0 6px 18px rgba(11,7,17,0.04); }
+    .collab-thumb { width:100%; height:160px; object-fit:cover; display:block; background:#f3f4f6; }
+    .collab-body { padding:10px; }
+    .collab-meta { color:#6b7280; font-size:.85rem; margin-top:6px; }
   </style>
 </head>
 <body class="bg-pink-50 font-sans text-black">
@@ -84,8 +90,28 @@
           <div id="qaList" class="space-y-4"></div>
         </div>
 
-        <!-- (other panes omitted for brevity; they remain unchanged in this file) -->
-        <div id="paneMedia" class="card hidden-el"><h3 class="text-lg font-bold">Media (unchanged)</h3></div>
+        <!-- Media / Gallery pane (NEW: Cloudinary unsigned upload + Firestore metadata) -->
+        <div id="paneMedia" class="card hidden-el">
+          <h3 class="text-xl font-bold mb-3 text-rose-700">Media / Gallery (admin)</h3>
+          <p class="small-muted mb-3">Add images to the collabs carousel on the BTS page. Each image stores a caption and Cloudinary info.</p>
+
+          <!-- Upload form -->
+          <form id="collabForm" class="grid gap-3 mb-4">
+            <div class="flex gap-3">
+              <input id="collabFile" type="file" accept="image/*" class="p-2 rounded border bg-white" required />
+              <input id="collabCaption" type="text" maxlength="200" placeholder="Caption (optional)" class="p-2 rounded border flex-1" />
+            </div>
+            <div class="flex gap-3 items-center">
+              <button id="uploadCollabBtn" type="submit" class="btn bg-rose-600 text-white">Upload to Cloudinary & Save</button>
+              <div id="collabStatus" class="small-muted"></div>
+            </div>
+          </form>
+
+          <!-- Collabs list -->
+          <div id="collabsList" class="collab-grid"></div>
+          <div id="collabsError" class="error-box hidden-el mt-3"></div>
+        </div>
+
         <div id="paneWinners" class="card hidden-el"><h3 class="text-lg font-bold">Winners (unchanged)</h3></div>
         <div id="paneFixtures" class="card hidden-el"><h3 class="text-lg font-bold">Fixtures (unchanged)</h3></div>
         <div id="paneGiveaways" class="card hidden-el"><h3 class="text-lg font-bold">Giveaways (unchanged)</h3></div>
@@ -101,7 +127,7 @@
   <!-- Firebase + Admin JS (module) -->
   <script type="module">
     /**************************************************************************
-     * Admin JS - robust support & QA loader with auto-detect paths and clear error reporting
+     * Admin JS - with Cloudinary unsigned upload support for collabs
      **************************************************************************/
 
     // ---------- CONFIG ----------
@@ -116,6 +142,10 @@
     };
     const APP_ID = firebaseConfig.appId;
 
+    // Cloudinary config (replaced with the value you provided)
+    const CLOUDINARY_CLOUD_NAME = "dk1df1qmi";
+    const CLOUDINARY_UNSIGNED_PRESET = "unsigned_bts_preset";
+
     // Candidate bases to try (artifact path first)
     const CANDIDATE_BASES = [
       `/artifacts/${APP_ID}/public/data`,
@@ -127,8 +157,13 @@
 
     // ---------- IMPORTS ----------
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import {
+      getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import {
+      getFirestore, collection, getDocs, query, orderBy,
+      addDoc, serverTimestamp, onSnapshot, doc, deleteDoc
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // ---------- INIT ----------
     const app = initializeApp(firebaseConfig);
@@ -148,9 +183,11 @@
 
     const navSupport = document.getElementById('navSupport');
     const navQA = document.getElementById('navQA');
+    const navMedia = document.getElementById('navMedia');
 
     const paneSupport = document.getElementById('paneSupport');
     const paneQA = document.getElementById('paneQA');
+    const paneMedia = document.getElementById('paneMedia');
 
     const refreshSupportBtn = document.getElementById('refreshSupportBtn');
     const supportList = document.getElementById('supportList');
@@ -162,8 +199,17 @@
     const qaStatus = document.getElementById('qaStatus');
     const qaError = document.getElementById('qaError');
 
+    // Media pane elements
+    const collabForm = document.getElementById('collabForm');
+    const collabFile = document.getElementById('collabFile');
+    const collabCaption = document.getElementById('collabCaption');
+    const uploadCollabBtn = document.getElementById('uploadCollabBtn');
+    const collabStatus = document.getElementById('collabStatus');
+    const collabsList = document.getElementById('collabsList');
+    const collabsError = document.getElementById('collabsError');
+
     function hideAllPanes() {
-      [paneSupport, paneQA].forEach(p => p.classList.add('hidden-el'));
+      [paneSupport, paneQA, paneMedia].forEach(p => p.classList.add('hidden-el'));
     }
 
     // ---------- AUTH ----------
@@ -204,9 +250,11 @@
     // NAV
     navSupport.addEventListener('click', showSupportPane);
     navQA.addEventListener('click', showQAPane);
+    navMedia.addEventListener('click', showMediaPane);
 
     function showSupportPane(){ hideAllPanes(); paneSupport.classList.remove('hidden-el'); loadSupport(); }
     function showQAPane(){ hideAllPanes(); paneQA.classList.remove('hidden-el'); loadQA(); }
+    function showMediaPane(){ hideAllPanes(); paneMedia.classList.remove('hidden-el'); subscribeCollabs(); }
 
     refreshSupportBtn.addEventListener('click', loadSupport);
     refreshQABtn.addEventListener('click', loadQA);
@@ -215,35 +263,26 @@
     function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
     // try to read a collection at a specific base path, returning an object:
-    // { success: true, docs: [...], base } or { error: err, base }
+    // { success: true, docs: [...], base, path } or { success:false, error, base, path }
     async function tryReadCollectionAtBase(base, collectionName) {
       const path = base ? `${base}/${collectionName}` : collectionName;
       try {
-        // Use getDocs without orderBy first — some docs may not have createdAt
         const q = query(collection(db, path));
         const snap = await getDocs(q);
         return { success: true, docs: snap.docs.map(d => ({ id: d.id, data: d.data() })), base, path };
       } catch (err) {
-        // return error to caller (permission-denied or not-found etc.)
         return { success: false, error: err, base, path };
       }
     }
 
-    // Attempts bases in order until one returns success (docs or empty allowed)
     async function autoDetectAndRead(collectionName) {
       let firstError = null;
       for (const base of CANDIDATE_BASES) {
         const res = await tryReadCollectionAtBase(base, collectionName);
-        if (res.success) {
-          // success (even if docs.length === 0) — return immediately
-          return res;
-        } else {
-          // record the first error (useful for diagnostics)
-          if (!firstError) firstError = res;
-          console.warn('Read error for', res.path, res.error && res.error.code ? res.error.code : res.error);
-        }
+        if (res.success) return res;
+        if (!firstError) firstError = res;
+        console.warn('Read error for', res.path, res.error && res.error.code ? res.error.code : res.error);
       }
-      // none succeeded — return the first error for reporting
       return firstError;
     }
 
@@ -260,7 +299,6 @@
           supportList.innerHTML = '<div class="text-gray-500">No messages yet.</div>';
           return;
         }
-        // sort by createdAt if present (descending); fallback to order received
         docs.sort((a,b) => {
           const ta = a.data.createdAt && a.data.createdAt.seconds ? a.data.createdAt.seconds : 0;
           const tb = b.data.createdAt && b.data.createdAt.seconds ? b.data.createdAt.seconds : 0;
@@ -268,7 +306,6 @@
         });
         renderSupportDocs(docs, res.path);
       } else {
-        // show error in UI + console
         console.error('Support read error:', res);
         supportStatus.textContent = 'Load failed';
         supportError.classList.remove('hidden-el');
@@ -303,16 +340,15 @@
         supportList.appendChild(el);
       });
 
-      // attach delete handlers
       supportList.querySelectorAll('.delete-support').forEach(b => {
         b.addEventListener('click', async (e) => {
           const id = e.currentTarget.getAttribute('data-id');
           const basePath = e.currentTarget.getAttribute('data-base');
           if (!confirm('Delete message?')) return;
           try {
-            const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(m => ({ doc: m.doc, deleteDoc: m.deleteDoc }));
+            const { doc: docRefFunc, deleteDoc: deleteDocFunc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(m => ({ doc: m.doc, deleteDoc: m.deleteDoc }));
             const fullPath = `${basePath}/${id}`;
-            await deleteDoc(doc(db, fullPath));
+            await deleteDocFunc(docRefFunc(db, fullPath));
             loadSupport();
           } catch (err) {
             console.error('Delete failed', err);
@@ -323,7 +359,7 @@
     }
 
     // ---------- Q&A: load, render, respond, delete ----------
-    // robust field-finder used on public page too (copied here so admin will always find the question text)
+    // (we reuse the robust getQuestionText from your previous file)
     function getQuestionText(data) {
       if (!data || typeof data !== 'object') return '';
 
@@ -344,19 +380,14 @@
         return null;
       };
 
-      // 1) named candidates
       for (const k of keys) {
         const v = hasKeyWithValue(data, k);
         if (v) return v;
       }
-
-      // 2) first top-level string
       for (const k of Object.keys(data)) {
         const v = data[k];
         if (typeof v === 'string' && v.trim()) return v;
       }
-
-      // 3) nested (one level)
       for (const k of Object.keys(data)) {
         const v = data[k];
         if (v && typeof v === 'object') {
@@ -369,8 +400,6 @@
           }
         }
       }
-
-      // 4) BFS up to depth 2
       const queue = [{obj:data,depth:0}];
       const seen = new Set();
       while (queue.length) {
@@ -385,7 +414,6 @@
           }
         }
       }
-
       return '';
     }
 
@@ -417,8 +445,6 @@
       docs.forEach(it => {
         const d = it.data || {};
         const timeLabel = d.createdAt && d.createdAt.seconds ? new Date(d.createdAt.seconds*1000).toLocaleString() : 'Unknown';
-
-        // Use robust field finder to show the actual question text
         const questionText = getQuestionText(d) || '';
 
         const el = document.createElement('div');
@@ -444,7 +470,6 @@
         qaList.appendChild(el);
       });
 
-      // handlers for saving responses
       qaList.querySelectorAll('.respond-qa').forEach(btn => {
         btn.addEventListener('click', async (e) => {
           const id = e.currentTarget.getAttribute('data-id');
@@ -454,9 +479,9 @@
           const text = textarea.value.trim();
           if (!confirm('Save response to this question?')) return;
           try {
-            const { doc, updateDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(m => ({ doc: m.doc, updateDoc: m.updateDoc, serverTimestamp: m.serverTimestamp }));
+            const { doc: docRefFunc, updateDoc: updateDocFunc, serverTimestamp: serverTs } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(m => ({ doc: m.doc, updateDoc: m.updateDoc, serverTimestamp: m.serverTimestamp }));
             const fullPath = `${basePath}/${id}`;
-            await updateDoc(doc(db, fullPath), { adminResponse: text, responder: auth.currentUser ? auth.currentUser.email || auth.currentUser.uid : 'admin', respondedAt: serverTimestamp() });
+            await updateDocFunc(docRefFunc(db, fullPath), { adminResponse: text, responder: auth.currentUser ? auth.currentUser.email || auth.currentUser.uid : 'admin', respondedAt: serverTs() });
             alert('Response saved.');
             loadQA();
           } catch (err) {
@@ -466,16 +491,15 @@
         });
       });
 
-      // handlers for deleting questions
       qaList.querySelectorAll('.delete-qa').forEach(btn => {
         btn.addEventListener('click', async (e) => {
           const id = e.currentTarget.getAttribute('data-id');
           const basePath = e.currentTarget.getAttribute('data-base');
           if (!confirm('Delete question?')) return;
           try {
-            const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(m => ({ doc: m.doc, deleteDoc: m.deleteDoc }));
+            const { doc: docRefFunc, deleteDoc: deleteDocFunc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(m => ({ doc: m.doc, deleteDoc: m.deleteDoc }));
             const fullPath = `${basePath}/${id}`;
-            await deleteDoc(doc(db, fullPath));
+            await deleteDocFunc(docRefFunc(db, fullPath));
             loadQA();
           } catch (err) {
             console.error('Delete failed', err);
@@ -485,7 +509,163 @@
       });
     }
 
-    // End of script
+    // ---------- MEDIA / COLLABS: Cloudinary unsigned upload + Firestore metadata ----------
+    // Firestore path for collabs (we use the artifacts path directly)
+    const COLLABS_COLLECTION_PATH = `artifacts/${APP_ID}/public/data/collabs`;
+
+    // helper to show collabs realtime
+    let collabsUnsub = null;
+    function subscribeCollabs() {
+      collabsError.classList.add('hidden-el');
+      collabsList.innerHTML = '<div class="small-muted">Loading collabs…</div>';
+      // unsubscribe if exists
+      if (collabsUnsub) collabsUnsub();
+
+      try {
+        collabsUnsub = onSnapshot(collection(db, COLLABS_COLLECTION_PATH), (snap) => {
+          const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }));
+          // newest first
+          docs.sort((a,b) => {
+            const ta = a.data.createdAt && a.data.createdAt.seconds ? a.data.createdAt.seconds : 0;
+            const tb = b.data.createdAt && b.data.createdAt.seconds ? b.data.createdAt.seconds : 0;
+            return tb - ta;
+          });
+          renderCollabs(docs);
+        }, (err) => {
+          console.error('collabs onSnapshot error', err);
+          collabsList.innerHTML = '<div class="small-muted">Could not load collabs.</div>';
+          collabsError.classList.remove('hidden-el');
+          collabsError.textContent = 'Realtime read failed: ' + (err.message || err.code || err);
+        });
+      } catch (err) {
+        console.error('subscribeCollabs error', err);
+        collabsList.innerHTML = '<div class="small-muted">Could not load collabs.</div>';
+        collabsError.classList.remove('hidden-el');
+        collabsError.textContent = 'Could not subscribe to collabs: ' + (err.message || err.code || err);
+      }
+    }
+
+    function renderCollabs(docs) {
+      collabsList.innerHTML = '';
+      if (!docs || !docs.length) {
+        collabsList.innerHTML = '<div class="small-muted">No collabs yet.</div>';
+        return;
+      }
+      docs.forEach(item => {
+        const d = item.data || {};
+        const createdAt = d.createdAt && d.createdAt.seconds ? new Date(d.createdAt.seconds*1000).toLocaleString() : '';
+        const caption = d.caption || '';
+        const imageUrl = d.imageUrl || '';
+        const publicId = d.publicId || '';
+
+        const card = document.createElement('div');
+        card.className = 'collab-card';
+        card.innerHTML = `
+          <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(caption || 'Collab image')}" class="collab-thumb" onerror="this.style.opacity=.6;this.style.objectFit='contain';this.src='https://via.placeholder.com/640x360?text=image'"/>
+          <div class="collab-body">
+            <div style="font-weight:700;">${escapeHtml(caption || '(no caption)')}</div>
+            <div class="collab-meta">${escapeHtml(createdAt)} ${ publicId ? `<div style="font-size:.75rem;color:#94a3b8;margin-top:6px;">id: ${escapeHtml(publicId)}</div>` : '' }</div>
+            <div style="margin-top:8px;display:flex;gap:8px;">
+              <button class="btn-delete-collab btn bg-white border" data-id="${item.id}" data-publicid="${escapeHtml(publicId)}">Delete</button>
+            </div>
+          </div>
+        `;
+        collabsList.appendChild(card);
+      });
+
+      // attach delete handlers (removes Firestore doc; Cloudinary asset remains until manually removed)
+      collabsList.querySelectorAll('.btn-delete-collab').forEach(b => {
+        b.addEventListener('click', async (e) => {
+          const id = e.currentTarget.getAttribute('data-id');
+          const publicId = e.currentTarget.getAttribute('data-publicid');
+          if (!confirm('Delete this collab entry? This removes it from the site. (Cloudinary file will remain unless removed from Cloudinary dashboard)')) return;
+          try {
+            const { doc: docRefFunc, deleteDoc: deleteDocFunc } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js").then(m => ({ doc: m.doc, deleteDoc: m.deleteDoc }));
+            const fullPath = `${COLLABS_COLLECTION_PATH}/${id}`;
+            await deleteDocFunc(docRefFunc(db, fullPath));
+            // NOTE: cannot delete Cloudinary resource client-side without API secret.
+            alert('Collab removed from Firestore. To fully delete the file from Cloudinary, remove it from your Cloudinary dashboard using public_id: ' + publicId);
+          } catch (err) {
+            console.error('Delete collab failed', err);
+            alert('Delete failed: ' + (err.message || err.code || err));
+          }
+        });
+      });
+    }
+
+    // upload handler: unsigned Cloudinary upload then save doc
+    collabForm.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      collabStatus.textContent = '';
+      collabsError.classList.add('hidden-el');
+
+      if (!CLOUDINARY_CLOUD_NAME || CLOUDINARY_CLOUD_NAME === 'YOUR_CLOUDINARY_CLOUD_NAME') {
+        collabStatus.textContent = 'Please set CLOUDINARY_CLOUD_NAME in the admin file.';
+        return;
+      }
+
+      const file = collabFile.files && collabFile.files[0];
+      if (!file) {
+        collabStatus.textContent = 'Please choose an image file.';
+        return;
+      }
+
+      uploadCollabBtn.disabled = true;
+      collabStatus.textContent = 'Uploading to Cloudinary...';
+
+      try {
+        const form = new FormData();
+        form.append('file', file);
+        form.append('upload_preset', CLOUDINARY_UNSIGNED_PRESET);
+        // optional: add folder
+        form.append('folder', 'collabs');
+
+        const url = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`;
+        const res = await fetch(url, { method: 'POST', body: form });
+        if (!res.ok) throw new Error('Cloudinary upload failed: ' + res.statusText);
+        const json = await res.json();
+
+        const imageUrl = json.secure_url || json.url || '';
+        const publicId = json.public_id || '';
+
+        collabStatus.textContent = 'Saving to Firestore...';
+
+        // add doc to Firestore collabs collection path
+        await addDoc(collection(db, COLLABS_COLLECTION_PATH), {
+          caption: collabCaption.value.trim() || '',
+          imageUrl,
+          publicId,
+          uploader: auth.currentUser ? auth.currentUser.email || auth.currentUser.uid : 'admin',
+          createdAt: serverTimestamp()
+        });
+
+        collabStatus.textContent = 'Uploaded & saved.';
+        collabFile.value = '';
+        collabCaption.value = '';
+      } catch (err) {
+        console.error('Upload/save error', err);
+        collabsError.classList.remove('hidden-el');
+        collabsError.textContent = 'Upload or save failed: ' + (err.message || err.code || err);
+      } finally {
+        uploadCollabBtn.disabled = false;
+        setTimeout(()=>{ collabStatus.textContent = ''; }, 2000);
+      }
+    });
+
+    // fallback subscribe on page show (if admin opens media pane)
+    // ensure anonymous auth if needed
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        // try anonymous sign-in to allow reads if rules permit
+        signInAnonymously(auth).catch(err => {
+          console.warn('Anonymous sign-in failed (continuing read-only where possible):', err);
+        });
+      }
+    });
+
+    // initialize: keep QA & Support functionality alive but only subscribe when panes open.
+    // (QA & Support functions already defined above)
+
   </script>
 </body>
 </html>
