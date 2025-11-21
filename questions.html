@@ -8,6 +8,7 @@
   <style>
     .qa-card { background:#fff; padding:1rem; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.06); }
     .muted { color:#6b7280; }
+    .error { color:#b91c1c; }
   </style>
 </head>
 <body class="bg-pink-50 min-h-screen font-sans text-black">
@@ -35,7 +36,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // ---------- config (matches your project)
     const firebaseConfig = {
@@ -44,7 +45,7 @@
       projectId: "football-site-c3aa9",
       storageBucket: "football-site-c3aa9.appspot.com",
       messagingSenderId: "65396604482",
-      appId: "1:65396604482:web:0f31625a714aa8352337db"
+      appId: "1:65396604482:web:0f31625a714aa8357db"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -52,8 +53,14 @@
     const db = getFirestore(app);
     const appId = firebaseConfig.appId;
 
-    // Exact path where your questions live
-    const QUESTIONS_PATH = `/artifacts/${appId}/public/data/questions`;
+    // Candidate bases to try (same idea as admin page)
+    const CANDIDATE_BASES = [
+      `artifacts/${appId}/public/data`,
+      `artifacts/${appId}/public`,
+      `artifacts/${appId}`,
+      `public/data`,
+      '' // top-level
+    ];
 
     // DOM
     const listEl = document.getElementById('questionsList');
@@ -65,75 +72,120 @@
       return String(str).replace(/[&<>"']/g, (s) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]);
     }
 
-    // Load questions (ordered by createdAt desc when available; if createdAt missing, fallback)
-    async function loadQuestions() {
-      loadingEl.classList.remove('hidden');
-      errorBox.classList.add('hidden');
-      listEl.innerHTML = '';
-
+    // try reading collection to detect which base works
+    async function tryReadCollectionAtBase(base, collectionName) {
+      const path = base ? `${base}/${collectionName}` : collectionName;
       try {
-        // attempt ordered query by createdAt; some docs might not have createdAt but getDocs will still work
-        const q = query(collection(db, QUESTIONS_PATH), orderBy('createdAt', 'desc'));
-        const snaps = await getDocs(q);
-
-        if (snaps.empty) {
-          loadingEl.textContent = 'No questions yet.';
-          return;
-        }
-
-        loadingEl.classList.add('hidden');
-
-        // Render each question
-        snaps.forEach(docSnap => {
-          const data = docSnap.data();
-          const title = data.title || 'Question';
-          const body = data.body || '';
-          const name = data.name || 'Anonymous';
-          const createdAt = data.createdAt && data.createdAt.seconds ? new Date(data.createdAt.seconds * 1000).toLocaleString() : 'Unknown';
-          const adminResponse = data.adminResponse || null;
-
-          const card = document.createElement('article');
-          card.className = 'qa-card';
-
-          card.innerHTML = `
-            <div class="flex justify-between items-start">
-              <div>
-                <div class="font-semibold">${escapeHtml(title)}</div>
-                <div class="text-sm text-gray-700 mt-2">${escapeHtml(body)}</div>
-                <div class="text-xs muted mt-2">Asked by ${escapeHtml(name)} · ${createdAt}</div>
-              </div>
-            </div>
-            <div class="mt-4">
-              ${ adminResponse
-                ? `<div class="p-3 rounded bg-gray-50 border"><strong>Reply:</strong> ${escapeHtml(adminResponse)}</div>`
-                : `<div class="text-sm text-gray-500">No reply yet.</div>`
-              }
-            </div>
-          `;
-
-          listEl.appendChild(card);
-        });
-
+        // quick test read
+        await getDocs(collection(db, path));
+        return { success: true, base, path };
       } catch (err) {
-        console.error('Could not load questions:', err);
-        loadingEl.classList.add('hidden');
-        errorBox.textContent = 'Could not load questions. Error: ' + (err.message || err.code || err);
-        errorBox.classList.remove('hidden');
+        return { success: false, error: err, base, path };
       }
     }
 
-    // Ensure auth (anonymous) then load
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        loadQuestions();
-      } else {
-        signInAnonymously(auth)
-          .then(() => loadQuestions())
-          .catch(err => {
-            console.warn('Anonymous sign in failed:', err);
-            // still try to load (some rules allow unauthenticated read)
-            loadQuestions();
+    // auto-detect an accessible base, then subscribe with onSnapshot
+    async function autoDetectAndSubscribe(collectionName, onUpdate, onError) {
+      let firstError = null;
+      for (const base of CANDIDATE_BASES) {
+        const res = await tryReadCollectionAtBase(base, collectionName);
+        if (res.success) {
+          // subscribe
+          const collRef = collection(db, res.path);
+          // attach real-time listener
+          const unsub = onSnapshot(collRef, (snap) => {
+            const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }));
+            onUpdate({ docs, base: res.base, path: res.path, unsubscribe: unsub });
+          }, (err) => {
+            if (onError) onError({ error: err, base: res.base, path: res.path });
           });
+          return { success: true, base: res.base, path: res.path, unsubscribe: unsub };
+        } else {
+          if (!firstError) firstError = res;
+          console.warn('Path read error:', res.path, res.error && res.error.code ? res.error.code : res.error);
+        }
+      }
+      return firstError;
+    }
+
+    // render helper (sorts by createdAt.seconds desc when possible)
+    function renderDocs(docs) {
+      listEl.innerHTML = '';
+      if (!docs || !docs.length) {
+        listEl.innerHTML = '<div class="text-gray-500">No questions yet.</div>';
+        return;
+      }
+
+      // sort: newest first (safe even if createdAt missing)
+      docs.sort((a,b) => {
+        const ta = a.data.createdAt && a.data.createdAt.seconds ? a.data.createdAt.seconds : 0;
+        const tb = b.data.createdAt && b.data.createdAt.seconds ? b.data.createdAt.seconds : 0;
+        return tb - ta;
+      });
+
+      docs.forEach(it => {
+        const d = it.data || {};
+        const createdAt = d.createdAt && d.createdAt.seconds ? new Date(d.createdAt.seconds * 1000).toLocaleString() : 'Unknown';
+        const title = d.title || 'Question';
+        const body = d.body || '';
+        const name = d.name || 'Anonymous';
+        const adminResponse = d.adminResponse || null;
+
+        const card = document.createElement('article');
+        card.className = 'qa-card';
+        card.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="font-semibold">${escapeHtml(title)}</div>
+              <div class="text-sm text-gray-700 mt-2">${escapeHtml(body)}</div>
+              <div class="text-xs muted mt-2">Asked by ${escapeHtml(name)} · ${createdAt}</div>
+            </div>
+          </div>
+          <div class="mt-4">
+            ${ adminResponse
+              ? `<div class="p-3 rounded bg-gray-50 border"><strong>Reply:</strong> ${escapeHtml(adminResponse)}</div>`
+              : `<div class="text-sm text-gray-500">No reply yet.</div>`
+            }
+          </div>
+        `;
+        listEl.appendChild(card);
+      });
+    }
+
+    // show friendly error when detection fails
+    function showDetectError(errObj) {
+      loadingEl.classList.add('hidden');
+      errorBox.classList.remove('hidden');
+      if (!errObj) {
+        errorBox.textContent = 'Could not find questions collection (no path worked).';
+        return;
+      }
+      errorBox.innerHTML = `Could not access questions collection. Last attempted path: <code>${escapeHtml(errObj.path || '')}</code>. Error: ${escapeHtml(errObj.error && (errObj.error.message || errObj.error.code) || String(errObj.error))}`;
+      console.error('Auto-detect failed:', errObj);
+    }
+
+    // start: try anonymous auth then subscribe
+    onAuthStateChanged(auth, (user) => {
+      // always attempt to subscribe even if anonymous sign-in fails — reads may still be allowed
+      autoDetectAndSubscribe('questions',
+        ({ docs, base, path, unsubscribe }) => {
+          loadingEl.classList.add('hidden');
+          errorBox.classList.add('hidden');
+          renderDocs(docs);
+        },
+        (err) => {
+          showDetectError(err);
+        }
+      ).then(res => {
+        if (!res || !res.success) {
+          showDetectError(res);
+        }
+      });
+
+      if (!user) {
+        signInAnonymously(auth).catch(err => {
+          console.warn('Anonymous sign-in failed (continuing read-only):', err);
+        });
       }
     });
   </script>
