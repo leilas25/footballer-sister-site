@@ -48,6 +48,9 @@
     .btn-pager { padding:.6rem 1rem; border-radius:999px; font-weight:700; background:white; border:1px solid rgba(0,0,0,0.06); cursor:pointer; box-shadow:0 6px 18px rgba(11,7,17,0.04); }
     .btn-primary { background: linear-gradient(90deg,#be185d,#f472b6); color:white; border:none; }
 
+    /* navbar dropdown helper */
+    .dropdown-open { opacity:1!important; transform:scale(1)!important; }
+
     /* responsive */
     @media (min-width:768px){
       .qa-grid { grid-template-columns: 1fr; }
@@ -56,12 +59,34 @@
 </head>
 <body>
 
+  <!-- Header with dropdown -->
   <header class="sticky top-0 z-40">
     <div class="container" style="display:flex;justify-content:space-between;align-items:center;padding-top:1rem;padding-bottom:1rem;">
       <div style="display:flex;align-items:center;gap:1rem;">
         <div class="site-title" style="font-size:1.1rem;">THE FOOTBALLER’S SISTER</div>
       </div>
-      <!-- intentionally left blank (no debug path shown) -->
+
+      <div class="relative inline-block text-left">
+        <button id="navButton"
+          class="inline-flex items-center justify-center rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
+          <span id="navTitle">Loading...</span>
+          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
+          </svg>
+        </button>
+
+        <div id="dropdownMenu"
+          class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
+          <div class="py-1">
+            <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
+            <a href="bts.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
+            <a href="leila.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Meet Leila</a>
+            <a href="questions.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Q&A</a>
+            <a href="support-wall.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Support Wall</a>
+            <a href="fixtures.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Fixtures & Live Scores</a>
+          </div>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -89,6 +114,66 @@
     </div>
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+
+  <!-- Navbar dropdown script -->
+  <script>
+    (function () {
+      const navButton = document.getElementById('navButton');
+      const dropdownMenu = document.getElementById('dropdownMenu');
+      const navItems = document.querySelectorAll('.nav-item');
+      const navTitle = document.getElementById('navTitle');
+
+      // determine current page (treat root "/" as index.html)
+      let currentPage = window.location.pathname.split('/').pop();
+      if (!currentPage || currentPage === '') currentPage = 'index.html';
+
+      const pageTitles = {
+        "index.html": "Home",
+        "bts.html": "Behind the Game",
+        "leila.html": "Meet Leila",
+        "questions.html": "Q&A",
+        "support-wall.html": "Support Wall",
+        "fixtures.html": "Fixtures & Live Scores"
+      };
+      navTitle.textContent = pageTitles[currentPage] || "Menu";
+
+      navItems.forEach(link => {
+        const href = link.getAttribute('href');
+        const hrefName = href.split('/').pop();
+        if (hrefName === currentPage) {
+          link.classList.add("font-semibold", "text-rose-600");
+        }
+      });
+
+      navButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = dropdownMenu.classList.contains('hidden');
+        if (isHidden) {
+          dropdownMenu.classList.remove('hidden');
+          setTimeout(()=>dropdownMenu.classList.add('dropdown-open'), 10);
+        } else {
+          dropdownMenu.classList.remove('dropdown-open');
+          setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
+        }
+      });
+
+      // close when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+          dropdownMenu.classList.remove('dropdown-open');
+          setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
+        }
+      });
+
+      // close on escape
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          dropdownMenu.classList.remove('dropdown-open');
+          setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
+        }
+      });
+    })();
+  </script>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
