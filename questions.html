@@ -11,6 +11,8 @@
     .chip { font-size:.75rem; padding:.15rem .5rem; border-radius:9999px; }
     .answered { background:#ecfeff; border:1px solid #c7f9ff; color:#064e3b; padding:.5rem .75rem; border-radius:8px; display:inline-block; font-weight:700; }
     .unanswered { color:#6b7280; }
+    .raw-box { background:#0f172a; color:#e6eef8; padding:.8rem; border-radius:8px; font-family: monospace; white-space:pre-wrap; max-height:320px; overflow:auto; margin-top:.5rem; }
+    .toggle-btn { cursor:pointer; color:#7c2d5b; font-weight:700; text-decoration:underline; }
   </style>
 </head>
 <body class="bg-pink-50 min-h-screen font-sans text-black">
@@ -41,7 +43,7 @@
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // ---------- config (matches your project)
+    // ---------- config (your project)
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
@@ -55,10 +57,9 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // === Use the exact path you provided
+    // === Use your exact collection path
     const QUESTIONS_COLLECTION_PATH = "artifacts/1:65396604482:web:0f31625a714aa8352337db/public/data/questions";
 
-    // DOM
     const listEl = document.getElementById('questionsList');
     const loadingEl = document.getElementById('loading');
     const errorBox = document.getElementById('errorBox');
@@ -69,22 +70,79 @@
       return String(str).replace(/[&<>"']/g, (s) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]);
     }
 
-    // Choose the best candidate field to display as the question text
+    // deep string finder: tries many keys, camel/snake variants, then nested search
     function getQuestionText(data) {
-      if (!data) return '';
-      const candidates = ['body','message','question','text','q','description','content','msg'];
-      for (const k of candidates) {
-        if (data[k] && String(data[k]).trim()) return String(data[k]);
+      if (!data || typeof data !== 'object') return '';
+
+      // normalized candidate keys (common names & variants)
+      const keys = [
+        'body','message','question','text','q','description','content','msg',
+        'questionText','question_text','questionBody','question_body','questionTxt',
+        'question_message','message_text','bodyText','body_text','contentText','content_text'
+      ];
+
+      // helper to check key variants (case-insensitive)
+      const hasKeyWithValue = (obj, key) => {
+        if (!obj) return null;
+        // direct
+        if (Object.prototype.hasOwnProperty.call(obj, key) && obj[key] && String(obj[key]).trim()) return String(obj[key]);
+        // try case-insensitive match
+        const lower = key.toLowerCase();
+        for (const k of Object.keys(obj)) {
+          if (k.toLowerCase() === lower && obj[k] && String(obj[k]).trim()) return String(obj[k]);
+        }
+        return null;
+      };
+
+      // 1) direct candidate keys
+      for (const k of keys) {
+        const v = hasKeyWithValue(data, k);
+        if (v) return v;
       }
-      // fallback: first non-empty string field
-      for (const key of Object.keys(data)) {
-        if (typeof data[key] === 'string' && data[key].trim()) return data[key];
+
+      // 2) first string field at top-level
+      for (const k of Object.keys(data)) {
+        const v = data[k];
+        if (typeof v === 'string' && v.trim()) return v;
       }
-      // fallback to a JSON excerpt of the doc if nothing found
+
+      // 3) search nested objects (one level deep), prefer string fields
+      for (const k of Object.keys(data)) {
+        const v = data[k];
+        if (v && typeof v === 'object') {
+          // look for candidate keys inside nested object
+          for (const cand of keys) {
+            const nested = hasKeyWithValue(v, cand);
+            if (nested) return nested;
+          }
+          // fallback: any string field in nested
+          for (const nk of Object.keys(v)) {
+            if (typeof v[nk] === 'string' && v[nk].trim()) return v[nk];
+          }
+        }
+      }
+
+      // 4) deeper nested search (2 levels) - breadth-first up to small depth
+      const queue = [{obj:data, depth:0}];
+      const seen = new Set();
+      while (queue.length) {
+        const { obj, depth } = queue.shift();
+        if (!obj || typeof obj !== 'object' || depth > 2) continue;
+        for (const k of Object.keys(obj)) {
+          const val = obj[k];
+          if (typeof val === 'string' && val.trim()) return val;
+          if (val && typeof val === 'object' && !seen.has(val)) {
+            seen.add(val);
+            queue.push({obj: val, depth: depth + 1});
+          }
+        }
+      }
+
+      // 5) nothing found
       return '';
     }
 
-    function renderDocs(docs) {
+    function renderDocs(docs, debug=false) {
       listEl.innerHTML = '';
       if (!docs || !docs.length) {
         listEl.innerHTML = '<div class="text-gray-500">No questions yet.</div>';
@@ -102,7 +160,7 @@
         const d = it.data || {};
         const createdAt = d.createdAt && d.createdAt.seconds ? new Date(d.createdAt.seconds * 1000).toLocaleString() : 'Unknown';
         const title = d.title || 'Question';
-        const name = d.name || d.userName || d.user || 'Anonymous';
+        const name = d.name || d.userName || d.user || d.username || 'Anonymous';
         const qText = getQuestionText(d);
         const adminResponse = d.adminResponse || null;
 
@@ -125,6 +183,33 @@
             : ``
           }
         `;
+
+        // add optional debug toggle if debug flag set
+        if (debug) {
+          const rawWrapper = document.createElement('div');
+          rawWrapper.style.marginTop = '8px';
+          const toggle = document.createElement('div');
+          toggle.className = 'toggle-btn';
+          toggle.textContent = 'Show raw';
+          const rawBox = document.createElement('div');
+          rawBox.className = 'raw-box';
+          rawBox.style.display = 'none';
+          rawBox.textContent = JSON.stringify(d, null, 2);
+
+          toggle.addEventListener('click', () => {
+            if (rawBox.style.display === 'none') {
+              rawBox.style.display = 'block';
+              toggle.textContent = 'Hide raw';
+            } else {
+              rawBox.style.display = 'none';
+              toggle.textContent = 'Show raw';
+            }
+          });
+          rawWrapper.appendChild(toggle);
+          rawWrapper.appendChild(rawBox);
+          card.appendChild(rawWrapper);
+        }
+
         listEl.appendChild(card);
       });
     }
@@ -135,14 +220,20 @@
       if (unsubscribe) unsubscribe();
       loadingEl.classList.remove('hidden');
       errorBox.classList.add('hidden');
+
       try {
         const collRef = collection(db, QUESTIONS_COLLECTION_PATH);
         publicDetectedPath.textContent = QUESTIONS_COLLECTION_PATH;
+
+        // If URL contains ?debug=1 then enable raw debug toggle in UI
+        const urlParams = new URLSearchParams(window.location.search);
+        const debug = urlParams.get('debug') === '1';
+
         unsubscribe = onSnapshot(collRef, (snap) => {
           const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }));
           loadingEl.classList.add('hidden');
           errorBox.classList.add('hidden');
-          renderDocs(docs);
+          renderDocs(docs, debug);
         }, (err) => {
           console.error('onSnapshot error', err);
           loadingEl.classList.add('hidden');
