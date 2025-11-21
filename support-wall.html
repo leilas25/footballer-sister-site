@@ -6,7 +6,15 @@
   <title>The Support Wall</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* tweet-card visual style */
+    :root{
+      --accent:#be185d;
+      --muted:#6b7280;
+    }
+
+    /* page fonts / bg */
+    body { background:#fff2f6; color:#111827; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+
+    /* tweet-card visual style (unchanged functionality) */
     .tweet-card {
       background: #ffffff;
       border: 1px solid #f1e7ee;
@@ -27,11 +35,11 @@
     .tweet-timestamp { margin-left:auto; color:#8b99a6; font-size:0.85rem; }
     .tweet-content { margin-top:0.5rem; color:#344054; line-height:1.45; }
     .reactions { margin-top:0.75rem; display:flex; gap:0.6rem; align-items:center; color:#9b1630; font-weight:600; flex-wrap:wrap; }
-    .reaction-pill { display:inline-flex; align-items:center; gap:0.5rem; background:#fff6f8; border:1px solid #ffdde6; padding:6px 10px; border-radius:999px; font-size:0.95rem; color:#be185d; cursor:pointer; user-select:none; transition:transform .08s ease; }
+    .reaction-pill { display:inline-flex; align-items:center; gap:0.5rem; background:#fff6f8; border:1px solid #ffdde6; padding:6px 10px; border-radius:999px; font-size:0.95rem; color:var(--accent); cursor:pointer; user-select:none; transition:transform .08s ease; }
     .reaction-pill.secondary { background:#f7f6ff; border-color:#e6e3ff; color:#5b4bd6; }
     .reaction-pill.strong { background:#fff7e9; border-color:#ffe9c6; color:#c95d00; }
     .reaction-pill[disabled] { opacity:0.6; cursor:not-allowed; }
-    .back-link { display:inline-block; margin-bottom:1rem; color:#be185d; border:1px solid #f7d6e0; padding:8px 12px; border-radius:9999px; }
+
     .dropdown-open { opacity: 1 !important; transform: scale(1) !important; }
 
     /* pulse animation on successful reaction */
@@ -46,26 +54,36 @@
       .tweet-card{ flex-direction:column; }
       .tweet-timestamp{ margin-left:0; margin-top:0.3rem; }
     }
+
+    /* Header (Q&A header style you asked to reuse) */
+    header {
+      background: linear-gradient(180deg, rgba(246,213,239,0.6), rgba(255,241,248,0.6));
+      border-bottom: 1px solid rgba(235,200,215,0.6);
+      backdrop-filter: blur(4px);
+    }
+    .site-title { color: var(--accent); font-weight: 800; letter-spacing: .02em; }
+    .container { max-width:920px; margin:0 auto; padding:0 1.5rem; }
   </style>
 </head>
-<body class="bg-pink-50 text-black font-sans min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col">
 
-  <!-- Header -->
-  <header class="fixed top-0 w-full bg-pink-100 shadow z-50">
-    <div class="flex justify-between items-center px-6 py-4">
-      <h1 class="text-xl font-bold uppercase text-rose-600">THE FOOTBALLER’S SISTER</h1>
+  <!-- Header: Q&A style with dropdown navigator -->
+  <header class="sticky top-0 z-40">
+    <div class="container" style="display:flex;justify-content:space-between;align-items:center;padding-top:0.9rem;padding-bottom:0.9rem;">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <div class="site-title" style="font-size:1.05rem;">THE FOOTBALLER’S SISTER</div>
+      </div>
 
       <div class="relative inline-block text-left">
-        <button id="navButton"
-          class="inline-flex justify-center w-full rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
+        <button id="navButton" aria-expanded="false"
+          class="inline-flex items-center rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
           <span id="navTitle">Loading...</span>
           <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
           </svg>
         </button>
 
-        <div id="dropdownMenu"
-          class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
+        <div id="dropdownMenu" class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
           <div class="py-1">
             <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
             <a href="bts.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
@@ -79,25 +97,28 @@
     </div>
   </header>
 
-  <div class="pt-24"></div>
+  <div style="height:64px;"></div>
 
   <main class="flex-grow px-6 pb-20 max-w-3xl mx-auto">
-    <a href="bts.html" class="back-link">← Back to Behind the Game</a>
+    <!-- Back link removed per request -->
 
     <h2 class="text-4xl font-bold mb-2 text-rose-700">The Support Wall ❤️</h2>
-    <p class="text-sm text-gray-600 mb-6">Messages from the community. Your love and support is appreciated.<br>Your user ID is <span id="user-id" class="font-mono text-xs text-pink-700 break-all">Loading...</span></p>
+    <!-- The paragraph containing "Messages from the community..." and user ID removed per request -->
 
     <div id="messages-container" class="mt-6">
       <p id="loading-indicator" class="text-gray-500 text-center">Loading messages...</p>
     </div>
   </main>
 
-  <footer class="bg-pink-900 text-white text-center py-6">
-    <p>&copy; <span id="year"></span> The Footballer’s Sister. All rights reserved.</p>
+  <!-- Footer with FOOTER-BADGE (rounded gradient pill) -->
+  <footer style="margin-top:3rem;">
+    <div class="container" style="text-align:center;padding-top:1rem;padding-bottom:2rem;">
+      <small style="color:rgba(255,255,255,0.95);background:linear-gradient(90deg,#be185d,#f472b6);padding:.4rem .8rem;border-radius:999px;">© <span id="year"></span> The Footballer’s Sister</small>
+    </div>
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- header behaviour -->
+  <!-- header behaviour (same navigator logic used previously) -->
   <script>
     const navButton = document.getElementById('navButton');
     const dropdownMenu = document.getElementById('dropdownMenu');
@@ -136,7 +157,7 @@
     });
   </script>
 
-  <!-- Firebase + clickable reactions -->
+  <!-- Firebase + clickable reactions (unchanged logic) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -144,7 +165,6 @@
       getFirestore, collection, onSnapshot, doc, updateDoc, increment
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // keep using same appId/config as your site
     const appId = '1:65396604482:web:0f31625a714aa8352337db';
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
@@ -159,12 +179,10 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    const userIdEl = document.getElementById('user-id');
     const container = document.getElementById('messages-container');
 
     function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-    // create reaction button element (emoji + count)
     function createReactionButton(emoji, kind, count) {
       const btn = document.createElement('button');
       btn.className = 'reaction-pill';
@@ -187,14 +205,11 @@
 
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        if (userIdEl) userIdEl.textContent = user.uid;
-
         // subscribe to support messages
         onSnapshot(collection(db, `/artifacts/${appId}/public/data/supportMessages`), (snap) => {
           const docs = [];
           snap.forEach(d => docs.push({ id: d.id, ...d.data() }));
 
-          // newest first
           docs.sort((a,b) => {
             const ta = (a.timestamp && a.timestamp.seconds) ? a.timestamp.seconds : 0;
             const tb = (b.timestamp && b.timestamp.seconds) ? b.timestamp.seconds : 0;
@@ -240,7 +255,6 @@
               </div>
             `;
 
-            // render reaction buttons with current counts (default 0)
             const reactionContainer = card.querySelector('.reactions');
             const reactions = (msg.reactions && typeof msg.reactions === 'object') ? msg.reactions : {};
             const counts = {
@@ -266,7 +280,6 @@
             const smileObj = createReactionButton('😊', 'smile', counts.smile);
             reactionContainer.appendChild(smileObj.btn);
 
-            // click handlers: atomic increment using updateDoc + increment(1)
             const docRef = doc(db, `/artifacts/${appId}/public/data/supportMessages/${msg.id}`);
 
             async function handleReaction(obj, fieldKey) {
@@ -305,12 +318,10 @@
           await signInAnonymously(auth);
         } catch (err) {
           console.error('Auth anonymous sign-in error:', err);
-          if (userIdEl) userIdEl.textContent = 'auth-error';
         }
       }
     });
   </script>
 
-  <!-- END -->
 </body>
 </html>
