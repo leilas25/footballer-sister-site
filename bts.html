@@ -5,82 +5,79 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Behind the Game – The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
-    /* Header visual: pink gradient, subtle border & blur (keeps consistent with admin/q&a) */
-    header.site-header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 50;
-      background: linear-gradient(180deg, rgba(253,242,246,1) 0%, rgba(255,245,249,1) 100%);
-      border-bottom: 1px solid rgba(236,72,153,0.06);
+    :root{
+      --bg: #fff7fb;
+      --accent: #be185d;
+      --muted: #6b7280;
+      --card: #ffffff;
+      --shadow: 0 10px 30px rgba(11,7,17,0.06);
+    }
+
+    body { background: #fff2f6; color: #111827; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin:0; }
+
+    /* HEADER (saved style) */
+    header {
+      background: linear-gradient(180deg, rgba(246,213,239,0.6), rgba(255,241,248,0.6));
+      border-bottom: 1px solid rgba(235,200,215,0.6);
       backdrop-filter: blur(4px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .container { max-width:1100px; margin:0 auto; padding:1.25rem 1rem; }
+    .site-title { color: var(--accent); font-weight: 800; letter-spacing: .02em; font-size:1.15rem; }
+
+    .dropdown-open { opacity:1!important; transform:scale(1)!important; }
+
+    main { max-width:1100px; margin:0 auto; padding:1.5rem; padding-bottom:4.5rem; }
+
+    /* Player profiles */
+    .profiles-grid { display:grid; grid-template-columns: 1fr 1fr; gap:1.25rem; margin-bottom:2rem; }
+    @media (max-width:900px){ .profiles-grid { grid-template-columns: 1fr; } }
+    .profile-card { background:#fff; padding:1.25rem; border-radius:12px; box-shadow:var(--shadow); border:1px solid rgba(235,224,232,0.6); display:flex; flex-direction:column; align-items:center; text-align:center; }
+    .profile-img { width:100%; height:24rem; object-fit:cover; border-radius:10px; margin-bottom:1rem; }
+
+    /* GRID: vlogs vs collabs */
+    .bts-grid { display:grid; grid-template-columns: 1fr 1fr; gap:2.5rem; align-items:start; }
+    @media (max-width: 900px) { .bts-grid { grid-template-columns: 1fr; gap:1.25rem; } }
+
+    .carousel-card { background:var(--card); border-radius:14px; padding:0.75rem; box-shadow:var(--shadow); border:1px solid rgba(235,224,232,0.6); }
+    .embed-wrap { position:relative; width:100%; overflow:hidden; border-radius:12px; background:transparent; }
+    .embed-wrap { height:70vh; min-height:420px; }
+    .embed-wrap iframe { position:absolute !important; top:0 !important; left:0 !important; width:100% !important; height:100% !important; border:0 !important; margin:0 !important; padding:0 !important; display:block !important; background:transparent !important; border-radius:12px; }
+
+    .collab-card { background:var(--card); border-radius:12px; overflow:hidden; border:1px solid rgba(235,224,232,0.6); box-shadow:var(--shadow); }
+    .collab-media { display:block; width:100%; object-fit:cover; height:60vh; min-height:360px; }
+    @media (max-width:900px) {
+      .embed-wrap { height:56vh; min-height:300px; }
+      .collab-media { height:48vh; min-height:220px; }
     }
 
-    /* layout helpers */
-    body { background: #fdf2f7; color: #0f172a; font-family: ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial; }
-    main.content { padding-top: 88px; } /* leave room for fixed header */
+    .collab-caption { padding:.85rem .9rem; text-align:center; font-weight:700; color:var(--accent); background:#fff; }
 
-    /* embed-wrap: fixed height matching collab image; avoids huge spacer pushing content down */
-    .embed-wrap {
-      position: relative;
-      width: 100%;
-      height: 24rem; /* match collab image h-96 (24rem) so columns align */
-      overflow: hidden;
-      background: #fff0f6;
-      border-radius: 12px;
-    }
-    .embed-wrap iframe {
-      position: absolute !important;
-      top: 0 !important;
-      left: 0 !important;
-      width: 100% !important;
-      height: 100% !important;
-      border: 0 !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      display: block !important;
-      background: transparent !important;
-      border-radius: 12px;
-      transform: translateZ(0);
-    }
+    .carousel-button { background: rgba(255,255,255,0.9); border-radius:999px; width:36px; height:36px; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 18px rgba(11,7,17,0.06); border:1px solid rgba(0,0,0,0.04); }
+    .muted { color:var(--muted); }
 
-    /* keep previous carousel transform behaviour */
-    #video-slides-container, #collab-slides { display:flex; transition: transform .45s ease; width:100%; }
-    #video-slides-container > .slide, #collab-slides > .slide { min-width:100%; box-sizing:border-box; margin:0; padding:0; }
+    footer { margin-top:2.5rem; }
+    .footer-badge { color: #fff; background: linear-gradient(90deg,#be185d,#f472b6); padding:.45rem .85rem; border-radius:999px; font-weight:700; display:inline-block; }
 
-    /* collab card caption adjustments (remove stray marker/dot) */
-    .collab-caption { margin:0; padding:0.6rem 1rem; font-weight:700; color:#be185d; text-align:center; background:#fff; border-top:1px solid rgba(243,211,226,0.6); border-bottom-left-radius:8px; border-bottom-right-radius:8px; }
-    .collab-caption::before { display:none !important; } /* defensive: hide any pseudo markers */
-
-    /* collab image card */
-    .collab-card { background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 8px 24px rgba(16,24,40,0.04); }
-
-    /* caption heart/dot sometimes comes from inline characters — we strip common ones later in JS if needed */
-
-    /* small helper to hide the legacy debug text area */
-    #collabDebug { color:#6b7280; font-size:.95rem; text-align:center; margin-top:0.75rem; }
-
-    /* dropdown animation - reuse previously used */
-    .dropdown-open { opacity:1 !important; transform:scale(1) !important; }
-
-    @media (max-width: 767px) {
-      .embed-wrap { height: 20rem; }
-    }
+    .section-title { font-size:1.75rem; font-weight:800; color:var(--accent); margin-bottom:1rem; text-align:center; }
+    .two-col-head { display:flex; gap:1rem; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+    @media (max-width:900px) { .two-col-head { flex-direction:column; align-items:center; } }
   </style>
 </head>
 <body>
 
-  <!-- Header (consistent saved style) -->
-  <header class="site-header">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-      <h1 class="text-2xl font-bold uppercase text-rose-600">THE FOOTBALLER’S SISTER</h1>
+  <!-- Header -->
+  <header>
+    <div class="container" style="display:flex;justify-content:space-between;align-items:center;">
+      <div class="site-title">THE FOOTBALLER'S SISTER</div>
 
-      <!-- Dropdown Navigation -->
       <div class="relative inline-block text-left">
-        <button id="navButton" class="inline-flex justify-center items-center rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
-          <span id="navTitle">Behind the Game</span>
+        <button id="navButton" class="inline-flex items-center justify-center rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
+          <span id="navTitle">Loading...</span>
           <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
           </svg>
@@ -100,347 +97,335 @@
     </div>
   </header>
 
-  <main class="content">
-    <!-- Hero -->
-    <section class="pt-6 px-6 text-center max-w-3xl mx-auto">
-      <h2 class="text-4xl font-bold mb-4 text-rose-700">Behind the Game 📸⚽</h2>
-      <p class="text-lg text-gray-600 mb-10">From pre-match rituals to post-match reflections, skills on the field and creative vlogs — Welcome to the real story. This is football, sister-style.</p>
-    </section>
-
-    <!-- Player Profiles (kept as before) -->
-    <section class="grid grid-cols-1 md:grid-cols-2 gap-6 px-6 max-w-4xl mx-auto mb-10">
-      <h3 class="md:col-span-2 text-3xl font-bold mb-4 text-rose-700 text-center">Meet the Brothers</h3>
-      <div class="bg-white p-5 rounded-lg shadow-md flex flex-col items-center text-center">
-        <img src="images/elijah2.jpeg" alt="Elijah Sono" class="rounded-lg mb-4 w-full h-96 object-cover" />
-        <h4 class="text-2xl font-bold text-rose-700">Elijah Sono</h4>
-        <p class="text-gray-600 mt-1"><strong>Position:</strong> Midfielder</p>
-        <a href="pdfs/ELIJAHSONO-player-profile.pdf" target="_blank" class="mt-6 inline-block bg-rose-600 text-white px-6 py-3 rounded-full">View Player Profile</a>
-      </div>
-
-      <div class="bg-white p-5 rounded-lg shadow-md flex flex-col items-center text-center">
-        <img src="images/Bamuza.jpeg" alt="Bamuza Sono" class="rounded-lg mb-4 w-full h-96 object-cover" />
-        <h4 class="text-2xl font-bold text-rose-700">Bamuza Sono Jnr</h4>
-        <p class="text-gray-600 mt-1"><strong>Position:</strong> Midfielder</p>
-        <a href="pdfs/BAMUZASONO-player-profile.pdf" target="_blank" class="mt-6 inline-block bg-rose-600 text-white px-6 py-3 rounded-full">View Player Profile</a>
-      </div>
-    </section>
-
-    <!-- TikTok Carousel + Collaborations side-by-side -->
-    <section class="px-6 max-w-5xl mx-auto mb-14">
-      <div class="grid md:grid-cols-2 gap-8 items-start">
-        <!-- LEFT: TikTok (vlog) -->
-        <div>
-          <h3 class="text-2xl font-bold mb-4 text-rose-700 text-center">My Vlogs & Highlights</h3>
-          <div id="video-carousel" class="relative overflow-hidden rounded-lg shadow-lg mx-auto w-full md:max-w-md">
-            <div id="video-slides-container" class="flex transition-transform duration-500 ease-in-out">
-              <!-- Slide 1 -->
-              <div class="w-full flex-shrink-0 relative slide">
-                <div class="embed-wrap">
-                  <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" allowfullscreen class=""></iframe>
-                </div>
-              </div>
-              <!-- Slide 2 -->
-              <div class="w-full flex-shrink-0 relative slide">
-                <div class="embed-wrap">
-                  <iframe src="https://www.tiktok.com/embed/v2/7514262969786567943" allowfullscreen class=""></iframe>
-                </div>
-              </div>
-            </div>
-
-            <button id="prevBtn" class="absolute top-1/2 left-4 transform -translate-y-1/2 bg-white/50 text-gray-800 p-2 rounded-full hover:bg-white/80 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-            </button>
-            <button id="nextBtn" class="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white/50 text-gray-800 p-2 rounded-full hover:bg-white/80 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- RIGHT: Collaborations (reads Firestore collabs) -->
-        <div>
-          <h3 class="text-2xl font-bold mb-4 text-rose-700 text-center">Collaborations</h3>
-
-          <div id="collab-carousel" class="relative overflow-hidden rounded-lg mx-auto w-full">
-            <div id="collab-slides" class="flex transition-transform duration-400 ease-in-out">
-              <div class="w-full flex-shrink-0 p-8 text-center muted slide" id="collabFallback">Loading collaborations...</div>
-            </div>
-
-            <button id="collabPrev" class="absolute top-1/2 left-3 transform -translate-y-1/2 bg-white/60 text-gray-800 p-2 rounded-full hover:bg-white transition-colors">‹</button>
-            <button id="collabNext" class="absolute top-1/2 right-3 transform -translate-y-1/2 bg-white/60 text-gray-800 p-2 rounded-full hover:bg-white transition-colors">›</button>
-
-            <div id="collabDots" class="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-2"></div>
-          </div>
-
-          <div id="collabDebug" class="mt-3"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Support Wall (kept) -->
-    <section class="px-6 max-w-2xl mx-auto mb-20 bg-pink-100 p-8 rounded-xl shadow-lg">
-      <h3 class="text-2xl font-bold mb-4 text-rose-700 text-center">The Support Wall ❤️</h3>
-      <p class="text-sm text-center text-gray-600 mb-6">Leave a message of support and it will appear on the wall! Your user ID is <span id="user-id" class="font-mono text-xs text-pink-700 break-all">Loading...</span></p>
-
-      <form id="support-form" class="space-y-4">
-        <input type="text" id="name" placeholder="Your Name" required class="w-full px-4 py-2 border border-gray-300 rounded-full">
-        <textarea id="message" rows="3" placeholder="Write your message here..." required class="w-full px-4 py-2 border border-gray-300 rounded-xl"></textarea>
-        <button type="submit" class="w-full bg-rose-600 text-white px-6 py-3 rounded-full">Post Message</button>
-      </form>
-
-      <div class="mt-6 text-center">
-        <a href="support-wall.html" class="inline-block border border-rose-600 text-rose-600 px-6 py-3 rounded-full">View All Messages</a>
-      </div>
-    </section>
-
-    <div class="text-center mb-20">
-      <a href="index.html" class="bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition">Back to Home</a>
+  <main>
+    <div class="two-col-head">
+      <h2 class="section-title">Behind the Game 📸⚽</h2>
     </div>
 
+    <!-- Player Profiles (restored exactly as before) -->
+    <section class="profiles-grid" aria-label="Player profiles">
+      <!-- Elijah (hard-coded) -->
+      <div class="profile-card">
+        <img src="images/elijah2.jpeg" alt="Elijah Sono" class="profile-img" />
+        <h4 class="text-2xl font-bold text-rose-700 flex items-center gap-3" style="margin-bottom:.35rem;">
+          <span>Elijah Sono</span>
+          <span class="inline-flex items-center gap-2 ml-2">
+            <a id="elijah-instagram" href="https://www.instagram.com/elijah_sono?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" title="Instagram" aria-label="Elijah instagram">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="5" stroke="#BE185D" stroke-width="1.5" fill="none"/>
+                <path d="M7.75 11.99a4.25 4.25 0 1 1 8.5 0 4.25 4.25 0 0 1-8.5 0z" stroke="#BE185D" stroke-width="1.5" fill="none"/>
+                <circle cx="17.8" cy="6.2" r="0.7" fill="#BE185D"/>
+              </svg>
+            </a>
+            <a id="elijah-tiktok" href="https://www.tiktok.com/@elijah_sono_?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" title="TikTok" aria-label="Elijah tiktok">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                   xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M15 6.5c.6.6 1.6 1.1 3 1.1v2.1c-1.3 0-2.4-.4-3-.9v5.8a3.6 3.6 0 1 1-3.6-3.6c.2 0 .5 0 .7.1v2.2a1.4 1.4 0 1 0 1.4 1.4V6.5z"
+                      stroke="#BE185D"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </span>
+        </h4>
+
+        <p class="text-gray-600 mt-1"><strong>Position:</strong> Midfielder</p>
+
+        <div class="mt-4 text-left w-full">
+          <h5 class="font-semibold text-rose-600">Key Attributes:</h5>
+          <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1 text-sm">
+            <li><strong>Dribbling:</strong> Confident on the ball with quick feet to navigate tight spaces.</li>
+            <li><strong>Passing:</strong> Excellent vision and timing to consistently find teammates.</li>
+            <li><strong>Tackling:</strong> Reads the game well with precise and controlled tackling.</li>
+          </ul>
+        </div>
+
+        <div class="mt-4 text-left w-full">
+          <h5 class="font-semibold text-rose-600">Experience:</h5>
+          <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1 text-sm">
+            <li>Currently plays for the u13 Jomo Cosmos team in the GDL league.</li>
+            <li>Played for the u13 Jomo Cosmos team at age 10 and 11.</li>
+            <li>Developed skills at Wanderers Discovery Soccer Club.</li>
+          </ul>
+        </div>
+
+        <a href="pdfs/ELIJAHSONO-player-profile.pdf" target="_blank" rel="noreferrer" class="mt-6 inline-block bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">View Player Profile</a>
+      </div>
+
+      <!-- Bamuza (hard-coded) -->
+      <div class="profile-card">
+        <img src="images/Bamuza.jpeg" alt="Bamuza Sono" class="profile-img" />
+        <h4 class="text-2xl font-bold text-rose-700 flex items-center gap-3" style="margin-bottom:.35rem;">
+          <span>Bamuza Sono Jnr</span>
+          <span class="inline-flex items-center gap-2 ml-2">
+            <a id="bamuza-instagram" href="https://www.instagram.com/bamuza_sono?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" title="Instagram" aria-label="Bamuza instagram">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="5" stroke="#BE185D" stroke-width="1.5" fill="none"/>
+                <path d="M7.75 11.99a4.25 4.25 0 1 1 8.5 0 4.25 4.25 0 0 1-8.5 0z" stroke="#BE185D" stroke-width="1.5" fill="none"/>
+                <circle cx="17.8" cy="6.2" r="0.7" fill="#BE185D"/>
+              </svg>
+            </a>
+            <a id="bamuza-tiktok" href="https://www.tiktok.com/@bamuza_sono?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" title="TikTok" aria-label="Bamuza tiktok">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                   xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M15 6.5c.6.6 1.6 1.1 3 1.1v2.1c-1.3 0-2.4-.4-3-.9v5.8a3.6 3.6 0 1 1-3.6-3.6c.2 0 .5 0 .7.1v2.2a1.4 1.4 0 1 0 1.4 1.4V6.5z"
+                      stroke="#BE185D"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </span>
+        </h4>
+
+        <p class="text-gray-600 mt-1"><strong>Position:</strong> Midfielder</p>
+
+        <div class="mt-4 text-left w-full">
+          <h5 class="font-semibold text-rose-600">Key Attributes:</h5>
+          <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1 text-sm">
+            <li><strong>Dribbling:</strong> Able to take on defenders with close control and quick feet.</li>
+            <li><strong>Passing:</strong> Excellent vision to deliver precise short passes or long balls.</li>
+            <li><strong>Shooting:</strong> Known as a free-kick or corner kick taker.</li>
+          </ul>
+        </div>
+
+        <div class="mt-4 text-left w-full">
+          <h5 class="font-semibold text-rose-600">Experience:</h5>
+          <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1 text-sm">
+            <li>Currently playing for the U17 Jomo Cosmos FC team in the GDL league.</li>
+            <li>Played for the U15 and U17 teams in previous years.</li>
+            <li>Developed skills at Wanderers Discovery Soccer Club</li>
+          </ul>
+        </div>
+
+        <a href="pdfs/BAMUZASONO-player-profile.pdf" target="_blank" rel="noreferrer" class="mt-6 inline-block bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">View Player Profile</a>
+      </div>
+    </section>
+
+    <!-- Vlogs & Collaborations side-by-side (carousels sizes increased and aligned) -->
+    <div class="bts-grid">
+      <!-- LEFT: TikTok -->
+      <div>
+        <div class="carousel-card">
+          <h3 style="font-weight:800;color:var(--accent);text-align:center;margin-bottom:.75rem;">My Vlogs & Highlights</h3>
+
+          <div id="video-carousel" style="position:relative;">
+            <div class="embed-wrap" id="embedWrap">
+              <!-- replace/add iframes as you need; first iframe shown -->
+              <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" allowfullscreen></iframe>
+            </div>
+
+            <button id="prevBtn" aria-label="previous video" class="carousel-button" style="position:absolute;left:-8px;top:50%;transform:translateY(-50%);">‹</button>
+            <button id="nextBtn" aria-label="next video" class="carousel-button" style="position:absolute;right:-8px;top:50%;transform:translateY(-50%);">›</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Collaborations (reads Firestore collabs) -->
+      <div>
+        <div class="collab-card">
+          <h3 style="font-weight:800;color:var(--accent);text-align:center;padding:1rem 1rem 0;">Collaborations</h3>
+
+          <div id="collabArea" style="padding:1rem;">
+            <div id="collabSlidesWrapper" style="position:relative;">
+              <div id="collabSlides" style="display:flex;transition:transform .45s ease;width:100%;overflow:hidden;">
+                <div class="muted" style="width:100%;padding:2rem;text-align:center;">Loading collaborations...</div>
+              </div>
+
+              <button id="collabPrev" class="carousel-button" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);">‹</button>
+              <button id="collabNext" class="carousel-button" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);">›</button>
+            </div>
+
+            <!-- removed the 'Loaded X collaborations' visible count per your request -->
+            <div id="collabFooter" style="text-align:center;padding-top:1rem;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 
-  <!-- Footer (with footer-badge pill) -->
-  <footer class="bg-pink-900 text-white py-8">
-    <div class="max-w-6xl mx-auto px-6 text-center">
-      <div class="mb-4">© <span id="year"></span> The Footballer’s Sister. All rights reserved.</div>
-      <div style="display:inline-block;background:linear-gradient(90deg,#ffc9dd,#be185d);padding:6px 12px;border-radius:999px;color:white;font-weight:700;font-size:13px;">FOOTER BADGE © <span id="yearBadge"></span></div>
+  <!-- Footer (badge style) -->
+  <footer>
+    <div class="container" style="text-align:center;padding-top:1rem;padding-bottom:2rem;">
+      <small class="footer-badge">© <span id="year"></span> The Footballer’s Sister</small>
     </div>
   </footer>
-  <script>document.getElementById('year').textContent = new Date().getFullYear();document.getElementById('yearBadge').textContent = new Date().getFullYear();</script>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
   <!-- TikTok embed script -->
   <script async src="https://www.tiktok.com/embed.js"></script>
 
-  <!-- Dropdown script -->
+  <!-- Navbar dropdown -->
   <script>
-    const navButton = document.getElementById('navButton');
-    const dropdownMenu = document.getElementById('dropdownMenu');
-    const navItems = document.querySelectorAll('.nav-item');
-    const navTitleEl = document.getElementById('navTitle');
-    const currentPage = window.location.pathname.split('/').pop();
-    const pageTitles = {"index.html":"Home","bts.html":"Behind the Game","leila.html":"Meet Leila","questions.html":"Q&A","support-wall.html":"Support Wall","fixtures.html":"Fixtures & Live Scores"};
-    navTitleEl.textContent = pageTitles[currentPage] || "Menu";
-    navItems.forEach(link => { if (link.getAttribute('href') === currentPage) link.classList.add("font-semibold","text-rose-600"); });
-    navButton.addEventListener('click', (e) => { e.stopPropagation(); const isHidden = dropdownMenu.classList.contains('hidden'); if (isHidden){ dropdownMenu.classList.remove('hidden'); setTimeout(()=>dropdownMenu.classList.add('dropdown-open'),10); } else { dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'),200); } });
-    document.addEventListener('click', (event) => { if (!navButton.contains(event.target) && !dropdownMenu.contains(event.target)) { dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'),200); } });
+    (function () {
+      const navButton = document.getElementById('navButton');
+      const dropdownMenu = document.getElementById('dropdownMenu');
+      const navItems = document.querySelectorAll('.nav-item');
+      const navTitle = document.getElementById('navTitle');
+      let currentPage = window.location.pathname.split('/').pop();
+      if (!currentPage || currentPage === '') currentPage = 'index.html';
+
+      const pageTitles = {
+        "index.html": "Home",
+        "bts.html": "Behind the Game",
+        "leila.html": "Meet Leila",
+        "questions.html": "Q&A",
+        "support-wall.html": "Support Wall",
+        "fixtures.html": "Fixtures & Live Scores"
+      };
+      navTitle.textContent = pageTitles[currentPage] || "Menu";
+
+      navItems.forEach(link => {
+        const hrefName = link.getAttribute('href').split('/').pop();
+        if (hrefName === currentPage) {
+          link.classList.add("font-semibold", "text-rose-600");
+        }
+      });
+
+      navButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = dropdownMenu.classList.contains('hidden');
+        if (isHidden) {
+          dropdownMenu.classList.remove('hidden');
+          setTimeout(()=>dropdownMenu.classList.add('dropdown-open'), 10);
+        } else {
+          dropdownMenu.classList.remove('dropdown-open');
+          setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+          dropdownMenu.classList.remove('dropdown-open');
+          setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          dropdownMenu.classList.remove('dropdown-open');
+          setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
+        }
+      });
+    })();
   </script>
 
-  <!-- FIREBASE: support wall + collabs subscription -->
+  <!-- Firestore subscription + collab UI -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // firebase config (same as your admin)
-    const appId = '1:65396604482:web:0f31625a714aa8352337db';
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
       projectId: "football-site-c3aa9",
       storageBucket: "football-site-c3aa9.appspot.com",
       messagingSenderId: "65396604482",
-      appId: appId
+      appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
-    const initialAuthToken = null; // if you inject a token elsewhere
 
-    function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    // exact collabs collection path you gave:
+    const COLLABS_PATH = "artifacts/1:65396604482:web:0f31625a714aa8352337db/public/data/collabs";
 
-    // Support wall form
-    let userId = null;
-    const userIdEl = document.getElementById('user-id');
-    const form = document.getElementById('support-form');
-    const nameInput = document.getElementById('name');
-    const messageInput = document.getElementById('message');
+    const slidesEl = document.getElementById('collabSlides');
+    const collabPrev = document.getElementById('collabPrev');
+    const collabNext = document.getElementById('collabNext');
 
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        userId = user.uid;
-        if (userIdEl) userIdEl.textContent = userId;
-      } else {
-        try {
-          if (initialAuthToken) {
-            await signInWithCustomToken(auth, initialAuthToken);
-          } else {
-            await signInAnonymously(auth);
-          }
-        } catch (err) {
-          console.error('Auth error', err);
-        }
-      }
-    });
+    let items = [];
+    let idx = 0;
 
-    const withExponentialBackoff = async (func, retries = 5, delay = 1000) => {
-      try { return await func(); }
-      catch (error) {
-        if (retries > 0 && error.code === 'resource-exhausted') {
-          await new Promise(r => setTimeout(r, delay));
-          return withExponentialBackoff(func, retries - 1, delay * 2);
-        }
-        throw error;
-      }
-    };
-
-    if (form) {
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if (!userId) { console.error("User not authenticated."); return; }
-        const name = nameInput.value.trim();
-        const message = messageInput.value.trim();
-        if (!name || !message) return;
-        try {
-          await withExponentialBackoff(() => addDoc(collection(db, `/artifacts/${appId}/public/data/supportMessages`), {
-            name, message, userId, timestamp: serverTimestamp()
-          }));
-          window.location.href = 'support-wall.html';
-        } catch (err) {
-          console.error('Error adding support message', err);
-        }
-      });
+    function cleanCaption(s){
+      if(!s) return '';
+      return String(s).replace(/[\u2022\u25E6\u25CF\u2023•◦●]/g,'').replace(/\s{2,}/g,' ').trim();
     }
 
-    // COLLABS carousel subscription/renderer
-    (function initCollabCarousel(){
-      const slidesEl = document.getElementById('collab-slides');
-      const prev = document.getElementById('collabPrev');
-      const next = document.getElementById('collabNext');
-      const dotsEl = document.getElementById('collabDots');
-      const debugEl = document.getElementById('collabDebug');
-      const fallback = document.getElementById('collabFallback');
-
-      let items = [];
-      let idx = 0;
-
-      function renderSlides(){
-        slidesEl.innerHTML = '';
-        if (!items.length) {
-          slidesEl.innerHTML = '<div class="w-full flex-shrink-0 p-8 text-center muted slide">No collaborations yet.</div>';
-          dotsEl.innerHTML = '';
-          if (debugEl) debugEl.textContent = '';
-          return;
-        }
-        items.forEach(it => {
-          const slide = document.createElement('div');
-          slide.className = 'w-full flex-shrink-0 p-4 slide';
-          slide.innerHTML = `
-            <div class="collab-card">
-              <a href="${escapeHtml(it.link || it.imageUrl || '#')}" target="_blank" rel="noreferrer">
-                <img src="${escapeHtml(it.imageUrl)}" alt="${escapeHtml(it.caption||'')}" class="w-full h-96 object-cover">
-              </a>
-              <div class="collab-caption">${escapeHtml(it.caption || '')}</div>
-            </div>`;
-          slidesEl.appendChild(slide);
-        });
-        updatePosition();
-        renderDots();
-        if (debugEl) debugEl.textContent = `Loaded ${items.length} collaborations.`;
+    function renderSlides(){
+      slidesEl.innerHTML = '';
+      if (!items.length) {
+        slidesEl.innerHTML = '<div style="width:100%;padding:2rem;text-align:center;">No collaborations yet.</div>';
+        return;
       }
 
-      function updatePosition(){ slidesEl.style.transform = `translateX(-${idx * 100}%)`; }
-      function renderDots(){
-        dotsEl.innerHTML = '';
-        items.forEach((_, i) => {
-          const d = document.createElement('button');
-          d.className = 'w-3 h-3 rounded-full ' + (i===idx ? 'bg-rose-600' : 'bg-gray-300');
-          d.addEventListener('click', ()=> { idx = i; updatePosition(); renderDots(); });
-          dotsEl.appendChild(d);
-        });
-      }
+      items.forEach(it => {
+        const wrapper = document.createElement('div');
+        wrapper.style.minWidth = '100%';
+        wrapper.style.boxSizing = 'border-box';
+        wrapper.style.padding = '0';
+        wrapper.className = 'slide';
+        const caption = cleanCaption(it.caption || '');
 
-      if (prev) prev.addEventListener('click', ()=> {
-        if (!items.length) return;
-        idx = (idx - 1 + items.length) % items.length;
-        updatePosition(); renderDots();
-      });
-      if (next) next.addEventListener('click', ()=> {
-        if (!items.length) return;
-        idx = (idx + 1) % items.length;
-        updatePosition(); renderDots();
+        wrapper.innerHTML = `
+          <div class="collab-card" style="border-radius:12px;">
+            <img src="${escapeHtml(it.imageUrl)}" alt="${escapeHtml(caption)}" class="collab-media" />
+            <div class="collab-caption">${escapeHtml(caption || '')}</div>
+          </div>
+        `;
+        slidesEl.appendChild(wrapper);
       });
 
-      // swipe
-      let touchStartX = 0;
-      const parent = document.getElementById('collab-carousel');
-      if (parent) {
-        parent.addEventListener('touchstart', e => touchStartX = e.touches[0].clientX);
-        parent.addEventListener('touchend', e => {
-          const endX = e.changedTouches[0].clientX;
-          const delta = touchStartX - endX;
-          if (Math.abs(delta) > 40) {
-            if (delta > 0) idx = (idx + 1) % Math.max(1, items.length);
-            else idx = (idx - 1 + Math.max(1, items.length)) % Math.max(1, items.length);
-            updatePosition(); renderDots();
-          }
-        });
-      }
+      updatePosition();
+    }
 
-      // IMPORTANT: use the exact path you said your collabs are in
-      const collabsPath = `/artifacts/${appId}/public/data/collabs`;
+    function updatePosition(){ slidesEl.style.transform = `translateX(-${idx * 100}%)`; }
 
+    if (collabPrev) collabPrev.addEventListener('click', () => {
+      if (!items.length) return;
+      idx = (idx - 1 + items.length) % items.length;
+      updatePosition();
+    });
+    if (collabNext) collabNext.addEventListener('click', () => {
+      if (!items.length) return;
+      idx = (idx + 1) % items.length;
+      updatePosition();
+    });
+
+    function escapeHtml(str){ if(!str) return ''; return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+    function subscribeToCollabs(){
       try {
-        const q = query(collection(db, collabsPath), orderBy('uploadedAt','desc'));
-        onSnapshot(q, snap => {
-          const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-          // map to expected fields
-          const mapped = docs.map(d => {
-            return {
-              id: d.id,
-              imageUrl: d.imageUrl || d.image || d.url || '',
-              caption: (d.caption || d.title || '').replace(/•|·/g, '').trim(), // strip common dot markers if present
-              link: d.link || d.target || ''
-            };
-          }).filter(it => it.imageUrl);
-
-          items = mapped;
+        const collRef = collection(db, COLLABS_PATH);
+        onSnapshot(collRef, snap => {
+          const docs = snap.docs.map(d => ({ id: d.id, ...(d.data ? d.data() : {}) }));
+          docs.sort((a,b) => {
+            const ta = a.uploadedAt && a.uploadedAt.seconds ? a.uploadedAt.seconds : 0;
+            const tb = b.uploadedAt && b.uploadedAt.seconds ? b.uploadedAt.seconds : 0;
+            return tb - ta;
+          });
+          items = docs.map(d => ({ imageUrl: d.imageUrl || d.image || d.url || '', caption: d.caption || d.title || '' })).filter(i => i.imageUrl);
           idx = 0;
           renderSlides();
-          if (fallback) fallback.style.display = items.length ? 'none' : 'block';
         }, err => {
-          console.warn('gallery onSnapshot error for collabs', err);
-          if (debugEl) debugEl.textContent = 'No realtime subscription available for gallery — check collection path or Firestore rules (permission-denied).';
-          // keep fallback message visible
-          if (fallback) fallback.textContent = 'No realtime subscription available for gallery — check collection path or Firestore rules (permission-denied).';
+          console.warn('collabs onSnapshot error', err);
+          slidesEl.innerHTML = '<div style="width:100%;padding:2rem;text-align:center;color:#9aa0a6;">No realtime subscription available for gallery — check collection path or Firestore rules (permission-denied).</div>';
         });
-      } catch (e) {
-        console.warn('subscribe collabs failed', e);
-        if (debugEl) debugEl.textContent = 'Could not subscribe to collabs.';
+      } catch (err) {
+        console.error('subscribeToCollabs failed', err);
+        slidesEl.innerHTML = '<div style="width:100%;padding:2rem;text-align:center;color:#9aa0a6;">Unable to load collaborations.</div>';
       }
+    }
 
-    })();
+    onAuthStateChanged(auth, (user) => {
+      subscribeToCollabs();
+      if (!user) {
+        signInAnonymously(auth).catch(err => {
+          console.warn('Anonymous sign-in failed (continuing read-only):', err);
+        });
+      }
+    });
   </script>
 
-  <!-- TikTok carousel controls -->
+  <!-- placeholder control handlers for TikTok (kept minimal) -->
   <script>
     (function(){
-      const slidesContainer = document.getElementById('video-slides-container');
       const prevBtn = document.getElementById('prevBtn');
       const nextBtn = document.getElementById('nextBtn');
-      if (!slidesContainer) return;
-      let currentIndex = 0;
-      const slides = slidesContainer.children;
-
-      function show() { slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`; }
-      function next() { currentIndex = (currentIndex + 1) % slides.length; show(); }
-      function prev() { currentIndex = (currentIndex - 1 + slides.length) % slides.length; show(); }
-
-      if (nextBtn) nextBtn.addEventListener('click', next);
-      if (prevBtn) prevBtn.addEventListener('click', prev);
-
-      let startX = 0;
-      const parent = document.getElementById('video-carousel');
-      if (parent) {
-        parent.addEventListener('touchstart', (e) => startX = e.touches[0].clientX);
-        parent.addEventListener('touchend', (e) => {
-          const endX = e.changedTouches[0].clientX;
-          const delta = startX - endX;
-          if (Math.abs(delta) > 50) {
-            if (delta > 0) next(); else prev();
-          }
-        });
-      }
-
-      window.addEventListener('load', () => { show(); });
+      if(prevBtn) prevBtn.addEventListener('click', ()=>{ /* reserved for future multi-iframe control */ });
+      if(nextBtn) nextBtn.addEventListener('click', ()=>{ /* reserved for future multi-iframe control */ });
     })();
   </script>
 
