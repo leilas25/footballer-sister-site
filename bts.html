@@ -46,7 +46,7 @@
     .profile-grid { display:grid; grid-template-columns: 1fr 1fr; gap:1.25rem; margin-bottom:2rem; }
 
     .profile-card img { width:100%; height:360px; object-fit:cover; border-radius:10px; display:block; }
-    .profile-name { color:var(--accent); font-weight:800; font-size:1.25rem; margin-top:.75rem; }
+    .profile-name { color:var(--accent); font-weight:800; font-size:1.25rem; margin-top:.75rem; display:flex; align-items:center; gap:8px; }
     .profile-meta { color: #374151; margin-top:.45rem; }
     .profile-list { margin-top:.5rem; color:#374151; font-size:.95rem; line-height:1.45; }
 
@@ -54,7 +54,7 @@
     .two-col { display:grid; grid-template-columns: 1fr 1fr; gap:2rem; align-items:start; }
 
     /* TikTok embed sizing — longer so whole video sits comfortably */
-    .video-carousel { border-radius:12px; overflow:visible; }
+    .video-carousel { border-radius:12px; overflow:visible; position:relative; }
     .embed-wrap {
       position: relative;
       width: 100%;
@@ -82,7 +82,7 @@
     }
 
     /* collab carousel sizing — taller */
-    .collab-carousel { border-radius:12px; overflow:visible; }
+    .collab-carousel { border-radius:12px; overflow:visible; position:relative; }
     .collab-slide { background:var(--card); border-radius:12px; box-shadow: var(--shadow); border:1px solid rgba(235,224,232,0.6); overflow:hidden; }
     .collab-slide img { width:100%; height:520px; object-fit:cover; display:block; }
     @media (max-width:960px){ .collab-slide img { height:420px; } }
@@ -119,6 +119,22 @@
       .container { padding:1rem; }
       .page-hero h2 { font-size:1.75rem; }
     }
+
+    /* -------------------------------------------------------------
+       TARGETED FIX: hide TikTok-inserted bottom CTA / overlays
+       These rules only hide fixed / bottom-positioned elements that
+       TikTok sometimes injects (eg: "Watch now" CTA) so they don't
+       appear under your collabs carousel. This is intentionally
+       narrow and won't affect your page content.
+       ------------------------------------------------------------- */
+    /* hide elements injected with inline style that include fixed and bottom */
+    div[style*="position:fixed"][style*="bottom"] { display:none !important; }
+    /* hide TikTok banner wrappers commonly inserted near the body root */
+    .tiktok-embed__banner, .tiktok-embed__watch, .tiktok-embed__cta, .tiktok-embed-bottom { display:none !important; }
+    /* as a catch-all for any fixed element anchored to bottom (very narrow): */
+    [role="presentation"][style*="position:fixed"][style*="bottom"] { display:none !important; }
+    /* ensure any overlays from the tiktok embed inside our .embed-wrap are contained */
+    .embed-wrap > div[style*="position:fixed"], .embed-wrap > div.tiktok-embed__banner { display:none !important; }
   </style>
 </head>
 <body>
@@ -169,7 +185,30 @@
       <!-- Elijah -->
       <div class="profile-card">
         <img src="images/elijah2.jpeg" alt="Elijah Sono">
-        <h3 class="profile-name">Elijah Sono</h3>
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <h3 class="profile-name">Elijah Sono</h3>
+          <div style="display:flex; gap:.5rem; align-items:center;">
+            <!-- Instagram icon -->
+            <a id="elijah-instagram" href="https://www.instagram.com/elijah_sono?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" title="Instagram">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="5" stroke="#BE185D" stroke-width="1.5" fill="none"/>
+                <path d="M7.75 11.99a4.25 4.25 0 1 1 8.5 0 4.25 4.25 0 0 1-8.5 0z" stroke="#BE185D" stroke-width="1.5" fill="none"/>
+                <circle cx="17.8" cy="6.2" r="0.7" fill="#BE185D"/>
+              </svg>
+            </a>
+            <!-- TikTok icon -->
+            <a id="elijah-tiktok" href="https://www.tiktok.com/@elijah_sono_?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" title="TikTok">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M15 6.5c.6.6 1.6 1.1 3 1.1v2.1c-1.3 0-2.4-.4-3-.9v5.8a3.6 3.6 0 1 1-3.6-3.6c.2 0 .5 0 .7.1v2.2a1.4 1.4 0 1 0 1.4 1.4V6.5z"
+                      stroke="#BE185D"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+
         <div class="profile-meta"><strong>Position:</strong> Midfielder</div>
 
         <div class="profile-list">
@@ -189,26 +228,6 @@
 
           <div style="margin-top:.9rem; display:flex; gap:8px; align-items:center;">
             <a href="pdfs/ELIJAHSONO-player-profile.pdf" class="inline-block bg-rose-600 text-white px-4 py-2 rounded-full hover:bg-rose-700 transition font-semibold">View Player Profile</a>
-            <div style="margin-left:auto; display:flex; gap:.5rem;">
-              <!-- Instagram icon -->
-              <a id="elijah-instagram" href="https://www.instagram.com/elijah_sono?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" title="Instagram">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                  <rect x="2" y="2" width="20" height="20" rx="5" stroke="#BE185D" stroke-width="1.5" fill="none"/>
-                  <path d="M7.75 11.99a4.25 4.25 0 1 1 8.5 0 4.25 4.25 0 0 1-8.5 0z" stroke="#BE185D" stroke-width="1.5" fill="none"/>
-                  <circle cx="17.8" cy="6.2" r="0.7" fill="#BE185D"/>
-                </svg>
-              </a>
-              <!-- TikTok icon -->
-              <a id="elijah-tiktok" href="https://www.tiktok.com/@elijah_sono_?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" title="TikTok">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                  <path d="M15 6.5c.6.6 1.6 1.1 3 1.1v2.1c-1.3 0-2.4-.4-3-.9v5.8a3.6 3.6 0 1 1-3.6-3.6c.2 0 .5 0 .7.1v2.2a1.4 1.4 0 1 0 1.4 1.4V6.5z"
-                        stroke="#BE185D"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"/>
-                </svg>
-              </a>
-            </div>
           </div>
         </div>
       </div>
@@ -216,7 +235,28 @@
       <!-- Bamuza -->
       <div class="profile-card">
         <img src="images/Bamuza.jpeg" alt="Bamuza Sono">
-        <h3 class="profile-name">Bamuza Sono Jnr</h3>
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <h3 class="profile-name">Bamuza Sono Jnr</h3>
+          <div style="display:flex; gap:.5rem; align-items:center;">
+            <a id="bamuza-instagram" href="https://www.instagram.com/bamuza_sono?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" title="Instagram">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="5" stroke="#BE185D" stroke-width="1.5" fill="none"/>
+                <path d="M7.75 11.99a4.25 4.25 0 1 1 8.5 0 4.25 4.25 0 0 1-8.5 0z" stroke="#BE185D" stroke-width="1.5" fill="none"/>
+                <circle cx="17.8" cy="6.2" r="0.7" fill="#BE185D"/>
+              </svg>
+            </a>
+            <a id="bamuza-tiktok" href="https://www.tiktok.com/@bamuza_sono?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" title="TikTok">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M15 6.5c.6.6 1.6 1.1 3 1.1v2.1c-1.3 0-2.4-.4-3-.9v5.8a3.6 3.6 0 1 1-3.6-3.6c.2 0 .5 0 .7.1v2.2a1.4 1.4 0 1 0 1.4 1.4V6.5z"
+                      stroke="#BE185D"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+
         <div class="profile-meta"><strong>Position:</strong> Midfielder</div>
 
         <div class="profile-list">
@@ -236,24 +276,6 @@
 
           <div style="margin-top:.9rem; display:flex; gap:8px; align-items:center;">
             <a href="pdfs/BAMUZASONO-player-profile.pdf" class="inline-block bg-rose-600 text-white px-4 py-2 rounded-full hover:bg-rose-700 transition font-semibold">View Player Profile</a>
-            <div style="margin-left:auto; display:flex; gap:.5rem;">
-              <a id="bamuza-instagram" href="https://www.instagram.com/bamuza_sono?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" title="Instagram">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                  <rect x="2" y="2" width="20" height="20" rx="5" stroke="#BE185D" stroke-width="1.5" fill="none"/>
-                  <path d="M7.75 11.99a4.25 4.25 0 1 1 8.5 0 4.25 4.25 0 0 1-8.5 0z" stroke="#BE185D" stroke-width="1.5" fill="none"/>
-                  <circle cx="17.8" cy="6.2" r="0.7" fill="#BE185D"/>
-                </svg>
-              </a>
-              <a id="bamuza-tiktok" href="https://www.tiktok.com/@bamuza_sono?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" title="TikTok">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                  <path d="M15 6.5c.6.6 1.6 1.1 3 1.1v2.1c-1.3 0-2.4-.4-3-.9v5.8a3.6 3.6 0 1 1-3.6-3.6c.2 0 .5 0 .7.1v2.2a1.4 1.4 0 1 0 1.4 1.4V6.5z"
-                        stroke="#BE185D"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"/>
-                </svg>
-              </a>
-            </div>
           </div>
         </div>
       </div>
@@ -283,7 +305,7 @@
             <!-- add more iframes as needed -->
           </div>
 
-          <!-- arrows -->
+          <!-- arrows (positioned relative to the carousel) -->
           <button id="prevBtn" class="arrow-btn" style="position:absolute; left:calc(50% - 520px); top:50%; transform:translateY(-50%);"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
           <button id="nextBtn" class="arrow-btn" style="position:absolute; left:calc(50% + 480px); top:50%; transform:translateY(-50%);"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
         </div>
@@ -342,7 +364,7 @@
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- TikTok embed script -->
+  <!-- TikTok embed script (kept so your embeds work) -->
   <script async src="https://www.tiktok.com/embed.js"></script>
 
   <!-- Navbar dropdown script -->
