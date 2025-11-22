@@ -63,7 +63,6 @@
         <button id="navMedia" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Media / Gallery</button>
         <button id="navWinners" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Winners</button>
         <button id="navGiveaways" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Giveaways</button>
-        <button id="navGiveEntries" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Giveaway Entries</button>
 
         <div class="ml-auto text-sm small-muted">
           Signed in as <span id="adminEmailDisplay"></span>
@@ -173,7 +172,6 @@
 
         <div id="paneWinners" class="card hidden-el"><h3 class="text-lg font-bold">Winners (unchanged)</h3></div>
         <div id="paneFixtures" class="card hidden-el"><h3 class="text-lg font-bold">Fixtures (unchanged)</h3></div>
-        <div id="paneGiveEntries" class="card hidden-el"><h3 class="text-lg font-bold">Giveaway Entries (unchanged)</h3></div>
         <div id="paneGiveawaysBackup" class="card hidden-el"><h3 class="text-lg font-bold">Giveaways Backup (unchanged)</h3></div>
 
       </div>
@@ -188,6 +186,7 @@
   <script type="module">
     /**************************************************************************
      * Admin JS - with Cloudinary unsigned upload for giveaways + collabs
+     * NOTE: 'Giveaway Entries' panel/button removed per your request.
      **************************************************************************/
 
     // ---------- CONFIG ----------
@@ -247,13 +246,11 @@
     const navQA = document.getElementById('navQA');
     const navMedia = document.getElementById('navMedia');
     const navGiveaways = document.getElementById('navGiveaways');
-    const navGiveEntries = document.getElementById('navGiveEntries');
 
     const paneSupport = document.getElementById('paneSupport');
     const paneQA = document.getElementById('paneQA');
     const paneMedia = document.getElementById('paneMedia');
     const paneGiveaways = document.getElementById('paneGiveaways');
-    const paneGiveEntries = document.getElementById('paneGiveEntries');
 
     const refreshSupportBtn = document.getElementById('refreshSupportBtn');
     const supportList = document.getElementById('supportList');
@@ -290,7 +287,7 @@
     let currentEditId = null; // if editing an existing giveaway
 
     function hideAllPanes() {
-      [paneSupport, paneQA, paneMedia, paneGiveaways, paneGiveEntries /* other panes */].forEach(p => p.classList.add('hidden-el'));
+      [paneSupport, paneQA, paneMedia, paneGiveaways].forEach(p => p.classList.add('hidden-el'));
     }
 
     // ---------- AUTH ----------
@@ -333,13 +330,11 @@
     navQA.addEventListener('click', showQAPane);
     navMedia.addEventListener('click', showMediaPane);
     navGiveaways.addEventListener('click', showGiveawaysPane);
-    navGiveEntries.addEventListener('click', showGiveEntriesPane);
 
     function showSupportPane(){ hideAllPanes(); paneSupport.classList.remove('hidden-el'); loadSupport(); }
     function showQAPane(){ hideAllPanes(); paneQA.classList.remove('hidden-el'); loadQA(); }
     function showMediaPane(){ hideAllPanes(); paneMedia.classList.remove('hidden-el'); loadCollabs(); }
     function showGiveawaysPane(){ hideAllPanes(); paneGiveaways.classList.remove('hidden-el'); loadGiveaways(); }
-    function showGiveEntriesPane(){ hideAllPanes(); paneGiveEntries.classList.remove('hidden-el'); /* implement if needed */ }
 
     refreshSupportBtn.addEventListener('click', loadSupport);
     refreshQABtn.addEventListener('click', loadQA);
@@ -774,34 +769,21 @@
       giveawaysList.querySelectorAll('.edit-give').forEach(b => {
         b.addEventListener('click', async (ev) => {
           const id = ev.currentTarget.getAttribute('data-id');
-          // load doc and populate form
           try {
-            const docRef = doc(db, `${GIVEAWAYS_COLLECTION_PATH}/${id}`);
-            const snap = await getDocs(query(collection(db, GIVEAWAYS_COLLECTION_PATH))); // quick approach (we already have current list)
-            // Instead of additional read, use provided rendered docs — easier: find in current DOM data from snapshot not stored globally.
-            // Simpler: re-query the doc directly:
-            const specific = doc(db, `${GIVEAWAYS_COLLECTION_PATH}/${id}`);
-            // Use getDoc would be better but not imported; use getDocs on a query filtered by id is cumbersome.
-            // To keep imports minimal, we will rely on the presence of the fields in the DOM; instead, fetch doc with getDocs on the collection and find id:
             const q = query(collection(db, GIVEAWAYS_COLLECTION_PATH));
             const snapAll = await getDocs(q);
             const found = snapAll.docs.find(d => d.id === id);
             if (!found) throw new Error('Giveaway not found');
             const data = found.data();
-            // populate form
             currentEditId = id;
             giveTitle.value = data.title || '';
             giveCaption.value = data.caption || '';
             giveLink.value = data.link || '';
             giveStatusSelect.value = data.status || 'ongoing';
-            // endsAt could be timestamp or ISO
             if (data.endsAt && data.endsAt.seconds) {
               const dt = new Date(data.endsAt.seconds*1000);
-              // set input type datetime-local value with local timezone
-              const localISO = dt.toISOString().slice(0,16);
-              giveEndsAt.value = localISO;
+              giveEndsAt.value = dt.toISOString().slice(0,16);
             } else if (data.endsAt) {
-              // assume ISO string
               try { giveEndsAt.value = new Date(data.endsAt).toISOString().slice(0,16); } catch(e){ giveEndsAt.value = ''; }
             } else { giveEndsAt.value = ''; }
 
@@ -884,7 +866,6 @@
           uploader: auth.currentUser ? (auth.currentUser.email || auth.currentUser.uid) : 'admin'
         });
         giveStatusMsg.textContent = 'Giveaway posted.';
-        // clear
         giveTitle.value = '';
         giveCaption.value = '';
         giveImageFile.value = '';
@@ -939,7 +920,6 @@
 
         await updateDoc(doc(db, `${GIVEAWAYS_COLLECTION_PATH}/${currentEditId}`), payload);
         giveStatusMsg.textContent = 'Giveaway updated.';
-        // reset form
         currentEditId = null;
         giveTitle.value = '';
         giveCaption.value = '';
