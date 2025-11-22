@@ -5,97 +5,45 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Behind the Game – The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Added CSS to fix the TikTok iframe sizing/gap and keep single-slide behaviour -->
   <style>
-    /* Animation for dropdown open */
-    .dropdown-open {
-      opacity: 1 !important;
-      transform: scale(1) !important;
-    }
-
-    /* --- Carousel & iframe fixes --- */
-    /* Parent wrapper used to control the visible viewport of the carousel */
-    .carousel-viewport {
+    /* Small, non-invasive fix to try to hide the TikTok iframe white gutter while keeping your rounded corners.
+       This is intentionally minimal so your carousels behave exactly like before. */
+    .embed-wrap {
+      position: relative;
       width: 100%;
-      max-width: 360px;            /* keeps nice phone-friendly width */
-      margin: 0 auto;              /* center on small screens */
+      overflow: hidden;
+      background: #fff0f6; /* page background so tiny white edges blend in */
       border-radius: 12px;
-      overflow: hidden;            /* hide any iframe overflow / scrollbars */
-      position: relative;
-      background: transparent;
-      box-shadow: none;            /* keep it subtle / consistent with site */
     }
-
-    /* slides container: keeps slides in a row and hides the rest behind overflow */
-    .slides-row {
-      display: flex;
-      transition: transform 0.5s ease-in-out;
-      width: 100%;
-      will-change: transform;
-    }
-
-    /* each slide uses the classic padding-top technique to preserve 9:16 (portrait) aspect ratio */
-    .slide {
-      flex: 0 0 100%;
-      position: relative;
-      width: 100%;
-      padding-top: 177.77%; /* 16:9 -> for vertical tiktok 9:16 this gives a tall container; keep what you had */
-    }
-
-    /* ensure iframe fills the slide exactly, no borders/margins */
-    .slide iframe {
+    .embed-wrap::before { content:""; display:block; padding-top:177.77%; } /* tall aspect */
+    .embed-wrap iframe {
       position: absolute !important;
-      top: 0;
-      left: 0;
+      top: 0 !important;
+      left: 0 !important;
       width: 100% !important;
       height: 100% !important;
       border: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      display: block !important;
       background: transparent !important;
-      display: block;
+      border-radius: 12px; /* keep rounded corners */
+      transform: translateZ(0); /* small GPU hint to reduce painting artifacts */
     }
 
-    /* ensure arrow buttons are above iframe but visually subtle */
-    .carousel-viewport .nav-btn {
-      position: absolute;
-      top: 12px;
-      width: 36px;
-      height: 36px;
-      border-radius: 9999px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(255,255,255,0.85);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-      border: none;
-      cursor: pointer;
-      z-index: 30;
+    /* Keep layout and carousel behaviours identical to previous working version */
+    #video-slides-container, #collab-slides { display:flex; transition: transform .45s ease; width:100%; }
+    #video-slides-container > .slide, #collab-slides > .slide { min-width:100%; box-sizing:border-box; margin:0; padding:0; }
+
+    /* dropdown animation */
+    .dropdown-open { opacity:1 !important; transform:scale(1) !important; }
+
+    /* mobile tweaks (non-aggressive) */
+    @media (max-width:640px) {
+      /* if a small white edge is still visible on some phones, nudging iframe background here helps */
+      .embed-wrap { background:#fff0f6; }
+      .embed-wrap iframe { background: transparent; }
     }
-    .carousel-viewport .nav-btn.left { left: 8px; }
-    .carousel-viewport .nav-btn.right { right: 8px; }
-
-    /* collab carousel uses same style so both line up visually */
-    .collab-viewport {
-      width: 100%;
-      max-width: 520px;
-      margin: 0 auto;
-      border-radius: 12px;
-      overflow: hidden;
-      position: relative;
-    }
-    .collab-viewport .slides-row > .collab-slide img { width:100%; display:block; }
-
-    /* keep the two columns centered on mobile and stretched on desktop */
-    .two-column-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; align-items:start; justify-items:center; }
-    @media (min-width: 768px) {
-      .two-column-grid { grid-template-columns: 1fr 1fr; justify-items: stretch; }
-      .carousel-viewport { max-width: 540px; } /* on desktop allow wider tiktok box */
-      .collab-viewport { max-width: 520px; }
-    }
-
-    /* remove any default iframe border or white background that some browsers add */
-    iframe { border:0; background:transparent; }
-
   </style>
 </head>
 <body class="bg-pink-50 text-black font-sans">
@@ -131,7 +79,15 @@
     </div>
   </header>
 
-  <!-- page content -->
+  <style>
+    /* Animation for dropdown open */
+    .dropdown-open {
+      opacity: 1 !important;
+      transform: scale(1) !important;
+    }
+  </style>
+
+  <!-- Hero -->
   <section class="pt-28 px-6 text-center max-w-3xl mx-auto">
     <h2 class="text-4xl font-bold mb-4 text-rose-700">Behind the Game 📸⚽</h2>
     <p class="text-lg text-gray-600 mb-10">
@@ -139,16 +95,19 @@
     </p>
   </section>
 
-  <!-- Player Profiles (unchanged) -->
+  <!-- Player Profiles Section (HARD-CODED) -->
   <section class="grid grid-cols-1 md:grid-cols-2 gap-6 px-6 max-w-4xl mx-auto mb-20">
     <h3 class="md:col-span-2 text-3xl font-bold mb-4 text-rose-700 text-center">Meet the Brothers</h3>
 
-    <!-- Elijah -->
+    <!-- Elijah (hard-coded) -->
     <div class="bg-white p-5 rounded-lg shadow-md flex flex-col items-center text-center">
-      <img src="images/elijah2.jpeg" alt="Elijah Sono" class="rounded-lg mb-4 w-full h-96 object-cover" />
+      <!-- FIXED HEIGHT: both images use the same height so cards are uniform -->
+      <img src="images/elijah2.jpeg" alt="Elijah Sono"
+           class="rounded-lg mb-4 w-full h-96 object-cover" />
       <h4 class="text-2xl font-bold text-rose-700 flex items-center gap-3">
         <span>Elijah Sono</span>
         <span class="inline-flex items-center gap-2 ml-2">
+          <!-- Instagram icon -->
           <a id="elijah-instagram" href="https://www.instagram.com/elijah_sono?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" title="Instagram">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
               <rect x="2" y="2" width="20" height="20" rx="5" stroke="#BE185D" stroke-width="1.5" fill="none"/>
@@ -156,6 +115,8 @@
               <circle cx="17.8" cy="6.2" r="0.7" fill="#BE185D"/>
             </svg>
           </a>
+
+          <!-- TikTok icon (resized to match Instagram visual weight) -->
           <a id="elijah-tiktok" href="https://www.tiktok.com/@elijah_sono_?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" title="TikTok">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                  xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -170,6 +131,7 @@
       </h4>
 
       <p class="text-gray-600 mt-1"><strong>Position:</strong> Midfielder</p>
+
       <div class="mt-4 text-left w-full">
         <h5 class="font-semibold text-rose-600">Key Attributes:</h5>
         <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1 text-sm">
@@ -178,6 +140,7 @@
           <li><strong>Tackling:</strong> Reads the game well with precise and controlled tackling.</li>
         </ul>
       </div>
+
       <div class="mt-4 text-left w-full">
         <h5 class="font-semibold text-rose-600">Experience:</h5>
         <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1 text-sm">
@@ -186,12 +149,15 @@
           <li>Developed skills at Wanderers Discovery Soccer Club.</li>
         </ul>
       </div>
+
       <a href="pdfs/ELIJAHSONO-player-profile.pdf" target="_blank" rel="noreferrer" class="mt-6 inline-block bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">View Player Profile</a>
     </div>
 
-    <!-- Bamuza -->
+    <!-- Bamuza (hard-coded) -->
     <div class="bg-white p-5 rounded-lg shadow-md flex flex-col items-center text-center">
-      <img src="images/Bamuza.jpeg" alt="Bamuza Sono" class="rounded-lg mb-4 w-full h-96 object-cover" />
+      <!-- FIXED HEIGHT: same h-96 to match Elijah -->
+      <img src="images/Bamuza.jpeg" alt="Bamuza Sono"
+           class="rounded-lg mb-4 w-full h-96 object-cover" />
       <h4 class="text-2xl font-bold text-rose-700 flex items-center gap-3">
         <span>Bamuza Sono Jnr</span>
         <span class="inline-flex items-center gap-2 ml-2">
@@ -202,6 +168,8 @@
               <circle cx="17.8" cy="6.2" r="0.7" fill="#BE185D"/>
             </svg>
           </a>
+
+          <!-- TikTok icon (resized to match Instagram visual weight) -->
           <a id="bamuza-tiktok" href="https://www.tiktok.com/@bamuza_sono?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" title="TikTok">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                  xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -216,6 +184,7 @@
       </h4>
 
       <p class="text-gray-600 mt-1"><strong>Position:</strong> Midfielder</p>
+
       <div class="mt-4 text-left w-full">
         <h5 class="font-semibold text-rose-600">Key Attributes:</h5>
         <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1 text-sm">
@@ -224,6 +193,7 @@
           <li><strong>Shooting:</strong> Known as a free-kick or corner kick taker.</li>
         </ul>
       </div>
+
       <div class="mt-4 text-left w-full">
         <h5 class="font-semibold text-rose-600">Experience:</h5>
         <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1 text-sm">
@@ -232,48 +202,55 @@
           <li>Developed skills at Wanderers Discovery Soccer Club</li>
         </ul>
       </div>
+
       <a href="pdfs/BAMUZASONO-player-profile.pdf" target="_blank" rel="noreferrer" class="mt-6 inline-block bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">View Player Profile</a>
     </div>
   </section>
 
   <!-- TikTok Carousel + Collaborations side-by-side -->
   <section class="px-6 max-w-5xl mx-auto mb-10">
-    <!-- grid with centering on mobile, stretched on desktop -->
-    <div class="two-column-grid">
+    <div class="grid md:grid-cols-2 gap-8 items-start">
       <!-- LEFT: TikTok -->
-      <div class="w-full flex flex-col items-center">
+      <div>
         <h3 class="text-2xl font-bold mb-4 text-rose-700 text-center">My Vlogs & Highlights</h3>
-
-        <!-- carousel viewport holds the slides and nav buttons -->
-        <div id="video-carousel" class="carousel-viewport">
-          <div id="video-slides-container" class="slides-row" aria-live="polite">
-            <div class="slide">
-              <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" allowfullscreen scrolling="no" title="tiktok1"></iframe>
+        <div id="video-carousel" class="relative overflow-hidden rounded-lg shadow-lg mx-auto w-full md:max-w-sm">
+          <div id="video-slides-container" class="flex transition-transform duration-500 ease-in-out">
+            <div class="w-full flex-shrink-0 relative slide" style="padding-top: 177.77%;">
+              <div class="embed-wrap">
+                <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" allowfullscreen class="absolute top-0 left-0 w-full h-full"></iframe>
+              </div>
             </div>
-            <div class="slide">
-              <iframe src="https://www.tiktok.com/embed/v2/7514262969786567943" allowfullscreen scrolling="no" title="tiktok2"></iframe>
+            <div class="w-full flex-shrink-0 relative slide" style="padding-top: 177.77%;">
+              <div class="embed-wrap">
+                <iframe src="https://www.tiktok.com/embed/v2/7514262969786567943" allowfullscreen class="absolute top-0 left-0 w-full h-full"></iframe>
+              </div>
             </div>
-            <!-- add more slides if needed -->
+            <!-- add more iframes as needed -->
           </div>
 
-          <button id="prevBtn" class="nav-btn left" aria-label="Previous video">‹</button>
-          <button id="nextBtn" class="nav-btn right" aria-label="Next video">›</button>
+          <button id="prevBtn" class="absolute top-1/2 left-4 transform -translate-y-1/2 bg-white/50 text-gray-800 p-2 rounded-full hover:bg-white/80 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button id="nextBtn" class="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white/50 text-gray-800 p-2 rounded-full hover:bg-white/80 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
         </div>
       </div>
 
-      <!-- RIGHT: Collaborations -->
-      <div class="w-full flex flex-col items-center">
+      <!-- RIGHT: Collaborations (reads Firestore collabs) -->
+      <div>
         <h3 class="text-2xl font-bold mb-4 text-rose-700 text-center">Collaborations</h3>
-
-        <div id="collab-carousel" class="collab-viewport">
-          <div id="collab-slides" class="slides-row">
-            <div class="collab-slide" style="flex:0 0 100%; padding:1.5rem; box-sizing:border-box;">
-              <div class="bg-white rounded-lg shadow-md overflow-hidden p-8 text-center muted">Loading collaborations...</div>
-            </div>
+        <div id="collab-carousel" class="relative overflow-hidden rounded-lg shadow-lg mx-auto w-full">
+          <div id="collab-slides" class="flex transition-transform duration-400 ease-in-out">
+            <div class="w-full flex-shrink-0 p-8 text-center muted slide">Loading collaborations...</div>
           </div>
 
-          <button id="collabPrev" class="nav-btn left" aria-label="Previous collaboration">‹</button>
-          <button id="collabNext" class="nav-btn right" aria-label="Next collaboration">›</button>
+          <button id="collabPrev" class="absolute top-1/2 left-3 transform -translate-y-1/2 bg-white/60 text-gray-800 p-2 rounded-full hover:bg-white transition-colors">‹</button>
+          <button id="collabNext" class="absolute top-1/2 right-3 transform -translate-y-1/2 bg-white/60 text-gray-800 p-2 rounded-full hover:bg-white transition-colors">›</button>
 
           <div id="collabDots" class="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-2"></div>
         </div>
@@ -283,7 +260,7 @@
     </div>
   </section>
 
-  <!-- Support Wall -->
+  <!-- Support Wall Form Section -->
   <section class="px-6 max-w-2xl mx-auto mb-20 bg-pink-100 p-8 rounded-xl shadow-lg">
     <h3 class="text-2xl font-bold mb-4 text-rose-700 text-center">The Support Wall ❤️</h3>
     <p class="text-sm text-center text-gray-600 mb-6">Leave a message of support and it will appear on the wall! Your user ID is <span id="user-id" class="font-mono text-xs text-pink-700 break-all">Loading...</span></p>
@@ -300,15 +277,18 @@
       <button type="submit" class="w-full bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">Post Message</button>
     </form>
 
+    <!-- View All Messages button (links to support-wall.html) -->
     <div class="mt-6 text-center">
       <a href="support-wall.html" class="inline-block border border-rose-600 text-rose-600 px-6 py-3 rounded-full hover:bg-rose-50 transition font-semibold">View All Messages</a>
     </div>
   </section>
 
+  <!-- Back Button -->
   <div class="text-center mb-20">
     <a href="index.html" class="bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition">Back to Home</a>
   </div>
 
+  <!-- Footer -->
   <footer class="bg-pink-900 text-white text-center py-6">
     <p>&copy; 2025 The Footballer’s Sister. All rights reserved.</p>
   </footer>
@@ -333,14 +313,17 @@
       "fixtures.html": "Fixtures & Live Scores"
     };
 
-    navTitleEl.textContent = pageTitles[currentPage] || "Menu";
+    const title = pageTitles[currentPage] || "Menu";
+    navTitleEl.textContent = title;
 
+    // Highlight current page in dropdown
     navItems.forEach(link => {
       if (link.getAttribute('href') === currentPage) {
         link.classList.add("font-semibold", "text-rose-600");
       }
     });
 
+    // Toggle dropdown
     navButton.addEventListener('click', (e) => {
       e.stopPropagation();
       const isHidden = dropdownMenu.classList.contains('hidden');
@@ -353,6 +336,7 @@
       }
     });
 
+    // Close when clicking outside
     document.addEventListener('click', (event) => {
       if (!navButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
         dropdownMenu.classList.remove('dropdown-open');
@@ -361,11 +345,11 @@
     });
   </script>
 
-  <!-- FIREBASE & collab subscription (unchanged) -->
+  <!-- FIREBASE & admin features (support wall + collabs subscription) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const appId = typeof __app_id !== 'undefined' ? __app_id : '1:65396604482:web:0f31625a714aa8352337db';
     const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
@@ -437,7 +421,15 @@
       });
     }
 
-    // Collabs carousel (subscribe to gallery collection)
+    /* =========================================================
+       Collabs carousel subscription
+       - This code prefers the collection where Admin writes:
+         /artifacts/${appId}/public/data/collabs
+       - It tolerates older fields (image, url, imageUrl)
+       - It orders by uploadedAt (desc) if present; otherwise it will still
+         load documents and show them in the order returned by Firestore snapshot.
+       ========================================================= */
+
     (function initCollabCarousel(){
       const slidesEl = document.getElementById('collab-slides');
       const prev = document.getElementById('collabPrev');
@@ -451,15 +443,14 @@
       function renderSlides(){
         slidesEl.innerHTML = '';
         if (!items.length) {
-          slidesEl.innerHTML = '<div class="collab-slide" style="flex:0 0 100%; padding:1.5rem;"><div class="bg-white rounded-lg shadow-md overflow-hidden p-8 text-center muted">No collaborations yet.</div></div>';
+          slidesEl.innerHTML = '<div class="w-full flex-shrink-0 p-8 text-center muted">No collaborations yet.</div>';
           dotsEl.innerHTML = '';
           if (debugEl) debugEl.textContent = 'No collab items found.';
           return;
         }
         items.forEach(it => {
           const slide = document.createElement('div');
-          slide.className = 'collab-slide';
-          slide.style = 'flex:0 0 100%; padding:0;';
+          slide.className = 'w-full flex-shrink-0 p-4 slide';
           slide.innerHTML = `
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
               <a href="${escapeHtml(it.link || it.imageUrl || '#')}" target="_blank" rel="noreferrer">
@@ -513,56 +504,92 @@
         });
       }
 
+      // Try the likely collection paths (in this order). This will match what Admin saves:
       const galleryPaths = [
+        `/artifacts/${appId}/public/data/collabs`,   // <-- ADMIN writes here
         `/artifacts/${appId}/public/data/gallery`,
+        `/public/data/collabs`,
         `/public/data/gallery`,
+        `collabs`,
         `gallery`
       ];
       let subscribed = false;
 
       galleryPaths.forEach(p => {
         try {
-          const q = query(collection(db, p), orderBy('createdAt','desc'));
-          onSnapshot(q, snap => {
-            const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }) );
-            const collabs = docs.filter(d => {
-              const meta = d.data || {};
-              if (meta.collab === true) return true;
-              if ((meta.type||'').toLowerCase() === 'collab') return true;
-              if ((meta.caption||'').toLowerCase().includes('collab')) return true;
-              return false;
-            }).map(d => {
-              const data = d.data || {};
-              return { imageUrl: data.imageUrl || data.image || data.url || '', caption: data.caption || data.title || '', link: data.link || data.target || '' };
+          // Order by uploadedAt if it exists; if it doesn't Firestore will still return docs but orderBy may fail if the field doesn't exist
+          // So we try a query with orderBy('uploadedAt','desc') and fall back to a plain collection snapshot if needed.
+          try {
+            const q = query(collection(db, p), orderBy('uploadedAt','desc'));
+            onSnapshot(q, snap => {
+              const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }) );
+              const mapped = docs.map(d => {
+                const data = d.data || {};
+                const imageUrl = data.imageUrl || data.image || data.url || '';
+                const caption = data.caption || data.title || '';
+                const link = data.link || data.target || '';
+                return { imageUrl, caption, link, raw: data, id: d.id };
+              }).filter(it => it.imageUrl);
+              if (mapped.length) {
+                items = mapped;
+                idx = 0;
+                renderSlides();
+                subscribed = true;
+                if (debugEl) debugEl.textContent = `Loaded ${items.length} collabs from ${p}`;
+                console.info('collabs loaded from', p, mapped);
+              } else {
+                if (debugEl) debugEl.textContent = `No collab images in ${p}`;
+                console.info('no collab images in', p, docs);
+              }
+            }, err => {
+              console.warn('gallery onSnapshot error for', p, err);
             });
-
-            const collabItems = collabs.length ? collabs : docs.map(d => {
-              const data = d.data || {};
-              return { imageUrl: data.imageUrl || data.image || data.url || '', caption: data.caption || data.title || '', link: data.link || data.target || '' };
+          } catch (orderErr) {
+            // fallback: query without orderBy
+            const q2 = query(collection(db, p));
+            onSnapshot(q2, snap => {
+              const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }) );
+              const mapped = docs.map(d => {
+                const data = d.data || {};
+                const imageUrl = data.imageUrl || data.image || data.url || '';
+                const caption = data.caption || data.title || '';
+                const link = data.link || data.target || '';
+                return { imageUrl, caption, link, raw: data, id: d.id };
+              }).filter(it => it.imageUrl);
+              if (mapped.length) {
+                items = mapped;
+                idx = 0;
+                renderSlides();
+                subscribed = true;
+                if (debugEl) debugEl.textContent = `Loaded ${items.length} collabs from ${p} (unordered)`;
+                console.info('collabs loaded (unordered) from', p, mapped);
+              } else {
+                if (debugEl) debugEl.textContent = `No collab images in ${p}`;
+                console.info('no collab images in', p, docs);
+              }
+            }, err => {
+              console.warn('gallery onSnapshot error for', p, err);
             });
-
-            items = collabItems.filter(it => it.imageUrl);
-            idx = 0;
-            renderSlides();
-            subscribed = true;
-            if (debugEl) debugEl.textContent = `Loaded ${items.length} collabs from ${p}`;
-          }, err => {
-            console.warn('gallery onSnapshot error for', p, err);
-          });
+          }
         } catch (e) {
-          // ignore and continue trying other paths
+          console.warn('subscribe attempt failed for', p, e);
+          // keep trying other paths
         }
       });
 
+      // After a short delay, if nothing subscribed, show helpful message
       setTimeout(() => {
         if (!subscribed && (!items || items.length === 0)) {
-          if (debugEl) debugEl.textContent = 'No realtime subscription available for gallery - check collection path or rules.';
+          if (debugEl) debugEl.textContent = 'No realtime subscription available for gallery — check collection path or Firestore rules (permission-denied).';
+          console.warn('No realtime subscription available for gallery - check collection path or rules.');
         }
-      }, 900);
+      }, 1000);
+
     })();
+
   </script>
 
-  <!-- TikTok carousel controls (keeps single slide visible, swipe enabled) -->
+  <!-- TikTok carousel controls -->
   <script>
     (function(){
       const slidesContainer = document.getElementById('video-slides-container');
@@ -572,32 +599,28 @@
       let currentIndex = 0;
       const slides = slidesContainer.children;
 
-      function show() {
-        // ensure container translates exactly one slide width (100%)
-        slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
-      }
+      function show() { slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`; }
       function next() { currentIndex = (currentIndex + 1) % slides.length; show(); }
       function prev() { currentIndex = (currentIndex - 1 + slides.length) % slides.length; show(); }
 
       if (nextBtn) nextBtn.addEventListener('click', next);
       if (prevBtn) prevBtn.addEventListener('click', prev);
 
-      // enable simple touch swipe
       let startX = 0;
       const parent = document.getElementById('video-carousel');
       if (parent) {
-        parent.addEventListener('touchstart', (e) => startX = e.touches[0].clientX, {passive:true});
+        parent.addEventListener('touchstart', (e) => startX = e.touches[0].clientX);
         parent.addEventListener('touchend', (e) => {
           const endX = e.changedTouches[0].clientX;
           const delta = startX - endX;
           if (Math.abs(delta) > 50) {
             if (delta > 0) next(); else prev();
           }
-        }, {passive:true});
+        });
       }
 
-      // ensure initial position is correct (first slide visible)
-      show();
+      // On load, make sure first slide is visible and no extra transform present
+      window.addEventListener('load', () => { show(); });
     })();
   </script>
 
