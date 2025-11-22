@@ -123,11 +123,13 @@
     .site-title { color: var(--accent); font-weight: 800; letter-spacing: .02em; }
     footer .footer-badge {
       display:inline-block;
-      background: linear-gradient(90deg,#be185d,#f472b6);
-      color:white;
+      /* Changed to white background per your request (removed pink behind the pill) */
+      background: white;
+      color: var(--accent);
       padding:.45rem .85rem;
       border-radius:999px;
       font-weight:700;
+      border: 1px solid rgba(235,200,215,0.6);
     }
     /* end header/footer additions */
 
@@ -283,7 +285,7 @@
 
   </section>
 
-  <!-- Footer replaced with BTS footer badge style (kept content same) -->
+  <!-- Footer  -->
   <footer class="bg-pink-900 text-white text-center py-6">
     <div class="container" style="max-width:1100px; margin:0 auto;">
       <small class="footer-badge">© <span id="year"></span> The Footballer’s Sister</small>
@@ -626,7 +628,7 @@
         projectId: "football-site-c3aa9",
         storageBucket: "football-site-c3aa9.appspot.com",
         messagingSenderId: "65396604482",
-        appId: "1:65396604482:web:0f31625a714aa8357db"
+        appId: "1:65396604482:web:0f31625a714aa8352337db"
       };
       const appId = '1:65396604482:web:0f31625a714aa8352337db';
 
