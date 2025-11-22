@@ -17,7 +17,7 @@
     }
     body { background: #fff2f6; color: #111827; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin:0; }
 
-    /* header style */
+    /* header style you saved */
     header {
       background: linear-gradient(180deg, rgba(246,213,239,0.6), rgba(255,241,248,0.6));
       border-bottom: 1px solid rgba(235,200,215,0.6);
@@ -35,7 +35,7 @@
     .page-hero { padding-top:1.25rem; padding-bottom:1.5rem; text-align:center; }
     .page-hero h2 { font-size:2.25rem; color:var(--accent); font-weight:800; margin:0; }
 
-    /* cards / player profiles restored */
+    /* cards / player profiles match your original look */
     .profile-card {
       background: var(--card);
       border-radius: 12px;
@@ -45,14 +45,18 @@
     }
     .profile-grid { display:grid; grid-template-columns: 1fr 1fr; gap:1.25rem; margin-bottom:2rem; }
 
-    /* reduce extreme cropping: fixed-but-smaller heights and object-position center */
-    .profile-card img { width:100%; height:340px; object-fit:cover; object-position:center; border-radius:10px; display:block; }
-    .profile-name-row { display:flex; align-items:center; gap:.6rem; justify-content:space-between; }
-    .profile-heading { display:flex; align-items:center; gap:.6rem; }
-    .profile-name { color:var(--accent); font-weight:800; font-size:1.25rem; margin-top:.75rem; }
-    .social-icons { display:flex; gap:.5rem; align-items:center; }
+    /* image sizing: keep faces visible by focusing near top-center; adjust per screen */
+    .profile-card img { width:100%; height:360px; object-fit:cover; object-position:center 28%; border-radius:10px; display:block; }
+    @media (min-width:1200px) { .profile-card img { height:420px; } }
+    @media (max-width:640px){ .profile-card img { height:260px; object-position:center 30%; } }
+
+    .profile-name { color:var(--accent); font-weight:800; font-size:1.25rem; margin-top:.75rem; display:flex; align-items:center; gap:.5rem; }
     .profile-meta { color: #374151; margin-top:.45rem; }
     .profile-list { margin-top:.5rem; color:#374151; font-size:.95rem; line-height:1.45; }
+
+    /* social icons inline next to name */
+    .social-row { margin-left:auto; display:flex; gap:.6rem; align-items:center; }
+    .social-row a { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:6px; }
 
     /* hero and columns */
     .two-col { display:grid; grid-template-columns: 1fr 1fr; gap:2rem; align-items:start; }
@@ -64,11 +68,12 @@
       width: 100%;
       background: #fff0f6;
       border-radius: 12px;
-      height: 720px; /* longer per request */
+      /* Use a reasonably tall fixed height on desktop, responsive on small screens */
+      height: 620px;
       overflow:hidden;
     }
-    @media (max-width:960px){ .embed-wrap { height:620px; } }
-    @media (max-width:640px){ .embed-wrap { height:520px; } }
+    @media (max-width:960px){ .embed-wrap { height:520px; } }
+    @media (max-width:640px){ .embed-wrap { height:420px; } }
 
     .embed-wrap iframe {
       position:absolute !important;
@@ -84,10 +89,10 @@
       border-radius:12px;
     }
 
-    /* collab carousel sizing — taller but separate */
+    /* collab carousel sizing — taller */
     .collab-carousel { border-radius:12px; overflow:visible; position:relative; }
     .collab-slide { background:var(--card); border-radius:12px; box-shadow: var(--shadow); border:1px solid rgba(235,224,232,0.6); overflow:hidden; }
-    .collab-slide img { width:100%; height:520px; object-fit:cover; object-position:center; display:block; }
+    .collab-slide img { width:100%; height:520px; object-fit:cover; object-position:center 28%; display:block; }
     @media (max-width:960px){ .collab-slide img { height:420px; } }
     @media (max-width:640px){ .collab-slide img { height:320px; } }
 
@@ -96,18 +101,24 @@
     .collab-caption::before { display:none !important; content:none !important; }
 
     /* small nav controls (arrows) */
-    .arrow-btn { background: rgba(255,255,255,0.95); width:44px; height:44px; display:flex;align-items:center;justify-content:center;border-radius:999px;border:1px solid rgba(0,0,0,0.06); box-shadow:0 10px 18px rgba(11,7,17,0.04); }
+    .arrow-btn { background: rgba(255,255,255,0.9); width:44px; height:44px; display:flex;align-items:center;justify-content:center;border-radius:999px;border:1px solid rgba(0,0,0,0.06); box-shadow:0 10px 18px rgba(11,7,17,0.04); }
 
-    /* hide debug text & loaded count */
+    /* remove debug text */
     #collabDebug { display:none; }
-    #collabCount { display:none; }
 
     /* support wall */
     .support-card { background:linear-gradient(180deg,#fff,#fff); border-radius:14px; padding:1rem; border:1px solid rgba(235,224,232,0.6); box-shadow:var(--shadow); }
 
     /* footer badge (rounded gradient pill) */
     footer { margin-top:2.5rem; }
-    .footer-badge { display:inline-block; background: linear-gradient(90deg,#be185d,#f472b6); color:white; padding:.45rem .85rem; border-radius:999px; font-weight:700; }
+    .footer-badge {
+      display:inline-block;
+      background: linear-gradient(90deg,#be185d,#f472b6);
+      color:white;
+      padding:.45rem .85rem;
+      border-radius:999px;
+      font-weight:700;
+    }
 
     /* small tweaks for mobile */
     @media (max-width:900px) {
@@ -115,7 +126,6 @@
       .profile-grid { grid-template-columns: 1fr; }
       .container { padding:1rem; }
       .page-hero h2 { font-size:1.75rem; }
-      .profile-card img { height:320px; }
     }
   </style>
 </head>
@@ -130,6 +140,8 @@
 
       <div class="relative inline-block text-left">
         <button id="navButton"
+          aria-haspopup="true"
+          aria-expanded="false"
           class="inline-flex items-center justify-center rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
           <span id="navTitle">Behind the Game</span>
           <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -138,14 +150,15 @@
         </button>
 
         <div id="dropdownMenu"
-          class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
+          class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0"
+          role="menu" aria-labelledby="navButton">
           <div class="py-1">
-            <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
-            <a href="bts.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
-            <a href="leila.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Meet Leila</a>
-            <a href="questions.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Q&A</a>
-            <a href="support-wall.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Support Wall</a>
-            <a href="fixtures.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Fixtures & Live Scores</a>
+            <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50" role="menuitem">Home</a>
+            <a href="bts.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50" role="menuitem">Behind the Game</a>
+            <a href="leila.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50" role="menuitem">Meet Leila</a>
+            <a href="questions.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50" role="menuitem">Q&A</a>
+            <a href="support-wall.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50" role="menuitem">Support Wall</a>
+            <a href="fixtures.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50" role="menuitem">Fixtures & Live Scores</a>
           </div>
         </div>
       </div>
@@ -162,31 +175,19 @@
 
   <main class="container">
 
-    <!-- Player profiles (RESTORED) -->
+    <!-- Player profiles (RESTORED EXACTLY AS BEFORE: social links, position, key attributes, experience, profile PDF link) -->
     <section class="profile-grid" aria-label="Meet the brothers">
       <!-- Elijah -->
       <div class="profile-card">
-        <img src="images/elijah2.jpeg" alt="Elijah Sono">
-        <div class="profile-name-row">
-          <div class="profile-heading">
-            <h3 class="profile-name">Elijah Sono</h3>
-          </div>
-          <div class="social-icons" aria-hidden="true">
+        <img src="images/elijah2.jpeg" alt="Elijah Sono" />
+        <div style="display:flex; align-items:center; gap:1rem; margin-top:.5rem;">
+          <h3 class="profile-name">Elijah Sono</h3>
+          <div class="social-row" style="margin-left:auto;">
             <a id="elijah-instagram" href="https://www.instagram.com/elijah_sono?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" title="Instagram">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <rect x="2" y="2" width="20" height="20" rx="5" stroke="#BE185D" stroke-width="1.5" fill="none"/>
-                <path d="M7.75 11.99a4.25 4.25 0 1 1 8.5 0 4.25 4.25 0 0 1-8.5 0z" stroke="#BE185D" stroke-width="1.5" fill="none"/>
-                <circle cx="17.8" cy="6.2" r="0.7" fill="#BE185D"/>
-              </svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" stroke="#BE185D" stroke-width="1.5" fill="none"/><path d="M7.75 11.99a4.25 4.25 0 1 1 8.5 0 4.25 4.25 0 0 1-8.5 0z" stroke="#BE185D" stroke-width="1.5" fill="none"/><circle cx="17.8" cy="6.2" r="0.7" fill="#BE185D"/></svg>
             </a>
             <a id="elijah-tiktok" href="https://www.tiktok.com/@elijah_sono_?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" title="TikTok">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M15 6.5c.6.6 1.6 1.1 3 1.1v2.1c-1.3 0-2.4-.4-3-.9v5.8a3.6 3.6 0 1 1-3.6-3.6c.2 0 .5 0 .7.1v2.2a1.4 1.4 0 1 0 1.4 1.4V6.5z"
-                      stroke="#BE185D"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"/>
-              </svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M15 6.5c.6.6 1.6 1.1 3 1.1v2.1c-1.3 0-2.4-.4-3-.9v5.8a3.6 3.6 0 1 1-3.6-3.6c.2 0 .5 0 .7.1v2.2a1.4 1.4 0 1 0 1.4 1.4V6.5z" stroke="#BE185D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </a>
           </div>
         </div>
@@ -216,27 +217,15 @@
 
       <!-- Bamuza -->
       <div class="profile-card">
-        <img src="images/Bamuza.jpeg" alt="Bamuza Sono">
-        <div class="profile-name-row">
-          <div class="profile-heading">
-            <h3 class="profile-name">Bamuza Sono Jnr</h3>
-          </div>
-          <div class="social-icons" aria-hidden="true">
+        <img src="images/Bamuza.jpeg" alt="Bamuza Sono" />
+        <div style="display:flex; align-items:center; gap:1rem; margin-top:.5rem;">
+          <h3 class="profile-name">Bamuza Sono Jnr</h3>
+          <div class="social-row" style="margin-left:auto;">
             <a id="bamuza-instagram" href="https://www.instagram.com/bamuza_sono?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" title="Instagram">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <rect x="2" y="2" width="20" height="20" rx="5" stroke="#BE185D" stroke-width="1.5" fill="none"/>
-                <path d="M7.75 11.99a4.25 4.25 0 1 1 8.5 0 4.25 4.25 0 0 1-8.5 0z" stroke="#BE185D" stroke-width="1.5" fill="none"/>
-                <circle cx="17.8" cy="6.2" r="0.7" fill="#BE185D"/>
-              </svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" stroke="#BE185D" stroke-width="1.5" fill="none"/><path d="M7.75 11.99a4.25 4.25 0 1 1 8.5 0 4.25 4.25 0 0 1-8.5 0z" stroke="#BE185D" stroke-width="1.5" fill="none"/><circle cx="17.8" cy="6.2" r="0.7" fill="#BE185D"/></svg>
             </a>
             <a id="bamuza-tiktok" href="https://www.tiktok.com/@bamuza_sono?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" title="TikTok">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M15 6.5c.6.6 1.6 1.1 3 1.1v2.1c-1.3 0-2.4-.4-3-.9v5.8a3.6 3.6 0 1 1-3.6-3.6c.2 0 .5 0 .7.1v2.2a1.4 1.4 0 1 0 1.4 1.4V6.5z"
-                      stroke="#BE185D"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"/>
-              </svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M15 6.5c.6.6 1.6 1.1 3 1.1v2.1c-1.3 0-2.4-.4-3-.9v5.8a3.6 3.6 0 1 1-3.6-3.6c.2 0 .5 0 .7.1v2.2a1.4 1.4 0 1 0 1.4 1.4V6.5z" stroke="#BE185D" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </a>
           </div>
         </div>
@@ -265,38 +254,43 @@
       </div>
     </section>
 
-    <!-- Two-column: top = TikTok carousel, below = Collabs (separate carousels) -->
-    <section style="margin-bottom:1.75rem;">
-      <div class="video-carousel" aria-label="Vlogs carousel">
+    <!-- Two-column: top = TikTok, below = Collabs (separate carousels) -->
+    <section aria-label="Vlogs and Collaborations">
+
+      <!-- TikTok carousel (full width) -->
+      <div style="margin-bottom:2rem;">
         <h3 style="text-align:center; color:var(--accent); font-weight:800; margin-bottom:1rem;">My Vlogs & Highlights</h3>
-
-        <div style="position:relative;">
-          <div id="video-slides-container" style="display:flex; transition:transform .45s ease; gap:0;">
-            <div class="slide" style="min-width:100%; box-sizing:border-box;">
-              <div class="embed-wrap">
-                <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" allowfullscreen></iframe>
+        <div class="video-carousel">
+          <div id="video-carousel-inner" style="position:relative;">
+            <div id="video-slides-container" style="display:flex; transition:transform .45s ease; gap:0;">
+              <div class="slide" style="min-width:100%; box-sizing:border-box;">
+                <div class="embed-wrap">
+                  <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" allowfullscreen></iframe>
+                </div>
               </div>
+
+              <div class="slide" style="min-width:100%; box-sizing:border-box;">
+                <div class="embed-wrap">
+                  <iframe src="https://www.tiktok.com/embed/v2/7514262969786567943" allowfullscreen></iframe>
+                </div>
+              </div>
+              <!-- add more iframes as needed -->
             </div>
 
-            <div class="slide" style="min-width:100%; box-sizing:border-box;">
-              <div class="embed-wrap">
-                <iframe src="https://www.tiktok.com/embed/v2/7514262969786567943" allowfullscreen></iframe>
-              </div>
-            </div>
+            <!-- arrows (positioned relative to the carousel, responsive) -->
+            <button id="prevBtn" class="arrow-btn" style="position:absolute; left:6px; top:50%; transform:translateY(-50%);"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
+            <button id="nextBtn" class="arrow-btn" style="position:absolute; right:6px; top:50%; transform:translateY(-50%);"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
           </div>
-
-          <!-- arrows positioned outside each carousel container, minimal CSS to avoid overlap -->
-          <button id="prevBtn" class="arrow-btn" style="position:absolute; left:8px; top:50%; transform:translateY(-50%);"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
-          <button id="nextBtn" class="arrow-btn" style="position:absolute; right:8px; top:50%; transform:translateY(-50%);"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
         </div>
       </div>
 
-      <!-- Collabs carousel (completely separate) -->
-      <div class="collab-carousel" style="margin-top:2rem;" aria-label="Collaborations carousel">
+      <!-- Collaborations (separate carousel) -->
+      <div>
         <h3 style="text-align:center; color:var(--accent); font-weight:800; margin-bottom:1rem;">Collaborations</h3>
 
-        <div style="position:relative;">
+        <div class="collab-carousel">
           <div id="collab-slides" style="display:flex; transition:transform .45s ease; gap:1rem;">
+            <!-- placeholder slide shown while loading -->
             <div class="collab-slide" style="min-width:100%; display:flex; align-items:center; justify-content:center; padding:2.5rem;">
               <div style="color:var(--muted);">Loading collaborations…</div>
             </div>
@@ -306,7 +300,9 @@
           <button id="collabNext" class="arrow-btn" style="position:absolute; right:8px; top:50%; transform:translateY(-50%);">›</button>
         </div>
 
+        <div id="collabDebug" class="muted" style="display:none; margin-top:.75rem; text-align:center;"></div>
       </div>
+
     </section>
 
     <!-- Support Wall (restored) -->
@@ -343,12 +339,12 @@
   <!-- TikTok embed script -->
   <script async src="https://www.tiktok.com/embed.js"></script>
 
-  <!-- Navbar dropdown script -->
+  <!-- Navbar dropdown script (fixed) -->
   <script>
     (function () {
       const navButton = document.getElementById('navButton');
       const dropdownMenu = document.getElementById('dropdownMenu');
-      const navItems = document.querySelectorAll('.nav-item');
+      const navItems = Array.from(document.querySelectorAll('.nav-item'));
       const navTitle = document.getElementById('navTitle');
 
       // determine current page (treat root "/" as index.html)
@@ -365,40 +361,47 @@
       };
       navTitle.textContent = pageTitles[currentPage] || "Menu";
 
+      // highlight current
       navItems.forEach(link => {
-        const href = link.getAttribute('href');
-        const hrefName = href.split('/').pop();
-        if (hrefName === currentPage) {
-          link.classList.add("font-semibold", "text-rose-600");
-        }
+        try {
+          const href = link.getAttribute('href');
+          const hrefName = href ? href.split('/').pop() : '';
+          if (hrefName === currentPage) {
+            link.classList.add("font-semibold", "text-rose-600");
+          }
+        } catch(e){/* ignore */}
       });
+
+      // toggle helper
+      function openMenu(){
+        dropdownMenu.classList.remove('hidden');
+        setTimeout(()=>dropdownMenu.classList.add('dropdown-open'),10);
+        navButton.setAttribute('aria-expanded','true');
+      }
+      function closeMenu(){
+        dropdownMenu.classList.remove('dropdown-open');
+        setTimeout(()=>dropdownMenu.classList.add('hidden'),200);
+        navButton.setAttribute('aria-expanded','false');
+      }
 
       navButton.addEventListener('click', (e) => {
         e.stopPropagation();
-        const isHidden = dropdownMenu.classList.contains('hidden');
-        if (isHidden) {
-          dropdownMenu.classList.remove('hidden');
-          setTimeout(()=>dropdownMenu.classList.add('dropdown-open'), 10);
-        } else {
-          dropdownMenu.classList.remove('dropdown-open');
-          setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
-        }
+        if (dropdownMenu.classList.contains('hidden')) openMenu(); else closeMenu();
       });
 
       // close when clicking outside
       document.addEventListener('click', (e) => {
-        if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
-          dropdownMenu.classList.remove('dropdown-open');
-          setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
-        }
+        if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) closeMenu();
       });
 
+      // keyboard accessibility
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          dropdownMenu.classList.remove('dropdown-open');
-          setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
-        }
+        if (e.key === 'Escape') closeMenu();
+        if (e.key === 'ArrowDown') openMenu();
       });
+
+      // ensure links close menu when clicked (works even on touch)
+      navItems.forEach(a => a.addEventListener('click', () => closeMenu()));
     })();
   </script>
 
@@ -460,18 +463,16 @@
       }
     });
 
-    // ---------- COLLABS: subscribe and render (separate carousel) ----------
+    // ---------- COLLABS: subscribe and render ----------
     const collabSlidesEl = document.getElementById('collab-slides');
     const collabPrev = document.getElementById('collabPrev');
     const collabNext = document.getElementById('collabNext');
 
-    const APP_ID = firebaseConfig.appId;
+    const APP_ID = firebaseConfig.appId; // exact
     const COLLABS_PATH = `artifacts/${APP_ID}/public/data/collabs`;
 
     let collabItems = [];
     let collabIndex = 0;
-
-    function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
     function renderCollabSlides(items) {
       collabSlidesEl.innerHTML = '';
@@ -495,11 +496,14 @@
         collabSlidesEl.appendChild(wrapper);
       });
 
+      // reset position to first slide
       collabIndex = 0;
       updateCollabPosition();
     }
 
-    function updateCollabPosition() { collabSlidesEl.style.transform = `translateX(-${collabIndex * 100}%)`; }
+    function updateCollabPosition() {
+      collabSlidesEl.style.transform = `translateX(-${collabIndex * 100}%)`;
+    }
 
     collabPrev?.addEventListener('click', () => {
       if (!collabItems.length) return;
@@ -527,7 +531,7 @@
       collabSlidesEl.innerHTML = '<div class="collab-slide" style="min-width:100%; padding:2.5rem; text-align:center; color:var(--muted);">No collaborations yet.</div>';
     }
 
-    // ---------- TikTok carousel controls (separate) ----------
+    // ---------- TikTok carousel controls (separate from collabs) ----------
     (function(){
       const slidesContainer = document.getElementById('video-slides-container');
       const prevBtn = document.getElementById('prevBtn');
@@ -544,7 +548,7 @@
       if (prevBtn) prevBtn.addEventListener('click', prev);
 
       let startX = 0;
-      const parent = slidesContainer.parentElement;
+      const parent = document.getElementById('video-carousel-inner');
       if (parent) {
         parent.addEventListener('touchstart', (e) => startX = e.touches[0].clientX);
         parent.addEventListener('touchend', (e) => {
@@ -559,6 +563,11 @@
       window.addEventListener('load', () => { show(); });
     })();
 
+    // small helper for escaping in JS (used above)
+    function escapeHtml(s) {
+      if (!s) return '';
+      return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]));
+    }
   </script>
 </body>
 </html>
