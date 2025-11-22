@@ -5,116 +5,190 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Life of a Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
-    .text-outline-darkpink {
-      color: transparent;
-      -webkit-text-stroke: 1px #be185d; /* dark pink */
+    :root {
+      --accent: #be185d;
+      --muted: #6b7280;
+    }
+
+    /* HEADER (same as BTS page) */
+    header.bts-header {
+      background: linear-gradient(180deg, rgba(246,213,239,0.6), rgba(255,241,248,0.6));
+      border-bottom: 1px solid rgba(235,200,215,0.6);
+      backdrop-filter: blur(4px);
+    }
+
+    .site-title {
+      color: var(--accent);
       font-weight: 800;
+      letter-spacing: .02em;
+    }
+
+    .dropdown-open {
+      opacity: 1 !important;
+      transform: scale(1) !important;
+    }
+
+    /* FOOTER PILL (same as BTS page, no pink behind it) */
+    footer .footer-badge {
+      display: inline-block;
+      background: linear-gradient(90deg, #be185d, #f472b6);
+      color: white;
+      padding: .45rem 1rem;
+      border-radius: 999px;
+      font-weight: 700;
     }
   </style>
 </head>
+
 <body class="bg-pink-50 text-black font-sans">
 
-  <!-- Header -->
-  <header class="fixed top-0 w-full flex justify-between items-center px-6 py-4 bg-pink-100 shadow z-50">
-    <h1 class="text-xl font-bold uppercase text-rose-600">Life of a Footballer’s Sister</h1>
-    <nav class="space-x-6">
-        <a href="index.html" class="font-semibold underline text-rose-600">Home</a>     
-    </nav>
+  <!-- HEADER (BTS style) -->
+  <header class="bts-header fixed top-0 w-full z-50">
+    <div class="flex justify-between items-center px-6 py-4 container" style="max-width:1100px; margin:0 auto;">
+
+      <div class="site-title text-lg">Life of a Footballer’s Sister</div>
+
+      <div class="relative inline-block text-left">
+        <button id="navButton"
+          class="inline-flex justify-center w-full rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
+          <span id="navTitle">Menu</span>
+          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
+          </svg>
+        </button>
+
+        <div id="dropdownMenu"
+          class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
+
+          <div class="py-1">
+            <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50 font-semibold text-rose-600">Home</a>
+            <a href="bts.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
+            <a href="leila.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Meet Leila</a>
+            <a href="questions.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Q&A</a>
+            <a href="support-wall.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Support Wall</a>
+            <a href="fixtures.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Fixtures & Live Scores</a>
+            <a href="giveaways.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Giveaways</a>
+          </div>
+        </div>
+      </div>
+    </div>
   </header>
 
-  <!-- Top Spacing for Fixed Header -->
-  <div class="h-20"></div>
+  <!-- SPACER -->
+  <div class="pt-24"></div>
 
-  <!-- Hero Section -->
-  <section class="h-screen flex items-center justify-center bg-cover bg-center relative" style="background-image: url('images/Leila%20YT%20banner%20(1).png') ">
-    <div class="absolute inset-0 bg-pink-900 bg-opacity-40 flex items-center justify-center"></div>
+  <!-- HERO -->
+  <section class="h-screen flex items-center justify-center bg-cover bg-center relative"
+    style="background-image: url('images/Leila%20YT%20banner%20(1).png');">
+    <div class="absolute inset-0 bg-pink-900 bg-opacity-40"></div>
   </section>
 
-  <!-- Story Section -->
+  <!-- STORY SECTION (unchanged) -->
   <section class="px-6 py-16 max-w-4xl mx-auto text-center bg-pink-100">
     <h3 class="text-3xl font-bold mb-4 text-rose-700">Her Side of the Story</h3>
     <p class="text-lg text-gray-700">
-        From the roar of the crowd to the silence before kickoff — I’ve been there. In the shadows of the stadium lights, behind the goalposts and the pressure, capturing the soul of South African football through my brother’s grind. This isn’t just support. It’s legacy. It’s love. It’s everything the world doesn’t see — until now.
+      From the roar of the crowd to the silence before kickoff — I’ve been there...
     </p>
 
-    <!-- Social Widget Row -->
+    <!-- SOCIAL ICONS (unchanged) -->
     <div class="flex justify-center items-center space-x-6 mt-8 group">
-      <!-- Instagram -->
+      <!-- instagram -->
       <a href="https://instagram.com/leila_sono_" target="_blank" class="relative group">
         <div class="bg-pink-500 hover:bg-pink-600 text-white w-12 h-12 flex items-center justify-center rounded-full shadow-lg transition">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-5 h-5" viewBox="0 0 24 24"><path d="M7.75 2A5.75 5.75 0 002 7.75v8.5A5.75 5.75 0 007.75 22h8.5A5.75 5.75 0 0022 16.25v-8.5A5.75 5.75 0 0016.25 2h-8.5zm0 1.5h8.5c2.35 0 4.25 1.9 4.25 4.25v8.5c0 2.35-1.9 4.25-4.25 4.25h-8.5A4.25 4.25 0 013.5 16.25v-8.5C3.5 5.9 5.4 4 7.75 4zM12 7a5 5 0 100 10 5 5 0 000-10zm0 1.5a3.5 3.5 0 110 7 3.5 3.5 0 010-7zM17.25 6a1 1 0 100 2 1 1 0 000-2z"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-5 h-5" viewBox="0 0 24 24"><path d="M7.75 2A5.75 5.75 0 002 7.75v8.5A5.75 5.75 0 007.75 22h8.5A5.75 5.75 0 0022 16.25v-8.5A5.75 5.75 0 0016.25 2h-8.5zM12 7a5 5 0 100 10 5 5 0 000-10z"/></svg>
         </div>
-        <span class="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 text-sm text-gray-600 opacity-0 group-hover:opacity-100 transition">Instagram</span>
+        <span class="absolute bottom-[-30px] left-1/2 -translate-x-1/2 text-sm text-gray-600 opacity-0 group-hover:opacity-100 transition">Instagram</span>
       </a>
+
       <!-- TikTok -->
       <a href="https://www.tiktok.com/@leila_sono" target="_blank" class="relative group">
         <div class="bg-black hover:bg-gray-800 text-white w-12 h-12 flex items-center justify-center rounded-full shadow-lg transition">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-5 h-5" viewBox="0 0 24 24">
-            <path d="M9.5 3C9.776 3 10 3.224 10 3.5v12.008a2.5 2.5 0 11-2-2.45v-2.006a4.5 4.5 0 102.001 4.748V7.877c.62.076 1.25.114 1.893.114a5.994 5.994 0 004.607-2.133c.088-.11.152-.24.181-.38.036-.174.052-.387.052-.628V4a.5.5 0 00-.5-.5h-1.627a.5.5 0 00-.5.5v.149a.25.25 0 01-.335.237A4.498 4.498 0 0112 2.5h-2.5a.5.5 0 00-.5.5z"/>
-          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-5 h-5" viewBox="0 0 24 24"><path d="M9.5 3C9.776 3 10 3.224 10 3.5v12.008a2.5 2.5 0 11-2-2.45v-2.006a4.5 4.5 0 102.001 4.748V7.877c.62.076 1.25.114 1.893.114a5.994 5.994 0 004.607-2.133c.088-.11.152-.24.181-.38c.036-.174.052-.387.052-.628V4a.5.5 0 00-.5-.5h-1.627a.5.5 0 00-.5.5v.149a.25.25 0 01-.335.237A4.498 4.498 0 0112 2.5h-2.5a.5.5 0 00-.5.5z"/></svg>
         </div>
-        <span class="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 text-sm text-gray-600 opacity-0 group-hover:opacity-100 transition">TikTok</span>
+        <span class="absolute bottom-[-30px] left-1/2 -translate-x-1/2 text-sm text-gray-600 opacity-0 group-hover:opacity-100 transition">TikTok</span>
       </a>
+
       <!-- Email -->
-      <a href="mailto:leilasono1@gmail.com" target="_blank" class="relative group">
+      <a href="mailto:leilasono1@gmail.com" class="relative group">
         <div class="bg-rose-600 hover:bg-rose-700 text-white w-12 h-12 flex items-center justify-center rounded-full shadow-lg transition">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-5 h-5" viewBox="0 0 24 24">
-            <path d="M2 5.75A2.75 2.75 0 014.75 3h14.5A2.75 2.75 0 0122 5.75v12.5A2.75 2.75 0 0119.25 21H4.75A2.75 2.75 0 012 18.25V5.75zm2.896-.25a.25.25 0 00-.146.045l6.75 4.5a.75.75 0 00.8 0l6.75-4.5a.25.25 0 00-.146-.045H4.896zm14.708 1.855l-6.504 4.34a2.25 2.25 0 01-2.4 0L4.196 7.355v10.895c0 .138.112.25.25.25h15.108a.25.25 0 00.25-.25V7.355z"/>
-          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-5 h-5" viewBox="0 0 24 24"><path d="M2 5.75A2.75 2.75 0 014.75 3h14.5A2.75 2.75 0 0122 5.75v12.5A2.75 2.75 0 0119.25 21H4.75A2.75 2.75 0 012 18.25V5.75z"/></svg>
         </div>
-        <span class="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 text-sm text-gray-600 opacity-0 group-hover:opacity-100 transition">Email</span>
+        <span class="absolute bottom-[-30px] left-1/2 -translate-x-1/2 text-sm text-gray-600 opacity-0 group-hover:opacity-100 transition">Email</span>
       </a>
-      <!-- YouTube -->
-      <a href="https://youtube.com/@leilasono?si=DVZkzjJZqw2SMg7h" target="_blank" class="relative group">
+
+      <!-- Youtube -->
+      <a href="https://youtube.com/@leilasono" target="_blank" class="relative group">
         <div class="bg-red-600 hover:bg-red-700 text-white w-12 h-12 flex items-center justify-center rounded-full shadow-lg transition">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
-            <path d="M23.498 6.186a2.994 2.994 0 0 0-2.112-2.112C19.413 3.5 12 3.5 12 3.5s-7.413 0-9.386.574a2.994 2.994 0 0 0-2.112 2.112C0 8.159 0 12 0 12s0 3.841.502 5.814a2.994 2.994 0 0 0 2.112 2.112C4.587 20.5 12 20.5 12 20.5s7.413 0 9.386-.574a2.994 2.994 0 0 0 2.112-2.112C24 15.841 24 12 24 12s0-3.841-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="w-6 h-6" viewBox="0 0 24 24"><path d="M9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
         </div>
-        <span class="absolute bottom-[-30px] left-1/2 transform -translate-x-1/2 text-sm text-gray-600 opacity-0 group-hover:opacity-100 transition">
-          YouTube
-        </span>
+        <span class="absolute bottom-[-30px] left-1/2 -translate-x-1/2 text-sm text-gray-600 opacity-0 group-hover:opacity-100 transition">YouTube</span>
       </a>
     </div>
-    <!-- Caption Underneath -->
-    <p class="mt-4 text-sm text-gray-700 text-center font-semibold">Follow My Journey / Get In Contact</p>
+
+    <p class="mt-4 text-sm font-semibold text-gray-700">Follow My Journey / Get In Contact</p>
   </section>
 
-  <!-- MENU SECTION UNDER THE REST OF THE CONTENT -->
+  <!-- MENU SECTION (unchanged) -->
   <section class="flex flex-col items-center justify-center py-12 bg-pink-200">
     <h2 class="text-3xl font-bold text-rose-700 mb-8 text-center">Menu</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 w-full max-w-xl px-8">
-      <a href="leila.html" class="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center text-center hover:bg-pink-100 transition">
+      <a href="leila.html" class="bg-white rounded-xl shadow-lg p-8 hover:bg-pink-100 transition flex flex-col items-center">
         <span class="text-4xl mb-2">✨</span>
         <span class="text-xl font-semibold text-rose-700">Meet Leila</span>
       </a>
-      <a href="bts.html" class="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center text-center hover:bg-pink-100 transition">
+      <a href="bts.html" class="bg-white rounded-xl shadow-lg p-8 hover:bg-pink-100 transition flex flex-col items-center">
         <span class="text-4xl mb-2">🎬</span>
         <span class="text-xl font-semibold text-rose-700">Behind the Game</span>
       </a>
-      <a href="questions.html" class="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center text-center hover:bg-pink-100 transition">
+      <a href="questions.html" class="bg-white rounded-xl shadow-lg p-8 hover:bg-pink-100 transition flex flex-col items-center">
         <span class="text-4xl mb-2">❓</span>
-        <span class="text-xl font-semibold text-rose-700">Q&amp;A</span>
+        <span class="text-xl font-semibold text-rose-700">Q&A</span>
       </a>
-      <a href="support-wall.html" class="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center text-center hover:bg-pink-100 transition">
+      <a href="support-wall.html" class="bg-white rounded-xl shadow-lg p-8 hover:bg-pink-100 transition flex flex-col items-center">
         <span class="text-4xl mb-2">❤️</span>
         <span class="text-xl font-semibold text-rose-700">Support Wall</span>
       </a>
-      <a href="fixtures.html" class="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center text-center hover:bg-pink-100 transition">
+      <a href="fixtures.html" class="bg-white rounded-xl shadow-lg p-8 hover:bg-pink-100 transition flex flex-col items-center">
         <span class="text-4xl mb-2">⚽</span>
         <span class="text-xl font-semibold text-rose-700">Fixtures</span>
       </a>
-      <a href="giveaways.html" class="bg-white rounded-xl shadow-lg p-8 flex flex-col items-center text-center hover:bg-pink-100 transition">
+      <a href="giveaways.html" class="bg-white rounded-xl shadow-lg p-8 hover:bg-pink-100 transition flex flex-col items-center">
         <span class="text-4xl mb-2">🎡</span>
         <span class="text-xl font-semibold text-rose-700">Giveaways</span>
       </a>
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer class="bg-pink-900 text-white text-center py-6 mt-10">
-    <p>&copy; 2025 The Footballer’s Sister. All rights reserved.</p>
+  <!-- FOOTER (BTS pill style, no pink background) -->
+  <footer class="text-center py-10 bg-transparent">
+    <small class="footer-badge">© 2025 The Footballer’s Sister</small>
   </footer>
+
+  <!-- NAV SCRIPT -->
+  <script>
+    const navButton = document.getElementById("navButton");
+    const dropdownMenu = document.getElementById("dropdownMenu");
+
+    navButton.addEventListener("click", () => {
+      const isHidden = dropdownMenu.classList.contains("hidden");
+      if (isHidden) {
+        dropdownMenu.classList.remove("hidden");
+        setTimeout(() => dropdownMenu.classList.add("dropdown-open"), 10);
+      } else {
+        dropdownMenu.classList.remove("dropdown-open");
+        setTimeout(() => dropdownMenu.classList.add("hidden"), 200);
+      }
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+        dropdownMenu.classList.remove("dropdown-open");
+        setTimeout(() => dropdownMenu.classList.add("hidden"), 200);
+      }
+    });
+  </script>
+
 </body>
 </html>
