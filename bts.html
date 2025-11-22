@@ -5,81 +5,105 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Behind the Game – The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Added CSS to fix the TikTok iframe sizing/gap and keep single-slide behaviour -->
   <style>
-    :root {
-      --accent: #be185d;
-      --muted: #6b7280;
-      --bg-soft: #fff2f6;
+    /* Animation for dropdown open */
+    .dropdown-open {
+      opacity: 1 !important;
+      transform: scale(1) !important;
     }
-    body { background: #fff2f6; color: #111827; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
 
-    /* Header style matching Q&A */
-    header {
-      background: linear-gradient(180deg, rgba(246,213,239,0.6), rgba(255,241,248,0.6));
-      border-bottom: 1px solid rgba(235,200,215,0.6);
-      backdrop-filter: blur(4px);
+    /* --- Carousel & iframe fixes --- */
+    /* Parent wrapper used to control the visible viewport of the carousel */
+    .carousel-viewport {
+      width: 100%;
+      max-width: 360px;            /* keeps nice phone-friendly width */
+      margin: 0 auto;              /* center on small screens */
+      border-radius: 12px;
+      overflow: hidden;            /* hide any iframe overflow / scrollbars */
+      position: relative;
+      background: transparent;
+      box-shadow: none;            /* keep it subtle / consistent with site */
     }
-    .site-title { color: var(--accent); font-weight: 800; letter-spacing: .02em; }
 
-    /* Small, non-invasive fix to try to hide the TikTok iframe white gutter while keeping your rounded corners. */
-    .embed-wrap {
+    /* slides container: keeps slides in a row and hides the rest behind overflow */
+    .slides-row {
+      display: flex;
+      transition: transform 0.5s ease-in-out;
+      width: 100%;
+      will-change: transform;
+    }
+
+    /* each slide uses the classic padding-top technique to preserve 9:16 (portrait) aspect ratio */
+    .slide {
+      flex: 0 0 100%;
       position: relative;
       width: 100%;
-      overflow: hidden;
-      background: #fff0f6; /* page background so tiny white edges blend in */
-      border-radius: 12px;
+      padding-top: 177.77%; /* 16:9 -> for vertical tiktok 9:16 this gives a tall container; keep what you had */
     }
-    .embed-wrap::before { content:""; display:block; padding-top:177.77%; } /* tall aspect */
-    .embed-wrap iframe {
+
+    /* ensure iframe fills the slide exactly, no borders/margins */
+    .slide iframe {
       position: absolute !important;
-      top: 0 !important;
-      left: 0 !important;
+      top: 0;
+      left: 0;
       width: 100% !important;
       height: 100% !important;
       border: 0 !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      display: block !important;
       background: transparent !important;
-      border-radius: 12px; /* keep rounded corners */
-      transform: translateZ(0); /* small GPU hint to reduce painting artifacts */
+      display: block;
     }
 
-    /* Keep layout and carousel behaviours identical to previous working version */
-    #video-slides-container, #collab-slides { display:flex; transition: transform .45s ease; width:100%; }
-    #video-slides-container > .slide, #collab-slides > .slide { min-width:100%; box-sizing:border-box; margin:0; padding:0; }
+    /* ensure arrow buttons are above iframe but visually subtle */
+    .carousel-viewport .nav-btn {
+      position: absolute;
+      top: 12px;
+      width: 36px;
+      height: 36px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.85);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+      border: none;
+      cursor: pointer;
+      z-index: 30;
+    }
+    .carousel-viewport .nav-btn.left { left: 8px; }
+    .carousel-viewport .nav-btn.right { right: 8px; }
 
-    /* dropdown animation */
-    .dropdown-open { opacity:1 !important; transform:scale(1) !important; }
+    /* collab carousel uses same style so both line up visually */
+    .collab-viewport {
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+    .collab-viewport .slides-row > .collab-slide img { width:100%; display:block; }
 
-    /* pager/dots */
-    .collab-dot { width:10px; height:10px; border-radius:999px; display:inline-block; margin:0 4px; }
-
-    /* footer badge */
-    .footer-badge {
-      display:inline-block;
-      padding:.5rem 1rem;
-      border-radius:999px;
-      background: linear-gradient(90deg,#be185d,#f472b6);
-      color: white;
-      box-shadow: 0 6px 18px rgba(11,7,17,0.08);
-      font-weight:600;
+    /* keep the two columns centered on mobile and stretched on desktop */
+    .two-column-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; align-items:start; justify-items:center; }
+    @media (min-width: 768px) {
+      .two-column-grid { grid-template-columns: 1fr 1fr; justify-items: stretch; }
+      .carousel-viewport { max-width: 540px; } /* on desktop allow wider tiktok box */
+      .collab-viewport { max-width: 520px; }
     }
 
-    @media (max-width:640px) {
-      .embed-wrap { background:#fff0f6; }
-      .embed-wrap iframe { background: transparent; }
-    }
+    /* remove any default iframe border or white background that some browsers add */
+    iframe { border:0; background:transparent; }
+
   </style>
 </head>
 <body class="bg-pink-50 text-black font-sans">
 
-  <!-- Header with dropdown navigation (Q&A style) -->
-  <header class="fixed top-0 w-full z-50">
-    <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-4">
-        <div class="site-title" style="font-size:1.1rem;">THE FOOTBALLER’S SISTER</div>
-      </div>
+  <!-- Header with dropdown navigation -->
+  <header class="fixed top-0 w-full bg-pink-100 shadow z-50">
+    <div class="flex justify-between items-center px-6 py-4">
+      <h1 class="text-xl font-bold uppercase text-rose-600">THE FOOTBALLER’S SISTER</h1>
 
       <!-- Dropdown Navigation -->
       <div class="relative inline-block text-left">
@@ -91,6 +115,7 @@
           </svg>
         </button>
 
+        <!-- Dropdown menu -->
         <div id="dropdownMenu"
           class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
           <div class="py-1">
@@ -106,116 +131,187 @@
     </div>
   </header>
 
-  <!-- Page content -->
-  <main class="pt-28">
+  <!-- page content -->
+  <section class="pt-28 px-6 text-center max-w-3xl mx-auto">
+    <h2 class="text-4xl font-bold mb-4 text-rose-700">Behind the Game 📸⚽</h2>
+    <p class="text-lg text-gray-600 mb-10">
+      From pre-match rituals to post-match reflections, skills on the field and creative vlogs — Welcome to the real story. This is football, sister-style.
+    </p>
+  </section>
 
-    <!-- Hero -->
-    <section class="px-6 text-center max-w-3xl mx-auto">
-      <h2 class="text-4xl font-bold mb-4 text-rose-700">Behind the Game 📸⚽</h2>
-      <p class="text-lg text-gray-600 mb-10">
-        From pre-match rituals to post-match reflections, skills on the field and creative vlogs — Welcome to the real story. This is football, sister-style.
-      </p>
-    </section>
+  <!-- Player Profiles (unchanged) -->
+  <section class="grid grid-cols-1 md:grid-cols-2 gap-6 px-6 max-w-4xl mx-auto mb-20">
+    <h3 class="md:col-span-2 text-3xl font-bold mb-4 text-rose-700 text-center">Meet the Brothers</h3>
 
-    <!-- Player Profiles -->
-    <section class="grid grid-cols-1 md:grid-cols-2 gap-6 px-6 max-w-4xl mx-auto mb-20">
-      <h3 class="md:col-span-2 text-3xl font-bold mb-4 text-rose-700 text-center">Meet the Brothers</h3>
+    <!-- Elijah -->
+    <div class="bg-white p-5 rounded-lg shadow-md flex flex-col items-center text-center">
+      <img src="images/elijah2.jpeg" alt="Elijah Sono" class="rounded-lg mb-4 w-full h-96 object-cover" />
+      <h4 class="text-2xl font-bold text-rose-700 flex items-center gap-3">
+        <span>Elijah Sono</span>
+        <span class="inline-flex items-center gap-2 ml-2">
+          <a id="elijah-instagram" href="https://www.instagram.com/elijah_sono?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" title="Instagram">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="2" y="2" width="20" height="20" rx="5" stroke="#BE185D" stroke-width="1.5" fill="none"/>
+              <path d="M7.75 11.99a4.25 4.25 0 1 1 8.5 0 4.25 4.25 0 0 1-8.5 0z" stroke="#BE185D" stroke-width="1.5" fill="none"/>
+              <circle cx="17.8" cy="6.2" r="0.7" fill="#BE185D"/>
+            </svg>
+          </a>
+          <a id="elijah-tiktok" href="https://www.tiktok.com/@elijah_sono_?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" title="TikTok">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                 xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M15 6.5c.6.6 1.6 1.1 3 1.1v2.1c-1.3 0-2.4-.4-3-.9v5.8a3.6 3.6 0 1 1-3.6-3.6c.2 0 .5 0 .7.1v2.2a1.4 1.4 0 1 0 1.4 1.4V6.5z"
+                    stroke="#BE185D"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
+            </svg>
+          </a>
+        </span>
+      </h4>
 
-      <div class="bg-white p-5 rounded-lg shadow-md flex flex-col items-center text-center">
-        <img src="images/elijah2.jpeg" alt="Elijah Sono" class="rounded-lg mb-4 w-full h-96 object-cover" />
-        <h4 class="text-2xl font-bold text-rose-700">Elijah Sono</h4>
-        <p class="text-gray-600 mt-1"><strong>Position:</strong> Midfielder</p>
-        <a href="pdfs/ELIJAHSONO-player-profile.pdf" target="_blank" rel="noreferrer" class="mt-6 inline-block bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">View Player Profile</a>
+      <p class="text-gray-600 mt-1"><strong>Position:</strong> Midfielder</p>
+      <div class="mt-4 text-left w-full">
+        <h5 class="font-semibold text-rose-600">Key Attributes:</h5>
+        <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1 text-sm">
+          <li><strong>Dribbling:</strong> Confident on the ball with quick feet to navigate tight spaces.</li>
+          <li><strong>Passing:</strong> Excellent vision and timing to consistently find teammates.</li>
+          <li><strong>Tackling:</strong> Reads the game well with precise and controlled tackling.</li>
+        </ul>
       </div>
-
-      <div class="bg-white p-5 rounded-lg shadow-md flex flex-col items-center text-center">
-        <img src="images/Bamuza.jpeg" alt="Bamuza Sono" class="rounded-lg mb-4 w-full h-96 object-cover" />
-        <h4 class="text-2xl font-bold text-rose-700">Bamuza Sono Jnr</h4>
-        <p class="text-gray-600 mt-1"><strong>Position:</strong> Midfielder</p>
-        <a href="pdfs/BAMUZASONO-player-profile.pdf" target="_blank" rel="noreferrer" class="mt-6 inline-block bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">View Player Profile</a>
+      <div class="mt-4 text-left w-full">
+        <h5 class="font-semibold text-rose-600">Experience:</h5>
+        <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1 text-sm">
+          <li>Currently plays for the u13 Jomo Cosmos team in the GDL league.</li>
+          <li>Played for the u13 Jomo Cosmos team at age 10 and 11.</li>
+          <li>Developed skills at Wanderers Discovery Soccer Club.</li>
+        </ul>
       </div>
-    </section>
-
-    <!-- TikTok + Collaborations -->
-    <section class="px-6 max-w-5xl mx-auto mb-10">
-      <div class="grid md:grid-cols-2 gap-8 items-start">
-        <!-- LEFT: TikTok -->
-        <div>
-          <h3 class="text-2xl font-bold mb-4 text-rose-700 text-center">My Vlogs & Highlights</h3>
-          <div id="video-carousel" class="relative overflow-hidden rounded-lg shadow-lg mx-auto w-full md:max-w-sm">
-            <div id="video-slides-container" class="flex transition-transform duration-500 ease-in-out">
-              <div class="w-full flex-shrink-0 relative slide" style="padding-top: 177.77%;">
-                <div class="embed-wrap">
-                  <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" allowfullscreen class="absolute top-0 left-0 w-full h-full"></iframe>
-                </div>
-              </div>
-              <div class="w-full flex-shrink-0 relative slide" style="padding-top: 177.77%;">
-                <div class="embed-wrap">
-                  <iframe src="https://www.tiktok.com/embed/v2/7514262969786567943" allowfullscreen class="absolute top-0 left-0 w-full h-full"></iframe>
-                </div>
-              </div>
-            </div>
-
-            <button id="prevBtn" class="absolute top-1/2 left-4 transform -translate-y-1/2 bg-white/50 text-gray-800 p-2 rounded-full hover:bg-white/80 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-            </button>
-            <button id="nextBtn" class="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white/50 text-gray-800 p-2 rounded-full hover:bg-white/80 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- RIGHT: Collaborations (reads Firestore collabs) -->
-        <div>
-          <h3 class="text-2xl font-bold mb-4 text-rose-700 text-center">Collaborations</h3>
-          <div id="collab-carousel" class="relative overflow-hidden rounded-lg shadow-lg mx-auto w-full">
-            <div id="collab-slides" class="flex transition-transform duration-400 ease-in-out">
-              <div class="w-full flex-shrink-0 p-8 text-center muted slide">Loading collaborations...</div>
-            </div>
-
-            <button id="collabPrev" class="absolute top-1/2 left-3 transform -translate-y-1/2 bg-white/60 text-gray-800 p-2 rounded-full hover:bg-white transition-colors">‹</button>
-            <button id="collabNext" class="absolute top-1/2 right-3 transform -translate-y-1/2 bg-white/60 text-gray-800 p-2 rounded-full hover:bg-white transition-colors">›</button>
-
-            <div id="collabDots" class="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-2"></div>
-          </div>
-
-          <div id="collabDebug" class="mt-3 text-center muted text-sm"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Support Wall Form -->
-    <section class="px-6 max-w-2xl mx-auto mb-20 bg-pink-100 p-8 rounded-xl shadow-lg">
-      <h3 class="text-2xl font-bold mb-4 text-rose-700 text-center">The Support Wall ❤️</h3>
-      <p class="text-sm text-center text-gray-600 mb-6">Leave a message of support and it will appear on the wall! Your user ID is <span id="user-id" class="font-mono text-xs text-pink-700 break-all">Loading...</span></p>
-
-      <form id="support-form" class="space-y-4">
-        <div>
-          <label for="name" class="sr-only">Your Name</label>
-          <input type="text" id="name" placeholder="Your Name" required class="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-rose-500">
-        </div>
-        <div>
-          <label for="message" class="sr-only">Your Message</label>
-          <textarea id="message" rows="3" placeholder="Write your message here..." required class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500"></textarea>
-        </div>
-        <button type="submit" class="w-full bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">Post Message</button>
-      </form>
-
-      <div class="mt-6 text-center">
-        <a href="support-wall.html" class="inline-block border border-rose-600 text-rose-600 px-6 py-3 rounded-full hover:bg-rose-50 transition font-semibold">View All Messages</a>
-      </div>
-    </section>
-
-    <div class="text-center mb-20">
-      <a href="index.html" class="bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition">Back to Home</a>
+      <a href="pdfs/ELIJAHSONO-player-profile.pdf" target="_blank" rel="noreferrer" class="mt-6 inline-block bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">View Player Profile</a>
     </div>
-  </main>
 
-  <!-- Footer with FOOTER-BADGE -->
-  <footer class="mt-12 text-center py-8">
-    <span class="footer-badge">© <span id="year"></span> The Footballer’s Sister</span>
+    <!-- Bamuza -->
+    <div class="bg-white p-5 rounded-lg shadow-md flex flex-col items-center text-center">
+      <img src="images/Bamuza.jpeg" alt="Bamuza Sono" class="rounded-lg mb-4 w-full h-96 object-cover" />
+      <h4 class="text-2xl font-bold text-rose-700 flex items-center gap-3">
+        <span>Bamuza Sono Jnr</span>
+        <span class="inline-flex items-center gap-2 ml-2">
+          <a id="bamuza-instagram" href="https://www.instagram.com/bamuza_sono?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" title="Instagram">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <rect x="2" y="2" width="20" height="20" rx="5" stroke="#BE185D" stroke-width="1.5" fill="none"/>
+              <path d="M7.75 11.99a4.25 4.25 0 1 1 8.5 0 4.25 4.25 0 0 1-8.5 0z" stroke="#BE185D" stroke-width="1.5" fill="none"/>
+              <circle cx="17.8" cy="6.2" r="0.7" fill="#BE185D"/>
+            </svg>
+          </a>
+          <a id="bamuza-tiktok" href="https://www.tiktok.com/@bamuza_sono?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" title="TikTok">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                 xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M15 6.5c.6.6 1.6 1.1 3 1.1v2.1c-1.3 0-2.4-.4-3-.9v5.8a3.6 3.6 0 1 1-3.6-3.6c.2 0 .5 0 .7.1v2.2a1.4 1.4 0 1 0 1.4 1.4V6.5z"
+                    stroke="#BE185D"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"/>
+            </svg>
+          </a>
+        </span>
+      </h4>
+
+      <p class="text-gray-600 mt-1"><strong>Position:</strong> Midfielder</p>
+      <div class="mt-4 text-left w-full">
+        <h5 class="font-semibold text-rose-600">Key Attributes:</h5>
+        <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1 text-sm">
+          <li><strong>Dribbling:</strong> Able to take on defenders with close control and quick feet.</li>
+          <li><strong>Passing:</strong> Excellent vision to deliver precise short passes or long balls.</li>
+          <li><strong>Shooting:</strong> Known as a free-kick or corner kick taker.</li>
+        </ul>
+      </div>
+      <div class="mt-4 text-left w-full">
+        <h5 class="font-semibold text-rose-600">Experience:</h5>
+        <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1 text-sm">
+          <li>Currently playing for the U17 Jomo Cosmos FC team in the GDL league.</li>
+          <li>Played for the U15 and U17 teams in previous years.</li>
+          <li>Developed skills at Wanderers Discovery Soccer Club</li>
+        </ul>
+      </div>
+      <a href="pdfs/BAMUZASONO-player-profile.pdf" target="_blank" rel="noreferrer" class="mt-6 inline-block bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">View Player Profile</a>
+    </div>
+  </section>
+
+  <!-- TikTok Carousel + Collaborations side-by-side -->
+  <section class="px-6 max-w-5xl mx-auto mb-10">
+    <!-- grid with centering on mobile, stretched on desktop -->
+    <div class="two-column-grid">
+      <!-- LEFT: TikTok -->
+      <div class="w-full flex flex-col items-center">
+        <h3 class="text-2xl font-bold mb-4 text-rose-700 text-center">My Vlogs & Highlights</h3>
+
+        <!-- carousel viewport holds the slides and nav buttons -->
+        <div id="video-carousel" class="carousel-viewport">
+          <div id="video-slides-container" class="slides-row" aria-live="polite">
+            <div class="slide">
+              <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" allowfullscreen scrolling="no" title="tiktok1"></iframe>
+            </div>
+            <div class="slide">
+              <iframe src="https://www.tiktok.com/embed/v2/7514262969786567943" allowfullscreen scrolling="no" title="tiktok2"></iframe>
+            </div>
+            <!-- add more slides if needed -->
+          </div>
+
+          <button id="prevBtn" class="nav-btn left" aria-label="Previous video">‹</button>
+          <button id="nextBtn" class="nav-btn right" aria-label="Next video">›</button>
+        </div>
+      </div>
+
+      <!-- RIGHT: Collaborations -->
+      <div class="w-full flex flex-col items-center">
+        <h3 class="text-2xl font-bold mb-4 text-rose-700 text-center">Collaborations</h3>
+
+        <div id="collab-carousel" class="collab-viewport">
+          <div id="collab-slides" class="slides-row">
+            <div class="collab-slide" style="flex:0 0 100%; padding:1.5rem; box-sizing:border-box;">
+              <div class="bg-white rounded-lg shadow-md overflow-hidden p-8 text-center muted">Loading collaborations...</div>
+            </div>
+          </div>
+
+          <button id="collabPrev" class="nav-btn left" aria-label="Previous collaboration">‹</button>
+          <button id="collabNext" class="nav-btn right" aria-label="Next collaboration">›</button>
+
+          <div id="collabDots" class="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-2"></div>
+        </div>
+
+        <div id="collabDebug" class="mt-3 text-center muted text-sm"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Support Wall -->
+  <section class="px-6 max-w-2xl mx-auto mb-20 bg-pink-100 p-8 rounded-xl shadow-lg">
+    <h3 class="text-2xl font-bold mb-4 text-rose-700 text-center">The Support Wall ❤️</h3>
+    <p class="text-sm text-center text-gray-600 mb-6">Leave a message of support and it will appear on the wall! Your user ID is <span id="user-id" class="font-mono text-xs text-pink-700 break-all">Loading...</span></p>
+
+    <form id="support-form" class="space-y-4">
+      <div>
+        <label for="name" class="sr-only">Your Name</label>
+        <input type="text" id="name" placeholder="Your Name" required class="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-rose-500">
+      </div>
+      <div>
+        <label for="message" class="sr-only">Your Message</label>
+        <textarea id="message" rows="3" placeholder="Write your message here..." required class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500"></textarea>
+      </div>
+      <button type="submit" class="w-full bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">Post Message</button>
+    </form>
+
+    <div class="mt-6 text-center">
+      <a href="support-wall.html" class="inline-block border border-rose-600 text-rose-600 px-6 py-3 rounded-full hover:bg-rose-50 transition font-semibold">View All Messages</a>
+    </div>
+  </section>
+
+  <div class="text-center mb-20">
+    <a href="index.html" class="bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition">Back to Home</a>
+  </div>
+
+  <footer class="bg-pink-900 text-white text-center py-6">
+    <p>&copy; 2025 The Footballer’s Sister. All rights reserved.</p>
   </footer>
-  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
   <!-- TikTok embed script -->
   <script async src="https://www.tiktok.com/embed.js"></script>
@@ -237,8 +333,7 @@
       "fixtures.html": "Fixtures & Live Scores"
     };
 
-    const title = pageTitles[currentPage] || "Menu";
-    navTitleEl.textContent = title;
+    navTitleEl.textContent = pageTitles[currentPage] || "Menu";
 
     navItems.forEach(link => {
       if (link.getAttribute('href') === currentPage) {
@@ -266,7 +361,7 @@
     });
   </script>
 
-  <!-- FIREBASE & collabs subscription -->
+  <!-- FIREBASE & collab subscription (unchanged) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -287,7 +382,7 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // Support wall auth & submit (unchanged)
+    // Support wall
     let userId = null;
     const userIdEl = document.getElementById('user-id');
     const form = document.getElementById('support-form');
@@ -342,7 +437,7 @@
       });
     }
 
-    // Collabs carousel (subscribe to collabs first, fallbacks afterwards)
+    // Collabs carousel (subscribe to gallery collection)
     (function initCollabCarousel(){
       const slidesEl = document.getElementById('collab-slides');
       const prev = document.getElementById('collabPrev');
@@ -356,14 +451,15 @@
       function renderSlides(){
         slidesEl.innerHTML = '';
         if (!items.length) {
-          slidesEl.innerHTML = '<div class="w-full flex-shrink-0 p-8 text-center muted">No collaborations yet.</div>';
+          slidesEl.innerHTML = '<div class="collab-slide" style="flex:0 0 100%; padding:1.5rem;"><div class="bg-white rounded-lg shadow-md overflow-hidden p-8 text-center muted">No collaborations yet.</div></div>';
           dotsEl.innerHTML = '';
           if (debugEl) debugEl.textContent = 'No collab items found.';
           return;
         }
         items.forEach(it => {
           const slide = document.createElement('div');
-          slide.className = 'w-full flex-shrink-0 p-4 slide';
+          slide.className = 'collab-slide';
+          slide.style = 'flex:0 0 100%; padding:0;';
           slide.innerHTML = `
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
               <a href="${escapeHtml(it.link || it.imageUrl || '#')}" target="_blank" rel="noreferrer">
@@ -401,7 +497,7 @@
         updatePosition(); renderDots();
       });
 
-      // swipe handling
+      // swipe
       let touchStartX = 0;
       const parent = document.getElementById('collab-carousel');
       if (parent) {
@@ -417,16 +513,11 @@
         });
       }
 
-      // **Important:** new order of candidate paths — collabs first
       const galleryPaths = [
-        `/artifacts/${appId}/public/data/collabs`,   // primary (admin writes here)
-        `/artifacts/${appId}/public/data/gallery`,   // fallback (older)
-        `/public/data/collabs`,
+        `/artifacts/${appId}/public/data/gallery`,
         `/public/data/gallery`,
-        `collabs`,
         `gallery`
       ];
-
       let subscribed = false;
 
       galleryPaths.forEach(p => {
@@ -434,7 +525,6 @@
           const q = query(collection(db, p), orderBy('createdAt','desc'));
           onSnapshot(q, snap => {
             const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }) );
-            // prefer items explicitly marked as collab; fallback to all
             const collabs = docs.filter(d => {
               const meta = d.data || {};
               if (meta.collab === true) return true;
@@ -458,23 +548,21 @@
             if (debugEl) debugEl.textContent = `Loaded ${items.length} collabs from ${p}`;
           }, err => {
             console.warn('gallery onSnapshot error for', p, err);
-            // we intentionally don't stop — try next candidate
           });
         } catch (e) {
           // ignore and continue trying other paths
-          console.warn('gallery try error for', p, e);
         }
       });
 
       setTimeout(() => {
         if (!subscribed && (!items || items.length === 0)) {
-          if (debugEl) debugEl.textContent = 'No realtime subscription available for gallery - check collection path or rules (permission-denied).';
+          if (debugEl) debugEl.textContent = 'No realtime subscription available for gallery - check collection path or rules.';
         }
       }, 900);
     })();
   </script>
 
-  <!-- TikTok carousel controls -->
+  <!-- TikTok carousel controls (keeps single slide visible, swipe enabled) -->
   <script>
     (function(){
       const slidesContainer = document.getElementById('video-slides-container');
@@ -484,27 +572,32 @@
       let currentIndex = 0;
       const slides = slidesContainer.children;
 
-      function show() { slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`; }
+      function show() {
+        // ensure container translates exactly one slide width (100%)
+        slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
+      }
       function next() { currentIndex = (currentIndex + 1) % slides.length; show(); }
       function prev() { currentIndex = (currentIndex - 1 + slides.length) % slides.length; show(); }
 
       if (nextBtn) nextBtn.addEventListener('click', next);
       if (prevBtn) prevBtn.addEventListener('click', prev);
 
+      // enable simple touch swipe
       let startX = 0;
       const parent = document.getElementById('video-carousel');
       if (parent) {
-        parent.addEventListener('touchstart', (e) => startX = e.touches[0].clientX);
+        parent.addEventListener('touchstart', (e) => startX = e.touches[0].clientX, {passive:true});
         parent.addEventListener('touchend', (e) => {
           const endX = e.changedTouches[0].clientX;
           const delta = startX - endX;
           if (Math.abs(delta) > 50) {
             if (delta > 0) next(); else prev();
           }
-        });
+        }, {passive:true});
       }
 
-      window.addEventListener('load', () => { show(); });
+      // ensure initial position is correct (first slide visible)
+      show();
     })();
   </script>
 
