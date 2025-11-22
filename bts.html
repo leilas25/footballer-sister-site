@@ -46,11 +46,42 @@
     .profile-grid { display:grid; grid-template-columns: 1fr 1fr; gap:1.25rem; margin-bottom:2rem; }
 
     .profile-card img { width:100%; height:360px; object-fit:cover; border-radius:10px; display:block; }
-    .profile-name { color:var(--accent); font-weight:800; font-size:1.25rem; margin-top:.75rem; display:flex; align-items:center; gap:.6rem; }
+    .profile-name { color:var(--accent); font-weight:800; font-size:1.25rem; margin-top:.75rem; }
     .profile-meta { color: #374151; margin-top:.45rem; }
     .profile-list { margin-top:.5rem; color:#374151; font-size:.95rem; line-height:1.45; }
 
-    /* collab carousel sizing */
+    /* hero and columns */
+    .two-col { display:grid; grid-template-columns: 1fr 1fr; gap:2rem; align-items:start; }
+
+    /* TikTok embed sizing — longer so whole video sits comfortably */
+    .video-carousel { border-radius:12px; overflow:visible; }
+    .embed-wrap {
+      position: relative;
+      width: 100%;
+      background: #fff0f6;
+      border-radius: 12px;
+      /* Use a reasonably tall fixed height on desktop, responsive on small screens */
+      height: 620px;
+      overflow:hidden;
+    }
+    @media (max-width:960px){ .embed-wrap { height:520px; } }
+    @media (max-width:640px){ .embed-wrap { height:480px; } }
+
+    .embed-wrap iframe {
+      position:absolute !important;
+      left:0 !important;
+      top:0 !important;
+      width:100% !important;
+      height:100% !important;
+      border:0 !important;
+      margin:0 !important;
+      padding:0 !important;
+      display:block !important;
+      background:transparent !important;
+      border-radius:12px;
+    }
+
+    /* collab carousel sizing — taller */
     .collab-carousel { border-radius:12px; overflow:visible; }
     .collab-slide { background:var(--card); border-radius:12px; box-shadow: var(--shadow); border:1px solid rgba(235,224,232,0.6); overflow:hidden; }
     .collab-slide img { width:100%; height:520px; object-fit:cover; display:block; }
@@ -83,6 +114,7 @@
 
     /* small tweaks for mobile */
     @media (max-width:900px) {
+      .two-col { grid-template-columns: 1fr; }
       .profile-grid { grid-template-columns: 1fr; }
       .container { padding:1rem; }
       .page-hero h2 { font-size:1.75rem; }
@@ -132,24 +164,12 @@
 
   <main class="container">
 
-    <!-- Player profiles (SOCIAL ICONS next to names) -->
+    <!-- Player profiles (RESTORED EXACTLY AS BEFORE: social links, position, key attributes, experience, profile PDF link) -->
     <section class="profile-grid" aria-label="Meet the brothers">
       <!-- Elijah -->
       <div class="profile-card">
         <img src="images/elijah2.jpeg" alt="Elijah Sono">
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-          <h3 class="profile-name">Elijah Sono
-            <span style="display:inline-flex; align-items:center; gap:.5rem; margin-left:.6rem;">
-              <a id="elijah-instagram" href="https://www.instagram.com/elijah_sono?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" title="Instagram">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" stroke="#BE185D" stroke-width="1.3" fill="none"/><path d="M7.75 11.99a4.25 4.25 0 1 1 8.5 0 4.25 4.25 0 0 1-8.5 0z" stroke="#BE185D" stroke-width="1.3" fill="none"/><circle cx="17.8" cy="6.2" r="0.6" fill="#BE185D"/></svg>
-              </a>
-              <a id="elijah-tiktok" href="https://www.tiktok.com/@elijah_sono_?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" title="TikTok">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M15 6.5c.6.6 1.6 1.1 3 1.1v2.1c-1.3 0-2.4-.4-3-.9v5.8a3.6 3.6 0 1 1-3.6-3.6c.2 0 .5 0 .7.1v2.2a1.4 1.4 0 1 0 1.4 1.4V6.5z" stroke="#BE185D" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </a>
-            </span>
-          </h3>
-        </div>
-
+        <h3 class="profile-name">Elijah Sono</h3>
         <div class="profile-meta"><strong>Position:</strong> Midfielder</div>
 
         <div class="profile-list">
@@ -169,6 +189,26 @@
 
           <div style="margin-top:.9rem; display:flex; gap:8px; align-items:center;">
             <a href="pdfs/ELIJAHSONO-player-profile.pdf" class="inline-block bg-rose-600 text-white px-4 py-2 rounded-full hover:bg-rose-700 transition font-semibold">View Player Profile</a>
+            <div style="margin-left:auto; display:flex; gap:.5rem;">
+              <!-- Instagram icon -->
+              <a id="elijah-instagram" href="https://www.instagram.com/elijah_sono?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" title="Instagram">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <rect x="2" y="2" width="20" height="20" rx="5" stroke="#BE185D" stroke-width="1.5" fill="none"/>
+                  <path d="M7.75 11.99a4.25 4.25 0 1 1 8.5 0 4.25 4.25 0 0 1-8.5 0z" stroke="#BE185D" stroke-width="1.5" fill="none"/>
+                  <circle cx="17.8" cy="6.2" r="0.7" fill="#BE185D"/>
+                </svg>
+              </a>
+              <!-- TikTok icon -->
+              <a id="elijah-tiktok" href="https://www.tiktok.com/@elijah_sono_?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" title="TikTok">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M15 6.5c.6.6 1.6 1.1 3 1.1v2.1c-1.3 0-2.4-.4-3-.9v5.8a3.6 3.6 0 1 1-3.6-3.6c.2 0 .5 0 .7.1v2.2a1.4 1.4 0 1 0 1.4 1.4V6.5z"
+                        stroke="#BE185D"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -176,19 +216,7 @@
       <!-- Bamuza -->
       <div class="profile-card">
         <img src="images/Bamuza.jpeg" alt="Bamuza Sono">
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-          <h3 class="profile-name">Bamuza Sono Jnr
-            <span style="display:inline-flex; align-items:center; gap:.5rem; margin-left:.6rem;">
-              <a id="bamuza-instagram" href="https://www.instagram.com/bamuza_sono?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" title="Instagram">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5" stroke="#BE185D" stroke-width="1.3" fill="none"/><path d="M7.75 11.99a4.25 4.25 0 1 1 8.5 0 4.25 4.25 0 0 1-8.5 0z" stroke="#BE185D" stroke-width="1.3" fill="none"/><circle cx="17.8" cy="6.2" r="0.6" fill="#BE185D"/></svg>
-              </a>
-              <a id="bamuza-tiktok" href="https://www.tiktok.com/@bamuza_sono?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" title="TikTok">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M15 6.5c.6.6 1.6 1.1 3 1.1v2.1c-1.3 0-2.4-.4-3-.9v5.8a3.6 3.6 0 1 1-3.6-3.6c.2 0 .5 0 .7.1v2.2a1.4 1.4 0 1 0 1.4 1.4V6.5z" stroke="#BE185D" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              </a>
-            </span>
-          </h3>
-        </div>
-
+        <h3 class="profile-name">Bamuza Sono Jnr</h3>
         <div class="profile-meta"><strong>Position:</strong> Midfielder</div>
 
         <div class="profile-list">
@@ -208,27 +236,79 @@
 
           <div style="margin-top:.9rem; display:flex; gap:8px; align-items:center;">
             <a href="pdfs/BAMUZASONO-player-profile.pdf" class="inline-block bg-rose-600 text-white px-4 py-2 rounded-full hover:bg-rose-700 transition font-semibold">View Player Profile</a>
+            <div style="margin-left:auto; display:flex; gap:.5rem;">
+              <a id="bamuza-instagram" href="https://www.instagram.com/bamuza_sono?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" title="Instagram">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <rect x="2" y="2" width="20" height="20" rx="5" stroke="#BE185D" stroke-width="1.5" fill="none"/>
+                  <path d="M7.75 11.99a4.25 4.25 0 1 1 8.5 0 4.25 4.25 0 0 1-8.5 0z" stroke="#BE185D" stroke-width="1.5" fill="none"/>
+                  <circle cx="17.8" cy="6.2" r="0.7" fill="#BE185D"/>
+                </svg>
+              </a>
+              <a id="bamuza-tiktok" href="https://www.tiktok.com/@bamuza_sono?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" title="TikTok">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M15 6.5c.6.6 1.6 1.1 3 1.1v2.1c-1.3 0-2.4-.4-3-.9v5.8a3.6 3.6 0 1 1-3.6-3.6c.2 0 .5 0 .7.1v2.2a1.4 1.4 0 1 0 1.4 1.4V6.5z"
+                        stroke="#BE185D"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Collaborations (single full-width carousel) -->
-    <section aria-label="Collaborations">
-      <h3 style="text-align:center; color:var(--accent); font-weight:800; margin-bottom:1rem;">Collaborations</h3>
+    <!-- Two-column: left = TikTok, right = Collabs -->
+    <section class="two-col" aria-label="Vlogs and Collaborations">
 
-      <div class="collab-carousel" style="position:relative;">
-        <div id="collab-slides" style="display:flex; transition:transform .45s ease; gap:1rem;">
-          <div class="collab-slide" style="min-width:100%; display:flex; align-items:center; justify-content:center; padding:2.5rem;">
-            <div style="color:var(--muted);">Loading collaborations…</div>
+      <!-- LEFT: TikTok carousel -->
+      <div>
+        <h3 style="text-align:center; color:var(--accent); font-weight:800; margin-bottom:1rem;">My Vlogs & Highlights</h3>
+
+        <div class="video-carousel">
+          <!-- carousel container -->
+          <div id="video-slides-container" style="display:flex; transition:transform .45s ease; gap:0;">
+            <div class="slide" style="min-width:100%; box-sizing:border-box;">
+              <div class="embed-wrap">
+                <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" allowfullscreen></iframe>
+              </div>
+            </div>
+
+            <div class="slide" style="min-width:100%; box-sizing:border-box;">
+              <div class="embed-wrap">
+                <iframe src="https://www.tiktok.com/embed/v2/7514262969786567943" allowfullscreen></iframe>
+              </div>
+            </div>
+            <!-- add more iframes as needed -->
           </div>
-        </div>
 
-        <button id="collabPrev" class="arrow-btn" style="position:absolute; left:12px; top:50%; transform:translateY(-50%);">‹</button>
-        <button id="collabNext" class="arrow-btn" style="position:absolute; right:12px; top:50%; transform:translateY(-50%);">›</button>
+          <!-- arrows -->
+          <button id="prevBtn" class="arrow-btn" style="position:absolute; left:calc(50% - 520px); top:50%; transform:translateY(-50%);"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
+          <button id="nextBtn" class="arrow-btn" style="position:absolute; left:calc(50% + 480px); top:50%; transform:translateY(-50%);"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
+        </div>
       </div>
 
-      <div id="collabDebug" class="muted" style="display:none;"></div>
+      <!-- RIGHT: Collaborations -->
+      <div>
+        <h3 style="text-align:center; color:var(--accent); font-weight:800; margin-bottom:1rem;">Collaborations</h3>
+
+        <div class="collab-carousel">
+          <div id="collab-slides" style="display:flex; transition:transform .45s ease; gap:1rem;">
+            <!-- placeholder slide shown while loading -->
+            <div class="collab-slide" style="min-width:100%; display:flex; align-items:center; justify-content:center; padding:2.5rem;">
+              <div style="color:var(--muted);">Loading collaborations…</div>
+            </div>
+          </div>
+
+          <button id="collabPrev" class="arrow-btn" style="position:absolute; left:calc(50% - 60px); top:calc(30%); transform:translateX(-300px);">‹</button>
+          <button id="collabNext" class="arrow-btn" style="position:absolute; right:calc(50% - 60px); top:calc(30%); transform:translateX(300px);">›</button>
+        </div>
+
+        <!-- hidden debug removed per request -->
+        <div id="collabDebug" class="muted"></div>
+      </div>
+
     </section>
 
     <!-- Support Wall (restored) -->
@@ -262,6 +342,9 @@
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
+  <!-- TikTok embed script -->
+  <script async src="https://www.tiktok.com/embed.js"></script>
+
   <!-- Navbar dropdown script -->
   <script>
     (function () {
@@ -270,6 +353,7 @@
       const navItems = document.querySelectorAll('.nav-item');
       const navTitle = document.getElementById('navTitle');
 
+      // determine current page (treat root "/" as index.html)
       let currentPage = window.location.pathname.split('/').pop();
       if (!currentPage || currentPage === '') currentPage = 'index.html';
 
@@ -303,6 +387,7 @@
         }
       });
 
+      // close when clicking outside
       document.addEventListener('click', (e) => {
         if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
           dropdownMenu.classList.remove('dropdown-open');
@@ -325,6 +410,7 @@
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+    // your firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
@@ -337,7 +423,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // SUPPORT WALL
+    // ---------- SUPPORT WALL ----------
     const supportForm = document.getElementById('support-form');
     const nameInput = document.getElementById('name');
     const messageInput = document.getElementById('message');
@@ -363,10 +449,12 @@
       if (!name || !message) return alert('Please add name and message.');
 
       try {
+        // same artifacts base as you use elsewhere
         const APP_ID = firebaseConfig.appId;
         await addDoc(collection(db, `artifacts/${APP_ID}/public/data/supportMessages`), {
           name, message, userId: currentUserId || 'anonymous', createdAt: serverTimestamp()
         });
+        // redirect or clear
         nameInput.value = '';
         messageInput.value = '';
         alert('Message posted. Thank you!');
@@ -376,12 +464,13 @@
       }
     });
 
-    // COLLABS
+    // ---------- COLLABS: subscribe and render ----------
     const collabSlidesEl = document.getElementById('collab-slides');
     const collabPrev = document.getElementById('collabPrev');
     const collabNext = document.getElementById('collabNext');
 
-    const APP_ID = firebaseConfig.appId;
+    // Exact collabs collection path you provided
+    const APP_ID = firebaseConfig.appId; // "1:65396604482:web:0f31625a714aa8352337db"
     const COLLABS_PATH = `artifacts/${APP_ID}/public/data/collabs`;
 
     let collabItems = [];
@@ -400,10 +489,16 @@
         wrapper.style.minWidth = '100%';
         const imageUrl = it.imageUrl || it.image || it.url || '';
         const caption = it.caption || it.title || '';
-        wrapper.innerHTML = `\n          <a href="${escapeHtml(it.link||'')}" target="_blank" rel="noreferrer">\n            <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(caption)}" />\n          </a>\n          <div class="collab-caption">${escapeHtml(caption || '')}</div>\n        `;
+        wrapper.innerHTML = `
+          <a href="${escapeHtml(it.link||'')}" target="_blank" rel="noreferrer">
+            <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(caption)}" />
+          </a>
+          <div class="collab-caption">${escapeHtml(caption || '')}</div>
+        `;
         collabSlidesEl.appendChild(wrapper);
       });
 
+      // reset position to first slide
       collabIndex = 0;
       updateCollabPosition();
     }
@@ -423,6 +518,7 @@
       updateCollabPosition();
     });
 
+    // subscribe realtime
     try {
       const q = query(collection(db, COLLABS_PATH), orderBy('uploadedAt','desc'));
       onSnapshot(q, (snap) => {
@@ -431,6 +527,7 @@
         renderCollabSlides(collabItems);
       }, (err) => {
         console.warn('collabs onSnapshot error', err);
+        // fallback: show no collabs message
         collabSlidesEl.innerHTML = '<div class="collab-slide" style="min-width:100%; padding:2.5rem; text-align:center; color:var(--muted);">No collaborations yet.</div>';
       });
     } catch (e) {
@@ -438,6 +535,39 @@
       collabSlidesEl.innerHTML = '<div class="collab-slide" style="min-width:100%; padding:2.5rem; text-align:center; color:var(--muted);">No collaborations yet.</div>';
     }
 
+    // ---------- TikTok carousel controls ----------
+    (function(){
+      const slidesContainer = document.getElementById('video-slides-container');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      if (!slidesContainer) return;
+      let currentIndex = 0;
+      const slides = slidesContainer.children;
+
+      function show() { slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`; }
+      function next() { currentIndex = (currentIndex + 1) % slides.length; show(); }
+      function prev() { currentIndex = (currentIndex - 1 + slides.length) % slides.length; show(); }
+
+      if (nextBtn) nextBtn.addEventListener('click', next);
+      if (prevBtn) prevBtn.addEventListener('click', prev);
+
+      let startX = 0;
+      const parent = document.getElementById('video-slides-container').parentElement;
+      if (parent) {
+        parent.addEventListener('touchstart', (e) => startX = e.touches[0].clientX);
+        parent.addEventListener('touchend', (e) => {
+          const endX = e.changedTouches[0].clientX;
+          const delta = startX - endX;
+          if (Math.abs(delta) > 50) {
+            if (delta > 0) next(); else prev();
+          }
+        });
+      }
+
+      window.addEventListener('load', () => { show(); });
+    })();
+
+    // small helper for escaping in JS (used above)
     function escapeHtml(s) {
       if (!s) return '';
       return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
