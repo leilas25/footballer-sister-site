@@ -101,10 +101,14 @@
 
     /* arrow controls placed inside each carousel and responsive */
     .arrow-btn { background: rgba(255,255,255,0.95); width:44px; height:44px; display:flex;align-items:center;justify-content:center;border-radius:999px;border:1px solid rgba(0,0,0,0.06); box-shadow:0 10px 18px rgba(11,7,17,0.04); cursor:pointer; }
-    .video-carousel .arrow-left { position:absolute; left:8px; top:50%; transform:translateY(-50%); }
-    .video-carousel .arrow-right { position:absolute; right:8px; top:50%; transform:translateY(-50%); }
-    .collab-carousel .arrow-left { position:absolute; left:-22px; top:50%; transform:translateY(-50%); }
-    .collab-carousel .arrow-right { position:absolute; right:-22px; top:50%; transform:translateY(-50%); }
+    .video-carousel .arrow-left { position:absolute; left:8px; top:50%; transform:translateY(-50%); z-index:30; }
+    .video-carousel .arrow-right { position:absolute; right:8px; top:50%; transform:translateY(-50%); z-index:30; }
+    .collab-carousel .arrow-left { position:absolute; left:-22px; top:50%; transform:translateY(-50%); z-index:20; }
+    .collab-carousel .arrow-right { position:absolute; right:-22px; top:50%; transform:translateY(-50%); z-index:20; }
+
+    /* dropdown animation (used by JS) */
+    .dropdown-anim { transition: opacity .18s ease, transform .18s ease; transform-origin: top right; opacity:0; transform: scale(.96); }
+    .dropdown-anim.open { opacity:1; transform: scale(1); }
 
     /* remove debug text */
     #collabDebug { display:none; }
@@ -131,6 +135,8 @@
       .page-hero h2 { font-size:1.75rem; }
       .collab-carousel { max-width:100%; margin:0; }
       .collab-carousel .arrow-left, .collab-carousel .arrow-right { left:8px; right:8px; }
+      .collab-carousel .arrow-left { left:8px; }
+      .collab-carousel .arrow-right { right:8px; }
     }
   </style>
 </head>
@@ -153,7 +159,8 @@
         </button>
 
         <div id="dropdownMenu" role="menu" aria-hidden="true"
-          class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
+          class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 dropdown-anim"
+          style="display:none;">
           <div class="py-1">
             <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
             <a href="bts.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
@@ -392,20 +399,33 @@
 
         // make nav items close dropdown on click and navigate
         link.addEventListener('click', (e) => {
-          // default behaviour allowed so normal navigation works; just close menu for SPA-like feel
-          dropdownMenu.classList.remove('dropdown-open');
-          dropdownMenu.classList.add('hidden');
-          navButton.setAttribute('aria-expanded','false');
+          // normal navigation allowed; just ensure dropdown closes quickly for UX
+          closeMenu();
         });
       });
 
-      function openMenu(){ dropdownMenu.classList.remove('hidden'); setTimeout(()=>dropdownMenu.classList.add('dropdown-open'),10); navButton.setAttribute('aria-expanded','true'); }
-      function closeMenu(){ dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'),200); navButton.setAttribute('aria-expanded','false'); }
+      // open/close helpers: use inline display to avoid collisions with other hidden classes
+      function openMenu(){
+        dropdownMenu.style.display = 'block';
+        // small delay to allow transition
+        requestAnimationFrame(()=> dropdownMenu.classList.add('open'));
+        navButton.setAttribute('aria-expanded','true');
+        dropdownMenu.setAttribute('aria-hidden','false');
+      }
+      function closeMenu(){
+        dropdownMenu.classList.remove('open');
+        // wait for transition then hide
+        setTimeout(()=> {
+          dropdownMenu.style.display = 'none';
+        }, 200);
+        navButton.setAttribute('aria-expanded','false');
+        dropdownMenu.setAttribute('aria-hidden','true');
+      }
 
       navButton.addEventListener('click', (e) => {
         e.stopPropagation();
-        const isHidden = dropdownMenu.classList.contains('hidden');
-        if (isHidden) openMenu(); else closeMenu();
+        const isOpen = dropdownMenu.style.display === 'block' && dropdownMenu.classList.contains('open');
+        if (!isOpen) openMenu(); else closeMenu();
       });
 
       // close when clicking outside
@@ -415,6 +435,14 @@
 
       // close on escape
       document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+
+      // small fix: ensure menu is hidden on load
+      window.addEventListener('load', ()=> {
+        dropdownMenu.style.display = 'none';
+        dropdownMenu.classList.remove('open');
+        dropdownMenu.setAttribute('aria-hidden','true');
+        navButton.setAttribute('aria-expanded','false');
+      });
     })();
   </script>
 
@@ -479,7 +507,12 @@
       items.forEach(it=>{
         const wrapper = document.createElement('div'); wrapper.className='collab-slide'; wrapper.style.minWidth='100%';
         const imageUrl = it.imageUrl||it.image||it.url||''; const caption = it.caption||it.title||'';
-        wrapper.innerHTML = `\n          <a href="${escapeHtml(it.link||'')}" target="_blank" rel="noreferrer">\n            <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(caption)}" />\n          </a>\n          <div class="collab-caption">${escapeHtml(caption||'')}</div>\n        `;
+        wrapper.innerHTML = `
+          <a href="${escapeHtml(it.link||'')}" target="_blank" rel="noreferrer">
+            <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(caption)}" />
+          </a>
+          <div class="collab-caption">${escapeHtml(caption||'')}</div>
+        `;
         collabSlidesEl.appendChild(wrapper);
       });
       collabIndex=0; updateCollabPosition();
@@ -520,7 +553,6 @@
       if (parent){ parent.addEventListener('touchstart', (e)=> startX = e.touches[0].clientX); parent.addEventListener('touchend', (e)=>{ const endX = e.changedTouches[0].clientX; const delta = startX - endX; if (Math.abs(delta) > 50) { if (delta > 0) next(); else prev(); } }); }
       window.addEventListener('load', ()=>{ show(); });
     })();
-
   </script>
 </body>
 </html>
