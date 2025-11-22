@@ -7,25 +7,13 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root { --accent: #be185d; --muted: #6b7280; }
-
-    /* BTS header */
+    /* header/footer shared look */
     header.bts-header {
       background: linear-gradient(180deg, rgba(246,213,239,0.6), rgba(255,241,248,0.6));
       border-bottom: 1px solid rgba(235,200,215,0.6);
       backdrop-filter: blur(4px);
     }
     .site-title { color: var(--accent); font-weight:800; letter-spacing:.02em; }
-
-    /* winners grid / instagram style */
-    .winner-card { background: #fff; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.06); overflow:hidden; }
-    .winner-meta { padding:12px; display:flex; gap:8px; align-items:center; }
-    .winner-avatar { width:44px; height:44px; border-radius:9999px; background:#ffd1e3; flex-shrink:0; }
-    .winner-image { width:100%; height:240px; object-fit:cover; display:block; }
-    @media (min-width:1024px) {
-      .winner-image { height:200px; }
-    }
-
-    /* footer pill (no pink rectangle behind it) */
     footer .footer-badge {
       display:inline-block;
       background: linear-gradient(90deg,#be185d,#f472b6);
@@ -34,55 +22,45 @@
       border-radius:999px;
       font-weight:700;
     }
+    .winner-card { background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
+    .winner-img { width:100%; height:200px; object-fit:cover; display:block; }
+    @media (min-width:1024px) {
+      .winner-img { height:220px; }
+    }
   </style>
 </head>
 <body class="bg-pink-50">
 
-  <!-- BTS header -->
+  <!-- Header -->
   <header class="bts-header fixed top-0 w-full z-50">
     <div class="flex justify-between items-center px-6 py-4 container" style="max-width:1100px; margin:0 auto;">
       <div class="site-title text-lg">THE FOOTBALLER’S SISTER</div>
-      <nav>
-        <a href="giveaways.html" class="font-semibold text-rose-600 bg-white px-4 py-2 rounded-md shadow-sm hover:bg-pink-50">Giveaways</a>
-      </nav>
+      <div>
+        <a href="giveaways.html" class="text-rose-600 font-semibold">Giveaways</a>
+      </div>
     </div>
   </header>
 
-  <!-- top spacer -->
   <div class="h-24"></div>
 
   <main class="max-w-6xl mx-auto px-6 pb-12">
-    <h2 class="text-4xl font-bold text-rose-700 mb-6 text-center">Winners</h2>
+    <h1 class="text-4xl font-bold text-rose-700 mb-6 text-center">Winners</h1>
 
-    <!-- grid: 3 columns on md/lg -->
+    <!-- quick referer protection: only allow if came from giveaways page -->
+    <noscript>
+      <div class="text-sm text-gray-600 mb-4 text-center">JavaScript required to view winners. If you came directly here, please visit the giveaways page first.</div>
+    </noscript>
+
     <div id="winnersWrap" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6"></div>
-
-    <div id="winnersEmpty" class="text-gray-500 mt-8 text-center hidden">No winners yet.</div>
+    <div id="winnersEmpty" class="text-gray-500 mt-8 hidden text-center">No winners yet.</div>
   </main>
 
-  <!-- footer with badge -->
-  <footer class="text-center py-8">
+  <footer class="text-center py-10 bg-transparent">
     <small class="footer-badge">© <span id="year"></span> The Footballer’s Sister</small>
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
   <script type="module">
-    // Simple access guard: only allow if coming from giveaways page (basic client-side check).
-    // Note: referrer can be empty depending on browser/privacy — in that case we redirect to giveaways.
-    (function accessGuard(){
-      try {
-        const ref = document.referrer || '';
-        const allowed = ref.includes('giveaways.html') || ref.endsWith('/') || ref.includes(window.location.origin + '/giveaways.html');
-        if (!allowed) {
-          // redirect to giveaways page
-          window.location.href = 'giveaways.html';
-        }
-      } catch(e) {
-        // fail-safe: redirect
-        window.location.href = 'giveaways.html';
-      }
-    })();
-
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
@@ -95,51 +73,59 @@
       appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
     const ARTIFACT_ID = "1:65396604482:web:0f31625a714aa8352337db";
+    const WINNERS_COLLECTION_PATH = `/artifacts/${ARTIFACT_ID}/public/data/winners`;
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // simple referer check - if user didn't come from giveaways.html redirect them back
+    (function guardReferer() {
+      try {
+        const ref = document.referrer || '';
+        if (!ref.includes('giveaways.html') && !ref.includes(window.location.host)) {
+          // if not same-site and not from giveaways, redirect to giveaways
+          // allow if developer is testing (localhost) by not redirecting when ref is empty
+          if (ref) {
+            window.location.href = 'giveaways.html';
+            return;
+          }
+        }
+      } catch(e) { /* ignore */ }
+    })();
+
     const wrap = document.getElementById('winnersWrap');
     const empty = document.getElementById('winnersEmpty');
 
-    const winnersPath = `/artifacts/${ARTIFACT_ID}/public/data/winners`;
-
     try {
-      const q = query(collection(db, winnersPath), orderBy('createdAt','desc'));
+      const q = query(collection(db, WINNERS_COLLECTION_PATH), orderBy('createdAt','desc'));
       onSnapshot(q, snap => {
         wrap.innerHTML = '';
-        if (snap.empty) {
-          empty.classList.remove('hidden');
-          return;
-        }
+        if (snap.empty) { empty.classList.remove('hidden'); wrap.innerHTML=''; return; }
         empty.classList.add('hidden');
         snap.docs.forEach(snapDoc => {
-          const d = snapDoc.data() || {};
+          const d = snapDoc.data();
           const name = d.name || '';
           const handle = d.handle || '';
           const prize = d.prize || '';
-          const img = d.imageUrl || 'https://via.placeholder.com/400x300';
+          const imageUrl = d.imageUrl || 'https://via.placeholder.com/800x600';
           const el = document.createElement('article');
           el.className = 'winner-card';
           el.innerHTML = `
-            <img src="${escapeHtml(img)}" alt="${escapeHtml(name)}" class="winner-image" onerror="this.onerror=null;this.src='images/opponent.png'"/>
-            <div class="winner-meta">
-              <div class="winner-avatar" aria-hidden="true"></div>
-              <div style="flex:1; text-align:left;">
-                <div class="font-semibold text-rose-700">${escapeHtml(name)}</div>
-                <div class="text-sm text-gray-600">${escapeHtml(handle)}</div>
-                <div class="text-sm text-gray-700 mt-2">${escapeHtml(prize)}</div>
-              </div>
+            <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(name)}" class="winner-img" onerror="this.onerror=null;this.src='images/opponent.png'"/>
+            <div class="p-4 text-center">
+              <div class="font-semibold text-lg text-rose-700">${escapeHtml(name)}</div>
+              <div class="text-sm text-gray-600">${escapeHtml(handle)}</div>
+              <div class="text-sm text-gray-700 mt-2">Prize: ${escapeHtml(prize)}</div>
             </div>
           `;
           wrap.appendChild(el);
         });
       }, err => {
-        console.error('winners onSnapshot error', err);
+        console.error(err);
         wrap.innerHTML = '<div class="text-red-600">Could not load winners.</div>';
       });
-    } catch (err) {
-      console.error('Winners init error', err);
+    } catch(err){
+      console.error('winners init error', err);
       wrap.innerHTML = '<div class="text-red-600">Could not load winners.</div>';
     }
 
