@@ -113,18 +113,39 @@
     /* player highlight specifics */
     .player-highlight-note { margin-bottom:10px; color:#374151; }
 
+    /* ---------- BTS header/footer styles added (only these were added) ---------- */
+    :root { --accent: #be185d; --muted: #6b7280; }
+    header.bts-header {
+      background: linear-gradient(180deg, rgba(246,213,239,0.6), rgba(255,241,248,0.6));
+      border-bottom: 1px solid rgba(235,200,215,0.6);
+      backdrop-filter: blur(4px);
+    }
+    .site-title { color: var(--accent); font-weight: 800; letter-spacing: .02em; }
+    footer .footer-badge {
+      display:inline-block;
+      background: linear-gradient(90deg,#be185d,#f472b6);
+      color:white;
+      padding:.45rem .85rem;
+      border-radius:999px;
+      font-weight:700;
+    }
+    /* end header/footer additions */
+
   </style>
 </head>
 <body class="bg-pink-50 text-black font-sans">
 
-  <!-- Header with dropdown -->
-  <header class="fixed top-0 w-full bg-pink-100 shadow z-50">
-    <div class="flex justify-between items-center px-6 py-4">
-      <h1 class="text-xl font-bold uppercase text-rose-600">THE FOOTBALLER’S SISTER</h1>
+  <!-- Header with BTS style (replaced per your request) -->
+  <header class="bts-header fixed top-0 w-full z-50">
+    <div class="flex justify-between items-center px-6 py-4 container" style="max-width:1100px; margin:0 auto;">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <div class="site-title" style="font-size:1.15rem;">THE FOOTBALLER’S SISTER</div>
+      </div>
 
       <div class="relative inline-block text-left">
         <button id="navButton"
-          class="inline-flex justify-center w-full rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
+          class="inline-flex justify-center w-full rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none"
+          aria-expanded="false">
           <span id="navTitle">Loading...</span>
           <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
@@ -262,8 +283,11 @@
 
   </section>
 
+  <!-- Footer replaced with BTS footer badge style (kept content same) -->
   <footer class="bg-pink-900 text-white text-center py-6">
-    <p>&copy; <span id="year"></span> The Footballer’s Sister. All rights reserved.</p>
+    <div class="container" style="max-width:1100px; margin:0 auto;">
+      <small class="footer-badge">© <span id="year"></span> The Footballer’s Sister</small>
+    </div>
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
