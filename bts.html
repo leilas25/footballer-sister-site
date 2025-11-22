@@ -82,7 +82,7 @@
     }
 
     /* collab carousel sizing — taller */
-    .collab-carousel { border-radius:12px; overflow:visible; position:relative; }
+    .collab-carousel { border-radius:12px; overflow:visible; position:relative; margin-top:1rem; }
     .collab-slide { background:var(--card); border-radius:12px; box-shadow: var(--shadow); border:1px solid rgba(235,224,232,0.6); overflow:hidden; }
     .collab-slide img { width:100%; height:520px; object-fit:cover; display:block; }
     @media (max-width:960px){ .collab-slide img { height:420px; } }
@@ -122,18 +122,10 @@
 
     /* -------------------------------------------------------------
        TARGETED FIX: hide TikTok-inserted bottom CTA / overlays
-       These rules only hide fixed / bottom-positioned elements that
-       TikTok sometimes injects (eg: "Watch now" CTA) so they don't
-       appear under your collabs carousel. This is intentionally
-       narrow and won't affect your page content.
        ------------------------------------------------------------- */
-    /* hide elements injected with inline style that include fixed and bottom */
     div[style*="position:fixed"][style*="bottom"] { display:none !important; }
-    /* hide TikTok banner wrappers commonly inserted near the body root */
     .tiktok-embed__banner, .tiktok-embed__watch, .tiktok-embed__cta, .tiktok-embed-bottom { display:none !important; }
-    /* as a catch-all for any fixed element anchored to bottom (very narrow): */
     [role="presentation"][style*="position:fixed"][style*="bottom"] { display:none !important; }
-    /* ensure any overlays from the tiktok embed inside our .embed-wrap are contained */
     .embed-wrap > div[style*="position:fixed"], .embed-wrap > div.tiktok-embed__banner { display:none !important; }
   </style>
 </head>
@@ -281,56 +273,48 @@
       </div>
     </section>
 
-    <!-- Two-column: left = TikTok, right = Collabs -->
-    <section class="two-col" aria-label="Vlogs and Collaborations">
+    <!-- TikTok carousel (independent) -->
+    <section style="margin-bottom:1.5rem;">
+      <h3 style="text-align:center; color:var(--accent); font-weight:800; margin-bottom:1rem;">My Vlogs & Highlights</h3>
 
-      <!-- LEFT: TikTok carousel -->
-      <div>
-        <h3 style="text-align:center; color:var(--accent); font-weight:800; margin-bottom:1rem;">My Vlogs & Highlights</h3>
-
-        <div class="video-carousel">
-          <!-- carousel container -->
-          <div id="video-slides-container" style="display:flex; transition:transform .45s ease; gap:0;">
-            <div class="slide" style="min-width:100%; box-sizing:border-box;">
-              <div class="embed-wrap">
-                <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" allowfullscreen></iframe>
-              </div>
-            </div>
-
-            <div class="slide" style="min-width:100%; box-sizing:border-box;">
-              <div class="embed-wrap">
-                <iframe src="https://www.tiktok.com/embed/v2/7514262969786567943" allowfullscreen></iframe>
-              </div>
-            </div>
-            <!-- add more iframes as needed -->
-          </div>
-
-          <!-- arrows (positioned relative to the carousel) -->
-          <button id="prevBtn" class="arrow-btn" style="position:absolute; left:calc(50% - 520px); top:50%; transform:translateY(-50%);"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
-          <button id="nextBtn" class="arrow-btn" style="position:absolute; left:calc(50% + 480px); top:50%; transform:translateY(-50%);"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
-        </div>
-      </div>
-
-      <!-- RIGHT: Collaborations -->
-      <div>
-        <h3 style="text-align:center; color:var(--accent); font-weight:800; margin-bottom:1rem;">Collaborations</h3>
-
-        <div class="collab-carousel">
-          <div id="collab-slides" style="display:flex; transition:transform .45s ease; gap:1rem;">
-            <!-- placeholder slide shown while loading -->
-            <div class="collab-slide" style="min-width:100%; display:flex; align-items:center; justify-content:center; padding:2.5rem;">
-              <div style="color:var(--muted);">Loading collaborations…</div>
+      <div class="video-carousel" style="position:relative;">
+        <div id="video-slides-container" style="display:flex; transition:transform .45s ease; gap:0;">
+          <div class="video-slide" style="min-width:100%; box-sizing:border-box;">
+            <div class="embed-wrap">
+              <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" allowfullscreen></iframe>
             </div>
           </div>
 
-          <button id="collabPrev" class="arrow-btn" style="position:absolute; left:calc(50% - 60px); top:calc(30%); transform:translateX(-300px);">‹</button>
-          <button id="collabNext" class="arrow-btn" style="position:absolute; right:calc(50% - 60px); top:calc(30%); transform:translateX(300px);">›</button>
+          <div class="video-slide" style="min-width:100%; box-sizing:border-box;">
+            <div class="embed-wrap">
+              <iframe src="https://www.tiktok.com/embed/v2/7514262969786567943" allowfullscreen></iframe>
+            </div>
+          </div>
         </div>
 
-        <!-- hidden debug removed per request -->
-        <div id="collabDebug" class="muted"></div>
+        <!-- controls for the video carousel only -->
+        <button id="videoPrev" class="arrow-btn" style="position:absolute; left:12px; top:50%; transform:translateY(-50%);"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
+        <button id="videoNext" class="arrow-btn" style="position:absolute; right:12px; top:50%; transform:translateY(-50%);"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
+      </div>
+    </section>
+
+    <!-- Collabs carousel (independent, below the videos) -->
+    <section>
+      <h3 style="text-align:center; color:var(--accent); font-weight:800; margin-bottom:1rem;">Collaborations</h3>
+
+      <div class="collab-carousel" style="position:relative;">
+        <div id="collab-slides" style="display:flex; transition:transform .45s ease; gap:1rem;">
+          <div class="collab-slide" style="min-width:100%; display:flex; align-items:center; justify-content:center; padding:2.5rem;">
+            <div style="color:var(--muted);">Loading collaborations…</div>
+          </div>
+        </div>
+
+        <!-- independent controls for collab carousel -->
+        <button id="collabPrev" class="arrow-btn" style="position:absolute; left:12px; top:50%; transform:translateY(-50%);">‹</button>
+        <button id="collabNext" class="arrow-btn" style="position:absolute; right:12px; top:50%; transform:translateY(-50%);">›</button>
       </div>
 
+      <div id="collabDebug" class="muted" style="display:none;"></div>
     </section>
 
     <!-- Support Wall (restored) -->
@@ -364,7 +348,7 @@
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- TikTok embed script (kept so your embeds work) -->
+  <!-- TikTok embed script -->
   <script async src="https://www.tiktok.com/embed.js"></script>
 
   <!-- Navbar dropdown script -->
@@ -471,12 +455,10 @@
       if (!name || !message) return alert('Please add name and message.');
 
       try {
-        // same artifacts base as you use elsewhere
         const APP_ID = firebaseConfig.appId;
         await addDoc(collection(db, `artifacts/${APP_ID}/public/data/supportMessages`), {
           name, message, userId: currentUserId || 'anonymous', createdAt: serverTimestamp()
         });
-        // redirect or clear
         nameInput.value = '';
         messageInput.value = '';
         alert('Message posted. Thank you!');
@@ -486,13 +468,12 @@
       }
     });
 
-    // ---------- COLLABS: subscribe and render ----------
+    // ---------- COLLABS: subscribe and render (independent of video carousel) ----------
     const collabSlidesEl = document.getElementById('collab-slides');
     const collabPrev = document.getElementById('collabPrev');
     const collabNext = document.getElementById('collabNext');
 
-    // Exact collabs collection path you provided
-    const APP_ID = firebaseConfig.appId; // "1:65396604482:web:0f31625a714aa8352337db"
+    const APP_ID = firebaseConfig.appId;
     const COLLABS_PATH = `artifacts/${APP_ID}/public/data/collabs`;
 
     let collabItems = [];
@@ -520,7 +501,6 @@
         collabSlidesEl.appendChild(wrapper);
       });
 
-      // reset position to first slide
       collabIndex = 0;
       updateCollabPosition();
     }
@@ -540,7 +520,6 @@
       updateCollabPosition();
     });
 
-    // subscribe realtime
     try {
       const q = query(collection(db, COLLABS_PATH), orderBy('uploadedAt','desc'));
       onSnapshot(q, (snap) => {
@@ -549,7 +528,6 @@
         renderCollabSlides(collabItems);
       }, (err) => {
         console.warn('collabs onSnapshot error', err);
-        // fallback: show no collabs message
         collabSlidesEl.innerHTML = '<div class="collab-slide" style="min-width:100%; padding:2.5rem; text-align:center; color:var(--muted);">No collaborations yet.</div>';
       });
     } catch (e) {
@@ -557,39 +535,41 @@
       collabSlidesEl.innerHTML = '<div class="collab-slide" style="min-width:100%; padding:2.5rem; text-align:center; color:var(--muted);">No collaborations yet.</div>';
     }
 
-    // ---------- TikTok carousel controls ----------
+    // ---------- VIDEO carousel (purely client-side, independent) ----------
     (function(){
-      const slidesContainer = document.getElementById('video-slides-container');
-      const prevBtn = document.getElementById('prevBtn');
-      const nextBtn = document.getElementById('nextBtn');
-      if (!slidesContainer) return;
-      let currentIndex = 0;
-      const slides = slidesContainer.children;
+      const container = document.getElementById('video-slides-container');
+      const prev = document.getElementById('videoPrev');
+      const next = document.getElementById('videoNext');
+      if (!container) return;
+      let idx = 0;
+      const slides = container.children;
 
-      function show() { slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`; }
-      function next() { currentIndex = (currentIndex + 1) % slides.length; show(); }
-      function prev() { currentIndex = (currentIndex - 1 + slides.length) % slides.length; show(); }
+      function show() { container.style.transform = `translateX(-${idx * 100}%)`; }
+      function goNext(){ if(slides.length===0) return; idx = (idx + 1) % slides.length; show(); }
+      function goPrev(){ if(slides.length===0) return; idx = (idx - 1 + slides.length) % slides.length; show(); }
 
-      if (nextBtn) nextBtn.addEventListener('click', next);
-      if (prevBtn) prevBtn.addEventListener('click', prev);
+      next?.addEventListener('click', goNext);
+      prev?.addEventListener('click', goPrev);
 
+      // touch swipe for mobile
       let startX = 0;
-      const parent = document.getElementById('video-slides-container').parentElement;
+      const parent = container.parentElement;
       if (parent) {
-        parent.addEventListener('touchstart', (e) => startX = e.touches[0].clientX);
-        parent.addEventListener('touchend', (e) => {
+        parent.addEventListener('touchstart', e => startX = e.touches[0].clientX);
+        parent.addEventListener('touchend', e => {
           const endX = e.changedTouches[0].clientX;
-          const delta = startX - endX;
-          if (Math.abs(delta) > 50) {
-            if (delta > 0) next(); else prev();
+          const d = startX - endX;
+          if (Math.abs(d) > 40) {
+            if (d > 0) goNext(); else goPrev();
           }
         });
       }
 
-      window.addEventListener('load', () => { show(); });
+      // ensure first is visible on load
+      window.addEventListener('load', ()=> { show(); });
     })();
 
-    // small helper for escaping in JS (used above)
+    // small helper for escaping in JS
     function escapeHtml(s) {
       if (!s) return '';
       return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
