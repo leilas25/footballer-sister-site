@@ -493,8 +493,8 @@
     }
 
     // ---------- MEDIA / COLLABS: load, upload to Cloudinary, save to Firestore ----------
-    // collection path where collabs are stored
-    const COLLABS_COLLECTION_PATH = `artifacts/${APP_ID}/public/data/collabs`;
+    // collection path where collabs are stored (use leading slash style to match BTS expectations)
+    const COLLABS_COLLECTION_PATH = `/artifacts/${APP_ID}/public/data/collabs`;
 
     // render collab list
     async function loadCollabs() {
@@ -503,7 +503,7 @@
       mediaStatus.textContent = '';
 
       try {
-        // subscribe to realtime collabs if you want realtime updates:
+        // subscribe to realtime collabs
         const collRef = collection(db, COLLABS_COLLECTION_PATH);
         onSnapshot(collRef, (snap) => {
           const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -566,12 +566,10 @@
       const fd = new FormData();
       fd.append('file', file);
       fd.append('upload_preset', UPLOAD_PRESET);
-      // optionally, you can add folder or tags here (unsigned must allow)
       try {
         const resp = await fetch(url, { method: 'POST', body: fd });
         const json = await resp.json();
         if (!resp.ok) {
-          // Cloudinary returns useful message in json
           const msg = json.error && json.error.message ? json.error.message : JSON.stringify(json);
           throw new Error(msg || 'Cloudinary upload failed');
         }
@@ -583,7 +581,6 @@
 
     // Save collab metadata to Firestore
     async function saveCollabToFirestore(metadata) {
-      // metadata: { imageUrl, publicId, caption, uploader }
       try {
         await addDoc(collection(db, COLLABS_COLLECTION_PATH), {
           imageUrl: metadata.imageUrl,
@@ -636,7 +633,6 @@
         console.error('Upload/save error', err);
         mediaError.classList.remove('hidden-el');
         const msg = err && err.message ? err.message : String(err);
-        // make Cloudinary / Firestore errors readable
         mediaError.textContent = `Upload or save failed: ${msg}`;
       } finally {
         uploadCollabBtn.disabled = false;
@@ -647,7 +643,6 @@
     // ---------- start: ensure auth + show admin -->
     // attempt to sign in anonymously if not already; admin must then sign in with email/password
     onAuthStateChanged(auth, (user) => {
-      // if user is admin we'll show UI via earlier onAuthStateChanged; but ensure anonymous sign-in for public reads if needed
       if (!user) {
         signInAnonymously(auth).catch(err => {
           console.warn('Anonymous sign-in failed (not fatal):', err);
@@ -655,10 +650,7 @@
       }
     });
 
-    // initialize nothing else until admin logs in; functions will fire when pane is shown
-    // however set up a small helper to prefetch collabs for the media pane if desired
-    // NOTE: loadCollabs is called when the media pane is opened (showMediaPane)
-
+    // done
   </script>
 </body>
 </html>
