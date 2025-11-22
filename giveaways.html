@@ -7,22 +7,26 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     /* Instagram-like card styles */
-    .ig-card { background: #fff; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); overflow: hidden; display:flex; flex-direction:column; }
+    .ig-card { background: #fff; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); overflow: hidden; }
     .ig-header { display:flex; align-items:center; gap:.75rem; padding:.75rem; }
     .ig-avatar { width:40px; height:40px; border-radius:9999px; background: #ffd1e3; display:inline-block; }
     .ig-image { width:100%; height:420px; object-fit:cover; display:block; }
-    .pill-filter { padding:.45rem 1rem; border-radius:999px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.06); cursor:pointer; }
-    .pill-filter.active { background: linear-gradient(90deg,#be185d,#f472b6); color:white; border:none; }
+    .pill-bar { display:flex; gap:8px; justify-content:center; margin-bottom:1rem; flex-wrap:wrap; }
+    .pill { padding:.5rem 1rem; border-radius:999px; font-weight:700; background:#fff; border:1px solid #fde7ef; color:#be185d; cursor:pointer; }
+    .pill.active { background: linear-gradient(90deg,#be185d,#f472b6); color:white; border:none; }
+    /* two-column grid */
+    .give-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap:1rem; }
+    @media (max-width:900px) { .give-grid { grid-template-columns: 1fr; } .ig-image { height:260px; } }
   </style>
 </head>
 <body class="bg-pink-50">
-  <!-- header (keeps your site style) -->
+  <!-- Header (kept simple) -->
   <header class="bg-pink-100 fixed top-0 left-0 right-0 z-40">
     <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
       <h1 class="text-xl font-bold text-rose-600">THE FOOTBALLER’S SISTER</h1>
-      <nav class="flex items-center gap-4">
+      <nav class="space-x-4">
         <a href="index.html" class="text-rose-600">Home</a>
-        <a href="bts.html" class="text-rose-600">Behind the Game</a>
+        <a href="admin.html" class="text-rose-600">Admin</a>
       </nav>
     </div>
   </header>
@@ -31,16 +35,20 @@
     <h2 class="text-4xl font-bold text-rose-700 mb-2">Win Exclusive Prizes 🎁</h2>
     <p class="text-gray-600 mb-6">Enter current giveaways below. Winners are contacted via email / IG DM.</p>
 
-    <!-- Pills -->
-    <div class="flex justify-center gap-3 mb-6">
-      <button id="filterAll" class="pill-filter">All</button>
-      <button id="filterOngoing" class="pill-filter active" data-filter="ongoing">Ongoing giveaways</button>
-      <button id="filterPast" class="pill-filter" data-filter="past">Past giveaways</button>
-      <button id="filterWinners" class="pill-filter" data-filter="winner">Winners</button>
+    <!-- Pills: filter ongoing / past / winners -->
+    <div class="pill-bar" role="tablist" aria-label="Giveaway filters">
+      <button id="pill-all" class="pill active" data-filter="all">All</button>
+      <button id="pill-ongoing" class="pill" data-filter="ongoing">Ongoing giveaways</button>
+      <button id="pill-past" class="pill" data-filter="past">Past giveaways</button>
+      <button id="pill-winners" class="pill" data-filter="winner">Winners</button>
     </div>
 
-    <!-- grid: 2 per row on md+ -->
-    <div id="giveWrap" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+    <!-- Grid -->
+    <section id="giveGridWrap">
+      <div id="giveGrid" class="give-grid"></div>
+    </section>
+
+    <div id="giveEmpty" class="text-gray-500 mt-8 hidden">No giveaways in this category.</div>
   </main>
 
   <footer class="mt-12 bg-pink-900 text-white text-center py-6">© <span id="year"></span> The Footballer’s Sister</footer>
@@ -59,89 +67,85 @@
       appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
     const ARTIFACT_ID = "1:65396604482:web:0f31625a714aa8352337db";
+    const GIVEAWAYS_COLLECTION_PATH = `/artifacts/${ARTIFACT_ID}/public/data/giveaways`;
+
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const GIVEAWAYS_COLLECTION_PATH = `/artifacts/${ARTIFACT_ID}/public/data/giveaways`;
-    const giveWrap = document.getElementById('giveWrap');
+    const giveGrid = document.getElementById('giveGrid');
+    const giveEmpty = document.getElementById('giveEmpty');
+    const pills = Array.from(document.querySelectorAll('.pill'));
 
-    // current filter
-    let currentFilter = 'ongoing'; // default show ongoing
+    let currentFilter = 'all';
+    let giveawaysCache = [];
 
-    // pill buttons
-    const btnAll = document.getElementById('filterAll');
-    const btnOngoing = document.getElementById('filterOngoing');
-    const btnPast = document.getElementById('filterPast');
-    const btnWinners = document.getElementById('filterWinners');
-    const pillButtons = [btnAll, btnOngoing, btnPast, btnWinners];
-
-    function setActivePill(activeBtn) {
-      pillButtons.forEach(b => b.classList.remove('active'));
-      activeBtn.classList.add('active');
-    }
-
-    btnAll.addEventListener('click', () => { currentFilter = 'all'; setActivePill(btnAll); renderCached(); });
-    btnOngoing.addEventListener('click', () => { currentFilter = 'ongoing'; setActivePill(btnOngoing); renderCached(); });
-    btnPast.addEventListener('click', () => { currentFilter = 'past'; setActivePill(btnPast); renderCached(); });
-    btnWinners.addEventListener('click', () => { currentFilter = 'winner'; setActivePill(btnWinners); renderCached(); });
-
-    let cachedGiveaways = [];
-
-    function renderCached() {
-      if (!cachedGiveaways) cachedGiveaways = [];
-      const items = cachedGiveaways.filter(g => {
-        if (!g) return false;
+    function renderGrid(items) {
+      giveGrid.innerHTML = '';
+      const visible = items.filter(it => {
         if (currentFilter === 'all') return true;
-        return (g.status || 'ongoing') === currentFilter;
+        return (it.status || 'ongoing') === currentFilter;
       });
-      giveWrap.innerHTML = '';
-      if (!items.length) {
-        giveWrap.innerHTML = '<div class="text-gray-500 md:col-span-2">No giveaways to show in this view.</div>';
-        return;
+      if (!visible.length) {
+        giveEmpty.classList.remove('hidden');
+      } else {
+        giveEmpty.classList.add('hidden');
       }
-      items.forEach(d => {
-        const endsText = d.endsAt ? new Date(d.endsAt).toLocaleDateString() : '—';
+      visible.forEach(item => {
+        const endsAtLabel = item.endsAt ? (item.endsAt.seconds ? new Date(item.endsAt.seconds*1000).toLocaleString() : new Date(item.endsAt).toLocaleString()) : '—';
         const card = document.createElement('article');
-        card.className = 'ig-card mx-auto max-w-xl text-left';
-        const imageUrl = d.imageUrl || 'https://via.placeholder.com/1200x800';
+        card.className = 'ig-card text-left';
         card.innerHTML = `
           <div class="ig-header">
-            <div class="ig-avatar"></div>
-            <div>
-              <div class="font-semibold text-rose-700">${escapeHtml(d.title || 'Giveaway')}</div>
-              <div class="text-xs text-gray-500">${d.createdAt && d.createdAt.seconds ? new Date(d.createdAt.seconds*1000).toLocaleDateString() : ''} · Ends: ${escapeHtml(endsText)}</div>
+            <div class="ig-avatar" aria-hidden="true"></div>
+            <div style="flex:1;">
+              <div class="font-semibold text-rose-700">The Footballer’s Sister</div>
+              <div class="text-xs text-gray-500">${item.createdAt && item.createdAt.seconds ? new Date(item.createdAt.seconds*1000).toLocaleDateString() : ''}</div>
+            </div>
+            <div style="margin-left:12px;">
+              <span style="display:inline-block;padding:.25rem .6rem;border-radius:999px;border:1px solid #fde7ef;color:#be185d;font-weight:700;font-size:.85rem;">${escapeHtml(item.status||'ongoing')}</span>
             </div>
           </div>
-          <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(d.title||'Giveaway')}" class="ig-image">
+          <img src="${escapeHtml(item.imageUrl||'')}" alt="${escapeHtml(item.title||'Giveaway')}" class="ig-image" onerror="this.onerror=null;this.src='images/opponent.png'"/>
           <div class="p-4">
-            <div class="font-semibold text-lg">${escapeHtml(d.title||'Giveaway')}</div>
-            <div class="text-gray-700 mt-2">${escapeHtml(d.caption||'')}</div>
-            <div class="text-xs text-gray-400 mt-3">Status: ${escapeHtml(d.status||'ongoing')}</div>
+            <div class="font-semibold text-lg">${escapeHtml(item.title||'Giveaway')}</div>
+            <div class="text-gray-700 mt-2">${escapeHtml(item.caption||'')}</div>
+            <div class="text-xs text-gray-400 mt-3">Ends: ${endsAtLabel}</div>
             <div class="mt-4">
-              <a href="giveaway-entry.html?id=${encodeURIComponent(d.id||'')}" class="inline-block px-4 py-2 bg-rose-600 text-white rounded">Enter Giveaway</a>
+              <a href="${escapeHtml(item.link || '#')}" class="inline-block px-4 py-2 bg-rose-600 text-white rounded">${item.link ? 'Enter Giveaway' : 'Details'}</a>
             </div>
           </div>
         `;
-        giveWrap.appendChild(card);
+        giveGrid.appendChild(card);
       });
     }
 
     function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-    // subscribe to giveaways
+    // subscribe realtime
     try {
       const q = query(collection(db, GIVEAWAYS_COLLECTION_PATH), orderBy('createdAt','desc'));
       onSnapshot(q, snap => {
-        cachedGiveaways = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        renderCached();
+        const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        giveawaysCache = docs;
+        renderGrid(docs);
       }, err => {
-        console.error(err);
-        giveWrap.innerHTML = '<div class="text-red-600">Could not load giveaways.</div>';
+        console.error('giveaways onSnapshot error', err);
+        giveGrid.innerHTML = '<div class="text-red-600">Could not load giveaways.</div>';
       });
     } catch (err) {
-      console.error('giveaways init error', err);
-      giveWrap.innerHTML = '<div class="text-red-600">Could not load giveaways.</div>';
+      console.error('Giveaways init error', err);
+      giveGrid.innerHTML = '<div class="text-red-600">Could not load giveaways.</div>';
     }
+
+    // pill click handlers
+    pills.forEach(p => {
+      p.addEventListener('click', (e) => {
+        pills.forEach(x => x.classList.remove('active'));
+        p.classList.add('active');
+        currentFilter = p.dataset.filter;
+        renderGrid(giveawaysCache);
+      });
+    });
   </script>
 </body>
 </html>
