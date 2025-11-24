@@ -7,47 +7,52 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root { --accent: #be185d; }
+    body { background:#fff6f9; }
+    .card { background:#fff; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.06); overflow:hidden; }
     header.bts-header {
       background: linear-gradient(180deg, rgba(246,213,239,0.6), rgba(255,241,248,0.6));
       border-bottom: 1px solid rgba(235,200,215,0.6);
       backdrop-filter: blur(4px);
     }
     .site-title { color: var(--accent); font-weight: 800; letter-spacing: .02em; }
-    .winner-card { background:#fff; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.06); overflow:hidden; text-align:center; padding:1rem; }
-    .winner-img { width:100%; height:220px; object-fit:cover; display:block; border-radius:8px; }
-    @media (min-width: 1024px) { .grid-3 { grid-template-columns: repeat(3, 1fr); } }
+    .footer-badge { display:inline-block; background: linear-gradient(90deg,#be185d,#f472b6); color:white; padding:.45rem .85rem; border-radius:999px; font-weight:700; }
+    .winner-card { border:1px solid #f3d3e2; border-radius:12px; padding:12px; background:white; text-align:left; }
+    .winner-thumb { width:100%; height:160px; object-fit:cover; border-radius:8px; border:1px solid #f3d3e2; }
+    @media (min-width: 768px) {
+      .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+    }
+    @media (max-width: 767px) {
+      .grid-3 { display:grid; grid-template-columns:repeat(1,1fr); gap:1rem; }
+    }
   </style>
 </head>
 <body class="bg-pink-50">
 
-  <!-- Header -->
-  <header class="bts-header fixed top-0 w-full z-50">
-    <div class="flex justify-between items-center px-6 py-4" style="max-width:1100px;margin:0 auto;">
-      <div class="site-title text-lg">THE FOOTBALLER’S SISTER</div>
+  <header class="bts-header fixed top-0 left-0 right-0 z-40">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+      <div class="site-title text-xl">THE FOOTBALLER’S SISTER</div>
       <nav>
-        <a href="giveaways.html" class="text-rose-600 font-semibold">Back to Giveaways</a>
+        <a href="giveaways.html" class="text-rose-600">Giveaways</a>
       </nav>
     </div>
   </header>
 
-  <div class="h-20"></div>
+  <div class="h-24"></div>
 
-  <main class="max-w-6xl mx-auto px-6 py-8">
-    <h2 class="text-4xl font-bold text-rose-700 mb-6 text-center">Winners</h2>
+  <main class="max-w-6xl mx-auto px-6 py-12 text-center">
+    <h2 class="text-4xl font-bold text-rose-700 mb-2">Winners 🏆</h2>
+    <p class="text-gray-600 mb-8">Recent giveaway winners — congratulations to them! If you are listed here, we will contact you via email / IG DM.</p>
 
-    <!-- If somebody arrives directly (not from giveaways) we show a gentle note -->
-    <div id="referrerNotice" class="mb-6 text-center text-gray-600 hidden">
-      This page is intended to be accessed from the Giveaways page. <a href="giveaways.html" class="text-rose-600 font-semibold">View Giveaways</a>
-    </div>
+    <section id="winnersWrap" class="grid-3"></section>
 
-    <div id="winnersWrap" class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-3"></div>
-    <div id="winnersEmpty" class="text-gray-500 mt-8 hidden text-center">No winners posted yet.</div>
+    <div id="winnersEmpty" class="text-gray-500 mt-8">No winners yet.</div>
   </main>
 
-  <footer class="text-center py-8">
-    <small style="display:inline-block;background:linear-gradient(90deg,#be185d,#f472b6);color:white;padding:.45rem 1rem;border-radius:999px;font-weight:700;">© <span id="year"></span> The Footballer’s Sister</small>
+  <footer class="mt-12 bg-pink-900 text-white text-center py-6">
+    <div class="max-w-6xl mx-auto">
+      <small><span class="footer-badge">© <span id="year"></span> The Footballer’s Sister</span></small>
+    </div>
   </footer>
-
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
   <script type="module">
@@ -68,14 +73,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // gentle client-side check: prefer navigation from giveaways page
-    (function checkReferrer(){
-      const ref = document.referrer || '';
-      if (!ref.includes('giveaways.html') && !ref.includes(window.location.hostname)) {
-        document.getElementById('referrerNotice').classList.remove('hidden');
-      }
-    })();
-
     const wrap = document.getElementById('winnersWrap');
     const empty = document.getElementById('winnersEmpty');
 
@@ -85,36 +82,29 @@
       const q = query(collection(db, WINNERS_COLLECTION_PATH), orderBy('createdAt','desc'));
       onSnapshot(q, snap => {
         wrap.innerHTML = '';
-        if (snap.empty) {
+        if (!snap.docs.length) {
           empty.classList.remove('hidden');
           return;
-        } else {
-          empty.classList.add('hidden');
         }
-        snap.docs.forEach(snapDoc => {
-          const d = snapDoc.data();
-          const img = escapeHtml(d.imageUrl || '');
-          const name = escapeHtml(d.name || '');
-          const handle = escapeHtml(d.handle || '');
-          const prize = escapeHtml(d.prize || '');
-          const card = document.createElement('article');
-          card.className = 'winner-card';
-          card.innerHTML = `
-            <img src="${img}" alt="${name}" class="winner-img" onerror="this.onerror=null;this.src='images/opponent.png'"/>
-            <div style="padding-top:.6rem;">
-              <div style="font-weight:800;">${name}</div>
-              <div style="color:#6b7280;">${handle}</div>
-              <div style="margin-top:.5rem;color:#374151;">${prize}</div>
-            </div>
+        empty.classList.add('hidden');
+        snap.docs.forEach(d => {
+          const data = d.data();
+          const el = document.createElement('div');
+          el.className = 'winner-card';
+          el.innerHTML = `
+            <img src="${escapeHtml(data.imageUrl || '')}" alt="${escapeHtml(data.name || 'Winner')}" class="winner-thumb" onerror="this.onerror=null;this.src='images/opponent.png'"/>
+            <div style="margin-top:.6rem;font-weight:700;">${escapeHtml(data.name || '(no name)')}</div>
+            <div style="color:#6b7280;font-size:.9rem;margin-top:.15rem;">${escapeHtml(data.handle || '')}</div>
+            <div style="margin-top:.4rem;color:#374151;">Prize: ${escapeHtml(data.prize || '')}</div>
           `;
-          wrap.appendChild(card);
+          wrap.appendChild(el);
         });
       }, err => {
-        console.error(err);
+        console.error('winners onSnapshot error', err);
         wrap.innerHTML = '<div class="text-red-600">Could not load winners.</div>';
       });
-    } catch(err){
-      console.error('winners init error', err);
+    } catch (err) {
+      console.error('init winners failed', err);
       wrap.innerHTML = '<div class="text-red-600">Could not load winners.</div>';
     }
   </script>
