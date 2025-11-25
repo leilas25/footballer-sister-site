@@ -1,3 +1,4 @@
+<!-- admin.html — PART 1/2 -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -134,6 +135,7 @@
           <h3 class="text-xl font-bold mb-3 text-rose-700">Giveaways (admin)</h3>
           <p class="small-muted mb-3">Create, edit and manage giveaways. Changes will appear on the public giveaways page immediately.</p>
 
+          <!-- Form: create / edit -->
           <div class="grid gap-3 md:grid-cols-3 items-center">
             <div class="md:col-span-2">
               <input id="giveTitle" placeholder="Giveaway title" class="p-2 rounded border w-full" />
@@ -227,12 +229,15 @@
   <script type="module">
     /**************************************************************************
      * Admin JS - with Cloudinary unsigned upload for collabs + giveaways + winners
+     * Email fix: allows your admin email OR UID to sign in as admin.
      **************************************************************************/
 
     // ---------- CONFIG ----------
     // If you need to change the admin UID to match the actual admin account in
     // Firebase Authentication, update the value below.
     const ADMIN_UID = "pDokgebzpTZWzmn9dW50kaDAqRT2";
+    // Admin email (case-insensitive)
+    const ADMIN_EMAIL = "leilasono1@gmail.com";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
@@ -248,7 +253,7 @@
     const CLOUD_NAME = 'dk1df1qmi';                  // <-- your cloud name
     const UPLOAD_PRESET = 'unsigned_bts_preset';     // <-- your unsigned preset
 
-    // collection paths (these must match what your public pages read)
+    // collection paths (must match public pages)
     const GIVEAWAYS_COLLECTION_PATH = `/artifacts/${APP_ID}/public/data/giveaways`;
     const WINNERS_COLLECTION_PATH = `/artifacts/${APP_ID}/public/data/winners`;
     const COLLABS_COLLECTION_PATH = `/artifacts/${APP_ID}/public/data/collabs`;
@@ -367,14 +372,22 @@
         hideAllPanes();
         return;
       }
-      // show signed-in uid for debugging (so you can confirm the UID matches FIRESTORE rules)
-      loginMessage.textContent = 'Signed in UID: ' + (user.uid || '(none)');
-      if (user.uid !== ADMIN_UID) {
+
+      // Show signed-in UID + email for debugging
+      loginMessage.textContent = 'Signed in UID: ' + (user.uid || '(none)') + ' — Email: ' + (user.email || '(no-email)');
+
+      // Allow admin if UID matches OR email matches ADMIN_EMAIL
+      const isAdminByUid = (user.uid === ADMIN_UID);
+      const isAdminByEmail = (user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
+
+      if (!isAdminByUid && !isAdminByEmail) {
         // If not the expected admin, sign out and show message
         signOut(auth).catch(()=>{});
-        loginMessage.textContent = `Signed in UID ${user.uid} is not the configured admin UID. Signed out.`;
+        loginMessage.textContent = `Signed in UID ${user.uid} / Email ${user.email || '(none)'} is not the configured admin. Signed out.`;
         return;
       }
+
+      // If we reach here the user is allowed admin access
       loginSection.classList.add('hidden-el');
       adminUI.classList.remove('hidden-el');
       adminEmailDisplay.textContent = user.email || user.uid;
@@ -1135,7 +1148,27 @@
       }
     });
 
-    // done
+    // End of Part 1/2 — continue with Part 2/2 below
   </script>
 </body>
 </html>
+<!-- admin.html — PART 2/2 (final) -->
+<!-- This final part contains only the remaining safety starter and notes.
+     If you copied Part 1/2 exactly as provided earlier, you can paste this part
+     immediately after Part 1/2. The file will then be complete. -->
+
+<script type="module">
+  // Lightweight starter to ensure the admin page attempts anonymous signin
+  // (keeps existing behaviour from the original file).
+  import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+  const authStarter = getAuth();
+  onAuthStateChanged(authStarter, (user) => {
+    if (!user) {
+      signInAnonymously(authStarter).catch(err => {
+        console.warn('Anonymous sign-in failed (not fatal):', err);
+      });
+    }
+  });
+</script>
+

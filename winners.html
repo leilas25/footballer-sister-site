@@ -57,7 +57,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
@@ -67,8 +67,10 @@
       messagingSenderId: "65396604482",
       appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
-    const ARTIFACT_ID = "1:65396604482:web:0f31625a714aa8352337db";
-    const WINNERS_COLLECTION_PATH = `/artifacts/${ARTIFACT_ID}/public/data/winners`;
+    const APP_ID = firebaseConfig.appId;
+
+    const PATH_MAIN = `/artifacts/${APP_ID}/public/data/winners`;
+    const PATH_FALLBACK = `/public/data/winners`;
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
@@ -78,8 +80,25 @@
 
     function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-    try {
-      const q = query(collection(db, WINNERS_COLLECTION_PATH), orderBy('createdAt','desc'));
+    // --- AUTO-DETECT WHICH PATH HAS DATA ---
+    async function detectPath() {
+      try {
+        const mainSnap = await getDocs(query(collection(db, PATH_MAIN)));
+        if (!mainSnap.empty) return PATH_MAIN;
+      } catch(e){}
+
+      try {
+        const fallbackSnap = await getDocs(query(collection(db, PATH_FALLBACK)));
+        if (!fallbackSnap.empty) return PATH_FALLBACK;
+      } catch(e){}
+
+      return PATH_MAIN; // default
+    }
+
+    (async () => {
+      const winnersPath = await detectPath();
+
+      const q = query(collection(db, winnersPath), orderBy('createdAt','desc'));
       onSnapshot(q, snap => {
         wrap.innerHTML = '';
         if (!snap.docs.length) {
@@ -87,26 +106,21 @@
           return;
         }
         empty.classList.add('hidden');
+
         snap.docs.forEach(d => {
           const data = d.data();
           const el = document.createElement('div');
           el.className = 'winner-card';
           el.innerHTML = `
-            <img src="${escapeHtml(data.imageUrl || '')}" alt="${escapeHtml(data.name || 'Winner')}" class="winner-thumb" onerror="this.onerror=null;this.src='images/opponent.png'"/>
+            <img src="${escapeHtml(data.imageUrl || '')}" alt="${escapeHtml(data.name || 'Winner')}" class="winner-thumb"/>
             <div style="margin-top:.6rem;font-weight:700;">${escapeHtml(data.name || '(no name)')}</div>
             <div style="color:#6b7280;font-size:.9rem;margin-top:.15rem;">${escapeHtml(data.handle || '')}</div>
             <div style="margin-top:.4rem;color:#374151;">Prize: ${escapeHtml(data.prize || '')}</div>
           `;
           wrap.appendChild(el);
         });
-      }, err => {
-        console.error('winners onSnapshot error', err);
-        wrap.innerHTML = '<div class="text-red-600">Could not load winners.</div>';
       });
-    } catch (err) {
-      console.error('init winners failed', err);
-      wrap.innerHTML = '<div class="text-red-600">Could not load winners.</div>';
-    }
+    })();
   </script>
 </body>
 </html>
