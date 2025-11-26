@@ -9,11 +9,21 @@
     /* Instagram-like card styles */
     .ig-card { background: #fff; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); overflow: hidden; }
     .ig-header { display:flex; align-items:center; gap:.75rem; padding:.75rem; }
-    .ig-avatar { width:40px; height:40px; border-radius:9999px; object-fit:cover; border:1px solid #f3d3e2; }
+
+    /* UPDATED: Avatar becomes your logo */
+    .ig-avatar {
+      width:40px;
+      height:40px;
+      border-radius:9999px;
+      object-fit:cover;
+      display:inline-block;
+    }
+
     .ig-image { width:100%; height:420px; object-fit:cover; display:block; }
     .pill-bar { display:flex; gap:8px; justify-content:center; margin-bottom:1rem; flex-wrap:wrap; }
     .pill { padding:.5rem 1rem; border-radius:999px; font-weight:700; background:#fff; border:1px solid #fde7ef; color:#be185d; cursor:pointer; }
     .pill.active { background: linear-gradient(90deg,#be185d,#f472b6); color:white; border:none; }
+
     .give-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap:1rem; }
     @media (max-width:900px) { .give-grid { grid-template-columns: 1fr; } .ig-image { height:260px; } }
 
@@ -139,7 +149,7 @@
         card.className = 'ig-card text-left';
         card.innerHTML = `
           <div class="ig-header">
-            <img src="football-sis-logo.png" class="ig-avatar" alt="Logo">
+            <img src="images/football-sis-logo.png" class="ig-avatar" alt="Logo">
             <div style="flex:1;">
               <div class="font-semibold text-rose-700">The Footballer’s Sister</div>
               <div class="text-xs text-gray-500">${item.createdAt && item.createdAt.seconds ? new Date(item.createdAt.seconds*1000).toLocaleDateString() : ''}</div>
@@ -180,7 +190,7 @@
     }
 
     pills.forEach(p => {
-      p.addEventListener('click', (e) => {
+      p.addEventListener('click', () => {
         pills.forEach(x => x.classList.remove('active'));
         p.classList.add('active');
         currentFilter = p.dataset.filter;
@@ -207,7 +217,7 @@
       navItems.forEach(link => {
         if (link.getAttribute('href') === currentPage) link.classList.add("font-semibold", "text-rose-600");
       });
-      navButton.addEventListener('click', (e) => {
+      navButton.addEventListener('click', () => {
         const isHidden = dropdownMenu.classList.contains('hidden');
         if (isHidden) {
           dropdownMenu.classList.remove('hidden');
