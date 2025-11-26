@@ -1,4 +1,3 @@
-<!-- admin.html — PART 1/2 -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -229,14 +228,12 @@
   <script type="module">
     /**************************************************************************
      * Admin JS - with Cloudinary unsigned upload for collabs + giveaways + winners
-     * Email fix: allows your admin email OR UID to sign in as admin.
+     * Option A: when creating a winner, also create a giveaways doc with status 'winner'.
      **************************************************************************/
 
     // ---------- CONFIG ----------
-    // If you need to change the admin UID to match the actual admin account in
-    // Firebase Authentication, update the value below.
+    // Accept admin by UID OR by email (case-insensitive)
     const ADMIN_UID = "pDokgebzpTZWzmn9dW50kaDAqRT2";
-    // Admin email (case-insensitive)
     const ADMIN_EMAIL = "leilasono1@gmail.com";
 
     const firebaseConfig = {
@@ -253,7 +250,7 @@
     const CLOUD_NAME = 'dk1df1qmi';                  // <-- your cloud name
     const UPLOAD_PRESET = 'unsigned_bts_preset';     // <-- your unsigned preset
 
-    // collection paths (must match public pages)
+    // collection paths (these must match what your public pages read)
     const GIVEAWAYS_COLLECTION_PATH = `/artifacts/${APP_ID}/public/data/giveaways`;
     const WINNERS_COLLECTION_PATH = `/artifacts/${APP_ID}/public/data/winners`;
     const COLLABS_COLLECTION_PATH = `/artifacts/${APP_ID}/public/data/collabs`;
@@ -273,7 +270,7 @@
       getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import {
-      getFirestore, collection, getDocs, query, orderBy, doc, addDoc, updateDoc, deleteDoc, serverTimestamp, onSnapshot
+      getFirestore, collection, getDocs, query, orderBy, where, doc, addDoc, updateDoc, deleteDoc, serverTimestamp, onSnapshot
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // ---------- INIT ----------
@@ -376,7 +373,7 @@
       // Show signed-in UID + email for debugging
       loginMessage.textContent = 'Signed in UID: ' + (user.uid || '(none)') + ' — Email: ' + (user.email || '(no-email)');
 
-      // Allow admin if UID matches OR email matches ADMIN_EMAIL
+      // Allow admin if UID matches OR email matches ADMIN_EMAIL (case-insensitive)
       const isAdminByUid = (user.uid === ADMIN_UID);
       const isAdminByEmail = (user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
 
@@ -1072,7 +1069,21 @@
         btn.addEventListener('click', async (e) => {
           const id = e.currentTarget.getAttribute('data-id');
           if (!confirm('Remove this winner?')) return;
+
           try {
+            // 1) Delete any giveaway doc that points to this winner (winnerId)
+            try {
+              const q = query(collection(db, GIVEAWAYS_COLLECTION_PATH), where('winnerId', '==', id));
+              const snap = await getDocs(q);
+              for (const gdoc of snap.docs) {
+                await deleteDoc(doc(db, `${GIVEAWAYS_COLLECTION_PATH}/${gdoc.id}`));
+              }
+            } catch (err) {
+              // non-fatal: log and continue to delete winner doc anyway
+              console.warn('Could not delete linked giveaway docs (non-fatal):', err);
+            }
+
+            // 2) Delete winner doc
             await deleteDoc(doc(db, `${WINNERS_COLLECTION_PATH}/${id}`));
           } catch(err) {
             console.error('delete winner failed', err);
@@ -1082,6 +1093,7 @@
       });
     }
 
+    // ---------- createWinner: writes to winners AND creates a giveaway (status: "winner") ----------
     async function createWinner() {
       if (!createWinBtn) return;
       if (winError) winError.classList.add('hidden-el');
@@ -1109,8 +1121,8 @@
           publicId = cloudResp.public_id;
         }
 
-        // write to winners collection (rules must allow admin writes)
-        await addDoc(collection(db, WINNERS_COLLECTION_PATH), {
+        // 1) write to winners collection
+        const winnerRef = await addDoc(collection(db, WINNERS_COLLECTION_PATH), {
           name: nameVal,
           handle: handleVal || '',
           prize: prizeVal,
@@ -1119,6 +1131,23 @@
           createdAt: serverTimestamp(),
           uploader: auth.currentUser ? (auth.currentUser.email || auth.currentUser.uid) : 'admin'
         });
+
+        // 2) ALSO add a giveaway doc with status 'winner' so the public Giveaways page shows it
+        const giveawayPayload = {
+          title: `Winner: ${nameVal}`,
+          caption: `Prize: ${prizeVal}${handleVal ? ' · @' + handleVal.replace(/^@/, '') : ''}`,
+          link: '',
+          imageUrl: imageUrl || '',
+          publicId: publicId || '',
+          status: 'winner',
+          endsAt: null,
+          createdAt: serverTimestamp(),
+          uploader: auth.currentUser ? (auth.currentUser.email || auth.currentUser.uid) : 'admin',
+          // pointer to the winners doc for cleanup if needed later
+          winnerId: winnerRef.id
+        };
+
+        await addDoc(collection(db, GIVEAWAYS_COLLECTION_PATH), giveawayPayload);
 
         if (winStatus) winStatus.textContent = 'Winner saved.';
         // clear form
@@ -1148,27 +1177,7 @@
       }
     });
 
-    // End of Part 1/2 — continue with Part 2/2 below
+    // done
   </script>
 </body>
 </html>
-<!-- admin.html — PART 2/2 (final) -->
-<!-- This final part contains only the remaining safety starter and notes.
-     If you copied Part 1/2 exactly as provided earlier, you can paste this part
-     immediately after Part 1/2. The file will then be complete. -->
-
-<script type="module">
-  // Lightweight starter to ensure the admin page attempts anonymous signin
-  // (keeps existing behaviour from the original file).
-  import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-  const authStarter = getAuth();
-  onAuthStateChanged(authStarter, (user) => {
-    if (!user) {
-      signInAnonymously(authStarter).catch(err => {
-        console.warn('Anonymous sign-in failed (not fatal):', err);
-      });
-    }
-  });
-</script>
-
