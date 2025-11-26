@@ -9,16 +9,14 @@
     /* Instagram-like card styles */
     .ig-card { background: #fff; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); overflow: hidden; }
     .ig-header { display:flex; align-items:center; gap:.75rem; padding:.75rem; }
-    .ig-avatar { width:40px; height:40px; border-radius:9999px; background: #ffd1e3; display:inline-block; }
+    .ig-avatar { width:40px; height:40px; border-radius:9999px; object-fit:cover; border:1px solid #f3d3e2; }
     .ig-image { width:100%; height:420px; object-fit:cover; display:block; }
     .pill-bar { display:flex; gap:8px; justify-content:center; margin-bottom:1rem; flex-wrap:wrap; }
     .pill { padding:.5rem 1rem; border-radius:999px; font-weight:700; background:#fff; border:1px solid #fde7ef; color:#be185d; cursor:pointer; }
     .pill.active { background: linear-gradient(90deg,#be185d,#f472b6); color:white; border:none; }
-    /* two-column grid */
     .give-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap:1rem; }
     @media (max-width:900px) { .give-grid { grid-template-columns: 1fr; } .ig-image { height:260px; } }
 
-    /* ---------- BTS header/footer styles (shared across site) ---------- */
     :root { --accent: #be185d; --muted: #6b7280; }
     header.bts-header {
       background: linear-gradient(180deg, rgba(246,213,239,0.6), rgba(255,241,248,0.6));
@@ -34,15 +32,12 @@
       border-radius:999px;
       font-weight:700;
     }
-    /* end header/footer additions */
 
-    /* Dropdown animation helper */
     .dropdown-open { opacity:1!important; transform:scale(1)!important; }
   </style>
 </head>
 <body class="bg-pink-50">
 
-  <!-- Header (BTS style with dropdown) -->
   <header class="bts-header fixed top-0 w-full z-50">
     <div class="flex justify-between items-center px-6 py-4 container" style="max-width:1100px; margin:0 auto;">
       <div style="display:flex;align-items:center;gap:1rem;">
@@ -75,14 +70,12 @@
     </div>
   </header>
 
-  <!-- Top spacing for fixed header -->
   <div class="h-24"></div>
 
   <main class="pt-6 max-w-6xl mx-auto px-6 text-center">
     <h2 class="text-4xl font-bold text-rose-700 mb-2">Win Exclusive Prizes 🎁</h2>
     <p class="text-gray-600 mb-6">Enter current giveaways below. Winners are contacted via email / IG DM.</p>
 
-    <!-- Pills: filter ongoing / past / winners -->
     <div class="pill-bar" role="tablist" aria-label="Giveaway filters">
       <button id="pill-all" class="pill active" data-filter="all">All</button>
       <button id="pill-ongoing" class="pill" data-filter="ongoing">Ongoing giveaways</button>
@@ -90,7 +83,6 @@
       <button id="pill-winners" class="pill" data-filter="winner">Winners</button>
     </div>
 
-    <!-- Grid -->
     <section id="giveGridWrap" class="mb-12">
       <div id="giveGrid" class="give-grid"></div>
     </section>
@@ -98,10 +90,8 @@
     <div id="giveEmpty" class="text-gray-500 mt-8 hidden">No giveaways in this category.</div>
   </main>
 
-  <!-- Footer (transparent background; pill stays pink) -->
   <footer class="text-center py-6">
     <div class="container" style="max-width:1100px; margin:0 auto;">
-      <!-- single pill badge like other pages; no extra pink rectangle behind it -->
       <small><span class="footer-badge">© <span id="year"></span> The Footballer’s Sister</span></small>
     </div>
   </footer>
@@ -149,7 +139,7 @@
         card.className = 'ig-card text-left';
         card.innerHTML = `
           <div class="ig-header">
-            <div class="ig-avatar" aria-hidden="true"></div>
+            <img src="football-sis-logo.png" class="ig-avatar" alt="Logo">
             <div style="flex:1;">
               <div class="font-semibold text-rose-700">The Footballer’s Sister</div>
               <div class="text-xs text-gray-500">${item.createdAt && item.createdAt.seconds ? new Date(item.createdAt.seconds*1000).toLocaleDateString() : ''}</div>
@@ -174,7 +164,6 @@
 
     function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-    // subscribe realtime
     try {
       const q = query(collection(db, GIVEAWAYS_COLLECTION_PATH), orderBy('createdAt','desc'));
       onSnapshot(q, snap => {
@@ -190,7 +179,6 @@
       giveGrid.innerHTML = '<div class="text-red-600">Could not load giveaways.</div>';
     }
 
-    // pill click handlers
     pills.forEach(p => {
       p.addEventListener('click', (e) => {
         pills.forEach(x => x.classList.remove('active'));
@@ -200,7 +188,6 @@
       });
     });
 
-    // -------------------- Navbar dropdown script (shared) --------------------
     (function setupNavDropdown(){
       const navButton = document.getElementById('navButton');
       const dropdownMenu = document.getElementById('dropdownMenu');
