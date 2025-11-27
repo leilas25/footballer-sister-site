@@ -6,110 +6,158 @@
   <title>Fixtures & Live Scores • The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* shared look */
-    body { background:#fff6f8; }
-    .site-header { background: linear-gradient(180deg,#ffeef6,#fff0f6); border-bottom:1px solid rgba(234,179,197,0.35); backdrop-filter: blur(6px); }
-    .logo-title { color:#be185d; font-weight:800; letter-spacing:0.6px; }
-    .nav-pill { padding:.6rem 1.1rem; border-radius:999px; border:1px solid rgba(249,207,217,0.7); background:white;}
-    .tab-btn { min-width:180px; padding:.9rem 1.6rem; border-radius:999px; font-weight:800; box-shadow: 0 6px 18px rgba(0,0,0,0.04); border:1px solid rgba(243,211,226,0.7); background:white; }
+    /* ===== page visuals ===== */
+    :root { --accent: #be185d; --muted: #6b7280; }
+    body { background:#fff6f8; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color: #111827; }
+    /* keep BTS header/footer styles exactly as your Meet Leila page */
+    header.bts-header {
+      background: linear-gradient(180deg, rgba(246,213,239,0.6), rgba(255,241,248,0.6));
+      border-bottom: 1px solid rgba(235,200,215,0.6);
+      backdrop-filter: blur(4px);
+    }
+    .site-title { color: var(--accent); font-weight: 800; letter-spacing: .02em; }
+    footer .footer-badge {
+      display:inline-block;
+      background: linear-gradient(90deg,#be185d,#f472b6);
+      color:white;
+      padding:.45rem .85rem;
+      border-radius:999px;
+      font-weight:700;
+    }
+
+    /* fixtures specific */
+    .page-hero { max-width:1100px; margin:0 auto; padding:3.25rem 1.5rem 2rem; }
+    .hero-title { font-size:3rem; font-weight:800; color:#be185d; margin:0 0 .6rem; }
+    .hero-sub { color:#4b5563; font-size:1.125rem; margin-bottom:1.5rem; }
+
+    .tabs-wrap { display:flex; justify-content:center; gap:1.25rem; margin-bottom:2rem; }
+    .tab-btn { min-width:160px; padding:.9rem 1.6rem; border-radius:999px; font-weight:800; border:1px solid rgba(243,211,226,0.7); background:white; box-shadow: 0 6px 18px rgba(0,0,0,0.04); color:#111827; }
     .tab-active { background: linear-gradient(90deg,#be185d,#f472b6); color:white; border-color:transparent; }
-    .fixture-card { background:white; border-radius:12px; padding:14px; box-shadow:0 6px 18px rgba(0,0,0,0.04); border:1px solid #f3d3e2; }
+
+    .fixtures-wrap { max-width:1100px; margin:0 auto; padding:0 1.5rem 3.25rem; }
+    .fixture-card { background:white; border-radius:12px; padding:14px; box-shadow:0 6px 18px rgba(0,0,0,0.04); border:1px solid #f3d3e2; display:grid; grid-template-columns: 1fr 2fr 1fr 160px; gap:12px; align-items:center; }
     .team-logo { width:64px; height:64px; object-fit:cover; border-radius:8px; border:1px solid #f3d3e2; }
-    footer .footer-badge { display:inline-block; background: linear-gradient(90deg,#be185d,#f472b6); color:white; padding:.45rem .85rem; border-radius:999px; font-weight:700; }
-    /* dropdown open animation helper */
-    .dropdown-open { transform: translateY(0); opacity: 1; transition: transform .16s ease-out, opacity .16s ease-out; }
+    .fixture-meta { font-size:.95rem; color:#6b7280; }
+    .score { font-size:1.5rem; font-weight:800; color:#be185d; }
+
+    @media (max-width:900px){
+      .fixture-card { grid-template-columns: 1fr; text-align:center; gap:8px; }
+      .fixture-meta { text-align:center; }
+      .fixture-card .right-meta { justify-content:center; }
+      .page-hero { padding-top:2.5rem; }
+      .hero-title { font-size:2.25rem; }
+    }
+
+    /* dropdown animation helper */
+    .dropdown-open { transform: translateY(0); opacity:1; transition: transform .16s ease-out, opacity .16s ease-out; }
   </style>
 </head>
-<body class="font-sans text-black">
+<body>
 
-  <!-- HEADER with dropdown nav (centered items on large screens) -->
-  <header class="site-header sticky top-0 z-40">
-    <div class="max-w-6xl mx-auto px-6 py-5 flex items-center gap-4">
-      <a class="flex items-center gap-3" href="index.html" aria-label="Home">
-        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" class="rounded-full" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="#fff0f6"/><path d="M6 12h12M12 6v12" stroke="#be185d" stroke-width="1.5" stroke-linecap="round"/></svg>
-        <div>
-          <div class="text-xl logo-title">THE FOOTBALLER’S SISTER</div>
-          <div class="text-xs text-rose-500">Behind the Game</div>
-        </div>
-      </a>
-
-      <!-- centered nav (collapses to dropdown on small screens) -->
-      <nav class="ml-auto hidden md:flex items-center gap-3">
-        <a class="nav-pill text-rose-600" href="index.html">Home</a>
-        <a class="nav-pill text-rose-600" href="behind.html">Behind the Game</a>
-        <a class="nav-pill text-rose-600" href="meet.html">Meet Leila</a>
-        <a class="nav-pill text-rose-600" href="qa.html">Q&A</a>
-        <a class="nav-pill text-rose-600" href="support.html">Support Wall</a>
-        <a class="nav-pill text-rose-600" href="giveaways.html">Giveaways</a>
-        <a class="nav-pill text-rose-600 font-bold" href="fixtures.html">Fixtures & Live Scores</a>
-      </nav>
-
-      <!-- desktop dropdown button (same menu used elsewhere) -->
-      <div class="relative hidden md:block ml-4">
-        <button id="navButton" class="inline-flex items-center nav-pill text-rose-600" aria-expanded="false">
-          <span id="navTitle">Fixtures & Live Scores</span>
-          <svg class="ml-2 h-4 w-4 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" /></svg>
-        </button>
-
-        <div id="dropdownMenu" class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform scale-95 opacity-0">
-          <div class="py-1">
-            <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
-            <a href="behind.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
-            <a href="meet.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Meet Leila</a>
-            <a href="qa.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Q&A</a>
-            <a href="support.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Support Wall</a>
-            <a href="fixtures.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50 font-semibold">Fixtures & Live Scores</a>
-            <a href="giveaways.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Giveaways</a>
-          </div>
-        </div>
+  <!-- Header / Dropdown (copied from Meet Leila page to match exactly) -->
+  <header class="bts-header fixed top-0 w-full z-50">
+    <div class="flex justify-between items-center px-6 py-4 container" style="max-width:1100px; margin:0 auto;">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <div class="site-title" style="font-size:1.15rem;">THE FOOTBALLER’S SISTER</div>
       </div>
 
-      <!-- mobile dropdown -->
-      <div class="md:hidden ml-auto relative">
-        <button id="mobileNavBtn" class="nav-pill">Menu ▾</button>
-        <div id="mobileNav" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border hidden">
-          <a href="index.html" class="block px-4 py-2 hover:bg-pink-50">Home</a>
-          <a href="behind.html" class="block px-4 py-2 hover:bg-pink-50">Behind the Game</a>
-          <a href="meet.html" class="block px-4 py-2 hover:bg-pink-50">Meet Leila</a>
-          <a href="qa.html" class="block px-4 py-2 hover:bg-pink-50">Q&A</a>
-          <a href="support.html" class="block px-4 py-2 hover:bg-pink-50">Support Wall</a>
-          <a href="fixtures.html" class="block px-4 py-2 hover:bg-pink-50 font-semibold">Fixtures & Live Scores</a>
-          <a href="giveaways.html" class="block px-4 py-2 hover:bg-pink-50">Giveaways</a>
+      <div class="relative inline-block text-left">
+        <button id="navButton"
+          class="inline-flex justify-center w-full rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none"
+          aria-expanded="false">
+          <span id="navTitle">Loading...</span>
+          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
+          </svg>
+        </button>
+
+        <div id="dropdownMenu"
+          class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
+          <div class="py-1">
+            <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
+            <a href="bts.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
+            <a href="leila.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Meet Leila</a>
+            <a href="questions.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Q&A</a>
+            <a href="support-wall.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Support Wall</a>
+            <a href="fixtures.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Fixtures & Live Scores</a>
+            <a href="giveaways.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Giveaways</a>
+          </div>
         </div>
       </div>
     </div>
   </header>
 
-  <main class="max-w-6xl mx-auto px-6 py-12">
-    <h1 class="text-6xl font-extrabold text-rose-700 leading-tight mb-4">Fixtures & Live Scores</h1>
-    <p class="text-xl text-gray-600 mb-10">Catch upcoming U14 & U19 fixtures below — scores update live from the admin panel.</p>
+  <!-- spacer so content doesn't hide under fixed header -->
+  <div style="height:92px;"></div>
 
-    <!-- Tabs centered -->
-    <div class="w-full mb-8">
-      <div class="flex justify-center">
-        <div class="flex gap-6">
-          <button id="tabU14" class="tab-btn tab-active" type="button">U14</button>
-          <button id="tabU19" class="tab-btn" type="button">U19</button>
-        </div>
+  <!-- Hero -->
+  <section class="page-hero">
+    <div style="max-width:1100px;margin:0 auto;padding:0 1.5rem;">
+      <h1 class="hero-title">Fixtures & Live Scores</h1>
+      <p class="hero-sub">Catch upcoming U14 & U19 fixtures below — scores update live from the admin panel.</p>
+
+      <!-- centered tabs -->
+      <div class="tabs-wrap" role="tablist" aria-label="Age group tabs">
+        <button id="tabU14" class="tab-btn tab-active" role="tab" aria-selected="true">U14</button>
+        <button id="tabU19" class="tab-btn" role="tab" aria-selected="false">U19</button>
       </div>
     </div>
+  </section>
 
-    <!-- Filters & info -->
-    <div id="fixturesContainer" class="grid gap-6">
-      <div id="fixturesList" class="grid gap-4">
-        <div class="text-gray-500">Loading fixtures…</div>
-      </div>
+  <!-- Fixtures list -->
+  <section class="fixtures-wrap">
+    <div id="fixturesList" style="display:grid; gap:12px;">
+      <div class="text-gray-500">Loading fixtures…</div>
     </div>
-  </main>
+  </section>
 
-  <footer class="bg-pink-900 text-white text-center py-6 mt-12">
-    <div class="max-w-6xl mx-auto">
-      <small><span class="footer-badge">© <span id="year"></span> The Footballer’s Sister</span></small>
+  <!-- Footer (copied from Meet Leila page) -->
+  <footer class="text-center py-6" style="background:transparent;">
+    <div class="container" style="max-width:1100px; margin:0 auto;">
+      <small class="footer-badge">© <span id="year"></span> The Footballer’s Sister</small>
     </div>
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- Firestore read-only for public fixtures -->
+  <!-- dropdown + header script (same as your Meet Leila page) -->
+  <script>
+    const navButton = document.getElementById('navButton');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    const navItems = document.querySelectorAll('.nav-item');
+    const navTitle = document.getElementById('navTitle');
+    const currentPage = window.location.pathname.split('/').pop();
+    const pageTitles = {
+      "index.html": "Home",
+      "bts.html": "Behind the Game",
+      "leila.html": "Meet Leila",
+      "questions.html": "Q&A",
+      "support-wall.html": "Support Wall",
+      "fixtures.html": "Fixtures & Live Scores",
+      "giveaways.html": "Giveaways"
+    };
+    navTitle.textContent = pageTitles[currentPage] || "Menu";
+    navItems.forEach(link => {
+      if (link.getAttribute('href') === currentPage) link.classList.add("font-semibold", "text-rose-600");
+    });
+    navButton.addEventListener('click', (e) => {
+      const isHidden = dropdownMenu.classList.contains('hidden');
+      if (isHidden) {
+        dropdownMenu.classList.remove('hidden');
+        setTimeout(()=>dropdownMenu.classList.add('dropdown-open'), 10);
+      } else {
+        dropdownMenu.classList.remove('dropdown-open');
+        setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
+      }
+    });
+    document.addEventListener('click', (e) => {
+      if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+        dropdownMenu.classList.remove('dropdown-open');
+        setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
+      }
+    });
+  </script>
+
+  <!-- Firestore fixtures logic + tabs -->
   <script type="module">
     // FIREBASE CONFIG - same as admin
     const firebaseConfig = {
@@ -132,64 +180,30 @@
     const tabU14 = document.getElementById('tabU14');
     const tabU19 = document.getElementById('tabU19');
     const fixturesList = document.getElementById('fixturesList');
-    const mobileNavBtn = document.getElementById('mobileNavBtn');
-    const mobileNav = document.getElementById('mobileNav');
-    const navButton = document.getElementById('navButton');
-    const dropdownMenu = document.getElementById('dropdownMenu');
 
-    // mobile nav toggle
-    mobileNavBtn?.addEventListener('click', () => {
-      mobileNav.classList.toggle('hidden');
-    });
-
-    // desktop dropdown toggle
-    navButton?.addEventListener('click', (e) => {
-      const isHidden = dropdownMenu.classList.contains('hidden');
-      if (isHidden) {
-        dropdownMenu.classList.remove('hidden');
-        // small animation class
-        setTimeout(()=> dropdownMenu.classList.add('dropdown-open'), 10);
-      } else {
-        dropdownMenu.classList.remove('dropdown-open');
-        setTimeout(()=> dropdownMenu.classList.add('hidden'), 180);
-      }
-    });
-
-    // click outside to close desktop dropdown
-    document.addEventListener('click', (e) => {
-      if (navButton && !navButton.contains(e.target) && dropdownMenu && !dropdownMenu.contains(e.target)) {
-        dropdownMenu.classList.remove('dropdown-open');
-        setTimeout(()=> dropdownMenu.classList.add('hidden'), 180);
-      }
-    });
-
-    let currentTab = 'U14'; // default
+    let currentTab = 'U14';
     function setActiveTab(tab) {
       currentTab = tab;
       if (tab === 'U14') {
-        tabU14.classList.add('tab-active');
-        tabU19.classList.remove('tab-active');
+        tabU14.classList.add('tab-active'); tabU14.setAttribute('aria-selected','true');
+        tabU19.classList.remove('tab-active'); tabU19.setAttribute('aria-selected','false');
       } else {
-        tabU19.classList.add('tab-active');
-        tabU14.classList.remove('tab-active');
+        tabU19.classList.add('tab-active'); tabU19.setAttribute('aria-selected','true');
+        tabU14.classList.remove('tab-active'); tabU14.setAttribute('aria-selected','false');
       }
       renderFixtures(lastDocs);
     }
-    tabU14.addEventListener('click', () => setActiveTab('U14'));
-    tabU19.addEventListener('click', () => setActiveTab('U19'));
+    tabU14.addEventListener('click', ()=> setActiveTab('U14'));
+    tabU19.addEventListener('click', ()=> setActiveTab('U19'));
 
-    // utility
     function escapeHtml(s){ if(s === null || typeof s === 'undefined') return ''; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
     let lastDocs = [];
-
-    // listen to fixtures collection (real-time)
     try {
       const ref = collection(db, FIXTURES_COLLECTION_PATH);
       const q = query(ref);
       onSnapshot(q, (snap) => {
         lastDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        // sort by kickoffISO if present
         lastDocs.sort((a,b) => {
           const ta = a.kickoffISO ? new Date(a.kickoffISO).getTime() : (a.createdAt?.seconds ? a.createdAt.seconds*1000 : 0);
           const tb = b.kickoffISO ? new Date(b.kickoffISO).getTime() : (b.createdAt?.seconds ? b.createdAt.seconds*1000 : 0);
@@ -231,38 +245,41 @@
       filtered.forEach(f => {
         const kickoff = formatKickoff(f);
         const scorePresent = (typeof f.scoreHome !== 'undefined' && typeof f.scoreAway !== 'undefined' && f.scoreHome !== null && f.scoreAway !== null);
-        const html = `
-          <div class="fixture-card grid md:grid-cols-12 gap-4 items-center">
-            <div class="md:col-span-2 flex items-center gap-3">
-              <img class="team-logo" src="${escapeHtml(f.teamALogoUrl || 'images/opponent.png')}" alt="${escapeHtml(f.teamA||'Team A')}"/>
-              <div class="text-sm font-semibold">${escapeHtml(f.teamA || 'Team A')}</div>
-            </div>
 
-            <div class="md:col-span-6 text-center">
-              <div class="text-sm text-gray-500">${escapeHtml(kickoff)} ${ f.venue ? ' · ' + escapeHtml(f.venue) : '' }</div>
-              <div class="text-xl font-bold mt-2">
-                ${ scorePresent ? `<span class="text-rose-600">${escapeHtml(String(f.scoreHome))}</span> <span class="text-gray-600">:</span> <span class="text-rose-600">${escapeHtml(String(f.scoreAway))}</span>` : '<span class="text-gray-400">vs</span>' }
-              </div>
-              <div class="text-sm text-gray-600 mt-1">${escapeHtml(f.broadcast || '')}</div>
-            </div>
+        // fallback images
+        const teamALogo = escapeHtml(f.teamALogoUrl || 'images/opponent.png');
+        const teamBLogo = escapeHtml(f.teamBLogoUrl || 'images/opponent.png');
 
-            <div class="md:col-span-2 flex items-center gap-3 justify-end">
-              <div class="text-sm font-semibold">${escapeHtml(f.teamB || 'Team B')}</div>
-              <img class="team-logo" src="${escapeHtml(f.teamBLogoUrl || 'images/opponent.png')}" alt="${escapeHtml(f.teamB||'Team B')}"/>
-            </div>
+        const wrapper = document.createElement('div');
+        wrapper.className = 'fixture-card';
+        wrapper.innerHTML = `
+          <div style="display:flex;align-items:center;gap:12px;">
+            <img class="team-logo" src="${teamALogo}" alt="${escapeHtml(f.teamA||'Team A')}"/>
+            <div style="font-weight:700;">${escapeHtml(f.teamA || 'Team A')}</div>
+          </div>
 
-            <div class="md:col-span-2 flex items-center justify-end">
-              <div class="text-xs text-gray-500">${escapeHtml(f.ageGroup || '')} · ${escapeHtml(f.status || '')}</div>
+          <div style="text-align:center;">
+            <div class="fixture-meta">${escapeHtml(kickoff)} ${ f.venue ? ' · ' + escapeHtml(f.venue) : '' }</div>
+            <div style="margin-top:6px;">
+              ${ scorePresent ? `<span class="score">${escapeHtml(String(f.scoreHome))}</span> <span style="color:#6b7280;font-weight:700;margin:0 .5rem;">:</span> <span class="score">${escapeHtml(String(f.scoreAway))}</span>` : '<span style="color:#9CA3AF;font-weight:800;">vs</span>' }
             </div>
+            <div class="fixture-meta" style="margin-top:6px;">${escapeHtml(f.broadcast || '')}</div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:12px;justify-content:flex-end;">
+            <div style="font-weight:700;text-align:right;">${escapeHtml(f.teamB || 'Team B')}</div>
+            <img class="team-logo" src="${teamBLogo}" alt="${escapeHtml(f.teamB||'Team B')}"/>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:flex-end;">
+            <div class="fixture-meta">${escapeHtml(f.ageGroup || '')} · ${escapeHtml(f.status || '')}</div>
           </div>
         `;
-        const wrapper = document.createElement('div');
-        wrapper.innerHTML = html;
-        fixturesList.appendChild(wrapper.firstElementChild);
+        fixturesList.appendChild(wrapper);
       });
     }
 
-    // set default tab active
+    // default
     setActiveTab('U14');
   </script>
 </body>
