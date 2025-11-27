@@ -1,148 +1,61 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Fixtures & Live Scores – The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .logo { width: 48px; height: 48px; border-radius: 9999px; object-fit: cover; background:#f1f5f9; border:1px solid #f3d3e2; }
+    .logo { width: 44px; height: 44px; border-radius: 9999px; object-fit: cover; background:#f1f5f9; }
     .chip { font-size:.75rem; padding:.15rem .5rem; border-radius:9999px }
     .chip-blue { background:#e0f2fe; color:#075985 }
     .chip-green{ background:#dcfce7; color:#166534 }
     .chip-gray { background:#e5e7eb; color:#374151 }
 
-    /* Layout for fixture card similar to screenshot */
-    .fixture-card { background:white; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.06); padding:18px; border:1px solid #f3d3e2; overflow:hidden; }
-    .fixture-top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
-    .teams { display:flex; align-items:center; gap:12px; }
-    .team { display:flex; align-items:center; gap:8px; min-width:120px; }
-    .kickoff { font-weight:700; font-size:1.1rem; }
-    .catch-strip { margin-top:12px; background:#fff0f6; border-top:1px solid #f7d6e8; padding:12px; border-radius:8px; color:#be185d; font-weight:700; }
-    .age-section { margin-top:2rem; }
-    .age-title { font-weight:800; color:#be185d; margin-bottom:.75rem; font-size:1.1rem; }
+    /* tabs */
+    .tab { padding:.9rem 1.4rem; border-radius:999px; font-weight:800; font-size:1.3rem }
+    .tab-inactive { background:white; border:1px solid #fce8ef; color:#be185d; }
+    .tab-active { background: linear-gradient(90deg,#be185d,#f472b6); color:white; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
 
-    /* Dropdown open helper (used by the navbar script) */
-    .dropdown-open { opacity:1!important; transform:scale(1)!important; }
+    /* card */
+    .fx-card { background:white; border-radius:20px; padding:18px; box-shadow:0 6px 18px rgba(0,0,0,0.04); border:1px solid #fde7ef; }
+    .score { font-weight:900; font-size:1.15rem; }
+    .small-muted { color:#6b7280; }
   </style>
 </head>
-<body class="bg-pink-50 text-black font-sans min-h-screen">
+<body class="bg-pink-50 font-sans text-black min-h-screen">
 
-  <!-- Header with dropdown (replaces previous header) -->
-  <header class="fixed top-0 w-full bg-pink-100 shadow z-50">
-    <div class="flex justify-between items-center px-6 py-4">
-      <h1 class="text-xl font-bold uppercase text-rose-600">THE FOOTBALLER’S SISTER</h1>
-
-      <div class="relative inline-block text-left">
-        <button id="navButton"
-          class="inline-flex justify-center w-full rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
-          <span id="navTitle">Loading...</span>
-          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
-          </svg>
-        </button>
-
-        <div id="dropdownMenu"
-          class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
-          <div class="py-1">
-            <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
-            <a href="bts.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
-            <a href="leila.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Meet Leila</a>
-            <a href="questions.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Q&A</a>
-            <a href="support-wall.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Support Wall</a>
-            <a href="fixtures.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Fixtures & Live Scores</a>
-            <a href="giveaways.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Giveaways</a>
-          </div>
-        </div>
-      </div>
-    </div>
+  <header class="pt-8 px-8">
+    <h1 class="text-5xl font-extrabold text-rose-700">Fixtures & Live Scores</h1>
+    <p class="text-gray-600 mt-2">U14 & U19 • Jomo Cosmos</p>
   </header>
 
-  <main class="pt-24 px-6 max-w-6xl mx-auto pb-24">
-    <h2 class="text-4xl font-extrabold text-center text-rose-700">Fixtures & Live Scores</h2>
-    <p class="text-center text-gray-600 mt-1">U14 &amp; U19 • Jomo Cosmos</p>
+  <main class="px-8 max-w-4xl mx-auto pt-8 pb-20">
 
-    <div id="contentArea" class="mt-8">
-      <div id="u19Section" class="age-section"></div>
-      <div id="u14Section" class="age-section"></div>
-      <div id="seniorSection" class="age-section"></div>
+    <!-- Tabs -->
+    <div class="flex gap-6 items-center mb-8">
+      <button id="tabU14" class="tab tab-active">U14 games</button>
+      <button id="tabU19" class="tab tab-inactive">U19 games</button>
+      <div class="ml-auto small-muted">Showing <span id="countLabel">—</span></div>
     </div>
 
-    <div id="emptyMsg" class="text-center text-gray-500 mt-8 hidden">No fixtures yet.</div>
+    <!-- list -->
+    <div id="fxList" class="space-y-4">
+      <p class="text-center text-gray-500">Loading fixtures…</p>
+    </div>
   </main>
 
   <footer class="bg-pink-900 text-white text-center py-6">
-    <p>&copy; <span id="year"></span> The Footballer’s Sister. All rights reserved.</p>
+    <p>&copy; <span id="year"></span> The Footballer’s Sister</p>
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- Navbar dropdown script -->
-  <script>
-    (function () {
-      const navButton = document.getElementById('navButton');
-      const dropdownMenu = document.getElementById('dropdownMenu');
-      const navItems = document.querySelectorAll('.nav-item');
-      const navTitle = document.getElementById('navTitle');
-
-      // determine current page (treat root "/" as index.html)
-      let currentPage = window.location.pathname.split('/').pop();
-      if (!currentPage || currentPage === '') currentPage = 'index.html';
-
-      const pageTitles = {
-        "index.html": "Home",
-        "bts.html": "Behind the Game",
-        "leila.html": "Meet Leila",
-        "questions.html": "Q&A",
-        "support-wall.html": "Support Wall",
-        "fixtures.html": "Fixtures & Live Scores"
-      };
-      navTitle.textContent = pageTitles[currentPage] || "Menu";
-
-      navItems.forEach(link => {
-        const href = link.getAttribute('href');
-        // normalize href (in case it is '/index.html' etc)
-        const hrefName = href.split('/').pop();
-        if (hrefName === currentPage) {
-          link.classList.add("font-semibold", "text-rose-600");
-        }
-      });
-
-      navButton.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const isHidden = dropdownMenu.classList.contains('hidden');
-        if (isHidden) {
-          dropdownMenu.classList.remove('hidden');
-          // slight delay to allow CSS transition from scale-95/opacity-0 -> scale-100/opacity-1
-          setTimeout(()=>dropdownMenu.classList.add('dropdown-open'), 10);
-        } else {
-          dropdownMenu.classList.remove('dropdown-open');
-          setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
-        }
-      });
-
-      // close when clicking outside
-      document.addEventListener('click', (e) => {
-        if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
-          dropdownMenu.classList.remove('dropdown-open');
-          setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
-        }
-      });
-
-      // close on escape
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          dropdownMenu.classList.remove('dropdown-open');
-          setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
-        }
-      });
-    })();
-  </script>
-
-  <!-- Firebase + page logic -->
+  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+    // your firebase config — must match admin page
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
@@ -151,112 +64,110 @@
       messagingSenderId: "65396604482",
       appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
-    const APP_ID = firebaseConfig.appId;
-    const FIXTURES_PATH = `artifacts/${APP_ID}/public/data/fixtures`;
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    const u19Section = document.getElementById('u19Section');
-    const u14Section = document.getElementById('u14Section');
-    const seniorSection = document.getElementById('seniorSection');
-    const emptyMsg = document.getElementById('emptyMsg');
+    const APP_ID = "1:65396604482:web:0f31625a714aa8352337db";
+    const FIXTURES_PATH = `/artifacts/${APP_ID}/public/data/fixtures`;
 
     const JC_U14 = "/images/jc-u14.png";
     const JC_U19 = "/images/jc-u19.png";
     const OPP    = "/images/opponent.png";
 
-    function esc(s){ return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    function makeFixtureCard(f) {
-      const kickoffISO = f.kickoffISO || f.kickoffLabel || '';
-      const kickoffText = kickoffISO ? new Date(kickoffISO).toLocaleString() : '';
-      const teamALogo = f.teamALogoUrl || (f.ageGroup === 'U14' ? JC_U14 : (f.ageGroup === 'U19' ? JC_U19 : OPP));
-      const teamBLogo = f.teamBLogoUrl || OPP;
-      const broadcast = f.broadcast || '';
-      const el = document.createElement('div');
-      el.className = 'fixture-card';
-      el.innerHTML = `
-        <div class="fixture-top">
-          <div class="teams">
-            <div class="team">
-              <img class="logo" src="${esc(teamALogo)}" onerror="this.onerror=null;this.src='${JC_U19}'"/>
-              <div class="text-left">
-                <div style="font-weight:800">${esc(f.teamA || 'Team A')}</div>
+    const fxList = document.getElementById('fxList');
+    const tabU14 = document.getElementById('tabU14');
+    const tabU19 = document.getElementById('tabU19');
+    const countLabel = document.getElementById('countLabel');
+
+    let fixtures = [];
+    let activeTab = 'U14';
+
+    const esc = s => String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+    const chip = (s) => s==='live' ? 'chip chip-green' : (s==='finished' ? 'chip chip-gray' : 'chip chip-blue');
+
+    function render() {
+      // filter by age group and sort chronologically
+      const rows = fixtures
+        .filter(f => (f.ageGroup || '').toUpperCase() === activeTab.toUpperCase())
+        .sort((a,b) => {
+          // use kickoffISO if present, else fallback to kickoffTs seconds
+          const ta = a.kickoffISO ? new Date(a.kickoffISO).getTime() : (a.kickoffTs?.seconds ? a.kickoffTs.seconds*1000 : 0);
+          const tb = b.kickoffISO ? new Date(b.kickoffISO).getTime() : (b.kickoffTs?.seconds ? b.kickoffTs.seconds*1000 : 0);
+          return ta - tb;
+        });
+
+      fxList.innerHTML = '';
+      countLabel.textContent = rows.length;
+
+      if (!rows.length) {
+        fxList.innerHTML = `<p class="text-center text-gray-500">No ${activeTab} fixtures found.</p>`;
+        return;
+      }
+
+      rows.forEach(f => {
+        const when = f.kickoffTs?.toDate ? f.kickoffTs.toDate().toLocaleString() : (f.kickoffISO ? new Date(f.kickoffISO).toLocaleString() : '');
+        const badge = f.status ? `<span class="${chip(f.status)} ml-2">${(f.status||'').toUpperCase()}</span>` : '';
+        const comp  = f.competition ? esc(f.competition) : '';
+        const scorePresent = (typeof f.scoreHome !== 'undefined' && typeof f.scoreAway !== 'undefined');
+        const scoreHtml = scorePresent ? `<div class="score">${esc(String(f.scoreHome))} <span class="mx-2">:</span> ${esc(String(f.scoreAway))}</div>` : `<div class="small-muted">vs</div>`;
+
+        const homeLogo = f.teamALogoUrl || (f.ageGroup==='U14' ? JC_U14 : JC_U19);
+        const awayLogo = f.teamBLogoUrl || OPP;
+
+        const card = document.createElement('div');
+        card.className = 'fx-card';
+
+        card.innerHTML = `
+          <div class="text-sm small-muted">${esc(when)} ${f.venue ? ' • ' + esc(f.venue): ''}</div>
+
+          <div class="flex items-center justify-between gap-4 mt-3">
+            <div class="flex items-center gap-3">
+              <img class="logo" src="${esc(homeLogo)}" alt="home" onerror="this.onerror=null;this.src='${JC_U14}'"/>
+              <div>
+                <div style="font-weight:800;">${esc(f.teamA || 'Jomo Cosmos')}</div>
+                <div class="small-muted text-sm">${esc(f.ageGroup || '')} ${f.homeAway==='home' ? '(Home)' : ''}</div>
               </div>
             </div>
 
-            <div class="kickoff">${esc(f.kickoffISO ? new Date(f.kickoffISO).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '')}</div>
+            <div class="text-center">
+              ${scoreHtml}
+              <div class="mt-1 text-sm text-gray-600">${esc(f.broadcast || '')} ${badge}</div>
+            </div>
 
-            <div class="team">
+            <div class="flex items-center gap-3">
               <div class="text-right">
-                <div style="font-weight:800">${esc(f.teamB || 'Team B')}</div>
+                <div style="font-weight:800;">${esc(f.teamB || 'Opponent')}</div>
+                <div class="small-muted text-sm">${esc(f.opponentNote || '')}</div>
               </div>
-              <img class="logo" src="${esc(teamBLogo)}" onerror="this.onerror=null;this.src='${OPP}'"/>
+              <img class="logo" src="${esc(awayLogo)}" alt="away" onerror="this.onerror=null;this.src='${OPP}'"/>
             </div>
           </div>
 
-          <div style="text-align:center;min-width:180px;">
-            <div style="font-size:.95rem;color:#6b7280">${esc(f.venue || '')}</div>
-            <div style="margin-top:.25rem;font-size:.95rem;color:#374151">${esc(f.ageGroup || '')} · ${esc(f.status || '')}</div>
+          <div class="mt-3 flex gap-3 items-center">
+            ${f.streamUrl ? `<a class="inline-block px-3 py-2 rounded-full text-sm bg-rose-600 text-white hover:bg-rose-700" target="_blank" rel="noopener" href="${esc(f.streamUrl)}">Watch link</a>` : ''}
+            <div class="small-muted">Posted: ${ f.createdAt && f.createdAt.seconds ? new Date(f.createdAt.seconds*1000).toLocaleString() : '' }</div>
           </div>
-        </div>
+        `;
 
-        ${ broadcast ? `<div class="catch-strip">${esc(broadcast)}</div>` : '' }
-
-        ${ f.streamUrl ? `<div style="margin-top:12px;"><a class="inline-block px-4 py-2 rounded bg-rose-600 text-white" href="${esc(f.streamUrl)}" target="_blank" rel="noopener">Watch</a></div>` : '' }
-      `;
-      return el;
+        fxList.appendChild(card);
+      });
     }
 
-    (async () => {
-      try {
-        const q = query(collection(db, FIXTURES_PATH), orderBy('kickoffISO', 'asc'));
-        onSnapshot(q, snap => {
-          const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-          // group by age
-          const u19 = docs.filter(x => (x.ageGroup || '').toUpperCase() === 'U19');
-          const u14 = docs.filter(x => (x.ageGroup || '').toUpperCase() === 'U14');
-          const senior = docs.filter(x => ((x.ageGroup || '').toUpperCase() !== 'U19' && (x.ageGroup || '').toUpperCase() !== 'U14'));
+    // wire tab buttons
+    tabU14.addEventListener('click', () => { activeTab='U14'; tabU14.classList.replace('tab-inactive','tab-active'); tabU19.classList.replace('tab-active','tab-inactive'); render(); });
+    tabU19.addEventListener('click', () => { activeTab='U19'; tabU19.classList.replace('tab-inactive','tab-active'); tabU14.classList.replace('tab-active','tab-inactive'); render(); });
 
-          u19Section.innerHTML = '';
-          u14Section.innerHTML = '';
-          seniorSection.innerHTML = '';
-          let total = 0;
+    // listen to fixtures collection
+    onSnapshot(collection(db, FIXTURES_PATH), snap => {
+      fixtures = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      render();
+    }, err => {
+      fxList.innerHTML = `<p class="text-center text-red-600">Unable to load fixtures.</p>`;
+      console.error('fixtures onSnapshot error', err);
+    });
 
-          if (u19.length) {
-            total += u19.length;
-            const h = document.createElement('div');
-            h.className = 'age-title';
-            h.textContent = 'U19 Fixtures';
-            u19Section.appendChild(h);
-            u19.forEach(f => u19Section.appendChild(makeFixtureCard(f)));
-          }
-
-          if (u14.length) {
-            total += u14.length;
-            const h = document.createElement('div');
-            h.className = 'age-title';
-            h.textContent = 'U14 Fixtures';
-            u14Section.appendChild(h);
-            u14.forEach(f => u14Section.appendChild(makeFixtureCard(f)));
-          }
-
-          if (senior.length) {
-            total += senior.length;
-            const h = document.createElement('div');
-            h.className = 'age-title';
-            h.textContent = 'Senior / Others';
-            seniorSection.appendChild(h);
-            senior.forEach(f => seniorSection.appendChild(makeFixtureCard(f)));
-          }
-
-          emptyMsg.classList.toggle('hidden', total > 0);
-        });
-      } catch (err) {
-        console.error('fixtures load error', err);
-        document.getElementById('contentArea').innerHTML = '<div class="text-red-600">Could not load fixtures.</div>';
-      }
-    })();
+    // start with U14 active
+    tabU14.click();
   </script>
 </body>
 </html>
