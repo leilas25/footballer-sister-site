@@ -31,6 +31,10 @@
       border-radius:999px;
       font-weight:700;
     }
+
+    /* Fixtures admin specific */
+    .fixture-row { display:flex; gap:12px; align-items:center; padding:8px; border-radius:8px; border:1px solid #f3d3e2; background:#fff;}
+    .fixture-thumb { width:72px; height:72px; object-fit:cover; border-radius:8px; border:1px solid #f3d3e2; }
   </style>
 </head>
 <body class="bg-pink-50 font-sans text-black">
@@ -210,7 +214,86 @@
           </div>
         </div>
 
-        <div id="paneFixtures" class="card hidden-el"><h3 class="text-lg font-bold">Fixtures (unchanged)</h3></div>
+        <!-- FIXTURES admin pane: form + list (NEW) -->
+        <div id="paneFixtures" class="card hidden-el">
+          <h3 class="text-xl font-bold mb-3 text-rose-700">Fixtures (admin)</h3>
+          <p class="small-muted mb-3">Create fixtures grouped by age group (U19, U14, Senior). Upload team logos and add a watch/stream link.</p>
+
+          <div class="grid gap-3 md:grid-cols-3 items-center">
+            <div>
+              <label class="small-muted block mb-1">Age group</label>
+              <select id="fxAgeGroup" class="p-2 rounded border w-full">
+                <option value="Senior">Senior</option>
+                <option value="U19">U19</option>
+                <option value="U14">U14</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="small-muted block mb-1">Kickoff (local)</label>
+              <input id="fxKickoff" type="datetime-local" class="p-2 rounded border w-full" />
+            </div>
+
+            <div>
+              <label class="small-muted block mb-1">Status</label>
+              <select id="fxStatus" class="p-2 rounded border w-full">
+                <option value="scheduled">Scheduled</option>
+                <option value="live">Live</option>
+                <option value="finished">Finished</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="small-muted block mb-1">Team A name</label>
+              <input id="fxTeamA" placeholder="Home team name" class="p-2 rounded border w-full" />
+            </div>
+
+            <div>
+              <label class="small-muted block mb-1">Team B name</label>
+              <input id="fxTeamB" placeholder="Away team name" class="p-2 rounded border w-full" />
+            </div>
+
+            <div>
+              <label class="small-muted block mb-1">Venue</label>
+              <input id="fxVenue" placeholder="Venue (optional)" class="p-2 rounded border w-full" />
+            </div>
+
+            <div>
+              <label class="small-muted block mb-1">Team A logo</label>
+              <input id="fxTeamAFile" type="file" accept="image/*" class="p-2 rounded border w-full bg-white" />
+            </div>
+
+            <div>
+              <label class="small-muted block mb-1">Team B logo</label>
+              <input id="fxTeamBFile" type="file" accept="image/*" class="p-2 rounded border w-full bg-white" />
+            </div>
+
+            <div>
+              <label class="small-muted block mb-1">Watch / stream link</label>
+              <input id="fxStream" placeholder="https://..." class="p-2 rounded border w-full" />
+            </div>
+
+            <div class="md:col-span-3">
+              <label class="small-muted block mb-1">Broadcast / caption (optional)</label>
+              <input id="fxBroadcast" placeholder="Catch it Live on SS Football …" class="p-2 rounded border w-full" />
+            </div>
+
+            <div class="md:col-span-3 flex gap-3 items-center mt-2">
+              <button id="createFxBtn" class="btn bg-rose-600 text-white">Create fixture</button>
+              <button id="updateFxBtn" class="btn bg-white border hidden-el">Save changes</button>
+              <button id="cancelFxEditBtn" class="btn bg-white border hidden-el">Cancel</button>
+              <div id="fxStatusMsg" class="small-muted ml-4"></div>
+            </div>
+          </div>
+
+          <div id="fxError" class="error-box hidden-el mt-4"></div>
+
+          <h4 class="mt-6 font-semibold">Existing fixtures</h4>
+          <div id="fixturesList" class="mt-4 space-y-3">
+            <div class="text-gray-500">Loading fixtures…</div>
+          </div>
+        </div>
+
         <div id="paneGiveawaysBackup" class="card hidden-el"><h3 class="text-lg font-bold">Giveaways Backup (unchanged)</h3></div>
 
       </div>
@@ -228,7 +311,7 @@
   <script type="module">
     /**************************************************************************
      * Admin JS - with Cloudinary unsigned upload for collabs + giveaways + winners
-     * Option A: when creating a winner, also create a giveaways doc with status 'winner'.
+     * Fixtures admin pane added (create/edit/delete + team logo uploads + stream link)
      **************************************************************************/
 
     // ---------- CONFIG ----------
@@ -254,6 +337,7 @@
     const GIVEAWAYS_COLLECTION_PATH = `/artifacts/${APP_ID}/public/data/giveaways`;
     const WINNERS_COLLECTION_PATH = `/artifacts/${APP_ID}/public/data/winners`;
     const COLLABS_COLLECTION_PATH = `/artifacts/${APP_ID}/public/data/collabs`;
+    const FIXTURES_COLLECTION_PATH = `/artifacts/${APP_ID}/public/data/fixtures`;
 
     // Candidate bases to try (used by other panes)
     const CANDIDATE_BASES = [
@@ -291,6 +375,7 @@
 
     const navSupport = document.getElementById('navSupport');
     const navQA = document.getElementById('navQA');
+    const navFixtures = document.getElementById('navFixtures');
     const navMedia = document.getElementById('navMedia');
     const navGiveaways = document.getElementById('navGiveaways');
     const navWinners = document.getElementById('navWinners');
@@ -300,6 +385,7 @@
     const paneMedia = document.getElementById('paneMedia');
     const paneGiveaways = document.getElementById('paneGiveaways');
     const paneWinners = document.getElementById('paneWinners');
+    const paneFixtures = document.getElementById('paneFixtures');
 
     const refreshSupportBtn = document.getElementById('refreshSupportBtn');
     const supportList = document.getElementById('supportList');
@@ -343,10 +429,28 @@
     const winStatus = document.getElementById('winStatus');
     const winError = document.getElementById('winError');
 
-    let currentEditId = null; // if editing an existing giveaway
+    // fixtures elements (NEW)
+    const fxAgeGroup = document.getElementById('fxAgeGroup');
+    const fxKickoff = document.getElementById('fxKickoff');
+    const fxStatus = document.getElementById('fxStatus');
+    const fxTeamA = document.getElementById('fxTeamA');
+    const fxTeamB = document.getElementById('fxTeamB');
+    const fxVenue = document.getElementById('fxVenue');
+    const fxTeamAFile = document.getElementById('fxTeamAFile');
+    const fxTeamBFile = document.getElementById('fxTeamBFile');
+    const fxStream = document.getElementById('fxStream');
+    const fxBroadcast = document.getElementById('fxBroadcast');
+    const createFxBtn = document.getElementById('createFxBtn');
+    const updateFxBtn = document.getElementById('updateFxBtn');
+    const cancelFxEditBtn = document.getElementById('cancelFxEditBtn');
+    const fxStatusMsg = document.getElementById('fxStatusMsg');
+    const fxError = document.getElementById('fxError');
+    const fixturesList = document.getElementById('fixturesList');
+
+    let currentEditFxId = null;
 
     function hideAllPanes() {
-      [paneSupport, paneQA, paneMedia, paneGiveaways, paneWinners].forEach(p => p.classList.add('hidden-el'));
+      [paneSupport, paneQA, paneMedia, paneGiveaways, paneWinners, paneFixtures].forEach(p => p.classList.add('hidden-el'));
     }
 
     // ---------- AUTH ----------
@@ -402,12 +506,14 @@
     navMedia.addEventListener('click', showMediaPane);
     navGiveaways.addEventListener('click', showGiveawaysPane);
     navWinners.addEventListener('click', showWinnersPane);
+    navFixtures.addEventListener('click', showFixturesPane);
 
     function showSupportPane(){ hideAllPanes(); paneSupport.classList.remove('hidden-el'); loadSupport(); }
     function showQAPane(){ hideAllPanes(); paneQA.classList.remove('hidden-el'); loadQA(); }
     function showMediaPane(){ hideAllPanes(); paneMedia.classList.remove('hidden-el'); loadCollabs(); }
     function showGiveawaysPane(){ hideAllPanes(); paneGiveaways.classList.remove('hidden-el'); loadGiveaways(); }
     function showWinnersPane(){ hideAllPanes(); paneWinners.classList.remove('hidden-el'); loadWinnersAdmin(); }
+    function showFixturesPane(){ hideAllPanes(); paneFixtures.classList.remove('hidden-el'); loadFixturesAdmin(); }
 
     refreshSupportBtn.addEventListener('click', loadSupport);
     refreshQABtn.addEventListener('click', loadQA);
@@ -1167,6 +1273,273 @@
         createWinner();
       });
     }
+
+    // ---------- FIXTURES admin functions (NEW) ----------
+    async function loadFixturesAdmin() {
+      fixturesList.innerHTML = '<div class="text-gray-500">Loading fixtures…</div>';
+      fxError.classList.add('hidden-el');
+      fxStatusMsg.textContent = '';
+      try {
+        const ref = collection(db, FIXTURES_COLLECTION_PATH);
+        onSnapshot(ref, snap => {
+          const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          docs.sort((a,b) => (a.kickoffTs?.seconds ?? 0) - (b.kickoffTs?.seconds ?? 0));
+          renderFixturesAdmin(docs);
+        }, err => {
+          console.error('fixtures onSnapshot error', err);
+          fixturesList.innerHTML = '<div class="text-red-600">Could not load fixtures.</div>';
+        });
+      } catch (err) {
+        console.error('loadFixturesAdmin failed', err);
+        fixturesList.innerHTML = '<div class="text-red-600">Could not load fixtures.</div>';
+        fxError.classList.remove('hidden-el');
+        fxError.textContent = 'Could not read fixtures: ' + (err.message || err.code || err);
+      }
+    }
+
+    function renderFixturesAdmin(docs) {
+      fixturesList.innerHTML = '';
+      if (!docs.length) { fixturesList.innerHTML = '<div class="text-gray-500">No fixtures yet.</div>'; return; }
+      docs.forEach(f => {
+        const el = document.createElement('div');
+        el.className = 'fixture-row';
+        const dateLabel = f.kickoffTs && f.kickoffTs.seconds ? new Date(f.kickoffTs.seconds*1000).toLocaleString() : (f.kickoffLabel || '');
+        el.innerHTML = `
+          <img class="fixture-thumb" src="${escapeHtml(f.teamALogoUrl || 'images/opponent.png')}" onerror="this.onerror=null;this.src='images/opponent.png'"/>
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:.5rem;">
+              <div style="font-weight:700">${escapeHtml(f.teamA || 'Team A')}</div>
+              <div style="color:#94a3b8;font-size:.85rem;">vs</div>
+              <div style="font-weight:700">${escapeHtml(f.teamB || 'Team B')}</div>
+              <div style="margin-left:auto;color:#6b7280;font-size:.9rem;">${escapeHtml(f.ageGroup || '')} · ${escapeHtml(f.status || '')}</div>
+            </div>
+            <div style="color:#6b7280;font-size:.9rem;margin-top:.25rem;">${escapeHtml(dateLabel)} ${ f.venue ? '· ' + escapeHtml(f.venue) : '' }</div>
+            <div style="margin-top:.25rem;color:#374151;">${escapeHtml(f.broadcast || '')}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.5rem;">
+            <button class="btn bg-white border edit-fx" data-id="${f.id}">Edit</button>
+            <button class="btn bg-white border delete-fx" data-id="${f.id}">Delete</button>
+          </div>
+        `;
+        fixturesList.appendChild(el);
+      });
+
+      fixturesList.querySelectorAll('.edit-fx').forEach(b => {
+        b.addEventListener('click', async (ev) => {
+          const id = ev.currentTarget.getAttribute('data-id');
+          try {
+            const snapAll = await getDocs(query(collection(db, FIXTURES_COLLECTION_PATH)));
+            const found = snapAll.docs.find(d => d.id === id);
+            if (!found) throw new Error('Fixture not found');
+            const data = found.data();
+            currentEditFxId = id;
+            fxAgeGroup.value = data.ageGroup || 'Senior';
+            if (data.kickoffTs && data.kickoffTs.seconds) {
+              const dt = new Date(data.kickoffTs.seconds*1000);
+              fxKickoff.value = dt.toISOString().slice(0,16);
+            } else if (data.kickoffISO) {
+              try { fxKickoff.value = new Date(data.kickoffISO).toISOString().slice(0,16); } catch(e){ fxKickoff.value = ''; }
+            } else { fxKickoff.value = ''; }
+            fxStatus.value = data.status || 'scheduled';
+            fxTeamA.value = data.teamA || '';
+            fxTeamB.value = data.teamB || '';
+            fxVenue.value = data.venue || '';
+            fxStream.value = data.streamUrl || '';
+            fxBroadcast.value = data.broadcast || '';
+
+            createFxBtn.classList.add('hidden-el');
+            updateFxBtn.classList.remove('hidden-el');
+            cancelFxEditBtn.classList.remove('hidden-el');
+            fxStatusMsg.textContent = 'Editing fixture — remember to Save changes.';
+            window.scrollTo({top: fixturesList.offsetTop - 20, behavior: 'smooth'});
+          } catch (err) {
+            console.error('Edit fixture load failed', err);
+            alert('Could not load fixture for editing: ' + (err.message || err));
+          }
+        });
+      });
+
+      fixturesList.querySelectorAll('.delete-fx').forEach(b => {
+        b.addEventListener('click', async (ev) => {
+          const id = ev.currentTarget.getAttribute('data-id');
+          if (!confirm('Delete this fixture?')) return;
+          try {
+            await deleteDoc(doc(db, `${FIXTURES_COLLECTION_PATH}/${id}`));
+          } catch (err) {
+            console.error('Delete fixture failed', err);
+            alert('Could not delete fixture: ' + (err.message || err));
+          }
+        });
+      });
+    }
+
+    // create fixture handler
+    createFxBtn.addEventListener('click', async () => {
+      fxError.classList.add('hidden-el');
+      fxStatusMsg.textContent = '';
+      const ageGroup = (fxAgeGroup.value || 'Senior');
+      const kickoffVal = fxKickoff.value ? new Date(fxKickoff.value) : null;
+      const status = (fxStatus.value || 'scheduled');
+      const teamA = (fxTeamA.value || '').trim();
+      const teamB = (fxTeamB.value || '').trim();
+      const venue = (fxVenue.value || '').trim();
+      const streamUrl = (fxStream.value || '').trim();
+      const broadcast = (fxBroadcast.value || '').trim();
+      const teamAFile = fxTeamAFile.files && fxTeamAFile.files[0];
+      const teamBFile = fxTeamBFile.files && fxTeamBFile.files[0];
+
+      if (!teamA || !teamB || !kickoffVal) {
+        fxError.classList.remove('hidden-el');
+        fxError.textContent = 'Please add both team names and kickoff date/time.';
+        return;
+      }
+
+      createFxBtn.disabled = true;
+      createFxBtn.textContent = 'Saving...';
+
+      try {
+        let teamALogoUrl = '';
+        let teamBLogoUrl = '';
+
+        if (teamAFile) {
+          const resp = await uploadToCloudinary(teamAFile);
+          teamALogoUrl = resp.secure_url;
+        }
+        if (teamBFile) {
+          const resp = await uploadToCloudinary(teamBFile);
+          teamBLogoUrl = resp.secure_url;
+        }
+
+        await addDoc(collection(db, FIXTURES_COLLECTION_PATH), {
+          ageGroup,
+          kickoffTs: serverTimestamp(), // placeholder; we'll set kickoffISO below as canonical
+          kickoffISO: kickoffVal.toISOString(),
+          status,
+          teamA,
+          teamB,
+          venue,
+          teamALogoUrl: teamALogoUrl || '',
+          teamBLogoUrl: teamBLogoUrl || '',
+          streamUrl: streamUrl || '',
+          broadcast: broadcast || '',
+          createdAt: serverTimestamp()
+        });
+
+        fxStatusMsg.textContent = 'Fixture created.';
+        // clear form
+        fxAgeGroup.value = 'Senior';
+        fxKickoff.value = '';
+        fxStatus.value = 'scheduled';
+        fxTeamA.value = '';
+        fxTeamB.value = '';
+        fxVenue.value = '';
+        fxTeamAFile.value = '';
+        fxTeamBFile.value = '';
+        fxStream.value = '';
+        fxBroadcast.value = '';
+      } catch (err) {
+        console.error('Create fixture failed', err);
+        fxError.classList.remove('hidden-el');
+        fxError.textContent = 'Create failed: ' + (err.message || err.code || err);
+      } finally {
+        createFxBtn.disabled = false;
+        createFxBtn.textContent = 'Create fixture';
+      }
+    });
+
+    // update fixture handler
+    updateFxBtn.addEventListener('click', async () => {
+      if (!currentEditFxId) return;
+      fxError.classList.add('hidden-el');
+      fxStatusMsg.textContent = '';
+
+      const ageGroup = (fxAgeGroup.value || 'Senior');
+      const kickoffVal = fxKickoff.value ? new Date(fxKickoff.value) : null;
+      const status = (fxStatus.value || 'scheduled');
+      const teamA = (fxTeamA.value || '').trim();
+      const teamB = (fxTeamB.value || '').trim();
+      const venue = (fxVenue.value || '').trim();
+      const streamUrl = (fxStream.value || '').trim();
+      const broadcast = (fxBroadcast.value || '').trim();
+      const teamAFile = fxTeamAFile.files && fxTeamAFile.files[0];
+      const teamBFile = fxTeamBFile.files && fxTeamBFile.files[0];
+
+      if (!teamA || !teamB || !kickoffVal) {
+        fxError.classList.remove('hidden-el');
+        fxError.textContent = 'Please add both team names and kickoff date/time.';
+        return;
+      }
+
+      updateFxBtn.disabled = true;
+      updateFxBtn.textContent = 'Saving...';
+
+      try {
+        let payload = {
+          ageGroup,
+          status,
+          teamA,
+          teamB,
+          venue,
+          streamUrl: streamUrl || '',
+          broadcast: broadcast || '',
+          updatedAt: serverTimestamp()
+        };
+        if (kickoffVal) payload.kickoffISO = kickoffVal.toISOString();
+
+        if (teamAFile) {
+          const respA = await uploadToCloudinary(teamAFile);
+          payload.teamALogoUrl = respA.secure_url;
+        }
+        if (teamBFile) {
+          const respB = await uploadToCloudinary(teamBFile);
+          payload.teamBLogoUrl = respB.secure_url;
+        }
+
+        await updateDoc(doc(db, `${FIXTURES_COLLECTION_PATH}/${currentEditFxId}`), payload);
+
+        fxStatusMsg.textContent = 'Fixture updated.';
+        currentEditFxId = null;
+        // reset form
+        fxAgeGroup.value = 'Senior';
+        fxKickoff.value = '';
+        fxStatus.value = 'scheduled';
+        fxTeamA.value = '';
+        fxTeamB.value = '';
+        fxVenue.value = '';
+        fxTeamAFile.value = '';
+        fxTeamBFile.value = '';
+        fxStream.value = '';
+        fxBroadcast.value = '';
+        createFxBtn.classList.remove('hidden-el');
+        updateFxBtn.classList.add('hidden-el');
+        cancelFxEditBtn.classList.add('hidden-el');
+      } catch (err) {
+        console.error('Update fixture failed', err);
+        fxError.classList.remove('hidden-el');
+        fxError.textContent = 'Update failed: ' + (err.message || err.code || err);
+      } finally {
+        updateFxBtn.disabled = false;
+        updateFxBtn.textContent = 'Save changes';
+      }
+    });
+
+    cancelFxEditBtn.addEventListener('click', () => {
+      currentEditFxId = null;
+      fxAgeGroup.value = 'Senior';
+      fxKickoff.value = '';
+      fxStatus.value = 'scheduled';
+      fxTeamA.value = '';
+      fxTeamB.value = '';
+      fxVenue.value = '';
+      fxTeamAFile.value = '';
+      fxTeamBFile.value = '';
+      fxStream.value = '';
+      fxBroadcast.value = '';
+      createFxBtn.classList.remove('hidden-el');
+      updateFxBtn.classList.add('hidden-el');
+      cancelFxEditBtn.classList.add('hidden-el');
+      fxStatusMsg.textContent = '';
+    });
 
     // ---------- start: ensure auth + show admin -->
     onAuthStateChanged(auth, (user) => {

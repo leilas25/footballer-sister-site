@@ -6,11 +6,21 @@
   <title>Fixtures & Live Scores – The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    .logo { width: 36px; height: 36px; border-radius: 9999px; object-fit: cover; background:#f1f5f9 }
+    .logo { width: 48px; height: 48px; border-radius: 9999px; object-fit: cover; background:#f1f5f9; border:1px solid #f3d3e2; }
     .chip { font-size:.75rem; padding:.15rem .5rem; border-radius:9999px }
     .chip-blue { background:#e0f2fe; color:#075985 }
     .chip-green{ background:#dcfce7; color:#166534 }
     .chip-gray { background:#e5e7eb; color:#374151 }
+
+    /* Layout for fixture card similar to screenshot */
+    .fixture-card { background:white; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.06); padding:18px; border:1px solid #f3d3e2; overflow:hidden; }
+    .fixture-top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .teams { display:flex; align-items:center; gap:12px; }
+    .team { display:flex; align-items:center; gap:8px; min-width:120px; }
+    .kickoff { font-weight:700; font-size:1.1rem; }
+    .catch-strip { margin-top:12px; background:#fff0f6; border-top:1px solid #f7d6e8; padding:12px; border-radius:8px; color:#be185d; font-weight:700; }
+    .age-section { margin-top:2rem; }
+    .age-title { font-weight:800; color:#be185d; margin-bottom:.75rem; font-size:1.1rem; }
 
     /* Dropdown open helper (used by the navbar script) */
     .dropdown-open { opacity:1!important; transform:scale(1)!important; }
@@ -48,29 +58,17 @@
     </div>
   </header>
 
-  <main class="pt-24 px-6 max-w-3xl mx-auto pb-24">
+  <main class="pt-24 px-6 max-w-6xl mx-auto pb-24">
     <h2 class="text-4xl font-extrabold text-center text-rose-700">Fixtures & Live Scores</h2>
     <p class="text-center text-gray-600 mt-1">U14 &amp; U19 • Jomo Cosmos</p>
 
-    <!-- Filters -->
-    <div class="mt-6 flex gap-3 justify-center">
-      <select id="levelFilter" class="border rounded px-3 py-2 bg-white">
-        <option value="all">All Levels</option>
-        <option value="U14">U14</option>
-        <option value="U19">U19</option>
-      </select>
-      <select id="statusFilter" class="border rounded px-3 py-2 bg-white">
-        <option value="all">All Status</option>
-        <option value="scheduled">Scheduled</option>
-        <option value="live">Live</option>
-        <option value="finished">Finished</option>
-      </select>
+    <div id="contentArea" class="mt-8">
+      <div id="u19Section" class="age-section"></div>
+      <div id="u14Section" class="age-section"></div>
+      <div id="seniorSection" class="age-section"></div>
     </div>
 
-    <!-- List -->
-    <div id="fxList" class="mt-6 space-y-4">
-      <p class="text-center text-gray-500">Loading fixtures…</p>
-    </div>
+    <div id="emptyMsg" class="text-center text-gray-500 mt-8 hidden">No fixtures yet.</div>
   </main>
 
   <footer class="bg-pink-900 text-white text-center py-6">
@@ -140,12 +138,11 @@
     })();
   </script>
 
-  <!-- Firebase + Page Logic -->
+  <!-- Firebase + page logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // CONFIG — must match admin.html
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
@@ -154,96 +151,112 @@
       messagingSenderId: "65396604482",
       appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
-    const APP_ID = "1:65396604482:web:0f31625a714aa8352337db";
+    const APP_ID = firebaseConfig.appId;
     const FIXTURES_PATH = `artifacts/${APP_ID}/public/data/fixtures`;
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-    // Local fallbacks (add these files to /images/)
+    const u19Section = document.getElementById('u19Section');
+    const u14Section = document.getElementById('u14Section');
+    const seniorSection = document.getElementById('seniorSection');
+    const emptyMsg = document.getElementById('emptyMsg');
+
     const JC_U14 = "/images/jc-u14.png";
     const JC_U19 = "/images/jc-u19.png";
     const OPP    = "/images/opponent.png";
 
-    const app = initializeApp(firebaseConfig);
-    const db  = getFirestore(app);
+    function esc(s){ return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-    const fxList       = document.getElementById('fxList');
-    const levelFilter  = document.getElementById('levelFilter');
-    const statusFilter = document.getElementById('statusFilter');
-
-    let fixtures = [];
-
-    const esc = s => String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-    const chip = (s) => s==='live' ? 'chip chip-green' : (s==='finished' ? 'chip chip-gray' : 'chip chip-blue');
-
-    function render() {
-      const level  = levelFilter.value;
-      const status = statusFilter.value;
-
-      const rows = fixtures
-        .filter(f => level==='all'  ? true : (f.level===level))
-        .filter(f => status==='all' ? true : (f.status===status));
-
-      fxList.innerHTML = '';
-      if (!rows.length) {
-        fxList.innerHTML = '<p class="text-center text-gray-500">No fixtures found.</p>';
-        return;
-      }
-
-      rows.forEach(f => {
-        const when = f.kickoffTs?.toDate ? f.kickoffTs.toDate().toLocaleString() : '';
-        const badge = f.status ? `<span class="${chip(f.status)} ml-2">${f.status.toUpperCase()}</span>` : '';
-        const comp  = f.competition ? esc(f.competition) : '';
-        const score = (f.status==='live' || f.status==='finished') ? ` <strong>${f.scoreHome ?? 0} : ${f.scoreAway ?? 0}</strong>` : '';
-
-        // Choose logos with fallbacks
-        const homeLogo = f.homeLogoUrl || (f.level==='U14' ? JC_U14 : JC_U19);
-        const awayLogo = f.awayLogoUrl || OPP;
-
-        const card = document.createElement('div');
-        card.className = 'bg-white rounded-2xl shadow border p-4';
-
-        card.innerHTML = `
-          <div class="text-sm text-gray-600">${esc(when)} • ${esc(f.venue||'')}</div>
-
-          <div class="flex items-center justify-between gap-3 mt-2">
-            <div class="flex items-center gap-2">
-              <img class="logo" src="${esc(homeLogo)}" alt="Jomo Cosmos logo"
-                   onerror="this.onerror=null;this.src='${f.level==='U14'?JC_U14:JC_U19}'"/>
-              <div class="text-gray-900">
-                Jomo Cosmos ${esc(f.level||'')} ${f.homeAway==='home' ? '(Home)' : '(Away)'}
+    function makeFixtureCard(f) {
+      const kickoffISO = f.kickoffISO || f.kickoffLabel || '';
+      const kickoffText = kickoffISO ? new Date(kickoffISO).toLocaleString() : '';
+      const teamALogo = f.teamALogoUrl || (f.ageGroup === 'U14' ? JC_U14 : (f.ageGroup === 'U19' ? JC_U19 : OPP));
+      const teamBLogo = f.teamBLogoUrl || OPP;
+      const broadcast = f.broadcast || '';
+      const el = document.createElement('div');
+      el.className = 'fixture-card';
+      el.innerHTML = `
+        <div class="fixture-top">
+          <div class="teams">
+            <div class="team">
+              <img class="logo" src="${esc(teamALogo)}" onerror="this.onerror=null;this.src='${JC_U19}'"/>
+              <div class="text-left">
+                <div style="font-weight:800">${esc(f.teamA || 'Team A')}</div>
               </div>
             </div>
 
-            <div class="text-xs text-gray-400">vs</div>
+            <div class="kickoff">${esc(f.kickoffISO ? new Date(f.kickoffISO).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '')}</div>
 
-            <div class="flex items-center gap-2">
-              <div class="text-gray-900">${esc(f.opponent||'')}</div>
-              <img class="logo" src="${esc(awayLogo)}" alt="Opponent logo"
-                   onerror="this.onerror=null;this.src='${OPP}'"/>
+            <div class="team">
+              <div class="text-right">
+                <div style="font-weight:800">${esc(f.teamB || 'Team B')}</div>
+              </div>
+              <img class="logo" src="${esc(teamBLogo)}" onerror="this.onerror=null;this.src='${OPP}'"/>
             </div>
           </div>
 
-          <div class="mt-2 text-sm text-gray-700">
-            ${comp} ${badge} ${score}
+          <div style="text-align:center;min-width:180px;">
+            <div style="font-size:.95rem;color:#6b7280">${esc(f.venue || '')}</div>
+            <div style="margin-top:.25rem;font-size:.95rem;color:#374151">${esc(f.ageGroup || '')} · ${esc(f.status || '')}</div>
           </div>
+        </div>
 
-          ${f.streamUrl ? `
-            <a class="inline-block mt-2 px-3 py-1 rounded-full text-sm bg-rose-600 text-white hover:bg-rose-700"
-               target="_blank" rel="noopener" href="${esc(f.streamUrl)}">Watch link</a>` : ``}
-        `;
+        ${ broadcast ? `<div class="catch-strip">${esc(broadcast)}</div>` : '' }
 
-        fxList.appendChild(card);
-      });
+        ${ f.streamUrl ? `<div style="margin-top:12px;"><a class="inline-block px-4 py-2 rounded bg-rose-600 text-white" href="${esc(f.streamUrl)}" target="_blank" rel="noopener">Watch</a></div>` : '' }
+      `;
+      return el;
     }
 
-    // Live updates
-    onSnapshot(collection(db, FIXTURES_PATH), snap => {
-      fixtures = snap.docs.map(d=>({id:d.id, ...d.data()}))
-                .sort((a,b)=> (a.kickoffTs?.seconds ?? 0) - (b.kickoffTs?.seconds ?? 0));
-      render();
-    });
+    (async () => {
+      try {
+        const q = query(collection(db, FIXTURES_PATH), orderBy('kickoffISO', 'asc'));
+        onSnapshot(q, snap => {
+          const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          // group by age
+          const u19 = docs.filter(x => (x.ageGroup || '').toUpperCase() === 'U19');
+          const u14 = docs.filter(x => (x.ageGroup || '').toUpperCase() === 'U14');
+          const senior = docs.filter(x => ((x.ageGroup || '').toUpperCase() !== 'U19' && (x.ageGroup || '').toUpperCase() !== 'U14'));
 
-    levelFilter.addEventListener('change', render);
-    statusFilter.addEventListener('change', render);
+          u19Section.innerHTML = '';
+          u14Section.innerHTML = '';
+          seniorSection.innerHTML = '';
+          let total = 0;
+
+          if (u19.length) {
+            total += u19.length;
+            const h = document.createElement('div');
+            h.className = 'age-title';
+            h.textContent = 'U19 Fixtures';
+            u19Section.appendChild(h);
+            u19.forEach(f => u19Section.appendChild(makeFixtureCard(f)));
+          }
+
+          if (u14.length) {
+            total += u14.length;
+            const h = document.createElement('div');
+            h.className = 'age-title';
+            h.textContent = 'U14 Fixtures';
+            u14Section.appendChild(h);
+            u14.forEach(f => u14Section.appendChild(makeFixtureCard(f)));
+          }
+
+          if (senior.length) {
+            total += senior.length;
+            const h = document.createElement('div');
+            h.className = 'age-title';
+            h.textContent = 'Senior / Others';
+            seniorSection.appendChild(h);
+            senior.forEach(f => seniorSection.appendChild(makeFixtureCard(f)));
+          }
+
+          emptyMsg.classList.toggle('hidden', total > 0);
+        });
+      } catch (err) {
+        console.error('fixtures load error', err);
+        document.getElementById('contentArea').innerHTML = '<div class="text-red-600">Could not load fixtures.</div>';
+      }
+    })();
   </script>
 </body>
 </html>
