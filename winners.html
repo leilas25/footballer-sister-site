@@ -7,51 +7,101 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root { --accent: #be185d; }
-    body { background:#fff6f9; }
-    .card { background:#fff; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.06); overflow:hidden; }
+    body { background:#fff6f9; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color:#111827; }
     header.bts-header {
       background: linear-gradient(180deg, rgba(246,213,239,0.6), rgba(255,241,248,0.6));
       border-bottom: 1px solid rgba(235,200,215,0.6);
       backdrop-filter: blur(4px);
     }
     .site-title { color: var(--accent); font-weight: 800; letter-spacing: .02em; }
-    .footer-badge { display:inline-block; background: linear-gradient(90deg,#be185d,#f472b6); color:white; padding:.45rem .85rem; border-radius:999px; font-weight:700; }
-    .winner-card { border:1px solid #f3d3e2; border-radius:12px; padding:12px; background:white; text-align:left; }
-    .winner-thumb { width:100%; height:160px; object-fit:cover; border-radius:8px; border:1px solid #f3d3e2; }
-    @media (min-width: 768px) {
-      .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+    footer .footer-badge { display:inline-block; background: linear-gradient(90deg,#be185d,#f472b6); color:white; padding:.45rem .85rem; border-radius:999px; font-weight:700; }
+
+    .container { max-width:1100px; margin:0 auto; padding:0 1.5rem; }
+
+    .page-hero { padding-top:3.25rem; padding-bottom:1.25rem; text-align:center; }
+    .hero-title { font-size:2.25rem; font-weight:800; color:var(--accent); margin-bottom:.5rem; }
+    .hero-sub { color:#6b7280; margin-bottom:1.5rem; }
+
+    .grid-3 { display:grid; gap:1rem; }
+    @media(min-width:1024px) { .grid-3 { grid-template-columns: repeat(3, 1fr); } }
+    @media(min-width:640px) and (max-width:1023px) { .grid-3 { grid-template-columns: repeat(2, 1fr); } }
+    @media(max-width:639px) { .grid-3 { grid-template-columns: 1fr; } }
+
+    .winner-card {
+      background:#fff;
+      border:1px solid #f3d3e2;
+      border-radius:12px;
+      overflow:hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+      text-align:left;
+      display:flex;
+      flex-direction:column;
+      transition: transform .14s ease, box-shadow .14s ease;
     }
-    @media (max-width: 767px) {
-      .grid-3 { display:grid; grid-template-columns:repeat(1,1fr); gap:1rem; }
-    }
+    .winner-card:hover { transform: translateY(-6px); box-shadow: 0 18px 36px rgba(0,0,0,0.08); }
+
+    .winner-thumb { width:100%; height:220px; object-fit:cover; display:block; }
+    .winner-body { padding:14px; }
+    .winner-name { font-weight:800; color:var(--accent); font-size:1.05rem; margin-bottom:6px; }
+    .winner-handle { color:#6b7280; font-size:.95rem; margin-bottom:8px; }
+    .winner-prize { color:#374151; font-weight:600; background:linear-gradient(90deg,#fff,#fff); padding:.25rem .5rem; border-radius:8px; display:inline-block; font-size:.95rem; }
+
+    .empty { color:#6b7280; margin-top:1.25rem; text-align:center; }
+
+    /* keep header spacing consistent with fixed header */
+    .spacer { height:88px; }
+
+    a.logo-link { text-decoration:none; color:inherit; display:flex; align-items:center; gap:.75rem; }
   </style>
 </head>
-<body class="bg-pink-50">
+<body>
 
-  <header class="bts-header fixed top-0 left-0 right-0 z-40">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-      <div class="site-title text-xl">THE FOOTBALLER’S SISTER</div>
-      <nav>
-        <a href="giveaways.html" class="text-rose-600">Giveaways</a>
-      </nav>
+  <!-- Header (same look as other pages) -->
+  <header class="bts-header fixed top-0 left-0 right-0 z-50">
+    <div class="container flex items-center justify-between py-4">
+      <a class="logo-link" href="index.html" aria-label="Home">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" class="rounded-full" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="#fff0f6"/><path d="M6 12h12M12 6v12" stroke="#be185d" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <div>
+          <div class="site-title">THE FOOTBALLER’S SISTER</div>
+          <div style="font-size:.8rem;color:#be185d;font-weight:700;">Winners</div>
+        </div>
+      </a>
+
+      <div class="relative inline-block text-left">
+        <button id="navButton" class="inline-flex justify-center rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none" aria-expanded="false">
+          <span id="navTitle">Menu</span>
+          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd"/></svg>
+        </button>
+
+        <div id="dropdownMenu" class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
+          <div class="py-1">
+            <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
+            <a href="bts.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
+            <a href="leila.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Meet Leila</a>
+            <a href="questions.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Q&A</a>
+            <a href="support-wall.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Support Wall</a>
+            <a href="fixtures.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Fixtures & Live Scores</a>
+            <a href="giveaways.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Giveaways</a>
+          </div>
+        </div>
+      </div>
     </div>
   </header>
 
-  <div class="h-24"></div>
+  <div class="spacer" aria-hidden="true"></div>
 
-  <main class="max-w-6xl mx-auto px-6 py-12 text-center">
-    <h2 class="text-4xl font-bold text-rose-700 mb-2">Winners 🏆</h2>
-    <p class="text-gray-600 mb-8">Recent giveaway winners — congratulations to them! If you are listed here, we will contact you via email / IG DM.</p>
+  <main class="container">
+    <section class="page-hero">
+      <h1 class="hero-title">Winners 🏆</h1>
+      <p class="hero-sub">Recent giveaway winners — congratulations to them! If you're listed here we'll contact you via email / IG DM.</p>
+    </section>
 
-    <section id="winnersWrap" class="grid-3"></section>
-
-    <div id="winnersEmpty" class="text-gray-500 mt-8">No winners yet.</div>
+    <section id="winnersWrap" class="grid-3" aria-live="polite" aria-busy="true"></section>
+    <div id="winnersEmpty" class="empty hidden">No winners yet.</div>
   </main>
 
   <footer class="mt-12 bg-pink-900 text-white text-center py-6">
-    <div class="max-w-6xl mx-auto">
-      <small><span class="footer-badge">© <span id="year"></span> The Footballer’s Sister</span></small>
-    </div>
+    <div class="container"><small><span class="footer-badge">© <span id="year"></span> The Footballer’s Sister</span></small></div>
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
@@ -69,7 +119,9 @@
     };
     const APP_ID = firebaseConfig.appId;
 
+    // primary path where admin will store winners
     const PATH_MAIN = `/artifacts/${APP_ID}/public/data/winners`;
+    // fallback (in case you use a different path)
     const PATH_FALLBACK = `/public/data/winners`;
 
     const app = initializeApp(firebaseConfig);
@@ -78,47 +130,96 @@
     const wrap = document.getElementById('winnersWrap');
     const empty = document.getElementById('winnersEmpty');
 
-    function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    function escapeHtml(s){ if(!s && s !== 0) return ''; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-    // --- AUTO-DETECT WHICH PATH HAS DATA ---
+    // try both paths — use the one that has docs
     async function detectPath() {
       try {
-        const mainSnap = await getDocs(query(collection(db, PATH_MAIN)));
+        const mainSnap = await getDocs(query(collection(db, PATH_MAIN), orderBy('createdAt','desc')));
         if (!mainSnap.empty) return PATH_MAIN;
       } catch(e){}
-
       try {
-        const fallbackSnap = await getDocs(query(collection(db, PATH_FALLBACK)));
+        const fallbackSnap = await getDocs(query(collection(db, PATH_FALLBACK), orderBy('createdAt','desc')));
         if (!fallbackSnap.empty) return PATH_FALLBACK;
       } catch(e){}
-
-      return PATH_MAIN; // default
+      return PATH_MAIN;
     }
 
     (async () => {
       const winnersPath = await detectPath();
 
-      const q = query(collection(db, winnersPath), orderBy('createdAt','desc'));
-      onSnapshot(q, snap => {
-        wrap.innerHTML = '';
-        if (!snap.docs.length) {
-          empty.classList.remove('hidden');
-          return;
-        }
-        empty.classList.add('hidden');
+      try {
+        const q = query(collection(db, winnersPath), orderBy('createdAt','desc'));
+        onSnapshot(q, snap => {
+          wrap.innerHTML = '';
+          if (!snap.docs.length) {
+            empty.classList.remove('hidden');
+            wrap.setAttribute('aria-busy','false');
+            return;
+          }
+          empty.classList.add('hidden');
+          wrap.setAttribute('aria-busy','false');
 
-        snap.docs.forEach(d => {
-          const data = d.data();
-          const el = document.createElement('div');
-          el.className = 'winner-card';
-          el.innerHTML = `
-            <img src="${escapeHtml(data.imageUrl || '')}" alt="${escapeHtml(data.name || 'Winner')}" class="winner-thumb"/>
-            <div style="margin-top:.6rem;font-weight:700;">${escapeHtml(data.name || '(no name)')}</div>
-            <div style="color:#6b7280;font-size:.9rem;margin-top:.15rem;">${escapeHtml(data.handle || '')}</div>
-            <div style="margin-top:.4rem;color:#374151;">Prize: ${escapeHtml(data.prize || '')}</div>
-          `;
-          wrap.appendChild(el);
+          snap.docs.forEach(doc => {
+            const data = doc.data();
+
+            // Only render winner's minimal info: image, name, handle, prize
+            const el = document.createElement('article');
+            el.className = 'winner-card';
+            el.innerHTML = `
+              <img src="${escapeHtml(data.imageUrl || 'images/opponent.png')}" alt="${escapeHtml(data.name || 'Winner')}" class="winner-thumb" onerror="this.onerror=null;this.src='images/opponent.png'"/>
+              <div class="winner-body">
+                <div class="winner-name">${escapeHtml(data.name || '(no name)')}</div>
+                <div class="winner-handle">${escapeHtml(data.handle || '')}</div>
+                <div class="winner-prize">Prize: ${escapeHtml(data.prize || '')}</div>
+              </div>
+            `;
+            wrap.appendChild(el);
+          });
+        }, err => {
+          console.error('winners onSnapshot error', err);
+          empty.classList.remove('hidden');
         });
+      } catch(err) {
+        console.error('Winners init error', err);
+        empty.classList.remove('hidden');
+      }
+    })();
+
+    // NAV DROPDOWN: same behaviour as other pages
+    (function setupNavDropdown(){
+      const navButton = document.getElementById('navButton');
+      const dropdownMenu = document.getElementById('dropdownMenu');
+      const navItems = document.querySelectorAll('.nav-item');
+      const navTitle = document.getElementById('navTitle');
+      const currentPage = window.location.pathname.split('/').pop();
+      const pageTitles = {
+        "index.html": "Home",
+        "bts.html": "Behind the Game",
+        "leila.html": "Meet Leila",
+        "questions.html": "Q&A",
+        "support-wall.html": "Support Wall",
+        "fixtures.html": "Fixtures & Live Scores",
+        "giveaways.html": "Giveaways",
+        "winners.html": "Winners"
+      };
+      navTitle.textContent = pageTitles[currentPage] || "Menu";
+      navItems.forEach(link => { if (link.getAttribute('href') === currentPage) link.classList.add("font-semibold", "text-rose-600"); });
+      navButton.addEventListener('click', (e) => {
+        const isHidden = dropdownMenu.classList.contains('hidden');
+        if (isHidden) {
+          dropdownMenu.classList.remove('hidden');
+          setTimeout(()=>dropdownMenu.classList.add('dropdown-open'), 10);
+        } else {
+          dropdownMenu.classList.remove('dropdown-open');
+          setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
+        }
+      });
+      document.addEventListener('click', (e) => {
+        if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+          dropdownMenu.classList.remove('dropdown-open');
+          setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
+        }
       });
     })();
   </script>
