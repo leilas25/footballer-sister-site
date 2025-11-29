@@ -6,14 +6,16 @@
   <title>Fixtures & Live Scores • The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* ===== page visuals ===== */
     :root { --accent: #be185d; --muted: #6b7280; }
     body { background:#fff6f8; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color: #111827; margin:0; }
-    /* BTS header/footer styles (match Meet Leila) */
+
+    /* header/footer match Meet Leila */
     header.bts-header {
       background: linear-gradient(180deg, rgba(246,213,239,0.6), rgba(255,241,248,0.6));
       border-bottom: 1px solid rgba(235,200,215,0.6);
       backdrop-filter: blur(4px);
+      /* ensure header sits above most page content */
+      z-index: 500;
     }
     .site-title { color: var(--accent); font-weight: 800; letter-spacing: .02em; }
     footer .footer-badge {
@@ -25,7 +27,7 @@
       font-weight:700;
     }
 
-    /* fixtures specific */
+    /* fixtures visuals */
     .page-hero { max-width:1100px; margin:0 auto; padding:3.25rem 1.5rem 2rem; }
     .hero-title { font-size:3rem; font-weight:800; color:#be185d; margin:0 0 .6rem; }
     .hero-sub { color:#4b5563; font-size:1.125rem; margin-bottom:1.5rem; }
@@ -35,7 +37,6 @@
     .tab-active { background: linear-gradient(90deg,#be185d,#f472b6); color:white; border-color:transparent; }
 
     .fixtures-wrap { max-width:1100px; margin:0 auto; padding:0 1.5rem 3.25rem; }
-    /* last column fixed width to keep Watch button aligned */
     .fixture-card { background:white; border-radius:12px; padding:14px; box-shadow:0 6px 18px rgba(0,0,0,0.04); border:1px solid #f3d3e2; display:grid; grid-template-columns: 1fr 2fr 1fr 160px; gap:12px; align-items:center; }
     .team-logo { width:64px; height:64px; object-fit:cover; border-radius:8px; border:1px solid #f3d3e2; }
     .fixture-meta { font-size:.95rem; color:#6b7280; }
@@ -56,20 +57,27 @@
       .hero-title { font-size:2.25rem; }
     }
 
+    /* make sure dropdown sits above everything (higher than modals/backdrops) */
+    #dropdownMenu {
+      z-index: 1000 !important;
+      pointer-events: auto; /* ensure clickable */
+      overflow: visible;
+    }
+
     /* dropdown animation helper */
     .dropdown-open { transform: translateY(0); opacity:1; transition: transform .16s ease-out, opacity .16s ease-out; }
   </style>
 </head>
 <body>
 
-  <!-- Header with identical structure & dropdown as Meet Leila page -->
-  <header class="bts-header fixed top-0 w-full z-50">
+  <!-- Header / Dropdown (identical structure to Meet Leila) -->
+  <header class="bts-header fixed top-0 left-0 right-0">
     <div class="flex justify-between items-center px-6 py-4 container" style="max-width:1100px; margin:0 auto;">
       <div style="display:flex;align-items:center;gap:1rem;">
         <div class="site-title" style="font-size:1.15rem;">THE FOOTBALLER’S SISTER</div>
       </div>
 
-      <div class="relative inline-block text-left">
+      <div class="relative inline-block text-left" style="z-index:0;">
         <button id="navButton"
           class="inline-flex justify-center w-full rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none"
           aria-expanded="false">
@@ -79,8 +87,10 @@
           </svg>
         </button>
 
+        <!-- NOTE: z-index set in CSS above to ensure dropdown appears above other page elements -->
         <div id="dropdownMenu"
-          class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
+          class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0"
+          style="display:none; will-change:transform,opacity;">
           <div class="py-1">
             <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
             <a href="bts.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
@@ -119,7 +129,7 @@
     </div>
   </section>
 
-  <!-- Footer (matching Meet Leila) -->
+  <!-- Footer -->
   <footer class="text-center py-6" style="background:transparent;">
     <div class="container" style="max-width:1100px; margin:0 auto;">
       <small class="footer-badge">© <span id="year"></span> The Footballer’s Sister</small>
@@ -127,7 +137,7 @@
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- NAV DROPDOWN SCRIPT: copied from your Meet Leila page to ensure exact behaviour -->
+  <!-- NAV DROPDOWN SCRIPT - robust open/close & ensures dropdown not clipped -->
   <script>
     (function(){
       const navButton = document.getElementById('navButton');
@@ -145,25 +155,29 @@
         "giveaways.html": "Giveaways"
       };
 
+      // show readable current page text
       navTitle.textContent = pageTitles[currentPage] || "Menu";
+
+      // highlight current nav item (defensive: compare filenames)
       navItems.forEach(link => {
         try {
-          const href = link.getAttribute('href')?.split('/').pop() || '';
+          const href = (link.getAttribute('href') || '').split('/').pop();
           if (href === currentPage) link.classList.add("font-semibold", "text-rose-600");
         } catch(e){}
       });
 
-      // show/hide (remove/add the tailwind 'hidden' so it doesn't override)
+      // open/close helpers (explicit display + animation class)
       function openMenu(){
-        dropdownMenu.classList.remove('hidden');
-        dropdownMenu.style.display = 'block';
-        void dropdownMenu.offsetWidth;
-        dropdownMenu.classList.add('dropdown-open');
+        dropdownMenu.style.display = 'block';             // remove 'display:none'
+        dropdownMenu.classList.remove('hidden');          // remove the tailwind "hidden"
+        // small delay to allow style changes to settle, then play the CSS transition
+        requestAnimationFrame(()=> dropdownMenu.classList.add('dropdown-open'));
         navButton.setAttribute('aria-expanded','true');
       }
       function closeMenu(){
         dropdownMenu.classList.remove('dropdown-open');
         navButton.setAttribute('aria-expanded','false');
+        // after animation, hide completely
         setTimeout(()=> {
           dropdownMenu.style.display = 'none';
           dropdownMenu.classList.add('hidden');
@@ -176,19 +190,22 @@
         if (isOpen) closeMenu(); else openMenu();
       });
 
+      // clicking anywhere outside closes menu
       document.addEventListener('click', (e) => {
         if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) closeMenu();
       });
 
+      // escape to close
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeMenu();
       });
 
+      // close menu when a nav link is clicked (mobile friendly)
       navItems.forEach(a => a.addEventListener('click', () => closeMenu()));
     })();
   </script>
 
-  <!-- Firestore fixtures logic + tabs (unchanged from earlier working version) -->
+  <!-- Firestore fixtures logic + tabs (unchanged, real-time) -->
   <script type="module">
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
@@ -276,11 +293,8 @@
         const kickoff = formatKickoff(f);
         const scorePresent = (typeof f.scoreHome !== 'undefined' && typeof f.scoreAway !== 'undefined' && f.scoreHome !== null && f.scoreAway !== null);
 
-        // fallback images
         const teamALogo = escapeHtml(f.teamALogoUrl || 'images/opponent.png');
         const teamBLogo = escapeHtml(f.teamBLogoUrl || 'images/opponent.png');
-
-        // Determine whether to show the watch button:
         const shouldShowWatch = !!(f.streamUrl && String(f.streamUrl).trim());
 
         const wrapper = document.createElement('div');
@@ -313,7 +327,7 @@
       });
     }
 
-    // default
+    // default tab
     setActiveTab('U14');
   </script>
 </body>
