@@ -127,42 +127,74 @@
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- dropdown + header script (same as your Meet Leila page) -->
+  <!-- REPLACED dropdown + header script: more robust (use this exact script) -->
   <script>
-    const navButton = document.getElementById('navButton');
-    const dropdownMenu = document.getElementById('dropdownMenu');
-    const navItems = document.querySelectorAll('.nav-item');
-    const navTitle = document.getElementById('navTitle');
-    const currentPage = window.location.pathname.split('/').pop();
-    const pageTitles = {
-      "index.html": "Home",
-      "bts.html": "Behind the Game",
-      "leila.html": "Meet Leila",
-      "questions.html": "Q&A",
-      "support-wall.html": "Support Wall",
-      "fixtures.html": "Fixtures & Live Scores",
-      "giveaways.html": "Giveaways"
-    };
-    navTitle.textContent = pageTitles[currentPage] || "Menu";
-    navItems.forEach(link => {
-      if (link.getAttribute('href') === currentPage) link.classList.add("font-semibold", "text-rose-600");
-    });
-    navButton.addEventListener('click', (e) => {
-      const isHidden = dropdownMenu.classList.contains('hidden');
-      if (isHidden) {
-        dropdownMenu.classList.remove('hidden');
-        setTimeout(()=>dropdownMenu.classList.add('dropdown-open'), 10);
-      } else {
-        dropdownMenu.classList.remove('dropdown-open');
-        setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
+    (function(){
+      const navButton = document.getElementById('navButton');
+      const dropdownMenu = document.getElementById('dropdownMenu');
+      const navItems = document.querySelectorAll('.nav-item');
+      const navTitle = document.getElementById('navTitle');
+      const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+      const pageTitles = {
+        "index.html": "Home",
+        "bts.html": "Behind the Game",
+        "leila.html": "Meet Leila",
+        "questions.html": "Q&A",
+        "support-wall.html": "Support Wall",
+        "fixtures.html": "Fixtures & Live Scores",
+        "giveaways.html": "Giveaways"
+      };
+
+      // Set title and active link
+      navTitle.textContent = pageTitles[currentPage] || "Menu";
+      navItems.forEach(link => {
+        try {
+          const href = link.getAttribute('href')?.split('/').pop() || '';
+          if (href === currentPage) link.classList.add("font-semibold", "text-rose-600");
+        } catch(e){ /* ignore */ }
+      });
+
+      // Use display style + animation class for reliability
+      function openMenu() {
+        dropdownMenu.style.display = 'block';
+        // force reflow so transition can run
+        void dropdownMenu.offsetWidth;
+        dropdownMenu.classList.add('dropdown-open');
+        navButton.setAttribute('aria-expanded','true');
       }
-    });
-    document.addEventListener('click', (e) => {
-      if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+      function closeMenu() {
         dropdownMenu.classList.remove('dropdown-open');
-        setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
+        navButton.setAttribute('aria-expanded','false');
+        // hide after animation
+        setTimeout(()=> {
+          if (!dropdownMenu.classList.contains('dropdown-open')) dropdownMenu.style.display = 'none';
+        }, 180);
       }
-    });
+
+      navButton.addEventListener('click', (e) => {
+        e.stopPropagation(); // prevent immediate document click from closing
+        const isVisible = dropdownMenu.style.display === 'block' && dropdownMenu.classList.contains('dropdown-open');
+        if (isVisible) closeMenu(); else openMenu();
+      });
+
+      // Close when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) closeMenu();
+      });
+
+      // Close on Esc
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeMenu();
+      });
+
+      // Allow nav anchor clicks to navigate immediately; just tidy up UI after
+      navItems.forEach(a => {
+        a.addEventListener('click', () => {
+          // don't preventDefault — allow normal navigation
+          closeMenu();
+        });
+      });
+    })();
   </script>
 
   <!-- Firestore fixtures logic + tabs -->
@@ -259,11 +291,7 @@
         const teamBLogo = escapeHtml(f.teamBLogoUrl || 'images/opponent.png');
 
         // Determine whether to show the watch button:
-        // Option A (current): show if streamUrl exists:
         const shouldShowWatch = !!(f.streamUrl && String(f.streamUrl).trim());
-
-        // Option B (only show when status is "live"):
-        // const shouldShowWatch = ( (f.streamUrl && String(f.streamUrl).trim()) && (String((f.status||'')).toLowerCase() === 'live') );
 
         const wrapper = document.createElement('div');
         wrapper.className = 'fixture-card';
