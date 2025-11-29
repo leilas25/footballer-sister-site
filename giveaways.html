@@ -7,7 +7,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     /* Instagram-like card styles */
-    .ig-card { background: #fff; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); overflow: hidden; }
+    .ig-card { background: #fff; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); overflow: hidden; transition: transform .18s ease, box-shadow .18s ease; cursor: pointer; }
+    .ig-card:hover { transform: translateY(-6px); box-shadow: 0 18px 36px rgba(0,0,0,0.12); }
     .ig-header { display:flex; align-items:center; gap:.75rem; padding:.75rem; }
 
     /* UPDATED: Avatar becomes your logo */
@@ -44,6 +45,54 @@
     }
 
     .dropdown-open { opacity:1!important; transform:scale(1)!important; }
+
+    /* status badge (top-right) */
+    .status-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 12;
+      padding:.28rem .6rem;
+      border-radius:999px;
+      background: white;
+      border:1px solid #fde7ef;
+      color: #be185d;
+      font-weight:700;
+      font-size:.8rem;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+    }
+
+    /* modal/backdrop */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: none; align-items: center; justify-content: center; z-index:90;
+    }
+    .modal {
+      background: #fff; border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+      padding: 18px; max-height: 90vh; overflow-y: auto; width: 920px; max-width: calc(100% - 32px);
+    }
+    @media (max-width:640px) { .modal { width: 96%; padding:12px; } }
+
+    .modal-hero { display:flex; gap:12px; align-items:center; margin-bottom:12px; }
+    .modal-hero .icon {
+      width:72px; height:72px; border-radius:9999px; display:flex; align-items:center; justify-content:center; background:#fff0f6;
+      border:1px solid #FBCFE8; background-image: url('images/football-sis-logo.png'); background-size:cover; background-position:center;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+      flex-shrink:0;
+    }
+    .modal-title { color:var(--accent); font-weight:800; font-size:1.25rem; }
+    .modal-meta { color:var(--muted); font-size:.95rem; }
+
+    .modal-image { width:100%; height:320px; object-fit:cover; border-radius:10px; margin-bottom:12px; }
+
+    .modal-actions { display:flex; gap:10px; align-items:center; margin-top:12px; flex-wrap:wrap; }
+    .btn-rose { background: linear-gradient(90deg,#be185d,#f472b6); color:white; padding:.6rem .9rem; border-radius:999px; font-weight:800; text-decoration:none; }
+    .btn-outline { background:transparent; border:1px solid #FBCFE8; color:var(--accent); padding:.5rem .8rem; border-radius:999px; font-weight:700; cursor:pointer; }
+
+    .share-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-left:auto; }
+
+    /* countdown badge */
+    .countdown { display:inline-block; padding:.3rem .6rem; border-radius:8px; background: #fff0f6; border:1px solid #fbddec; color:#9b1140; font-weight:800; font-size:.95rem; }
+
   </style>
 </head>
 <body class="bg-pink-50">
@@ -107,6 +156,11 @@
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
+  <!-- modal container -->
+  <div id="modalBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div id="modalContainer" class="modal" role="dialog" aria-modal="true" style="display:none;"></div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -132,6 +186,17 @@
     let currentFilter = 'all';
     let giveawaysCache = [];
 
+    function escapeHtml(s){ if(!s && s !== 0) return ''; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+    function niceDateLabel(ts) {
+      if(!ts) return '—';
+      try {
+        if (ts.seconds) return new Date(ts.seconds*1000).toLocaleString();
+        return new Date(ts).toLocaleString();
+      } catch(e){ return '—'; }
+    }
+
+    // render grid: clickable cards
     function renderGrid(items) {
       giveGrid.innerHTML = '';
       const visible = items.filter(it => {
@@ -143,10 +208,18 @@
       } else {
         giveEmpty.classList.add('hidden');
       }
+
       visible.forEach(item => {
-        const endsAtLabel = item.endsAt ? (item.endsAt.seconds ? new Date(item.endsAt.seconds*1000).toLocaleString() : new Date(item.endsAt).toLocaleString()) : '—';
+        const endsAtLabel = niceDateLabel(item.endsAt);
+        const status = escapeHtml(item.status || 'ongoing');
+
         const card = document.createElement('article');
-        card.className = 'ig-card text-left';
+        card.className = 'ig-card text-left relative';
+        card.dataset.id = item.id;
+
+        // title in bold pink
+        const titleHtml = `<div class="font-bold text-rose-700 text-lg">${escapeHtml(item.title || 'Giveaway')}</div>`;
+
         card.innerHTML = `
           <div class="ig-header">
             <img src="images/football-sis-logo.png" class="ig-avatar" alt="Logo">
@@ -155,31 +228,197 @@
               <div class="text-xs text-gray-500">${item.createdAt && item.createdAt.seconds ? new Date(item.createdAt.seconds*1000).toLocaleDateString() : ''}</div>
             </div>
             <div style="margin-left:12px;">
-              <span style="display:inline-block;padding:.25rem .6rem;border-radius:999px;border:1px solid #fde7ef;color:#be185d;font-weight:700;font-size:.85rem;">${escapeHtml(item.status||'ongoing')}</span>
+              <span class="status-badge">${status}</span>
             </div>
           </div>
+
           <img src="${escapeHtml(item.imageUrl||'')}" alt="${escapeHtml(item.title||'Giveaway')}" class="ig-image" onerror="this.onerror=null;this.src='images/opponent.png'"/>
+
           <div class="p-4">
-            <div class="font-semibold text-lg">${escapeHtml(item.title||'Giveaway')}</div>
+            ${titleHtml}
             <div class="text-gray-700 mt-2">${escapeHtml(item.caption||'')}</div>
             <div class="text-xs text-gray-400 mt-3">Ends: ${endsAtLabel}</div>
             <div class="mt-4">
-              <a href="${escapeHtml(item.link || '#')}" class="inline-block px-4 py-2 bg-rose-600 text-white rounded">${item.link ? 'Enter Giveaway' : 'Details'}</a>
+              <a class="inline-block px-4 py-2 bg-rose-600 text-white rounded">${item.link ? 'Enter Giveaway' : 'Details'}</a>
             </div>
           </div>
         `;
+
+        // click to open modal for this item
+        card.addEventListener('click', (ev) => {
+          // avoid clicks on inner links (if any) from double handling
+          if (ev.target.tagName.toLowerCase() === 'a') return;
+          openGiveawayModal(item.id);
+        });
+
         giveGrid.appendChild(card);
       });
     }
 
-    function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    // modal functions and share/copy/countdown
+    const backdrop = document.getElementById('modalBackdrop');
+    const modalContainer = document.getElementById('modalContainer');
+    let countdownInterval = null;
 
+    function clearCountdown() {
+      if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+    }
+
+    function formatRemaining(ms) {
+      if (ms <= 0) return 'Ended';
+      const s = Math.floor(ms/1000);
+      const days = Math.floor(s / 86400);
+      const hours = Math.floor((s % 86400) / 3600);
+      const mins = Math.floor((s % 3600) / 60);
+      if (days > 0) return `${days}d ${hours}h`;
+      if (hours > 0) return `${hours}h ${mins}m`;
+      return `${mins}m`;
+    }
+
+    function openGiveawayModal(id, pushState = true) {
+      const item = giveawaysCache.find(x => x.id === id);
+      if (!item) return;
+      clearCountdown();
+
+      // build modal html
+      const endsAtLabel = niceDateLabel(item.endsAt);
+      let countdownHtml = '';
+      if (item.endsAt) {
+        countdownHtml = `<span id="modalCountdown" class="countdown">Loading...</span>`;
+      }
+
+      modalContainer.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+          <div style="display:flex;gap:12px;align-items:center;">
+            <div class="icon"></div>
+            <div>
+              <div class="modal-title">${escapeHtml(item.title || 'Giveaway')}</div>
+              <div class="modal-meta">Ends: ${endsAtLabel} ${countdownHtml ? ' · ' + countdownHtml : ''}</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <div class="share-row" id="shareRow"></div>
+            <button id="modalCloseBtn" class="btn-outline">Close</button>
+          </div>
+        </div>
+
+        <img src="${escapeHtml(item.imageUrl||'')}" class="modal-image" alt="${escapeHtml(item.title||'Giveaway')}" onerror="this.onerror=null;this.src='images/opponent.png'"/>
+
+        <div style="display:flex;gap:18px;flex-direction:column;">
+          <div class="text-gray-800" style="line-height:1.6;">${escapeHtml(item.caption || '')}</div>
+
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <a id="enterBtn" href="${escapeHtml(item.link || '#')}" target="${item.link ? '_blank' : '_self'}" class="btn-rose">${item.link ? 'Enter Giveaway' : 'No external link'}</a>
+            <button id="copyLinkBtn" class="btn-outline">Copy Link</button>
+            <button id="whatsappBtn" class="btn-outline">Share on WhatsApp</button>
+            <button id="nativeShareBtn" class="btn-outline">Share</button>
+          </div>
+
+          <div style="margin-top:8px;" class="text-xs text-gray-500">
+            <strong>Rules:</strong> ${escapeHtml(item.rules || 'Follow the post, tag 2 friends & DM us a screenshot to enter. Winners chosen at random.')}
+          </div>
+        </div>
+      `;
+
+      // show modal
+      backdrop.style.display = 'flex';
+      modalContainer.style.display = 'block';
+      backdrop.setAttribute('aria-hidden', 'false');
+
+      // shareable url
+      const shareUrl = `${location.origin}${location.pathname}?id=${encodeURIComponent(id)}`;
+
+      // setup countdown if applicable
+      if (item.endsAt) {
+        const target = item.endsAt.seconds ? (item.endsAt.seconds * 1000) : new Date(item.endsAt).getTime();
+        const countdownEl = document.getElementById('modalCountdown');
+        function tick() {
+          const rem = target - Date.now();
+          if (rem <= 0) {
+            countdownEl.textContent = 'Ended';
+            clearCountdown();
+          } else {
+            countdownEl.textContent = formatRemaining(rem);
+          }
+        }
+        tick();
+        countdownInterval = setInterval(tick, 1000 * 30); // update every 30s
+      }
+
+      // wire share/copy buttons
+      const copyBtn = document.getElementById('copyLinkBtn');
+      copyBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+          copyBtn.textContent = 'Link copied';
+          setTimeout(()=> copyBtn.textContent = 'Copy Link', 2000);
+        } catch(e) {
+          copyBtn.textContent = 'Copy failed';
+          setTimeout(()=> copyBtn.textContent = 'Copy Link', 2000);
+        }
+      });
+
+      const whatsappBtn = document.getElementById('whatsappBtn');
+      whatsappBtn.addEventListener('click', () => {
+        const text = encodeURIComponent(`${item.title || 'Giveaway'} — Enter here: ${shareUrl}`);
+        const wa = `https://wa.me/?text=${text}`;
+        window.open(wa, '_blank', 'noopener');
+      });
+
+      const nativeShareBtn = document.getElementById('nativeShareBtn');
+      nativeShareBtn.addEventListener('click', async () => {
+        if (navigator.share) {
+          try {
+            await navigator.share({ title: item.title || 'Giveaway', text: item.caption || '', url: shareUrl });
+          } catch(e) { /* user cancelled */ }
+        } else {
+          // fallback: copy link
+          try { await navigator.clipboard.writeText(shareUrl); nativeShareBtn.textContent = 'Link copied'; setTimeout(()=> nativeShareBtn.textContent = 'Share', 2000);} catch(e){ nativeShareBtn.textContent = 'Copy failed'; setTimeout(()=> nativeShareBtn.textContent = 'Share', 2000); }
+        }
+      });
+
+      // close handlers
+      document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+      backdrop.addEventListener('click', backdropClickHandler);
+
+      // update URL without reload
+      if (pushState) {
+        try { history.pushState({ giveawayId: id }, '', `?id=${encodeURIComponent(id)}`); } catch(e){ /* ignore */ }
+      }
+    }
+
+    function backdropClickHandler(e) {
+      if (e.target === backdrop) closeModal();
+    }
+
+    function closeModal(popState = true) {
+      backdrop.style.display = 'none';
+      modalContainer.style.display = 'none';
+      modalContainer.innerHTML = '';
+      backdrop.setAttribute('aria-hidden', 'true');
+      clearCountdown();
+      backdrop.removeEventListener('click', backdropClickHandler);
+      if (popState) {
+        // remove ?id param
+        try { history.pushState({}, '', location.pathname); } catch(e){ /* ignore */ }
+      }
+    }
+
+    // load data & wire pills and nav dropdown
     try {
       const q = query(collection(db, GIVEAWAYS_COLLECTION_PATH), orderBy('createdAt','desc'));
       onSnapshot(q, snap => {
         const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         giveawaysCache = docs;
         renderGrid(docs);
+
+        // if page has ?id=... open that modal if present
+        const urlId = new URLSearchParams(location.search).get('id');
+        if (urlId) {
+          // if it's in cache, open; otherwise wait until present
+          const found = giveawaysCache.find(x => x.id === urlId);
+          if (found) openGiveawayModal(urlId, false);
+        }
       }, err => {
         console.error('giveaways onSnapshot error', err);
         giveGrid.innerHTML = '<div class="text-red-600">Could not load giveaways.</div>';
@@ -189,6 +428,7 @@
       giveGrid.innerHTML = '<div class="text-red-600">Could not load giveaways.</div>';
     }
 
+    // pills filtering
     pills.forEach(p => {
       p.addEventListener('click', () => {
         pills.forEach(x => x.classList.remove('active'));
@@ -198,6 +438,7 @@
       });
     });
 
+    // Nav dropdown setup (copied pattern)
     (function setupNavDropdown(){
       const navButton = document.getElementById('navButton');
       const dropdownMenu = document.getElementById('dropdownMenu');
@@ -234,6 +475,21 @@
         }
       });
     })();
+
+    // handle back/forward for modal open/close
+    window.addEventListener('popstate', (ev) => {
+      const id = new URLSearchParams(location.search).get('id');
+      if (id) {
+        openGiveawayModal(id, false);
+      } else {
+        // close modal if open
+        closeModal(false);
+      }
+    });
+
+    // Utility: open modal directly if link with ?id provided on first load (if data loaded earlier)
+    // handled inside snapshot handler to ensure data available
+
   </script>
 </body>
 </html>
