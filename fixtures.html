@@ -8,8 +8,8 @@
   <style>
     /* ===== page visuals ===== */
     :root { --accent: #be185d; --muted: #6b7280; }
-    body { background:#fff6f8; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color: #111827; }
-    /* BTS header/footer styles (same as Meet Leila) */
+    body { background:#fff6f8; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color: #111827; margin:0; }
+    /* BTS header/footer styles (match Meet Leila) */
     header.bts-header {
       background: linear-gradient(180deg, rgba(246,213,239,0.6), rgba(255,241,248,0.6));
       border-bottom: 1px solid rgba(235,200,215,0.6);
@@ -62,7 +62,7 @@
 </head>
 <body>
 
-  <!-- Header / Dropdown (copied from Meet Leila page to match exactly) -->
+  <!-- Header with identical structure & dropdown as Meet Leila page -->
   <header class="bts-header fixed top-0 w-full z-50">
     <div class="flex justify-between items-center px-6 py-4 container" style="max-width:1100px; margin:0 auto;">
       <div style="display:flex;align-items:center;gap:1rem;">
@@ -119,7 +119,7 @@
     </div>
   </section>
 
-  <!-- Footer (copied from Meet Leila page) -->
+  <!-- Footer (matching Meet Leila) -->
   <footer class="text-center py-6" style="background:transparent;">
     <div class="container" style="max-width:1100px; margin:0 auto;">
       <small class="footer-badge">© <span id="year"></span> The Footballer’s Sister</small>
@@ -127,7 +127,7 @@
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- FIXED dropdown + header script: remove/add "hidden" class so Tailwind doesn't override display -->
+  <!-- NAV DROPDOWN SCRIPT: copied from your Meet Leila page to ensure exact behaviour -->
   <script>
     (function(){
       const navButton = document.getElementById('navButton');
@@ -145,28 +145,25 @@
         "giveaways.html": "Giveaways"
       };
 
-      // Set title and active link
       navTitle.textContent = pageTitles[currentPage] || "Menu";
       navItems.forEach(link => {
         try {
           const href = link.getAttribute('href')?.split('/').pop() || '';
           if (href === currentPage) link.classList.add("font-semibold", "text-rose-600");
-        } catch(e){ /* ignore */ }
+        } catch(e){}
       });
 
-      // Use display style + animation class for reliability, but also remove/add tailwind 'hidden'
-      function openMenu() {
+      // show/hide (remove/add the tailwind 'hidden' so it doesn't override)
+      function openMenu(){
         dropdownMenu.classList.remove('hidden');
         dropdownMenu.style.display = 'block';
-        // force reflow so animation class takes effect
         void dropdownMenu.offsetWidth;
         dropdownMenu.classList.add('dropdown-open');
         navButton.setAttribute('aria-expanded','true');
       }
-      function closeMenu() {
+      function closeMenu(){
         dropdownMenu.classList.remove('dropdown-open');
         navButton.setAttribute('aria-expanded','false');
-        // hide after animation
         setTimeout(()=> {
           dropdownMenu.style.display = 'none';
           dropdownMenu.classList.add('hidden');
@@ -174,31 +171,25 @@
       }
 
       navButton.addEventListener('click', (e) => {
-        e.stopPropagation(); // prevent immediate document click from closing
-        const isVisible = dropdownMenu.style.display === 'block' && dropdownMenu.classList.contains('dropdown-open');
-        if (isVisible) closeMenu(); else openMenu();
+        e.stopPropagation();
+        const isOpen = dropdownMenu.style.display === 'block' && dropdownMenu.classList.contains('dropdown-open');
+        if (isOpen) closeMenu(); else openMenu();
       });
 
-      // Close when clicking outside
       document.addEventListener('click', (e) => {
         if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) closeMenu();
       });
 
-      // Close on Esc
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeMenu();
       });
 
-      // Close menu gracefully when a nav link is clicked (navigation will proceed)
-      navItems.forEach(a => {
-        a.addEventListener('click', () => closeMenu());
-      });
+      navItems.forEach(a => a.addEventListener('click', () => closeMenu()));
     })();
   </script>
 
-  <!-- Firestore fixtures logic + tabs -->
+  <!-- Firestore fixtures logic + tabs (unchanged from earlier working version) -->
   <script type="module">
-    // FIREBASE CONFIG - same as admin
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
