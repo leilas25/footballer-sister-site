@@ -6,115 +6,52 @@
   <title>Giveaways — The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Instagram-like card styles */
-    .ig-card { background: #fff; border-radius: 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.06); overflow: hidden; transition: transform .18s ease, box-shadow .18s ease; cursor: pointer; }
-    .ig-card:hover { transform: translateY(-6px); box-shadow: 0 18px 36px rgba(0,0,0,0.12); }
-    .ig-header { display:flex; align-items:center; gap:.75rem; padding:.75rem; }
-
-    /* UPDATED: Avatar becomes your logo */
-    .ig-avatar {
-      width:40px;
-      height:40px;
-      border-radius:9999px;
-      object-fit:cover;
-      display:inline-block;
-    }
-
-    .ig-image { width:100%; height:420px; object-fit:cover; display:block; }
-    .pill-bar { display:flex; gap:8px; justify-content:center; margin-bottom:1rem; flex-wrap:wrap; }
-    .pill { padding:.5rem 1rem; border-radius:999px; font-weight:700; background:#fff; border:1px solid #fde7ef; color:#be185d; cursor:pointer; }
-    .pill.active { background: linear-gradient(90deg,#be185d,#f472b6); color:white; border:none; }
-
-    .give-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap:1rem; }
-    @media (max-width:900px) { .give-grid { grid-template-columns: 1fr; } .ig-image { height:260px; } }
-
-    :root { --accent: #be185d; --muted: #6b7280; }
-    header.bts-header {
-      background: linear-gradient(180deg, rgba(246,213,239,0.6), rgba(255,241,248,0.6));
-      border-bottom: 1px solid rgba(235,200,215,0.6);
-      backdrop-filter: blur(4px);
-    }
-    .site-title { color: var(--accent); font-weight: 800; letter-spacing: .02em; }
-    footer .footer-badge {
-      display:inline-block;
-      background: linear-gradient(90deg,#be185d,#f472b6);
-      color:white;
-      padding:.45rem .85rem;
-      border-radius:999px;
-      font-weight:700;
-    }
-
-    .dropdown-open { opacity:1!important; transform:scale(1)!important; }
-
-    /* status badge (top-right) */
-    .status-badge {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      z-index: 12;
-      padding:.28rem .6rem;
-      border-radius:999px;
-      background: white;
-      border:1px solid #fde7ef;
-      color: #be185d;
-      font-weight:700;
-      font-size:.8rem;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.04);
-    }
-
-    /* modal/backdrop */
-    .modal-backdrop {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: none; align-items: center; justify-content: center; z-index:90;
-    }
-    .modal {
-      background: #fff; border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,0.25);
-      padding: 18px; max-height: 90vh; overflow-y: auto; width: 920px; max-width: calc(100% - 32px);
-    }
-    @media (max-width:640px) { .modal { width: 96%; padding:12px; } }
-
-    .modal-hero { display:flex; gap:12px; align-items:center; margin-bottom:12px; }
-    .modal-hero .icon {
-      width:72px; height:72px; border-radius:9999px; display:flex; align-items:center; justify-content:center; background:#fff0f6;
-      border:1px solid #FBCFE8; background-image: url('images/football-sis-logo.png'); background-size:cover; background-position:center;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
-      flex-shrink:0;
-    }
-    .modal-title { color:var(--accent); font-weight:800; font-size:1.25rem; }
-    .modal-meta { color:var(--muted); font-size:.95rem; }
-
-    .modal-image { width:100%; height:320px; object-fit:cover; border-radius:10px; margin-bottom:12px; }
-
-    .modal-actions { display:flex; gap:10px; align-items:center; margin-top:12px; flex-wrap:wrap; }
-    .btn-rose { background: linear-gradient(90deg,#be185d,#f472b6); color:white; padding:.6rem .9rem; border-radius:999px; font-weight:800; text-decoration:none; }
-    .btn-outline { background:transparent; border:1px solid #FBCFE8; color:var(--accent); padding:.5rem .8rem; border-radius:999px; font-weight:700; cursor:pointer; }
-
-    .share-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-left:auto; }
-
-    /* countdown badge */
-    .countdown { display:inline-block; padding:.3rem .6rem; border-radius:8px; background: #fff0f6; border:1px solid #fbddec; color:#9b1140; font-weight:800; font-size:.95rem; }
-
+    .ig-card { background:#fff;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,0.06);overflow:hidden;transition:transform .18s,box-shadow .18s;cursor:pointer; }
+    .ig-card:hover { transform:translateY(-6px); box-shadow:0 18px 36px rgba(0,0,0,0.12); }
+    .ig-header{display:flex;align-items:center;gap:.75rem;padding:.75rem;}
+    .ig-avatar{width:40px;height:40px;border-radius:9999px;object-fit:cover;}
+    .ig-image{width:100%;height:420px;object-fit:cover;display:block;}
+    .pill-bar{display:flex;gap:8px;justify-content:center;margin-bottom:1rem;flex-wrap:wrap;}
+    .pill{padding:.5rem 1rem;border-radius:999px;font-weight:700;background:#fff;border:1px solid #fde7ef;color:#be185d;cursor:pointer;}
+    .pill.active{background:linear-gradient(90deg,#be185d,#f472b6);color:white;border:none;}
+    .give-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;}
+    @media (max-width:900px){ .give-grid{grid-template-columns:1fr;} .ig-image{height:260px;} }
+    :root{--accent:#be185d;--muted:#6b7280;}
+    header.bts-header{background:linear-gradient(180deg, rgba(246,213,239,0.6), rgba(255,241,248,0.6));border-bottom:1px solid rgba(235,200,215,0.6);backdrop-filter:blur(4px);}
+    .site-title{color:var(--accent);font-weight:800;letter-spacing:.02em;}
+    footer .footer-badge{display:inline-block;background:linear-gradient(90deg,#be185d,#f472b6);color:white;padding:.45rem .85rem;border-radius:999px;font-weight:700;}
+    .dropdown-open{opacity:1!important;transform:scale(1)!important;}
+    .status-badge{position:absolute;top:12px;right:12px;z-index:12;padding:.28rem .6rem;border-radius:999px;background:#fff;border:1px solid #fde7ef;color:#be185d;font-weight:700;font-size:.8rem;box-shadow:0 6px 18px rgba(0,0,0,0.04);}
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.55);display:none;align-items:center;justify-content:center;z-index:90;}
+    .modal{background:#fff;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,0.25);padding:18px;max-height:90vh;overflow-y:auto;width:920px;max-width:calc(100% - 32px);}
+    @media (max-width:640px){ .modal{width:96%;padding:12px;} }
+    .modal-hero{display:flex;gap:12px;align-items:center;margin-bottom:12px;}
+    .modal-hero .icon{width:72px;height:72px;border-radius:9999px;background:#fff0f6;border:1px solid #FBCFE8;background-image:url('images/football-sis-logo.png');background-size:cover;background-position:center;box-shadow:0 6px 18px rgba(0,0,0,0.06);flex-shrink:0;}
+    .modal-title{color:var(--accent);font-weight:800;font-size:1.25rem;}
+    .modal-meta{color:var(--muted);font-size:.95rem;}
+    .modal-image{width:100%;height:320px;object-fit:cover;border-radius:10px;margin-bottom:12px;}
+    .modal-actions{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap;}
+    .btn-rose{background:linear-gradient(90deg,#be185d,#f472b6);color:white;padding:.6rem .9rem;border-radius:999px;font-weight:800;text-decoration:none;}
+    .btn-outline{background:transparent;border:1px solid #FBCFE8;color:var(--accent);padding:.5rem .8rem;border-radius:999px;font-weight:700;cursor:pointer;}
+    .share-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-left:auto;}
+    .countdown{display:inline-block;padding:.3rem .6rem;border-radius:8px;background:#fff0f6;border:1px solid #fbddec;color:#9b1140;font-weight:800;font-size:.95rem;}
   </style>
 </head>
 <body class="bg-pink-50">
 
+  <!-- header (same as other pages) -->
   <header class="bts-header fixed top-0 w-full z-50">
-    <div class="flex justify-between items-center px-6 py-4 container" style="max-width:1100px; margin:0 auto;">
-      <div style="display:flex;align-items:center;gap:1rem;">
-        <div class="site-title" style="font-size:1.15rem;">THE FOOTBALLER’S SISTER</div>
-      </div>
-
+    <div class="flex justify-between items-center px-6 py-4 container" style="max-width:1100px;margin:0 auto;">
+      <div style="display:flex;align-items:center;gap:1rem;"><div class="site-title" style="font-size:1.15rem;">THE FOOTBALLER’S SISTER</div></div>
       <div class="relative inline-block text-left">
-        <button id="navButton"
-          class="inline-flex justify-center rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none"
-          aria-expanded="false">
+        <button id="navButton" class="inline-flex justify-center rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none" aria-expanded="false">
           <span id="navTitle">Loading...</span>
           <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
+            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd"/>
           </svg>
         </button>
 
-        <div id="dropdownMenu"
-          class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
+        <div id="dropdownMenu" class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
           <div class="py-1">
             <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
             <a href="bts.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
@@ -150,9 +87,7 @@
   </main>
 
   <footer class="text-center py-6">
-    <div class="container" style="max-width:1100px; margin:0 auto;">
-      <small><span class="footer-badge">© <span id="year"></span> The Footballer’s Sister</span></small>
-    </div>
+    <div class="container" style="max-width:1100px;margin:0 auto;"><small><span class="footer-badge">© <span id="year"></span> The Footballer’s Sister</span></small></div>
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
@@ -182,42 +117,24 @@
     const giveGrid = document.getElementById('giveGrid');
     const giveEmpty = document.getElementById('giveEmpty');
     const pills = Array.from(document.querySelectorAll('.pill'));
-
     let currentFilter = 'all';
     let giveawaysCache = [];
 
     function escapeHtml(s){ if(!s && s !== 0) return ''; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    function niceDateLabel(ts){ if(!ts) return '—'; try{ if(ts.seconds) return new Date(ts.seconds*1000).toLocaleString(); return new Date(ts).toLocaleString(); }catch(e){return '—';} }
 
-    function niceDateLabel(ts) {
-      if(!ts) return '—';
-      try {
-        if (ts.seconds) return new Date(ts.seconds*1000).toLocaleString();
-        return new Date(ts).toLocaleString();
-      } catch(e){ return '—'; }
-    }
-
-    // render grid: clickable cards
-    function renderGrid(items) {
+    function renderGrid(items){
       giveGrid.innerHTML = '';
-      const visible = items.filter(it => {
-        if (currentFilter === 'all') return true;
-        return (it.status || 'ongoing') === currentFilter;
-      });
-      if (!visible.length) {
-        giveEmpty.classList.remove('hidden');
-      } else {
-        giveEmpty.classList.add('hidden');
-      }
+      const visible = items.filter(it => currentFilter==='all' ? true : (it.status || 'ongoing') === currentFilter );
+      if(!visible.length) giveEmpty.classList.remove('hidden'); else giveEmpty.classList.add('hidden');
 
       visible.forEach(item => {
         const endsAtLabel = niceDateLabel(item.endsAt);
         const status = escapeHtml(item.status || 'ongoing');
-
         const card = document.createElement('article');
         card.className = 'ig-card text-left relative';
         card.dataset.id = item.id;
 
-        // title in bold pink
         const titleHtml = `<div class="font-bold text-rose-700 text-lg">${escapeHtml(item.title || 'Giveaway')}</div>`;
 
         card.innerHTML = `
@@ -227,9 +144,7 @@
               <div class="font-semibold text-rose-700">The Footballer’s Sister</div>
               <div class="text-xs text-gray-500">${item.createdAt && item.createdAt.seconds ? new Date(item.createdAt.seconds*1000).toLocaleDateString() : ''}</div>
             </div>
-            <div style="margin-left:12px;">
-              <span class="status-badge">${status}</span>
-            </div>
+            <div style="margin-left:12px;"><span class="status-badge">${status}</span></div>
           </div>
 
           <img src="${escapeHtml(item.imageUrl||'')}" alt="${escapeHtml(item.title||'Giveaway')}" class="ig-image" onerror="this.onerror=null;this.src='images/opponent.png'"/>
@@ -238,61 +153,33 @@
             ${titleHtml}
             <div class="text-gray-700 mt-2">${escapeHtml(item.caption||'')}</div>
             <div class="text-xs text-gray-400 mt-3">Ends: ${endsAtLabel}</div>
-            <div class="mt-4">
-              <a class="inline-block px-4 py-2 bg-rose-600 text-white rounded">${item.link ? 'Enter Giveaway' : 'Details'}</a>
-            </div>
+            <div class="mt-4"><a class="inline-block px-4 py-2 bg-rose-600 text-white rounded">${item.link ? 'Enter Giveaway' : 'Details'}</a></div>
           </div>
         `;
 
-        // click to open modal for this item
-        card.addEventListener('click', (ev) => {
-          // avoid clicks on inner links (if any) from double handling
-          if (ev.target.tagName.toLowerCase() === 'a') return;
-          openGiveawayModal(item.id);
-        });
-
+        // Open modal when card clicked. Ignore clicks on anchor tags inside.
+        card.addEventListener('click', (ev) => { if(ev.target.tagName.toLowerCase()==='a') return; openGiveawayModal(item.id); });
         giveGrid.appendChild(card);
       });
     }
 
-    // modal functions and share/copy/countdown
+    // modal logic
     const backdrop = document.getElementById('modalBackdrop');
     const modalContainer = document.getElementById('modalContainer');
     let countdownInterval = null;
+    function clearCountdown(){ if(countdownInterval){ clearInterval(countdownInterval); countdownInterval = null; } }
+    function formatRemaining(ms){ if(ms<=0) return 'Ended'; const s=Math.floor(ms/1000); const days=Math.floor(s/86400); const hours=Math.floor((s%86400)/3600); const mins=Math.floor((s%3600)/60); if(days>0) return `${days}d ${hours}h`; if(hours>0) return `${hours}h ${mins}m`; return `${mins}m`; }
 
-    function clearCountdown() {
-      if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
-    }
-
-    function formatRemaining(ms) {
-      if (ms <= 0) return 'Ended';
-      const s = Math.floor(ms/1000);
-      const days = Math.floor(s / 86400);
-      const hours = Math.floor((s % 86400) / 3600);
-      const mins = Math.floor((s % 3600) / 60);
-      if (days > 0) return `${days}d ${hours}h`;
-      if (hours > 0) return `${hours}h ${mins}m`;
-      return `${mins}m`;
-    }
-
-    function openGiveawayModal(id, pushState = true) {
-      const item = giveawaysCache.find(x => x.id === id);
-      if (!item) return;
-      clearCountdown();
-
-      // build modal html
+    function openGiveawayModal(id, pushState = true){
+      const item = giveawaysCache.find(x=>x.id===id); if(!item) return; clearCountdown();
       const endsAtLabel = niceDateLabel(item.endsAt);
-      let countdownHtml = '';
-      if (item.endsAt) {
-        countdownHtml = `<span id="modalCountdown" class="countdown">Loading...</span>`;
-      }
-
+      const countdownHtml = item.endsAt ? `<span id="modalCountdown" class="countdown">Loading...</span>` : '';
       modalContainer.innerHTML = `
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
           <div style="display:flex;gap:12px;align-items:center;">
             <div class="icon"></div>
             <div>
-              <div class="modal-title">${escapeHtml(item.title || 'Giveaway')}</div>
+              <div class="modal-title">${escapeHtml(item.title||'Giveaway')}</div>
               <div class="modal-meta">Ends: ${endsAtLabel} ${countdownHtml ? ' · ' + countdownHtml : ''}</div>
             </div>
           </div>
@@ -305,190 +192,75 @@
         <img src="${escapeHtml(item.imageUrl||'')}" class="modal-image" alt="${escapeHtml(item.title||'Giveaway')}" onerror="this.onerror=null;this.src='images/opponent.png'"/>
 
         <div style="display:flex;gap:18px;flex-direction:column;">
-          <div class="text-gray-800" style="line-height:1.6;">${escapeHtml(item.caption || '')}</div>
+          <div class="text-gray-800" style="line-height:1.6;">${escapeHtml(item.caption||'')}</div>
 
           <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-            <a id="enterBtn" href="${escapeHtml(item.link || '#')}" target="${item.link ? '_blank' : '_self'}" class="btn-rose">${item.link ? 'Enter Giveaway' : 'No external link'}</a>
+            <a id="enterBtn" href="${escapeHtml(item.link||'#')}" target="${item.link?'_blank':'_self'}" class="btn-rose">${item.link? 'Enter Giveaway' : 'No external link'}</a>
             <button id="copyLinkBtn" class="btn-outline">Copy Link</button>
             <button id="whatsappBtn" class="btn-outline">Share on WhatsApp</button>
             <button id="nativeShareBtn" class="btn-outline">Share</button>
           </div>
 
-          <div style="margin-top:8px;" class="text-xs text-gray-500">
-            <strong>Rules:</strong> ${escapeHtml(item.rules || 'Follow the post, tag 2 friends & DM us a screenshot to enter. Winners chosen at random.')}
-          </div>
+          <div style="margin-top:8px;" class="text-xs text-gray-500"><strong>Rules:</strong> ${escapeHtml(item.rules || 'Follow the post, tag 2 friends & DM us a screenshot to enter. Winners chosen at random.')}</div>
         </div>
       `;
 
-      // show modal
-      backdrop.style.display = 'flex';
-      modalContainer.style.display = 'block';
-      backdrop.setAttribute('aria-hidden', 'false');
-
-      // shareable url
+      backdrop.style.display = 'flex'; modalContainer.style.display = 'block'; backdrop.setAttribute('aria-hidden','false');
       const shareUrl = `${location.origin}${location.pathname}?id=${encodeURIComponent(id)}`;
 
-      // setup countdown if applicable
-      if (item.endsAt) {
-        const target = item.endsAt.seconds ? (item.endsAt.seconds * 1000) : new Date(item.endsAt).getTime();
+      if(item.endsAt){
+        const target = item.endsAt.seconds ? (item.endsAt.seconds*1000) : new Date(item.endsAt).getTime();
         const countdownEl = document.getElementById('modalCountdown');
-        function tick() {
-          const rem = target - Date.now();
-          if (rem <= 0) {
-            countdownEl.textContent = 'Ended';
-            clearCountdown();
-          } else {
-            countdownEl.textContent = formatRemaining(rem);
-          }
-        }
-        tick();
-        countdownInterval = setInterval(tick, 1000 * 30); // update every 30s
+        function tick(){ const rem = target - Date.now(); if(rem<=0){ countdownEl.textContent='Ended'; clearCountdown(); } else countdownEl.textContent = formatRemaining(rem); }
+        tick(); countdownInterval = setInterval(tick, 1000*30);
       }
 
-      // wire share/copy buttons
-      const copyBtn = document.getElementById('copyLinkBtn');
-      copyBtn.addEventListener('click', async () => {
-        try {
-          await navigator.clipboard.writeText(shareUrl);
-          copyBtn.textContent = 'Link copied';
-          setTimeout(()=> copyBtn.textContent = 'Copy Link', 2000);
-        } catch(e) {
-          copyBtn.textContent = 'Copy failed';
-          setTimeout(()=> copyBtn.textContent = 'Copy Link', 2000);
-        }
-      });
+      document.getElementById('copyLinkBtn').addEventListener('click', async ()=>{ try{ await navigator.clipboard.writeText(shareUrl); const b=document.getElementById('copyLinkBtn'); b.textContent='Link copied'; setTimeout(()=>b.textContent='Copy Link',2000);}catch(e){ }});
+      document.getElementById('whatsappBtn').addEventListener('click', ()=>{ const text = encodeURIComponent(`${item.title||'Giveaway'} — Enter here: ${shareUrl}`); window.open(`https://wa.me/?text=${text}`,'_blank','noopener'); });
+      document.getElementById('nativeShareBtn').addEventListener('click', async ()=>{ if(navigator.share){ try{ await navigator.share({ title:item.title||'Giveaway', text:item.caption||'', url:shareUrl }); }catch(e){} } else { try{ await navigator.clipboard.writeText(shareUrl); const b=document.getElementById('nativeShareBtn'); b.textContent='Link copied'; setTimeout(()=>b.textContent='Share',2000);}catch(e){} } });
 
-      const whatsappBtn = document.getElementById('whatsappBtn');
-      whatsappBtn.addEventListener('click', () => {
-        const text = encodeURIComponent(`${item.title || 'Giveaway'} — Enter here: ${shareUrl}`);
-        const wa = `https://wa.me/?text=${text}`;
-        window.open(wa, '_blank', 'noopener');
-      });
-
-      const nativeShareBtn = document.getElementById('nativeShareBtn');
-      nativeShareBtn.addEventListener('click', async () => {
-        if (navigator.share) {
-          try {
-            await navigator.share({ title: item.title || 'Giveaway', text: item.caption || '', url: shareUrl });
-          } catch(e) { /* user cancelled */ }
-        } else {
-          // fallback: copy link
-          try { await navigator.clipboard.writeText(shareUrl); nativeShareBtn.textContent = 'Link copied'; setTimeout(()=> nativeShareBtn.textContent = 'Share', 2000);} catch(e){ nativeShareBtn.textContent = 'Copy failed'; setTimeout(()=> nativeShareBtn.textContent = 'Share', 2000); }
-        }
-      });
-
-      // close handlers
-      document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+      document.getElementById('modalCloseBtn').addEventListener('click', ()=> closeModal());
       backdrop.addEventListener('click', backdropClickHandler);
 
-      // update URL without reload
-      if (pushState) {
-        try { history.pushState({ giveawayId: id }, '', `?id=${encodeURIComponent(id)}`); } catch(e){ /* ignore */ }
-      }
+      if(pushState){ try{ history.pushState({ giveawayId:id }, '', `?id=${encodeURIComponent(id)}`); }catch(e){} }
     }
 
-    function backdropClickHandler(e) {
-      if (e.target === backdrop) closeModal();
-    }
+    function backdropClickHandler(e){ if(e.target===backdrop) closeModal(); }
+    function closeModal(popState = true){ backdrop.style.display='none'; modalContainer.style.display='none'; modalContainer.innerHTML=''; backdrop.setAttribute('aria-hidden','true'); clearCountdown(); backdrop.removeEventListener('click', backdropClickHandler); if(popState){ try{ history.pushState({}, '', location.pathname); }catch(e){} } }
 
-    function closeModal(popState = true) {
-      backdrop.style.display = 'none';
-      modalContainer.style.display = 'none';
-      modalContainer.innerHTML = '';
-      backdrop.setAttribute('aria-hidden', 'true');
-      clearCountdown();
-      backdrop.removeEventListener('click', backdropClickHandler);
-      if (popState) {
-        // remove ?id param
-        try { history.pushState({}, '', location.pathname); } catch(e){ /* ignore */ }
-      }
-    }
-
-    // load data & wire pills and nav dropdown
+    // fetch and render
     try {
       const q = query(collection(db, GIVEAWAYS_COLLECTION_PATH), orderBy('createdAt','desc'));
       onSnapshot(q, snap => {
         const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         giveawaysCache = docs;
         renderGrid(docs);
-
-        // if page has ?id=... open that modal if present
         const urlId = new URLSearchParams(location.search).get('id');
-        if (urlId) {
-          // if it's in cache, open; otherwise wait until present
-          const found = giveawaysCache.find(x => x.id === urlId);
-          if (found) openGiveawayModal(urlId, false);
+        if(urlId){
+          const found = giveawaysCache.find(x=>x.id===urlId);
+          if(found) openGiveawayModal(urlId, false);
         }
-      }, err => {
-        console.error('giveaways onSnapshot error', err);
-        giveGrid.innerHTML = '<div class="text-red-600">Could not load giveaways.</div>';
-      });
-    } catch (err) {
-      console.error('Giveaways init error', err);
-      giveGrid.innerHTML = '<div class="text-red-600">Could not load giveaways.</div>';
-    }
+      }, err => { console.error('giveaways onSnapshot error', err); giveGrid.innerHTML = '<div class="text-red-600">Could not load giveaways.</div>'; });
+    } catch(err){ console.error('Giveaways init error', err); giveGrid.innerHTML = '<div class="text-red-600">Could not load giveaways.</div>'; }
 
-    // pills filtering
-    pills.forEach(p => {
-      p.addEventListener('click', () => {
-        pills.forEach(x => x.classList.remove('active'));
-        p.classList.add('active');
-        currentFilter = p.dataset.filter;
-        renderGrid(giveawaysCache);
-      });
-    });
+    pills.forEach(p => p.addEventListener('click', ()=>{ pills.forEach(x=>x.classList.remove('active')); p.classList.add('active'); currentFilter = p.dataset.filter; renderGrid(giveawaysCache); }));
 
-    // Nav dropdown setup (copied pattern)
+    // nav dropdown (copied pattern)
     (function setupNavDropdown(){
       const navButton = document.getElementById('navButton');
       const dropdownMenu = document.getElementById('dropdownMenu');
       const navItems = document.querySelectorAll('.nav-item');
       const navTitle = document.getElementById('navTitle');
       const currentPage = window.location.pathname.split('/').pop();
-      const pageTitles = {
-        "index.html": "Home",
-        "bts.html": "Behind the Game",
-        "leila.html": "Meet Leila",
-        "questions.html": "Q&A",
-        "support-wall.html": "Support Wall",
-        "fixtures.html": "Fixtures & Live Scores",
-        "giveaways.html": "Giveaways"
-      };
+      const pageTitles = { "index.html":"Home","bts.html":"Behind the Game","leila.html":"Meet Leila","questions.html":"Q&A","support-wall.html":"Support Wall","fixtures.html":"Fixtures & Live Scores","giveaways.html":"Giveaways" };
       navTitle.textContent = pageTitles[currentPage] || "Menu";
-      navItems.forEach(link => {
-        if (link.getAttribute('href') === currentPage) link.classList.add("font-semibold", "text-rose-600");
-      });
-      navButton.addEventListener('click', () => {
-        const isHidden = dropdownMenu.classList.contains('hidden');
-        if (isHidden) {
-          dropdownMenu.classList.remove('hidden');
-          setTimeout(()=>dropdownMenu.classList.add('dropdown-open'), 10);
-        } else {
-          dropdownMenu.classList.remove('dropdown-open');
-          setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
-        }
-      });
-      document.addEventListener('click', (e) => {
-        if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
-          dropdownMenu.classList.remove('dropdown-open');
-          setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
-        }
-      });
+      navItems.forEach(link => { if(link.getAttribute('href')===currentPage) link.classList.add("font-semibold","text-rose-600"); });
+      navButton.addEventListener('click', ()=>{ const isHidden = dropdownMenu.classList.contains('hidden'); if(isHidden){ dropdownMenu.classList.remove('hidden'); setTimeout(()=>dropdownMenu.classList.add('dropdown-open'),10);} else { dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'),200);} });
+      document.addEventListener('click', (e)=>{ if(!navButton.contains(e.target) && !dropdownMenu.contains(e.target)){ dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'),200); }});
     })();
 
-    // handle back/forward for modal open/close
-    window.addEventListener('popstate', (ev) => {
-      const id = new URLSearchParams(location.search).get('id');
-      if (id) {
-        openGiveawayModal(id, false);
-      } else {
-        // close modal if open
-        closeModal(false);
-      }
-    });
-
-    // Utility: open modal directly if link with ?id provided on first load (if data loaded earlier)
-    // handled inside snapshot handler to ensure data available
+    // handle back/forward
+    window.addEventListener('popstate', (ev)=>{ const id = new URLSearchParams(location.search).get('id'); if(id) openGiveawayModal(id,false); else closeModal(false); });
 
   </script>
 </body>
