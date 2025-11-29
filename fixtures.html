@@ -14,7 +14,6 @@
       background: linear-gradient(180deg, rgba(246,213,239,0.6), rgba(255,241,248,0.6));
       border-bottom: 1px solid rgba(235,200,215,0.6);
       backdrop-filter: blur(4px);
-      /* ensure header sits above most page content */
       z-index: 500;
     }
     .site-title { color: var(--accent); font-weight: 800; letter-spacing: .02em; }
@@ -57,20 +56,33 @@
       .hero-title { font-size:2.25rem; }
     }
 
-    /* make sure dropdown sits above everything (higher than modals/backdrops) */
-    #dropdownMenu {
-      z-index: 1000 !important;
-      pointer-events: auto; /* ensure clickable */
-      overflow: visible;
+    /* dropdown animation helper for portal menu */
+    .portal-dropdown {
+      position: absolute;
+      min-width: 220px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      border: 1px solid rgba(0,0,0,0.06);
+      padding: 6px 0;
+      transform-origin: top right;
+      transition: transform .16s ease-out, opacity .16s ease-out;
+      opacity: 0;
+      transform: translateY(-6px) scale(.98);
+      z-index: 1200;
     }
+    .portal-dropdown.open { opacity: 1; transform: translateY(0) scale(1); }
 
-    /* dropdown animation helper */
-    .dropdown-open { transform: translateY(0); opacity:1; transition: transform .16s ease-out, opacity .16s ease-out; }
+    .portal-dropdown a { display:block; padding:.6rem 1rem; color:#374151; text-decoration:none; font-size:.95rem; }
+    .portal-dropdown a:hover { background:#fff0f6; color:var(--accent); }
+
+    /* small pointer fix so hits go through */
+    .no-pointer { pointer-events:none; }
   </style>
 </head>
 <body>
 
-  <!-- Header / Dropdown (identical structure to Meet Leila) -->
+  <!-- Header / nav button -->
   <header class="bts-header fixed top-0 left-0 right-0">
     <div class="flex justify-between items-center px-6 py-4 container" style="max-width:1100px; margin:0 auto;">
       <div style="display:flex;align-items:center;gap:1rem;">
@@ -79,28 +91,14 @@
 
       <div class="relative inline-block text-left" style="z-index:0;">
         <button id="navButton"
-          class="inline-flex justify-center w-full rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none"
-          aria-expanded="false">
+          class="inline-flex justify-center items-center gap-2 rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none"
+          aria-expanded="false" aria-haspopup="true" type="button">
           <span id="navTitle">Loading...</span>
           <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
           </svg>
         </button>
-
-        <!-- NOTE: z-index set in CSS above to ensure dropdown appears above other page elements -->
-        <div id="dropdownMenu"
-          class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0"
-          style="display:none; will-change:transform,opacity;">
-          <div class="py-1">
-            <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
-            <a href="bts.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
-            <a href="leila.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Meet Leila</a>
-            <a href="questions.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Q&A</a>
-            <a href="support-wall.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Support Wall</a>
-            <a href="fixtures.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Fixtures & Live Scores</a>
-            <a href="giveaways.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Giveaways</a>
-          </div>
-        </div>
+        <!-- note: actual menu will be rendered into document.body by JS (portal) -->
       </div>
     </div>
   </header>
@@ -137,15 +135,13 @@
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- NAV DROPDOWN SCRIPT - robust open/close & ensures dropdown not clipped -->
+  <!-- Portal dropdown + positioning script -->
   <script>
     (function(){
       const navButton = document.getElementById('navButton');
-      const dropdownMenu = document.getElementById('dropdownMenu');
-      const navItems = document.querySelectorAll('.nav-item');
       const navTitle = document.getElementById('navTitle');
-      const currentPage = window.location.pathname.split('/').pop() || 'index.html';
       const pageTitles = {
+        "": "Home",
         "index.html": "Home",
         "bts.html": "Behind the Game",
         "leila.html": "Meet Leila",
@@ -154,59 +150,90 @@
         "fixtures.html": "Fixtures & Live Scores",
         "giveaways.html": "Giveaways"
       };
-
-      // show readable current page text
+      const currentPage = window.location.pathname.split('/').pop();
       navTitle.textContent = pageTitles[currentPage] || "Menu";
 
-      // highlight current nav item (defensive: compare filenames)
-      navItems.forEach(link => {
-        try {
-          const href = (link.getAttribute('href') || '').split('/').pop();
-          if (href === currentPage) link.classList.add("font-semibold", "text-rose-600");
-        } catch(e){}
-      });
+      // Build portal menu element (but don't attach yet)
+      const menu = document.createElement('div');
+      menu.className = 'portal-dropdown';
+      menu.setAttribute('role','menu');
+      menu.setAttribute('aria-hidden','true');
+      menu.innerHTML = `
+        <a href="index.html" role="menuitem">Home</a>
+        <a href="bts.html" role="menuitem">Behind the Game</a>
+        <a href="leila.html" role="menuitem">Meet Leila</a>
+        <a href="questions.html" role="menuitem">Q&A</a>
+        <a href="support-wall.html" role="menuitem">Support Wall</a>
+        <a href="fixtures.html" role="menuitem">Fixtures & Live Scores</a>
+        <a href="giveaways.html" role="menuitem">Giveaways</a>
+      `;
+      // append to body now (keeps it out of header clipping)
+      document.body.appendChild(menu);
 
-      // open/close helpers (explicit display + animation class)
-      function openMenu(){
-        dropdownMenu.style.display = 'block';             // remove 'display:none'
-        dropdownMenu.classList.remove('hidden');          // remove the tailwind "hidden"
-        // small delay to allow style changes to settle, then play the CSS transition
-        requestAnimationFrame(()=> dropdownMenu.classList.add('dropdown-open'));
+      // helper: position menu under button (right-aligned)
+      function positionMenu() {
+        const btnRect = navButton.getBoundingClientRect();
+        const menuRect = menu.getBoundingClientRect();
+        // prefer to align right edges; apply small offset downwards
+        const top = window.scrollY + btnRect.bottom + 8;
+        const right = window.innerWidth - (btnRect.right);
+        // set style: use right/top to avoid overflow on narrow screens
+        menu.style.top = top + 'px';
+        menu.style.right = right + 'px';
+      }
+
+      // open/close functions
+      function openMenu() {
+        positionMenu();
+        menu.classList.add('open');
+        menu.setAttribute('aria-hidden','false');
         navButton.setAttribute('aria-expanded','true');
+        // listen for window resize/scroll to reposition
+        window.addEventListener('resize', positionMenu);
+        window.addEventListener('scroll', positionMenu, { passive: true });
       }
-      function closeMenu(){
-        dropdownMenu.classList.remove('dropdown-open');
+      function closeMenu() {
+        menu.classList.remove('open');
+        menu.setAttribute('aria-hidden','true');
         navButton.setAttribute('aria-expanded','false');
-        // after animation, hide completely
-        setTimeout(()=> {
-          dropdownMenu.style.display = 'none';
-          dropdownMenu.classList.add('hidden');
-        }, 180);
+        window.removeEventListener('resize', positionMenu);
+        window.removeEventListener('scroll', positionMenu);
       }
 
-      navButton.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const isOpen = dropdownMenu.style.display === 'block' && dropdownMenu.classList.contains('dropdown-open');
+      // toggle
+      navButton.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        const isOpen = menu.classList.contains('open');
         if (isOpen) closeMenu(); else openMenu();
       });
 
-      // clicking anywhere outside closes menu
-      document.addEventListener('click', (e) => {
-        if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) closeMenu();
+      // close when clicking outside
+      document.addEventListener('click', (ev) => {
+        if (!navButton.contains(ev.target) && !menu.contains(ev.target)) closeMenu();
       });
 
-      // escape to close
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeMenu();
+      // close on escape
+      document.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Escape') closeMenu();
       });
 
-      // close menu when a nav link is clicked (mobile friendly)
-      navItems.forEach(a => a.addEventListener('click', () => closeMenu()));
+      // when link clicked, close (keeps mobile behavior smooth)
+      menu.querySelectorAll('a').forEach(a => {
+        a.addEventListener('click', () => {
+          closeMenu();
+        });
+      });
+
+      // accessibility: reposition when first opened
+      navButton.addEventListener('mouseenter', () => {
+        if (menu.classList.contains('open')) positionMenu();
+      });
     })();
   </script>
 
   <!-- Firestore fixtures logic + tabs (unchanged, real-time) -->
   <script type="module">
+    // FIREBASE CONFIG - same as admin
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
