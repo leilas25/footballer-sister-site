@@ -35,6 +35,14 @@
     .btn-outline{background:transparent;border:1px solid #FBCFE8;color:var(--accent);padding:.5rem .8rem;border-radius:999px;font-weight:700;cursor:pointer;}
     .share-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-left:auto;}
     .countdown{display:inline-block;padding:.3rem .6rem;border-radius:8px;background:#fff0f6;border:1px solid #fbddec;color:#9b1140;font-weight:800;font-size:.95rem;}
+    ul.rules { text-align:left; margin-top:8px; }
+    ul.rules li { margin-bottom:6px; }
+
+    /* small form inside modal */
+    .entry-row { display:flex; gap:8px; align-items:center; margin-top:12px; flex-wrap:wrap; }
+    .entry-row input[type="text"]{ padding:.55rem .7rem; border-radius:8px; border:1px solid #E6E6E6; min-width:220px; }
+    .checkbox-inline { display:inline-flex; gap:8px; align-items:center; }
+    .muted { color: #6b7280; }
   </style>
 </head>
 <body class="bg-pink-50">
@@ -98,7 +106,8 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
@@ -110,9 +119,22 @@
     };
     const ARTIFACT_ID = "1:65396604482:web:0f31625a714aa8352337db";
     const GIVEAWAYS_COLLECTION_PATH = `/artifacts/${ARTIFACT_ID}/public/data/giveaways`;
+    const ENTRIES_COLLECTION_PATH = `/artifacts/${ARTIFACT_ID}/public/data/giveawayEntries`;
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // anonymous auth to allow writes
+    (async function trySignInAnonymously(){
+      try {
+        onAuthStateChanged(auth, async (user) => {
+          if (!user) {
+            try { await signInAnonymously(auth); } catch(e){ console.warn('signInAnonymously failed', e); }
+          }
+        });
+      } catch(e){ console.warn('Auth setup failed', e); }
+    })();
 
     const giveGrid = document.getElementById('giveGrid');
     const giveEmpty = document.getElementById('giveEmpty');
@@ -153,12 +175,12 @@
             ${titleHtml}
             <div class="text-gray-700 mt-2">${escapeHtml(item.caption||'')}</div>
             <div class="text-xs text-gray-400 mt-3">Ends: ${endsAtLabel}</div>
-            <div class="mt-4"><a class="inline-block px-4 py-2 bg-rose-600 text-white rounded">${item.link ? 'Enter Giveaway' : 'Details'}</a></div>
+            <!-- button removed from cards by request (cards clickable to open modal) -->
           </div>
         `;
 
         // Open modal when card clicked. Ignore clicks on anchor tags inside.
-        card.addEventListener('click', (ev) => { if(ev.target.tagName.toLowerCase()==='a') return; openGiveawayModal(item.id); });
+        card.addEventListener('click', (ev) => { if(ev.target.tagName && ev.target.tagName.toLowerCase()==='a') return; openGiveawayModal(item.id); });
         giveGrid.appendChild(card);
       });
     }
@@ -174,6 +196,17 @@
       const item = giveawaysCache.find(x=>x.id===id); if(!item) return; clearCountdown();
       const endsAtLabel = niceDateLabel(item.endsAt);
       const countdownHtml = item.endsAt ? `<span id="modalCountdown" class="countdown">Loading...</span>` : '';
+      // Rules
+      const rulesHtml = `
+        <ul class="rules">
+          <li><strong>1)</strong> Follow @leila_sono_, @bamuza_sono & @elijah_sono on Instagram & TikTok.</li>
+          <li><strong>2)</strong> Post the giveaway to your Instagram story.</li>
+          <li><strong>3)</strong> Tag 3 friends in the comments on the giveaway post.</li>
+          <li><strong>4)</strong> Send your name and screenshots proving the above to <strong>@lifeofafootballsis</strong> on Instagram via DM.</li>
+        </ul>
+        <p style="margin-top:6px;color:#6b7280;">We will verify screenshots and your name before adding you to the draw. Winners are chosen at random.</p>
+      `;
+
       modalContainer.innerHTML = `
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
           <div style="display:flex;gap:12px;align-items:center;">
@@ -194,20 +227,34 @@
         <div style="display:flex;gap:18px;flex-direction:column;">
           <div class="text-gray-800" style="line-height:1.6;">${escapeHtml(item.caption||'')}</div>
 
-          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-            <a id="enterBtn" href="${escapeHtml(item.link||'#')}" target="${item.link?'_blank':'_self'}" class="btn-rose">${item.link? 'Enter Giveaway' : 'No external link'}</a>
+          <div style="margin-top:8px;">
+            <h4 style="color:var(--accent);font-weight:800;margin-bottom:6px;">How to enter</h4>
+            ${rulesHtml}
+          </div>
+
+          <!-- verification checkbox + name entry -->
+          <div class="entry-row">
+            <label class="checkbox-inline"><input id="confirmCheckbox" type="checkbox"/> <span class="muted">I confirm I've done the 4 steps above</span></label>
+            <input id="entryName" type="text" placeholder="Your full name (as you'll DM)" aria-label="Your name"/>
+            <button id="submitEntryBtn" class="btn-rose">Submit Name</button>
+            <div id="entryStatus" class="muted" style="margin-left:8px;font-size:.95rem;"></div>
+          </div>
+
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:8px;">
+            <a id="enterBtn" href="${escapeHtml(item.link||'#')}" target="${item.link?'_blank':'_self'}" class="btn-outline">${item.link? 'Open external link' : 'No external link'}</a>
             <button id="copyLinkBtn" class="btn-outline">Copy Link</button>
             <button id="whatsappBtn" class="btn-outline">Share on WhatsApp</button>
             <button id="nativeShareBtn" class="btn-outline">Share</button>
           </div>
 
-          <div style="margin-top:8px;" class="text-xs text-gray-500"><strong>Rules:</strong> ${escapeHtml(item.rules || 'Follow the post, tag 2 friends & DM us a screenshot to enter. Winners chosen at random.')}</div>
+          <div style="margin-top:8px;" class="text-xs text-gray-500"><strong>Note:</strong> We will manually verify the screenshots you send to <strong>@lifeofafootballsis</strong> before adding your name to the draw.</div>
         </div>
       `;
 
       backdrop.style.display = 'flex'; modalContainer.style.display = 'block'; backdrop.setAttribute('aria-hidden','false');
       const shareUrl = `${location.origin}${location.pathname}?id=${encodeURIComponent(id)}`;
 
+      // countdown
       if(item.endsAt){
         const target = item.endsAt.seconds ? (item.endsAt.seconds*1000) : new Date(item.endsAt).getTime();
         const countdownEl = document.getElementById('modalCountdown');
@@ -215,9 +262,52 @@
         tick(); countdownInterval = setInterval(tick, 1000*30);
       }
 
-      document.getElementById('copyLinkBtn').addEventListener('click', async ()=>{ try{ await navigator.clipboard.writeText(shareUrl); const b=document.getElementById('copyLinkBtn'); b.textContent='Link copied'; setTimeout(()=>b.textContent='Copy Link',2000);}catch(e){ }});
+      // share/copy buttons
+      document.getElementById('copyLinkBtn').addEventListener('click', async ()=>{ try{ await navigator.clipboard.writeText(shareUrl); const b=document.getElementById('copyLinkBtn'); b.textContent='Link copied'; setTimeout(()=>b.textContent='Copy Link',2000);}catch(e){} });
       document.getElementById('whatsappBtn').addEventListener('click', ()=>{ const text = encodeURIComponent(`${item.title||'Giveaway'} — Enter here: ${shareUrl}`); window.open(`https://wa.me/?text=${text}`,'_blank','noopener'); });
       document.getElementById('nativeShareBtn').addEventListener('click', async ()=>{ if(navigator.share){ try{ await navigator.share({ title:item.title||'Giveaway', text:item.caption||'', url:shareUrl }); }catch(e){} } else { try{ await navigator.clipboard.writeText(shareUrl); const b=document.getElementById('nativeShareBtn'); b.textContent='Link copied'; setTimeout(()=>b.textContent='Share',2000);}catch(e){} } });
+
+      // entry submit handler
+      document.getElementById('submitEntryBtn').addEventListener('click', async (ev) => {
+        ev.preventDefault();
+        const entryNameEl = document.getElementById('entryName');
+        const checkbox = document.getElementById('confirmCheckbox');
+        const statusEl = document.getElementById('entryStatus');
+        statusEl.textContent = '';
+        const name = entryNameEl.value.trim();
+        if(!checkbox.checked){ statusEl.textContent = 'Please confirm you completed the steps.'; return; }
+        if(!name){ statusEl.textContent = 'Please enter your name.'; return; }
+
+        // disable while submitting
+        const btn = document.getElementById('submitEntryBtn');
+        btn.disabled = true;
+        btn.textContent = 'Submitting…';
+        try {
+          // ensure auth state (anonymous)
+          if(!auth.currentUser){
+            try{ await signInAnonymously(auth); } catch(e){ console.warn('anonymous sign-in failed', e); }
+          }
+          // save entry
+          await addDoc(collection(db, ENTRIES_COLLECTION_PATH), {
+            giveawayId: item.id,
+            giveawayTitle: item.title || '',
+            name: name,
+            verifiedByAdmin: false,
+            createdAt: serverTimestamp()
+          });
+          statusEl.textContent = 'Name submitted — thank you! We will verify your screenshots.';
+          // optionally clear input
+          entryNameEl.value = '';
+          checkbox.checked = false;
+        } catch (err){
+          console.error('Failed to submit entry', err);
+          statusEl.textContent = 'Failed to submit — try again.';
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Submit Name';
+          setTimeout(()=>{ statusEl.textContent = ''; }, 6000);
+        }
+      });
 
       document.getElementById('modalCloseBtn').addEventListener('click', ()=> closeModal());
       backdrop.addEventListener('click', backdropClickHandler);
@@ -228,13 +318,14 @@
     function backdropClickHandler(e){ if(e.target===backdrop) closeModal(); }
     function closeModal(popState = true){ backdrop.style.display='none'; modalContainer.style.display='none'; modalContainer.innerHTML=''; backdrop.setAttribute('aria-hidden','true'); clearCountdown(); backdrop.removeEventListener('click', backdropClickHandler); if(popState){ try{ history.pushState({}, '', location.pathname); }catch(e){} } }
 
-    // fetch and render
+    // fetch and render giveaways
     try {
       const q = query(collection(db, GIVEAWAYS_COLLECTION_PATH), orderBy('createdAt','desc'));
       onSnapshot(q, snap => {
         const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         giveawaysCache = docs;
         renderGrid(docs);
+        // open modal if ?id= present
         const urlId = new URLSearchParams(location.search).get('id');
         if(urlId){
           const found = giveawaysCache.find(x=>x.id===urlId);
@@ -259,7 +350,7 @@
       document.addEventListener('click', (e)=>{ if(!navButton.contains(e.target) && !dropdownMenu.contains(e.target)){ dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'),200); }});
     })();
 
-    // handle back/forward
+    // back/forward (open/close modal based on ?id=)
     window.addEventListener('popstate', (ev)=>{ const id = new URLSearchParams(location.search).get('id'); if(id) openGiveawayModal(id,false); else closeModal(false); });
 
   </script>
