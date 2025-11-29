@@ -127,7 +127,7 @@
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- REPLACED dropdown + header script: more robust (use this exact script) -->
+  <!-- FIXED dropdown + header script: remove/add "hidden" class so Tailwind doesn't override display -->
   <script>
     (function(){
       const navButton = document.getElementById('navButton');
@@ -154,10 +154,11 @@
         } catch(e){ /* ignore */ }
       });
 
-      // Use display style + animation class for reliability
+      // Use display style + animation class for reliability, but also remove/add tailwind 'hidden'
       function openMenu() {
+        dropdownMenu.classList.remove('hidden');
         dropdownMenu.style.display = 'block';
-        // force reflow so transition can run
+        // force reflow so animation class takes effect
         void dropdownMenu.offsetWidth;
         dropdownMenu.classList.add('dropdown-open');
         navButton.setAttribute('aria-expanded','true');
@@ -167,7 +168,8 @@
         navButton.setAttribute('aria-expanded','false');
         // hide after animation
         setTimeout(()=> {
-          if (!dropdownMenu.classList.contains('dropdown-open')) dropdownMenu.style.display = 'none';
+          dropdownMenu.style.display = 'none';
+          dropdownMenu.classList.add('hidden');
         }, 180);
       }
 
@@ -187,12 +189,9 @@
         if (e.key === 'Escape') closeMenu();
       });
 
-      // Allow nav anchor clicks to navigate immediately; just tidy up UI after
+      // Close menu gracefully when a nav link is clicked (navigation will proceed)
       navItems.forEach(a => {
-        a.addEventListener('click', () => {
-          // don't preventDefault — allow normal navigation
-          closeMenu();
-        });
+        a.addEventListener('click', () => closeMenu());
       });
     })();
   </script>
