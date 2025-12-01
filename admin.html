@@ -322,6 +322,7 @@
     /**************************************************************************
      * Admin JS - with Cloudinary unsigned upload for collabs + giveaways + winners
      * Fixtures admin pane updated to include score editing (scoreHome, scoreAway)
+     * Added Quick Pick Random Winner functionality (admin-only).
      **************************************************************************/
 
     // ---------- CONFIG ----------
@@ -944,11 +945,13 @@
             </div>
             <div style="color:#6b7280;font-size:.9rem;margin-top:.45rem;">Ends: ${endsAtLabel}</div>
             <div style="margin-top:.6rem;color:#374151;">${escapeHtml(g.caption || '')}</div>
-            <div style="margin-top:.6rem;display:flex;gap:.5rem;">
+            <div style="margin-top:.6rem;display:flex;gap:.5rem;flex-wrap:wrap;">
               <button class="btn bg-white border edit-give" data-id="${g.id}">Edit</button>
               <button class="btn bg-white border change-status" data-id="${g.id}">Change status</button>
               <button class="btn bg-white border delete-give" data-id="${g.id}">Delete</button>
               <a class="btn bg-rose-600 text-white" href="${escapeHtml(g.link || '#')}" target="_blank" ${g.link ? '' : 'aria-hidden="true"'}>Entry link</a>
+              <!-- NEW: Quick pick winner button (admin-only) -->
+              <button class="btn bg-rose-500 text-white quick-pick" data-id="${g.id}" data-title="${escapeHtml(g.title||'')}" style="margin-left:6px;">Quick pick winner</button>
             </div>
           </div>
         `;
@@ -1017,6 +1020,15 @@
             console.error('Delete giveaway failed', err);
             alert('Could not delete giveaway: ' + (err.message || err));
           }
+        });
+      });
+
+      // wire quick pick
+      giveawaysList.querySelectorAll('.quick-pick').forEach(b => {
+        b.addEventListener('click', async (ev) => {
+          const id = ev.currentTarget.getAttribute('data-id');
+          const title = ev.currentTarget.getAttribute('data-title') || '';
+          await quickPickWinner(id, title);
         });
       });
     }
@@ -1130,7 +1142,6 @@
       }
     });
 
-    // CANCEL EDIT (fixed — was truncated previously)
     cancelEditGiveBtn.addEventListener('click', () => {
       currentEditId = null;
       giveTitle.value = '';
@@ -1213,7 +1224,7 @@
       });
     }
 
-    // ---------- createWinner: writes to winners AND creates a giveaway (status: "winner") ----------
+    // ---------- createWinner: writes to winners ONLY (no auto-giveaway duplication) ----------
     async function createWinner() {
       if (!createWinBtn) return;
       if (winError) winError.classList.add('hidden-el');
@@ -1241,8 +1252,8 @@
           publicId = cloudResp.public_id;
         }
 
-        // 1) write to winners collection
-        const winnerRef = await addDoc(collection(db, WINNERS_COLLECTION_PATH), {
+        // 1) write to winners collection ONLY
+        await addDoc(collection(db, WINNERS_COLLECTION_PATH), {
           name: nameVal,
           handle: handleVal || '',
           prize: prizeVal,
@@ -1251,23 +1262,6 @@
           createdAt: serverTimestamp(),
           uploader: auth.currentUser ? (auth.currentUser.email || auth.currentUser.uid) : 'admin'
         });
-
-        // 2) ALSO add a giveaway doc with status 'winner' so the public Giveaways page shows it
-        const giveawayPayload = {
-          title: `Winner: ${nameVal}`,
-          caption: `Prize: ${prizeVal}${handleVal ? ' · @' + handleVal.replace(/^@/, '') : ''}`,
-          link: '',
-          imageUrl: imageUrl || '',
-          publicId: publicId || '',
-          status: 'winner',
-          endsAt: null,
-          createdAt: serverTimestamp(),
-          uploader: auth.currentUser ? (auth.currentUser.email || auth.currentUser.uid) : 'admin',
-          // pointer to the winners doc for cleanup if needed later
-          winnerId: winnerRef.id
-        };
-
-        await addDoc(collection(db, GIVEAWAYS_COLLECTION_PATH), giveawayPayload);
 
         if (winStatus) winStatus.textContent = 'Winner saved.';
         // clear form
@@ -1286,6 +1280,58 @@
         e.preventDefault();
         createWinner();
       });
+    }
+
+    // ---------- Quick pick winner (admin-only) ----------
+    async function quickPickWinner(giveId, giveTitle) {
+      if (!giveId) return alert('Giveaway id missing.');
+      try {
+        // read entries subcollection under this giveaway
+        const entriesPath = `${GIVEAWAYS_COLLECTION_PATH}/${giveId}/entries`;
+        const q = query(collection(db, entriesPath), where('validated','==', true));
+        const snap = await getDocs(q);
+        const validEntries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        if (!validEntries.length) {
+          return alert('No validated entries found for this giveaway.');
+        }
+
+        // pick random
+        const pick = validEntries[Math.floor(Math.random() * validEntries.length)];
+
+        // show confirm dialog with entrant info
+        const name = pick.name || pick.fullName || pick.entryName || 'No name';
+        const handle = pick.handle || pick.instagram || pick.social || '';
+        const image = pick.imageUrl || pick.screenshotUrl || pick.submissionImage || '';
+        const previewMsg = `Pick this winner?\n\nName: ${name}\nHandle: ${handle || '[none]'}\nEntry id: ${pick.id}\n\nGiveaway: ${giveTitle || ''}`;
+
+        if (!confirm(previewMsg)) return;
+
+        // create winner doc in winners collection
+        const winnerPayload = {
+          name: name,
+          handle: handle || '',
+          prize: giveTitle || '',
+          imageUrl: image || '',
+          sourceGiveawayId: giveId,
+          entryId: pick.id,
+          createdAt: serverTimestamp(),
+          uploader: auth.currentUser ? (auth.currentUser.email || auth.currentUser.uid) : 'admin'
+        };
+        const winnerRef = await addDoc(collection(db, WINNERS_COLLECTION_PATH), winnerPayload);
+
+        // update the giveaway to set winnerId and status 'winner' so it no longer shows rules/checkbox on public page (and so admin can see it's done)
+        try {
+          await updateDoc(doc(db, `${GIVEAWAYS_COLLECTION_PATH}/${giveId}`), { winnerId: winnerRef.id, status: 'winner' });
+        } catch (err) {
+          // non-fatal, but log
+          console.warn('Could not update giveaway with winnerId/status (non-fatal):', err);
+        }
+
+        alert('Winner selected and saved (id: ' + winnerRef.id + ').');
+      } catch (err) {
+        console.error('quickPickWinner failed', err);
+        alert('Could not pick a winner: ' + (err.message || err));
+      }
     }
 
     // ---------- FIXTURES admin functions (UPDATED) ----------
