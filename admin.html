@@ -34,6 +34,15 @@
     /* Fixtures admin specific */
     .fixture-row { display:flex; gap:12px; align-items:center; padding:8px; border-radius:8px; border:1px solid #f3d3e2; background:#fff;}
     .fixture-thumb { width:72px; height:72px; object-fit:cover; border-radius:8px; border:1px solid #f3d3e2; }
+
+    /* quick-pick preview modal styles (admin only) */
+    .qp-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.55); display:flex; align-items:center; justify-content:center; z-index:1000; }
+    .qp-modal { background:#fff; border-radius:12px; padding:16px; width:820px; max-width:calc(100% - 32px); box-shadow:0 20px 50px rgba(0,0,0,0.35); }
+    .qp-grid { display:flex; gap:12px; align-items:flex-start; }
+    .qp-thumb { width:320px; height:320px; object-fit:cover; border-radius:8px; border:1px solid #f3d3e2; background:#f9fafb; }
+    .qp-meta { flex:1; }
+    .qp-actions { display:flex; gap:8px; margin-top:12px; }
+    .muted-sm { color:#6b7280; font-size:.95rem; }
   </style>
 </head>
 <body class="bg-pink-50 font-sans text-black">
@@ -322,7 +331,7 @@
     /**************************************************************************
      * Admin JS - with Cloudinary unsigned upload for collabs + giveaways + winners
      * Fixtures admin pane updated to include score editing (scoreHome, scoreAway)
-     * Added Quick Pick Random Winner functionality (admin-only).
+     * Added Quick Pick Random Winner functionality (admin-only) with preview modal.
      **************************************************************************/
 
     // ---------- CONFIG ----------
@@ -349,6 +358,8 @@
     const WINNERS_COLLECTION_PATH = `/artifacts/${APP_ID}/public/data/winners`;
     const COLLABS_COLLECTION_PATH = `/artifacts/${APP_ID}/public/data/collabs`;
     const FIXTURES_COLLECTION_PATH = `/artifacts/${APP_ID}/public/data/fixtures`;
+    // NEW: top-level entries collection (where validated entries live by default)
+    const ENTRIES_COLLECTION_PATH = `/artifacts/${APP_ID}/public/data/giveawayEntries`;
 
     // Candidate bases to try (used by other panes)
     const CANDIDATE_BASES = [
@@ -1283,55 +1294,169 @@
     }
 
     // ---------- Quick pick winner (admin-only) ----------
+    /**
+     * quickPickWinner(giveId, giveTitle)
+     *
+     * - Tries the top-level ENTRIES_COLLECTION_PATH (recommended) for documents where
+     *   giveawayId == giveId && validated == true
+     * - If none found, falls back to subcollection `${GIVEAWAYS_COLLECTION_PATH}/${giveId}/entries`
+     * - Picks a random validated entry, shows an admin preview modal with entrant info + screenshot
+     * - On confirm, creates a winners doc and updates the giveaway to status 'winner' and winnerId
+     */
     async function quickPickWinner(giveId, giveTitle) {
       if (!giveId) return alert('Giveaway id missing.');
       try {
-        // read entries subcollection under this giveaway
-        const entriesPath = `${GIVEAWAYS_COLLECTION_PATH}/${giveId}/entries`;
-        const q = query(collection(db, entriesPath), where('validated','==', true));
-        const snap = await getDocs(q);
-        const validEntries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        // 1) attempt top-level entries collection first
+        let validEntries = [];
+        try {
+          const qTop = query(collection(db, ENTRIES_COLLECTION_PATH), where('giveawayId', '==', giveId), where('validated', '==', true));
+          const snapTop = await getDocs(qTop);
+          validEntries = snapTop.docs.map(d => ({ id: d.id, ...d.data(), __path: `${ENTRIES_COLLECTION_PATH}/${d.id}` }));
+        } catch (errTop) {
+          console.warn('Top-level entries read failed (continuing to fallback):', errTop);
+        }
+
+        // 2) fallback to subcollection under giveaway if none found
+        if (!validEntries.length) {
+          try {
+            const subPath = `${GIVEAWAYS_COLLECTION_PATH}/${giveId}/entries`;
+            const qSub = query(collection(db, subPath), where('validated', '==', true));
+            const snapSub = await getDocs(qSub);
+            validEntries = snapSub.docs.map(d => ({ id: d.id, ...d.data(), __path: `${subPath}/${d.id}` }));
+          } catch (errSub) {
+            console.warn('Subcollection entries read failed:', errSub);
+          }
+        }
+
         if (!validEntries.length) {
           return alert('No validated entries found for this giveaway.');
         }
 
-        // pick random
+        // pick random entry
         const pick = validEntries[Math.floor(Math.random() * validEntries.length)];
-
-        // show confirm dialog with entrant info
         const name = pick.name || pick.fullName || pick.entryName || 'No name';
         const handle = pick.handle || pick.instagram || pick.social || '';
+        const note = pick.note || pick.notes || pick.caption || '';
         const image = pick.imageUrl || pick.screenshotUrl || pick.submissionImage || '';
-        const previewMsg = `Pick this winner?\n\nName: ${name}\nHandle: ${handle || '[none]'}\nEntry id: ${pick.id}\n\nGiveaway: ${giveTitle || ''}`;
 
-        if (!confirm(previewMsg)) return;
+        // show preview modal
+        showQuickPickPreviewModal({
+          giveawayId: giveId,
+          giveawayTitle: giveTitle || '',
+          entry: pick,
+          name,
+          handle,
+          note,
+          image
+        });
 
-        // create winner doc in winners collection
-        const winnerPayload = {
-          name: name,
-          handle: handle || '',
-          prize: giveTitle || '',
-          imageUrl: image || '',
-          sourceGiveawayId: giveId,
-          entryId: pick.id,
-          createdAt: serverTimestamp(),
-          uploader: auth.currentUser ? (auth.currentUser.email || auth.currentUser.uid) : 'admin'
-        };
-        const winnerRef = await addDoc(collection(db, WINNERS_COLLECTION_PATH), winnerPayload);
-
-        // update the giveaway to set winnerId and status 'winner' so it no longer shows rules/checkbox on public page (and so admin can see it's done)
-        try {
-          await updateDoc(doc(db, `${GIVEAWAYS_COLLECTION_PATH}/${giveId}`), { winnerId: winnerRef.id, status: 'winner' });
-        } catch (err) {
-          // non-fatal, but log
-          console.warn('Could not update giveaway with winnerId/status (non-fatal):', err);
-        }
-
-        alert('Winner selected and saved (id: ' + winnerRef.id + ').');
       } catch (err) {
         console.error('quickPickWinner failed', err);
         alert('Could not pick a winner: ' + (err.message || err));
       }
+    }
+
+    // helper: create and show preview modal, handle confirm/cancel
+    function showQuickPickPreviewModal({ giveawayId, giveawayTitle, entry, name, handle, note, image }) {
+      // modal backdrop
+      const backdrop = document.createElement('div');
+      backdrop.className = 'qp-backdrop';
+      backdrop.tabIndex = -1;
+
+      const modal = document.createElement('div');
+      modal.className = 'qp-modal';
+      modal.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div style="font-weight:800;font-size:1.05rem;color:#be185d;">Preview Winner — ${escapeHtml(giveawayTitle || 'Giveaway')}</div>
+          <div style="color:#6b7280;font-size:.95rem;">Entry ID: ${escapeHtml(entry.id)}</div>
+        </div>
+        <div class="qp-grid">
+          <div style="flex:1;">
+            <div style="font-weight:700;">${escapeHtml(name)}</div>
+            <div class="muted-sm" style="margin-top:6px;">Handle: ${escapeHtml(handle || '')}</div>
+            <div class="muted-sm" style="margin-top:8px;">${escapeHtml(note || '')}</div>
+            <div class="qp-actions">
+              <button id="qpConfirm" class="btn bg-rose-600 text-white">Confirm & Save winner</button>
+              <button id="qpCancel" class="btn bg-white border">Cancel</button>
+            </div>
+            <div style="margin-top:8px;" class="muted-sm">This action will create a winner record in your <code>winners</code> collection and update the giveaway to <strong>status: winner</strong>. You can still edit the winner entry later in the Winners pane.</div>
+          </div>
+          <div style="width:340px;">
+            ${ image ? `<img src="${escapeHtml(image)}" class="qp-thumb" alt="Entrant screenshot" onerror="this.onerror=null;this.style.display='none'"/>` : `<div class="qp-thumb" style="display:flex;align-items:center;justify-content:center;color:#9ca3af;font-weight:700;">No screenshot</div>`}
+          </div>
+        </div>
+      `;
+      backdrop.appendChild(modal);
+      document.body.appendChild(backdrop);
+
+      // event handlers
+      const closeModal = () => {
+        if (backdrop && backdrop.parentNode) backdrop.parentNode.removeChild(backdrop);
+      };
+
+      modal.querySelector('#qpCancel').addEventListener('click', () => {
+        closeModal();
+      });
+
+      modal.querySelector('#qpConfirm').addEventListener('click', async () => {
+        // disable while saving
+        const btn = modal.querySelector('#qpConfirm');
+        btn.disabled = true;
+        btn.textContent = 'Saving...';
+        try {
+          // create winner doc
+          const winnerPayload = {
+            name: name || '',
+            handle: handle || '',
+            prize: giveawayTitle || '',
+            imageUrl: image || '',
+            sourceGiveawayId: giveawayId,
+            entryId: entry.id,
+            createdAt: serverTimestamp(),
+            uploader: auth.currentUser ? (auth.currentUser.email || auth.currentUser.uid) : 'admin'
+          };
+          const winnerRef = await addDoc(collection(db, WINNERS_COLLECTION_PATH), winnerPayload);
+
+          // update giveaway
+          try {
+            await updateDoc(doc(db, `${GIVEAWAYS_COLLECTION_PATH}/${giveawayId}`), { winnerId: winnerRef.id, status: 'winner' });
+          } catch (err) {
+            console.warn('Could not update giveaway with winnerId/status (non-fatal):', err);
+          }
+
+          // optionally mark the entry as 'used' or flagged if you want (non-fatal)
+          try {
+            // If top-level entry path (ENTRIES_COLLECTION_PATH) was used, update it; if subcollection, update that doc.
+            const entryPath = entry.__path || ''; // set earlier when reading
+            if (entryPath) {
+              // entry.__path is like "/artifacts/.../giveawayEntries/<id>" or ".../entries/<id>"
+              await updateDoc(doc(db, entryPath), { pickedAsWinnerAt: serverTimestamp(), pickedAsWinnerFor: giveawayId });
+            } else {
+              // fallback: try to update in both places with best-effort
+              try { await updateDoc(doc(db, `${GIVEAWAYS_COLLECTION_PATH}/${giveawayId}/entries/${entry.id}`), { pickedAsWinnerAt: serverTimestamp(), pickedAsWinnerFor: giveawayId }); } catch(e) {}
+              try { await updateDoc(doc(db, `${ENTRIES_COLLECTION_PATH}/${entry.id}`), { pickedAsWinnerAt: serverTimestamp(), pickedAsWinnerFor: giveawayId }); } catch(e) {}
+            }
+          } catch (err) {
+            console.warn('Could not mark entry as used (non-fatal):', err);
+          }
+
+          alert('Winner selected and saved (id: ' + winnerRef.id + ').');
+          closeModal();
+          // refresh winners pane / giveaways list if visible
+          loadWinnersAdmin();
+          loadGiveaways();
+        } catch (err) {
+          console.error('Saving winner failed', err);
+          alert('Could not save winner: ' + (err.message || err));
+          btn.disabled = false;
+          btn.textContent = 'Confirm & Save winner';
+        }
+      });
+
+      // close if backdrop clicked (outside modal)
+      backdrop.addEventListener('click', (ev) => {
+        if (ev.target === backdrop) closeModal();
+      });
     }
 
     // ---------- FIXTURES admin functions (UPDATED) ----------
