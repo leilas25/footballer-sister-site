@@ -130,6 +130,9 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // Expose db to the global window so DevTools/console tests can access it
+    window.db = db;
+
     const wrap = document.getElementById('winnersWrap');
     const empty = document.getElementById('winnersEmpty');
 
@@ -151,6 +154,9 @@
       // fallback to the first (most likely) path
       return CANDIDATE_PATHS[0];
     }
+
+    // expose detectPath to console for quick debugging
+    window.detectPath = detectPath;
 
     (async () => {
       const winnersPath = await detectPath();
