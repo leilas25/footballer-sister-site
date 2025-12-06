@@ -31,7 +31,7 @@
     .modal-meta{color:var(--muted);font-size:.95rem;}
     .modal-image{width:100%;height:320px;object-fit:cover;border-radius:10px;margin-bottom:12px;}
     .modal-actions{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap;}
-    .btn-rose{background:linear-gradient(90deg,#be185d,#f472b6);color:white;padding:.6rem .9rem;border-radius:999px;font-weight:800;text-decoration:none;}
+    .btn-rose{background:linear-gradient(90deg,#be185d,#f472b6);Color:white;padding:.6rem .9rem;border-radius:999px;font-weight:800;text-decoration:none;}
     .btn-outline{background:transparent;border:1px solid #FBCFE8;color:var(--accent);padding:.5rem .8rem;border-radius:999px;font-weight:700;cursor:pointer;}
     .share-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-left:auto;}
     .countdown{display:inline-block;padding:.3rem .6rem;border-radius:8px;background:#fff0f6;border:1px solid #fbddec;color:#9b1140;font-weight:800;font-size:.95rem;}
@@ -170,6 +170,14 @@
     function escapeHtml(s){ if(!s && s !== 0) return ''; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
     function niceDateLabel(ts){ if(!ts) return '—'; try{ if(ts.seconds) return new Date(ts.seconds*1000).toLocaleString(); return new Date(ts).toLocaleString(); }catch(e){return '—';} }
 
+    // -------------------- Cloudinary transform helper --------------------
+    function cloudinaryTransform(url, w = 800, h = 450) {
+      if (!url || typeof url !== 'string') return url;
+      if (!url.includes('res.cloudinary.com')) return url;
+      return url.replace('/upload/', `/upload/w_${w},h_${h},c_fill,g_auto,q_auto,f_auto/`);
+    }
+    // -------------------------------------------------------------------
+
     function renderGrid(items){
       giveGrid.innerHTML = '';
       const visible = items.filter(it => currentFilter==='all' ? true : (it.status || 'ongoing') === currentFilter );
@@ -184,6 +192,9 @@
 
         const titleHtml = `<div class="font-bold text-rose-700 text-lg">${escapeHtml(item.title || 'Giveaway')}</div>`;
 
+        // Use cloudinaryTransform on item.imageUrl
+        const imgSrc = cloudinaryTransform(item.imageUrl || '');
+
         card.innerHTML = `
           <div class="ig-header">
             <img src="images/football-sis-logo.png" class="ig-avatar" alt="Logo">
@@ -194,7 +205,7 @@
             <div style="margin-left:12px;"><span class="status-badge">${status}</span></div>
           </div>
 
-          <img src="${escapeHtml(item.imageUrl||'')}" alt="${escapeHtml(item.title||'Giveaway')}" class="ig-image" onerror="this.onerror=null;this.src='images/opponent.png'"/>
+          <img src="${escapeHtml(imgSrc||'')}" alt="${escapeHtml(item.title||'Giveaway')}" class="ig-image" onerror="this.onerror=null;this.src='images/opponent.png'"/>
 
           <div class="p-4">
             ${titleHtml}
@@ -232,6 +243,9 @@
         <p style="margin-top:6px;color:#6b7280;">We will verify screenshots and your name before adding you to the draw. Winners are chosen at random.</p>
       `;
 
+      // Use cloudinaryTransform for modal image too
+      const modalImgSrc = cloudinaryTransform(item.imageUrl || '');
+
       modalContainer.innerHTML = `
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
           <div style="display:flex;gap:12px;align-items:center;">
@@ -247,7 +261,7 @@
           </div>
         </div>
 
-        <img src="${escapeHtml(item.imageUrl||'')}" class="modal-image" alt="${escapeHtml(item.title||'Giveaway')}" onerror="this.onerror=null;this.src='images/opponent.png'"/>
+        <img src="${escapeHtml(modalImgSrc||'')}" class="modal-image" alt="${escapeHtml(item.title||'Giveaway')}" onerror="this.onerror=null;this.src='images/opponent.png'"/>
 
         <div style="display:flex;gap:18px;flex-direction:column;">
           <div class="text-gray-800" style="line-height:1.6;">${escapeHtml(item.caption||'')}</div>
@@ -411,7 +425,8 @@
 
       docs.forEach(d => {
         const data = (d && d.data) ? d.data() : d;
-        const imgSrc = data && data.imageUrl ? data.imageUrl : 'images/opponent.png';
+        // transform Cloudinary images for uniform cropping
+        const imgSrc = cloudinaryTransform(data && data.imageUrl ? data.imageUrl : 'images/opponent.png');
         const el = document.createElement('article');
         el.className = 'winner-card';
         el.innerHTML = `
