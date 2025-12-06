@@ -176,301 +176,284 @@
     })();
   </script>
 
-  <!-- Firebase wiring for Q&A (only runs if Firebase is available) -->
+  <!-- Unified Firebase script: single init, form write + realtime listener -->
   <script type="module">
-    try {
-      const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
-      const { getAuth, signInAnonymously, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
-      const { getFirestore, collection, addDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-
-      const firebaseConfig = {
-        apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
-        authDomain: "football-site-c3aa9.firebaseapp.com",
-        projectId: "football-site-c3aa9",
-        storageBucket: "football-site-c3aa9.appspot.com",
-        messagingSenderId: "65396604482",
-        appId: "1:65396604482:web:0f31625a714aa8357db"
-      };
-      const appId = '1:65396604482:web:0f31625a714aa8352337db';
-
-      const app = initializeApp(firebaseConfig);
-      const db = getFirestore(app);
-      const auth = getAuth(app);
-
-      // anonymous sign-in to allow writes
-      onAuthStateChanged(auth, async (user) => {
-        if (!user) {
-          try { await signInAnonymously(auth); } catch(e){ console.warn('Auth failed', e); }
-        }
-      });
-
-      // handle Q&A form submit
-      const qaForm = document.getElementById('qa-form');
-      const qaStatus = document.getElementById('qa-status');
-      if (qaForm) {
-        qaForm.addEventListener('submit', async (ev) => {
-          ev.preventDefault();
-          qaStatus.textContent = 'Sending...';
-          const name = document.getElementById('qa-name').value.trim();
-          const question = document.getElementById('qa-question').value.trim();
-          if (!name || !question) { qaStatus.textContent = 'Please add name & question.'; return; }
-          try {
-            const path = `/artifacts/${appId}/public/data/questions`;
-            await addDoc(collection(db, path), {
-              name, question, timestamp: serverTimestamp()
-            });
-            qaStatus.textContent = 'Question sent — thank you!';
-            qaForm.reset();
-            setTimeout(()=>qaStatus.textContent = '', 3500);
-          } catch (err) {
-            console.error('Failed to send question', err);
-            qaStatus.textContent = 'Failed to send — check console.';
-          }
-        });
-      }
-    } catch (err) {
-      console.warn('Firebase Q&A not initialized:', err);
-      const qaForm = document.getElementById('qa-form');
-      const qaStatus = document.getElementById('qa-status');
-      if (qaForm) {
-        qaForm.addEventListener('submit', (ev) => {
-          ev.preventDefault();
-          qaStatus.textContent = 'Question handled locally (no Firebase).';
-          setTimeout(()=>qaStatus.textContent = '', 3000);
-          qaForm.reset();
-        });
-      }
-    }
-  </script>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-    // Firebase config (your project)
-    const firebaseConfig = {
-      apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
-      authDomain: "football-site-c3aa9.firebaseapp.com",
-      projectId: "football-site-c3aa9",
-      storageBucket: "football-site-c3aa9.appspot.com",
-      messagingSenderId: "65396604482",
-      appId: "1:65396604482:web:0f31625a714aa8357db"
-    };
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    // exact collection path you provided earlier
-    const QUESTIONS_COLLECTION_PATH = "artifacts/1:65396604482:web:0f31625a714aa8352337db/public/data/questions";
-
-    // DOM
-    const listEl = document.getElementById('questionsList');
-    const loadingEl = document.getElementById('loading');
-    const errorBox = document.getElementById('errorBox');
-    const pagerControls = document.getElementById('pagerControls');
-    const loadMoreBtn = document.getElementById('loadMoreBtn');
-    const resetBtn = document.getElementById('resetBtn');
-
-    // pagination config
-    const itemsPerPage = 6;        // how many per "page" (change if you want)
-    let visibleCount = itemsPerPage;
-    let allDocs = [];             // full list from Firestore (keeps updated by onSnapshot)
-
-    // helper: escape
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str).replace(/[&<>"']/g, (s) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]);
-    }
-
-    // robust field-finder (aggressive: many variants + nested search)
-    function getQuestionText(data) {
-      if (!data || typeof data !== 'object') return '';
-
-      const keys = [
-        'body','message','question','text','q','description','content','msg',
-        'questionText','question_text','questionBody','question_body','questionTxt',
-        'question_message','message_text','bodyText','body_text','contentText','content_text',
-        'ask','ask_text','userQuestion','user_question','input','questionValue'
-      ];
-
-      const hasKeyWithValue = (obj, key) => {
-        if (!obj) return null;
-        if (Object.prototype.hasOwnProperty.call(obj, key) && obj[key] && String(obj[key]).trim()) return String(obj[key]);
-        const lower = key.toLowerCase();
-        for (const k of Object.keys(obj)) {
-          if (k.toLowerCase() === lower && obj[k] && String(obj[k]).trim()) return String(obj[k]);
-        }
-        return null;
-      };
-
-      // 1) named candidates
-      for (const k of keys) {
-        const v = hasKeyWithValue(data, k);
-        if (v) return v;
-      }
-
-      // 2) first top-level string
-      for (const k of Object.keys(data)) {
-        const v = data[k];
-        if (typeof v === 'string' && v.trim()) return v;
-      }
-
-      // 3) nested (one level)
-      for (const k of Object.keys(data)) {
-        const v = data[k];
-        if (v && typeof v === 'object') {
-          for (const cand of keys) {
-            const nested = hasKeyWithValue(v, cand);
-            if (nested) return nested;
-          }
-          for (const nk of Object.keys(v)) {
-            if (typeof v[nk] === 'string' && String(v[nk]).trim()) return v[nk];
-          }
-        }
-      }
-
-      // 4) BFS up to depth 2
-      const queue = [{obj:data,depth:0}];
-      const seen = new Set();
-      while (queue.length) {
-        const {obj, depth} = queue.shift();
-        if (!obj || typeof obj !== 'object' || depth > 2) continue;
-        for (const key of Object.keys(obj)) {
-          const val = obj[key];
-          if (typeof val === 'string' && val.trim()) return val;
-          if (val && typeof val === 'object' && !seen.has(val)) {
-            seen.add(val);
-            queue.push({obj: val, depth: depth + 1});
-          }
-        }
-      }
-
-      return '';
-    }
-
-    // render only visibleCount items from allDocs (most recent first)
-    function renderVisible() {
-      listEl.innerHTML = '';
-      if (!allDocs || !allDocs.length) {
-        listEl.innerHTML = '<div class="subtle">No questions yet.</div>';
-        pagerControls.style.display = 'none';
-        return;
-      }
-
-      // sort newest first by createdAt if possible
-      const docs = allDocs.slice().sort((a,b) => {
-        const ta = a.data.createdAt && a.data.createdAt.seconds ? a.data.createdAt.seconds : 0;
-        const tb = b.data.createdAt && b.data.createdAt.seconds ? b.data.createdAt.seconds : 0;
-        return tb - ta;
-      });
-
-      // slice for pagination
-      const slice = docs.slice(0, visibleCount);
-
-      slice.forEach(it => {
-        const d = it.data || {};
-        const createdAt = d.createdAt && d.createdAt.seconds ? new Date(d.createdAt.seconds * 1000).toLocaleString() : '';
-        const title = d.title || 'Question';
-        const name = d.name || d.userName || d.user || d.username || '';
-        const qText = getQuestionText(d);
-        const adminResponse = d.adminResponse || null;
-
-        const card = document.createElement('article');
-        card.className = 'qa-card';
-        card.innerHTML = `
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;">
-            <div style="flex:1;">
-              <div class="qa-title">${escapeHtml(title)}</div>
-              <div class="qa-text">${ qText ? escapeHtml(qText) : '<span class="subtle">[Question text unavailable]</span>' }</div>
-              <div class="meta-row">
-                ${ name ? `<div>Asked by ${escapeHtml(name)}</div>` : '' }
-                ${ createdAt ? `<div>· ${escapeHtml(createdAt)}</div>` : '' }
-              </div>
-            </div>
-            <div style="min-width:110px;text-align:right;">
-              ${ adminResponse ? '<div class="chip-answered">Answered</div>' : '<div class="chip-unanswered">Unanswered</div>' }
-            </div>
-          </div>
-          ${ adminResponse ? `<div style="margin-top:1rem;padding:1rem;border-radius:10px;background:#f8fafc;border:1px solid rgba(226,232,240,0.6);"><strong>Reply:</strong> ${escapeHtml(adminResponse)}</div>` : '' }
-        `;
-        listEl.appendChild(card);
-      });
-
-      // pager display logic
-      if (allDocs.length > itemsPerPage) {
-        pagerControls.style.display = '';
-        if (visibleCount >= allDocs.length) {
-          loadMoreBtn.style.display = 'none';
-          resetBtn.style.display = '';
-        } else {
-          loadMoreBtn.style.display = '';
-          resetBtn.style.display = 'none';
-        }
-      } else {
-        pagerControls.style.display = 'none';
-      }
-    }
-
-    // update allDocs and re-render visible
-    function updateDocs(newDocs) {
-      allDocs = newDocs;
-      // if visibleCount is greater than total docs (e.g., docs deleted), clamp it
-      if (visibleCount > allDocs.length) visibleCount = itemsPerPage;
-      renderVisible();
-    }
-
-    // subscribe with realtime updates
-    let unsubscribe = null;
-    function subscribeToQuestions() {
-      if (unsubscribe) unsubscribe();
-      loadingEl.style.display = '';
-      errorBox.style.display = 'none';
-
+    (async () => {
       try {
-        const collRef = collection(db, QUESTIONS_COLLECTION_PATH);
-        unsubscribe = onSnapshot(collRef, (snap) => {
-          const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }));
-          loadingEl.style.display = 'none';
-          errorBox.style.display = 'none';
-          updateDocs(docs);
-        }, (err) => {
-          console.error('onSnapshot error', err);
-          loadingEl.style.display = 'none';
-          errorBox.style.display = '';
-          errorBox.textContent = 'Realtime read failed: ' + (err.message || err.code || err);
+        // dynamic imports (single place)
+        const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
+        const { getAuth, signInAnonymously, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
+        const { getFirestore, collection, addDoc, serverTimestamp, onSnapshot } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+
+        // === your firebase config (unchanged) ===
+        const firebaseConfig = {
+          apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
+          authDomain: "football-site-c3aa9.firebaseapp.com",
+          projectId: "football-site-c3aa9",
+          storageBucket: "football-site-c3aa9.appspot.com",
+          messagingSenderId: "65396604482",
+          appId: "1:65396604482:web:0f31625a714aa8357db"
+        };
+        // keep the same appId string you used for write-path generation
+        const appId = '1:65396604482:web:0f31625a714aa8352337db';
+
+        // Initialize app once
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // collection path (keeps the same structure you used)
+        // NOTE: this matches the path used in your existing listener code
+        const QUESTIONS_COLLECTION_PATH = `artifacts/${appId}/public/data/questions`;
+
+        // DOM references (same IDs as your page)
+        const qaForm = document.getElementById('qa-form');
+        const qaStatus = document.getElementById('qa-status');
+        const listEl = document.getElementById('questionsList');
+        const loadingEl = document.getElementById('loading');
+        const errorBox = document.getElementById('errorBox');
+        const pagerControls = document.getElementById('pagerControls');
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        // pagination config (preserves your behavior)
+        const itemsPerPage = 6;
+        let visibleCount = itemsPerPage;
+        let allDocs = [];
+
+        // escape helper (preserve)
+        function escapeHtml(str) {
+          if (!str) return '';
+          return String(str).replace(/[&<>"']/g, (s) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]);
+        }
+
+        // getQuestionText function (preserve)
+        function getQuestionText(data) {
+          if (!data || typeof data !== 'object') return '';
+
+          const keys = [
+            'body','message','question','text','q','description','content','msg',
+            'questionText','question_text','questionBody','question_body','questionTxt',
+            'question_message','message_text','bodyText','body_text','contentText','content_text',
+            'ask','ask_text','userQuestion','user_question','input','questionValue'
+          ];
+
+          const hasKeyWithValue = (obj, key) => {
+            if (!obj) return null;
+            if (Object.prototype.hasOwnProperty.call(obj, key) && obj[key] && String(obj[key]).trim()) return String(obj[key]);
+            const lower = key.toLowerCase();
+            for (const k of Object.keys(obj)) {
+              if (k.toLowerCase() === lower && obj[k] && String(obj[k]).trim()) return String(obj[k]);
+            }
+            return null;
+          };
+
+          for (const k of keys) {
+            const v = hasKeyWithValue(data, k);
+            if (v) return v;
+          }
+          for (const k of Object.keys(data)) {
+            const v = data[k];
+            if (typeof v === 'string' && v.trim()) return v;
+          }
+          for (const k of Object.keys(data)) {
+            const v = data[k];
+            if (v && typeof v === 'object') {
+              for (const cand of keys) {
+                const nested = hasKeyWithValue(v, cand);
+                if (nested) return nested;
+              }
+              for (const nk of Object.keys(v)) {
+                if (typeof v[nk] === 'string' && String(v[nk]).trim()) return v[nk];
+              }
+            }
+          }
+          const queue = [{obj:data,depth:0}];
+          const seen = new Set();
+          while (queue.length) {
+            const {obj, depth} = queue.shift();
+            if (!obj || typeof obj !== 'object' || depth > 2) continue;
+            for (const key of Object.keys(obj)) {
+              const val = obj[key];
+              if (typeof val === 'string' && val.trim()) return val;
+              if (val && typeof val === 'object' && !seen.has(val)) {
+                seen.add(val);
+                queue.push({obj: val, depth: depth + 1});
+              }
+            }
+          }
+          return '';
+        }
+
+        // renderVisible & updateDocs (preserve your UI logic exactly)
+        function renderVisible() {
+          if (!listEl) return;
+          listEl.innerHTML = '';
+          if (!allDocs || !allDocs.length) {
+            listEl.innerHTML = '<div class="subtle">No questions yet.</div>';
+            if (pagerControls) pagerControls.style.display = 'none';
+            return;
+          }
+
+          const docs = allDocs.slice().sort((a,b) => {
+            const ta = a.data.createdAt && a.data.createdAt.seconds ? a.data.createdAt.seconds : 0;
+            const tb = b.data.createdAt && b.data.createdAt.seconds ? b.data.createdAt.seconds : 0;
+            return tb - ta;
+          });
+
+          const slice = docs.slice(0, visibleCount);
+
+          slice.forEach(it => {
+            const d = it.data || {};
+            const createdAt = d.createdAt && d.createdAt.seconds ? new Date(d.createdAt.seconds * 1000).toLocaleString() : '';
+            const title = d.title || 'Question';
+            const name = d.name || d.userName || d.user || d.username || '';
+            const qText = getQuestionText(d);
+            const adminResponse = d.adminResponse || null;
+
+            const card = document.createElement('article');
+            card.className = 'qa-card';
+            card.innerHTML = `
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;">
+                <div style="flex:1;">
+                  <div class="qa-title">${escapeHtml(title)}</div>
+                  <div class="qa-text">${ qText ? escapeHtml(qText) : '<span class="subtle">[Question text unavailable]</span>' }</div>
+                  <div class="meta-row">
+                    ${ name ? `<div>Asked by ${escapeHtml(name)}</div>` : '' }
+                    ${ createdAt ? `<div>· ${escapeHtml(createdAt)}</div>` : '' }
+                  </div>
+                </div>
+                <div style="min-width:110px;text-align:right;">
+                  ${ adminResponse ? '<div class="chip-answered">Answered</div>' : '<div class="chip-unanswered">Unanswered</div>' }
+                </div>
+              </div>
+              ${ adminResponse ? `<div style="margin-top:1rem;padding:1rem;border-radius:10px;background:#f8fafc;border:1px solid rgba(226,232,240,0.6);"><strong>Reply:</strong> ${escapeHtml(adminResponse)}</div>` : '' }
+            `;
+            listEl.appendChild(card);
+          });
+
+          if (allDocs.length > itemsPerPage) {
+            if (pagerControls) pagerControls.style.display = '';
+            if (visibleCount >= allDocs.length) {
+              if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+              if (resetBtn) resetBtn.style.display = '';
+            } else {
+              if (loadMoreBtn) loadMoreBtn.style.display = '';
+              if (resetBtn) resetBtn.style.display = 'none';
+            }
+          } else {
+            if (pagerControls) pagerControls.style.display = 'none';
+          }
+        }
+
+        function updateDocs(newDocs) {
+          allDocs = newDocs;
+          if (visibleCount > allDocs.length) visibleCount = itemsPerPage;
+          renderVisible();
+        }
+
+        // subscribe with realtime updates (onSnapshot)
+        let unsubscribe = null;
+        function subscribeToQuestions() {
+          if (!db) return;
+          if (unsubscribe) unsubscribe();
+          if (loadingEl) loadingEl.style.display = '';
+          if (errorBox) errorBox.style.display = 'none';
+
+          try {
+            const collRef = collection(db, QUESTIONS_COLLECTION_PATH);
+            unsubscribe = onSnapshot(collRef, (snap) => {
+              const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }));
+              if (loadingEl) loadingEl.style.display = 'none';
+              if (errorBox) errorBox.style.display = 'none';
+              updateDocs(docs);
+            }, (err) => {
+              console.error('onSnapshot error', err);
+              if (loadingEl) loadingEl.style.display = 'none';
+              if (errorBox) { errorBox.style.display = ''; errorBox.textContent = 'Realtime read failed: ' + (err.message || err.code || err); }
+            });
+          } catch (err) {
+            console.error('Subscribe failed', err);
+            if (loadingEl) loadingEl.style.display = 'none';
+            if (errorBox) { errorBox.style.display = ''; errorBox.textContent = 'Could not subscribe to questions: ' + (err.message || err.code || err); }
+          }
+        }
+
+        // pager handlers (preserve behavior)
+        if (loadMoreBtn) loadMoreBtn.addEventListener('click', () => {
+          visibleCount = visibleCount + itemsPerPage;
+          renderVisible();
+          const questionsList = document.getElementById('questionsList');
+          if (questionsList) window.scrollTo({ top: questionsList.offsetTop - 80, behavior: 'smooth' });
         });
+        if (resetBtn) resetBtn.addEventListener('click', () => {
+          visibleCount = itemsPerPage;
+          renderVisible();
+          const questionsList = document.getElementById('questionsList');
+          if (questionsList) window.scrollTo({ top: questionsList.offsetTop - 80, behavior: 'smooth' });
+        });
+
+        // form submit handling (writes to the SAME collection used by onSnapshot)
+        if (qaForm) {
+          qaForm.addEventListener('submit', async (ev) => {
+            ev.preventDefault();
+            if (qaStatus) qaStatus.textContent = 'Sending...';
+            const name = (document.getElementById('qa-name') || {value:''}).value.trim();
+            const title = (document.getElementById('qa-title') || {value:''}).value.trim();
+            const question = (document.getElementById('qa-question') || {value:''}).value.trim();
+            // keep same validation as before (requires both name and question)
+            if (!name || !question) { if (qaStatus) qaStatus.textContent = 'Please add name & question.'; return; }
+            try {
+              await addDoc(collection(db, QUESTIONS_COLLECTION_PATH), {
+                name,
+                title,
+                question,
+                // add both fields so reads expecting createdAt will work,
+                // and the older timestamp field remains present for compatibility
+                createdAt: serverTimestamp(),
+                timestamp: serverTimestamp()
+              });
+              if (qaStatus) qaStatus.textContent = 'Question sent — thank you!';
+              qaForm.reset();
+              setTimeout(()=>{ if (qaStatus) qaStatus.textContent = ''; }, 3500);
+            } catch (err) {
+              console.error('Failed to send question', err);
+              if (qaStatus) qaStatus.textContent = 'Failed to send — check console.';
+            }
+          });
+        }
+
+        // auth + start subscription
+        onAuthStateChanged(auth, (user) => {
+          // always try to subscribe to read (read access can be public)
+          subscribeToQuestions();
+          if (!user) {
+            signInAnonymously(auth).catch(err => {
+              console.warn('Anonymous sign-in failed (continuing read-only):', err);
+            });
+          }
+        });
+
       } catch (err) {
-        console.error('Subscribe failed', err);
-        loadingEl.style.display = 'none';
-        errorBox.style.display = '';
-        errorBox.textContent = 'Could not subscribe to questions: ' + (err.message || err.code || err);
+        // Firebase couldn't be loaded or module import failed — fallback UI behavior
+        console.warn('Firebase Q&A not initialized:', err);
+        const qaForm = document.getElementById('qa-form');
+        const qaStatus = document.getElementById('qa-status');
+        if (qaForm) {
+          qaForm.addEventListener('submit', (ev) => {
+            ev.preventDefault();
+            if (qaStatus) qaStatus.textContent = 'Question handled locally (no Firebase).';
+            setTimeout(()=>{ if (qaStatus) qaStatus.textContent = ''; }, 3000);
+            qaForm.reset();
+          });
+        }
+        // Optionally show an error in the questions area
+        const loadingEl = document.getElementById('loading');
+        const errorBox = document.getElementById('errorBox');
+        if (loadingEl) loadingEl.style.display = 'none';
+        if (errorBox) { errorBox.style.display = ''; errorBox.textContent = 'Firebase unavailable — running in fallback mode.'; }
       }
-    }
-
-    // pager button handlers
-    loadMoreBtn.addEventListener('click', () => {
-      visibleCount = visibleCount + itemsPerPage;
-      renderVisible();
-      window.scrollTo({ top: document.getElementById('questionsList').offsetTop - 80, behavior: 'smooth' });
-    });
-
-    resetBtn.addEventListener('click', () => {
-      visibleCount = itemsPerPage;
-      renderVisible();
-      window.scrollTo({ top: document.getElementById('questionsList').offsetTop - 80, behavior: 'smooth' });
-    });
-
-    // ensure auth then subscribe (anonymous if needed)
-    onAuthStateChanged(auth, (user) => {
-      subscribeToQuestions();
-      if (!user) {
-        signInAnonymously(auth).catch(err => {
-          console.warn('Anonymous sign-in failed (continuing read-only):', err);
-        });
-      }
-    });
-
+    })();
   </script>
 </body>
 </html>
