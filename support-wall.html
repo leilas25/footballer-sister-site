@@ -2,190 +2,176 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Support Wall • The Footballer’s Sister</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>The Support Wall — The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
-
   <style>
     :root{
       --accent:#be185d;
       --muted:#6b7280;
-      --divider:rgba(243,211,226,0.75);
+      --divider: rgba(243,211,226,0.75);
     }
-
-    body{
-      background:#fff6f8;
-      margin:0;
-      padding-bottom:120px;
-      font-family: ui-sans-serif, system-ui;
-      -webkit-font-smoothing:antialiased;
-    }
+    html,body { height:100%; }
+    body { background:#fff2f6; color:#111827; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin:0; -webkit-font-smoothing:antialiased; padding-bottom:120px; }
 
     header{
-      background:linear-gradient(180deg,rgba(246,213,239,0.6),rgba(255,241,248,0.6));
-      border-bottom:1px solid rgba(235,200,215,0.6);
-      backdrop-filter:blur(4px);
-      position:sticky;
-      top:0;
-      z-index:50;
+      background: linear-gradient(180deg, rgba(246,213,239,0.6), rgba(255,241,248,0.6));
+      border-bottom: 1px solid rgba(235,200,215,0.6);
+      backdrop-filter: blur(4px);
+      position: sticky;
+      top: 0;
+      z-index: 40;
     }
+    .container { max-width:1100px; margin:0 auto; padding:0 1.5rem; }
+    .site-title { color: var(--accent); font-weight: 800; letter-spacing: .02em; }
 
-    .site-title{
-      color:var(--accent);
-      font-weight:800;
-      letter-spacing:.02em;
-    }
-
-    .footer-badge{
-      display:inline-block;
-      background:linear-gradient(90deg,#be185d,#f472b6);
-      color:white;
-      padding:.45rem .85rem;
-      border-radius:999px;
-      font-weight:700;
-    }
-
-    /* --- SUPPORT BOX FROM BTS PAGE --- */
-    .support-box{
-      background:white;
+    /* Support box (BTS style) */
+    .support-card {
+      background:linear-gradient(180deg,#fff,#fff);
       border-radius:14px;
-      padding:1.25rem;
-      box-shadow:0 10px 25px rgba(0,0,0,0.06);
+      padding:1rem;
       border:1px solid rgba(235,224,232,0.6);
-      max-width:900px;
-      margin:1.5rem auto;
+      box-shadow:0 10px 30px rgba(11,7,17,0.06);
+      max-width:920px;
+      margin: 1.25rem auto;
       text-align:center;
     }
+    .support-card h3 { color:var(--accent); font-weight:800; margin:0; }
+    .support-card p { color:var(--muted); margin:.5rem 0 1rem; }
+    .support-card textarea { width:100%; min-height:84px; border-radius:10px; border:1px solid #e6e6e6; padding:.75rem; }
 
-    .support-box h2{
-      color:var(--accent);
-      font-weight:800;
-      margin-bottom:.4rem;
+    /* messages / tweet-card (original style preserved) */
+    .tweet-card {
+      background: #ffffff;
+      border: 1px solid #f1e7ee;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 18px rgba(16, 24, 40, 0.04);
+      transition: transform 0.14s ease, box-shadow 0.14s ease;
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
     }
+    .tweet-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(16,24,40,0.06); }
+    .tweet-avatar { width: 54px; height: 54px; border-radius: 9999px; background: #fde8ef; flex-shrink: 0; display:flex; align-items:center; justify-content:center; }
+    .tweet-header { display:flex; align-items:center; gap:0.6rem; width:100%; }
+    .tweet-name { font-weight:700; color:#9b1630; font-size:1rem; }
+    .tweet-handle { font-size:0.9rem; color:#9aa3ad; margin-left:0.4rem; }
+    .tweet-timestamp { margin-left:auto; color:#8b99a6; font-size:0.85rem; }
+    .tweet-content { margin-top:0.5rem; color:#344054; line-height:1.45; }
+    .reactions { margin-top:0.75rem; display:flex; gap:0.6rem; align-items:center; color:#9b1630; font-weight:600; flex-wrap:wrap; }
+    .reaction-pill { display:inline-flex; align-items:center; gap:0.5rem; background:#fff6f8; border:1px solid #ffdde6; padding:6px 10px; border-radius:999px; font-size:0.95rem; color:var(--accent); cursor:pointer; user-select:none; transition:transform .08s ease; }
+    .reaction-pill.secondary { background:#f7f6ff; border-color:#e6e3ff; color:#5b4bd6; }
+    .reaction-pill.strong { background:#fff7e9; border-color:#ffe9c6; color:#c95d00; }
+    .reaction-pill[disabled] { opacity:0.6; cursor:not-allowed; }
 
-    .support-box p{
-      color:#6b7280;
-      margin-bottom:1rem;
-    }
+    .reaction-pulse { animation: reactionPulse 420ms ease-in-out; }
+    @keyframes reactionPulse { 0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)} }
 
-    textarea{
-      width:100%;
-      border:1px solid #e5d2dd;
-      border-radius:10px;
-      padding:.75rem;
-      resize:none;
-    }
-
-    .support-btn{
-      margin-top:.75rem;
-      background:linear-gradient(90deg,#be185d,#f472b6);
-      color:white;
-      border-radius:999px;
-      font-weight:700;
-      padding:.6rem 1.25rem;
-      display:inline-block;
-    }
-
-    /* --- MESSAGE CARDS --- */
-    .msg-card{
-      background:white;
-      border-radius:12px;
-      border:1px solid #f3d3e2;
-      padding:1rem;
-      margin:1rem auto;
-      max-width:900px;
-      box-shadow:0 4px 14px rgba(0,0,0,0.05);
-    }
-
-    .msg-name{
-      font-weight:700;
-      color:#111827;
-      margin-bottom:.25rem;
-    }
-
-    .msg-text{
-      color:#374151;
-      margin-bottom:.5rem;
-    }
-
-    .msg-footer{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      color:#9ca3af;
-      font-size:.85rem;
-    }
-
-    .heart{
-      cursor:pointer;
-      color:#be185d;
-      font-weight:700;
-    }
-
-    @media(max-width:700px){
-      .msg-card{ margin:1rem 1rem; }
-      .support-box{ margin:1.25rem 1rem; }
+    @media (max-width:640px) {
+      .tweet-card{ flex-direction:column; }
+      .tweet-timestamp{ margin-left:0; margin-top:0.3rem; }
+      .container { padding: 0 1rem; }
     }
   </style>
 </head>
+<body class="min-h-screen flex flex-col">
 
-<body>
-
-  <!-- HEADER -->
+  <!-- Header -->
   <header>
-    <div class="flex justify-between items-center px-6 py-4" style="max-width:1100px;margin:0 auto;">
-      <div class="site-title" style="font-size:1.15rem;">THE FOOTBALLER’S SISTER</div>
+    <div class="container" style="display:flex;justify-content:space-between;align-items:center;padding-top:0.9rem;padding-bottom:0.9rem;">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <div class="site-title" style="font-size:1.05rem;">THE FOOTBALLER’S SISTER</div>
+      </div>
 
       <div class="relative inline-block">
-        <button id="navButton"
-          class="inline-flex items-center gap-2 rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50">
+        <button id="navButton" aria-expanded="false" class="inline-flex items-center rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50">
           <span id="navTitle">Support Wall</span>
-          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"/>
+          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
           </svg>
         </button>
 
-        <div id="dropdownMenu"
-          class="hidden absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-          <a href="index.html" class="block px-4 py-2 text-sm hover:bg-pink-50">Home</a>
-          <a href="bts.html" class="block px-4 py-2 text-sm hover:bg-pink-50">Behind the Game</a>
-          <a href="leila.html" class="block px-4 py-2 text-sm hover:bg-pink-50">Meet Leila</a>
-          <a href="questions.html" class="block px-4 py-2 text-sm hover:bg-pink-50">Q&A</a>
-          <a href="support-wall.html" class="block px-4 py-2 text-sm hover:bg-pink-50 font-semibold text-rose-600">Support Wall</a>
-          <a href="fixtures.html" class="block px-4 py-2 text-sm hover:bg-pink-50">Fixtures & Live Scores</a>
-          <a href="giveaways.html" class="block px-4 py-2 text-sm hover:bg-pink-50">Giveaways</a>
+        <div id="dropdownMenu" class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+          <div class="py-1">
+            <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
+            <a href="bts.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
+            <a href="leila.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Meet Leila</a>
+            <a href="questions.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Q&A</a>
+            <a href="support-wall.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Support Wall</a>
+            <a href="fixtures.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Fixtures & Live Scores</a>
+            <a href="giveaways.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Giveaways</a>
+          </div>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- SPACING -->
-  <div style="height:20px;"></div>
+  <div style="height:64px;"></div>
 
-  <!-- SUPPORT BOX FROM BTS PAGE -->
-  <section class="support-box">
-    <h2>Share Your Support ❤️</h2>
-    <p>Leave a message for the players or for Leila — your words mean everything.</p>
+  <main class="flex-grow px-6 pb-20 max-w-3xl mx-auto">
 
-    <textarea id="msgInput" rows="3" placeholder="Write your message..."></textarea>
-    <br>
-    <button id="sendBtn" class="support-btn">Post Message</button>
-  </section>
+    <!-- Page heading -->
+    <h2 class="text-4xl font-bold mb-2 text-rose-700">The Support Wall ❤️</h2>
 
-  <!-- MESSAGES LIST -->
-  <section id="messagesList"></section>
+    <!-- SUPPORT CARD (BTS) placed at top -->
+    <section class="support-card" aria-labelledby="supportTitle">
+      <h3 id="supportTitle">Share Your Support ❤️</h3>
+      <p>Leave a message for the players or for Leila — your words mean everything.</p>
 
-  <!-- FOOTER -->
+      <div style="max-width:720px;margin:0 auto;">
+        <textarea id="supportMessage" placeholder="Write your message..."></textarea>
+        <div style="margin-top:.6rem;text-align:center;">
+          <button id="postSupport" class="support-btn" style="background:linear-gradient(90deg,#be185d,#f472b6); color:white; padding:.6rem 1.25rem; border-radius:999px; font-weight:700;">Post Message</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Messages list (original logic preserved) -->
+    <div id="messages-container" class="mt-6">
+      <p id="loading-indicator" class="text-gray-500 text-center">Loading messages...</p>
+    </div>
+  </main>
+
+  <!-- Footer -->
   <footer class="text-center py-6">
-    <small class="footer-badge">© <span id="year"></span> The Footballer’s Sister</small>
+    <div class="container" style="max-width:1100px;margin:0 auto;">
+      <small style="color:rgba(255,255,255,0.95);background:linear-gradient(90deg,#be185d,#f472b6);padding:.4rem .8rem;border-radius:999px;">© <span id="year"></span> The Footballer’s Sister</small>
+    </div>
   </footer>
-  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- FIREBASE -->
+  <script>
+    // nav dropdown behaviour
+    (function(){
+      const navButton = document.getElementById('navButton');
+      const dropdownMenu = document.getElementById('dropdownMenu');
+      navButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = dropdownMenu.classList.contains('hidden');
+        if (isHidden) {
+          dropdownMenu.classList.remove('hidden');
+        } else {
+          dropdownMenu.classList.add('hidden');
+        }
+      });
+      document.addEventListener('click', (e) => {
+        if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+          dropdownMenu.classList.add('hidden');
+        }
+      });
+    })();
+  </script>
+
+  <!-- FIREBASE + messages/reactions logic (kept original behaviour, added immediate subscription) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, serverTimestamp, onSnapshot, query, orderBy, updateDoc, doc } 
-      from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import {
+      getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot,
+      doc, updateDoc, increment, getDocs
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
@@ -195,78 +181,183 @@
       messagingSenderId: "65396604482",
       appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
-
+    const APP_ID = firebaseConfig.appId;
     const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
     const db = getFirestore(app);
+    const PATH = `/artifacts/${APP_ID}/public/data/supportMessages`;
 
-    const PATH = `artifacts/${firebaseConfig.appId}/public/data/supportMessages`;
+    const messagesContainer = document.getElementById('messages-container');
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const postBtn = document.getElementById('postSupport');
+    const messageInput = document.getElementById('supportMessage');
 
-    const msgInput = document.getElementById("msgInput");
-    const sendBtn = document.getElementById("sendBtn");
-    const list = document.getElementById("messagesList");
+    function escapeHtml(s){ if(s === null || typeof s === 'undefined') return ''; return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-    // Load messages **immediately** (fix from earlier)
-    function loadMessages(){
-      const qRef = query(collection(db, PATH), orderBy("createdAt", "desc"));
-      onSnapshot(qRef, snap=>{
-        list.innerHTML = "";
-        snap.forEach(docSnap=>{
-          const m = docSnap.data();
-          const card = document.createElement("div");
-          card.className = "msg-card";
-          card.innerHTML = `
-            <div class="msg-name">${m.name || "Anonymous"}</div>
-            <div class="msg-text">${m.message || ""}</div>
-            <div class="msg-footer">
-              <span>${m.createdAt?.seconds ? new Date(m.createdAt.seconds*1000).toLocaleString() : ""}</span>
-              <span class="heart" data-id="${docSnap.id}">❤️ ${m.likes || 0}</span>
+    function createReactionButton(emoji, kind, count) {
+      const btn = document.createElement('button');
+      btn.className = 'reaction-pill';
+      if (kind === 'clap') btn.classList.add('secondary');
+      if (kind === 'fire') btn.classList.add('strong');
+
+      const emojiSpan = document.createElement('span');
+      emojiSpan.textContent = emoji;
+      emojiSpan.style.fontSize = '16px';
+      emojiSpan.setAttribute('aria-hidden', 'true');
+
+      const countSpan = document.createElement('span');
+      countSpan.textContent = String(count || 0);
+      countSpan.style.marginLeft = '4px';
+
+      btn.appendChild(emojiSpan);
+      btn.appendChild(countSpan);
+      return { btn, countSpan };
+    }
+
+    // Render function for messages (keeps original markup)
+    function renderMessages(docs) {
+      messagesContainer.innerHTML = '';
+      if (!docs || !docs.length) {
+        messagesContainer.innerHTML = '<p class="text-gray-500 text-center">No messages yet.</p>';
+        return;
+      }
+
+      docs.forEach(msg => {
+        const name = escapeHtml(msg.name || 'Anonymous');
+        const uid = escapeHtml((msg.userId || '').slice(0,8));
+        let tsText = 'Just now';
+        if (msg.createdAt && msg.createdAt.seconds) tsText = new Date(msg.createdAt.seconds*1000).toLocaleString();
+        const messageHtml = (escapeHtml(msg.message || '')).replace(/\n/g,'<br/>');
+
+        const card = document.createElement('div');
+        card.className = 'tweet-card';
+        card.innerHTML = `
+          <div class="tweet-avatar" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="#be185d" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+            </svg>
+          </div>
+          <div style="flex:1;">
+            <div class="tweet-header">
+              <div style="display:flex;flex-direction:column;">
+                <div style="display:flex;align-items:center;gap:0.4rem;">
+                  <span class="tweet-name">${name}</span>
+                  <span class="tweet-handle">@${uid}</span>
+                </div>
+              </div>
+              <div class="tweet-timestamp">${escapeHtml(tsText)}</div>
             </div>
-          `;
-          list.append(card);
-        });
+            <div class="tweet-content">${messageHtml}</div>
+            <div class="reactions" data-docid="${escapeHtml(msg.id || '')}"></div>
+          </div>
+        `;
 
-        // heart click
-        document.querySelectorAll(".heart").forEach(h=>{
-          h.onclick = async ()=>{
-            const id = h.getAttribute("data-id");
-            const ref = doc(db, PATH, id);
-            await updateDoc(ref, { likes: (parseInt(h.textContent.replace("❤️","")) || 0) + 1 });
-          };
-        });
+        const reactionContainer = card.querySelector('.reactions');
+        const reactions = (msg.reactions && typeof msg.reactions === 'object') ? msg.reactions : {};
+        const counts = {
+          heart: Number(reactions.heart || 0),
+          clap:  Number(reactions.clap  || 0),
+          party: Number(reactions.party || 0),
+          fire:  Number(reactions.fire  || 0),
+          smile: Number(reactions.smile || 0)
+        };
+
+        const heartObj = createReactionButton('❤️', 'heart', counts.heart);
+        reactionContainer.appendChild(heartObj.btn);
+
+        const clapObj  = createReactionButton('👏', 'clap', counts.clap);
+        reactionContainer.appendChild(clapObj.btn);
+
+        const partyObj = createReactionButton('🎉', 'party', counts.party);
+        reactionContainer.appendChild(partyObj.btn);
+
+        const fireObj  = createReactionButton('🔥', 'fire', counts.fire);
+        reactionContainer.appendChild(fireObj.btn);
+
+        const smileObj = createReactionButton('😊', 'smile', counts.smile);
+        reactionContainer.appendChild(smileObj.btn);
+
+        const docRef = doc(db, PATH, msg.id);
+
+        async function handleReaction(obj, fieldKey) {
+          if (obj.btn.disabled) return;
+          obj.btn.disabled = true;
+          const prev = Number(obj.countSpan.textContent || 0);
+          obj.countSpan.textContent = String(prev + 1);
+          try {
+            await updateDoc(docRef, { [`reactions.${fieldKey}`]: increment(1) });
+            obj.btn.classList.add('reaction-pulse');
+            setTimeout(()=> obj.btn.classList.remove('reaction-pulse'), 450);
+          } catch (err) {
+            console.error('Reaction update error:', err);
+            obj.countSpan.textContent = String(Math.max(0, prev));
+            alert('Could not send reaction. Please try again.');
+          } finally {
+            setTimeout(()=> obj.btn.disabled = false, 800);
+          }
+        }
+
+        heartObj.btn.addEventListener('click', () => handleReaction(heartObj, 'heart'));
+        clapObj.btn.addEventListener('click',  () => handleReaction(clapObj,  'clap'));
+        partyObj.btn.addEventListener('click', () => handleReaction(partyObj, 'party'));
+        fireObj.btn.addEventListener('click',  () => handleReaction(fireObj,  'fire'));
+        smileObj.btn.addEventListener('click', () => handleReaction(smileObj, 'smile'));
+
+        messagesContainer.appendChild(card);
       });
     }
 
-    loadMessages();
+    // Subscribe to messages immediately (so saved messages show even if auth delays)
+    function subscribeMessages() {
+      try {
+        const q = query(collection(db, PATH), orderBy('createdAt','desc'));
+        onSnapshot(q, snap => {
+          const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          renderMessages(docs);
+        }, err => {
+          console.error('supportMessages onSnapshot error', err);
+          messagesContainer.innerHTML = '<p class="text-gray-500 text-center">Unable to load messages.</p>';
+        });
+      } catch (err) {
+        console.error('subscribeMessages failed', err);
+        messagesContainer.innerHTML = '<p class="text-gray-500 text-center">Unable to load messages.</p>';
+      }
+    }
 
-    sendBtn.onclick = async ()=>{
-      const text = msgInput.value.trim();
-      if(!text) return;
+    // Start listening right away
+    subscribeMessages();
 
-      await addDoc(collection(db, PATH), {
-        name: "Supporter",
-        message: text,
-        likes: 0,
-        createdAt: serverTimestamp()
-      });
+    // Keep trying to sign-in anonymously so posting works
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        try { await signInAnonymously(auth); } catch (err) { console.warn('anonymous sign-in failed', err); }
+      }
+      // no gating: subscription already running
+    });
 
-      msgInput.value = "";
-    };
-
-
-    // NAVIGATION DROPDOWN
-    const navButton = document.getElementById("navButton");
-    const dropdown = document.getElementById("dropdownMenu");
-
-    navButton.onclick = ()=>{
-      dropdown.classList.toggle("hidden");
-    };
-
-    document.addEventListener("click", e=>{
-      if(!navButton.contains(e.target) && !dropdown.contains(e.target)){
-        dropdown.classList.add("hidden");
+    // post support message
+    postBtn.addEventListener('click', async () => {
+      const text = (messageInput.value || '').trim();
+      if (!text) return alert('Please write a message before posting.');
+      postBtn.disabled = true;
+      postBtn.textContent = 'Posting…';
+      try {
+        await addDoc(collection(db, PATH), {
+          name: 'Supporter',
+          message: text,
+          reactions: {},
+          createdAt: serverTimestamp(),
+          userId: auth.currentUser ? auth.currentUser.uid : 'anonymous'
+        });
+        messageInput.value = '';
+      } catch (err) {
+        console.error('Post failed', err);
+        alert('Could not post message: ' + (err.message || err));
+      } finally {
+        postBtn.disabled = false;
+        postBtn.textContent = 'Post Message';
       }
     });
   </script>
-
 </body>
 </html>
