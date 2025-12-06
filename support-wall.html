@@ -63,6 +63,34 @@
     }
     .site-title { color: var(--accent); font-weight: 800; letter-spacing: .02em; }
     .container { max-width:920px; margin:0 auto; padding:0 1.5rem; }
+
+    /* support-form card */
+    .support-card {
+      background: #fff;
+      border:1px solid rgba(235,224,232,0.6);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 10px 30px rgba(11,7,17,0.04);
+      margin-bottom: 1.25rem;
+    }
+    .support-input, .support-textarea {
+      width:100%;
+      padding:.6rem .8rem;
+      border-radius:10px;
+      border:1px solid rgba(0,0,0,0.06);
+      font-size:0.95rem;
+      box-sizing:border-box;
+    }
+    .support-row { display:flex; gap:.75rem; flex-wrap:wrap; }
+    .support-btn {
+      background: linear-gradient(90deg,#be185d,#f472b6);
+      color:white;
+      padding:.6rem .9rem;
+      border-radius:999px;
+      font-weight:700;
+      border:none;
+      cursor:pointer;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -102,10 +130,28 @@
   <div style="height:64px;"></div>
 
   <main class="flex-grow px-6 pb-20 max-w-3xl mx-auto">
-    <!-- Back link removed per request -->
-
     <h2 class="text-4xl font-bold mb-2 text-rose-700">The Support Wall ❤️</h2>
-    <!-- The paragraph containing "Messages from the community..." and user ID removed per request -->
+
+    <!-- INSERTED: Support form card -->
+    <section aria-label="Post a message" style="margin-top:1rem;">
+      <form id="support-form" class="support-card" autocomplete="off">
+        <div style="font-weight:700;color:var(--accent);margin-bottom:.6rem;">Post a message to the Support Wall</div>
+
+        <div class="support-row" style="margin-bottom:.6rem;">
+          <input id="name" class="support-input" placeholder="Your name (required)" />
+          <input id="subject" class="support-input" placeholder="Subject (optional)" style="max-width:250px;" />
+        </div>
+
+        <textarea id="message" class="support-textarea" placeholder="Write your message..." rows="4"></textarea>
+
+        <div style="display:flex;align-items:center;gap:.6rem;margin-top:.6rem;">
+          <div id="support-status" style="color:var(--muted)">Be kind — we read every message 💗</div>
+          <div style="margin-left:auto;">
+            <button type="submit" class="support-btn">Post message</button>
+          </div>
+        </div>
+      </form>
+    </section>
 
     <div id="messages-container" class="mt-6">
       <p id="loading-indicator" class="text-gray-500 text-center">Loading messages...</p>
@@ -160,170 +206,234 @@
     });
   </script>
 
-  <!-- Firebase + clickable reactions (unchanged logic) -->
+  <!-- Unified Firebase + support form + reactions script -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import {
-      getFirestore, collection, onSnapshot, doc, updateDoc, increment
-    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    (async () => {
+      try {
+        // imports
+        const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
+        const { getAuth, signInAnonymously, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
+        const {
+          getFirestore, collection, onSnapshot, doc, updateDoc, increment, addDoc, serverTimestamp
+        } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
 
-    const appId = '1:65396604482:web:0f31625a714aa8352337db';
-    const firebaseConfig = {
-      apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
-      authDomain: "football-site-c3aa9.firebaseapp.com",
-      projectId: "football-site-c3aa9",
-      storageBucket: "football-site-c3aa9.appspot.com",
-      messagingSenderId: "65396604482",
-      appId: "1:65396604482:web:0f31625a714aa8352337db"
-    };
+        // firebase config (unchanged)
+        const appId = '1:65396604482:web:0f31625a714aa8352337db';
+        const firebaseConfig = {
+          apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
+          authDomain: "football-site-c3aa9.firebaseapp.com",
+          projectId: "football-site-c3aa9",
+          storageBucket: "football-site-c3aa9.appspot.com",
+          messagingSenderId: "65396604482",
+          appId: "1:65396604482:web:0f31625a714aa8352337db"
+        };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
+        // init
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
 
-    const container = document.getElementById('messages-container');
+        // DOM refs
+        const container = document.getElementById('messages-container');
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const supportForm = document.getElementById('support-form');
+        const nameInput = document.getElementById('name');
+        const subjectInput = document.getElementById('subject');
+        const messageInput = document.getElementById('message');
+        const supportStatus = document.getElementById('support-status');
 
-    function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+        let currentUserId = null;
 
-    function createReactionButton(emoji, kind, count) {
-      const btn = document.createElement('button');
-      btn.className = 'reaction-pill';
-      if (kind === 'clap') btn.classList.add('secondary');
-      if (kind === 'fire') btn.classList.add('strong');
+        function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-      const emojiSpan = document.createElement('span');
-      emojiSpan.textContent = emoji;
-      emojiSpan.style.fontSize = '16px';
-      emojiSpan.setAttribute('aria-hidden', 'true');
+        function createReactionButton(emoji, kind, count) {
+          const btn = document.createElement('button');
+          btn.className = 'reaction-pill';
+          if (kind === 'clap') btn.classList.add('secondary');
+          if (kind === 'fire') btn.classList.add('strong');
 
-      const countSpan = document.createElement('span');
-      countSpan.textContent = String(count || 0);
-      countSpan.style.marginLeft = '4px';
+          const emojiSpan = document.createElement('span');
+          emojiSpan.textContent = emoji;
+          emojiSpan.style.fontSize = '16px';
+          emojiSpan.setAttribute('aria-hidden', 'true');
 
-      btn.appendChild(emojiSpan);
-      btn.appendChild(countSpan);
-      return { btn, countSpan };
-    }
+          const countSpan = document.createElement('span');
+          countSpan.textContent = String(count || 0);
+          countSpan.style.marginLeft = '4px';
 
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        // subscribe to support messages
-        onSnapshot(collection(db, `/artifacts/${appId}/public/data/supportMessages`), (snap) => {
-          const docs = [];
-          snap.forEach(d => docs.push({ id: d.id, ...d.data() }));
+          btn.appendChild(emojiSpan);
+          btn.appendChild(countSpan);
+          return { btn, countSpan };
+        }
 
-          docs.sort((a,b) => {
-            const ta = (a.timestamp && a.timestamp.seconds) ? a.timestamp.seconds : 0;
-            const tb = (b.timestamp && b.timestamp.seconds) ? b.timestamp.seconds : 0;
-            return tb - ta;
-          });
+        // subscribe to support messages (realtime)
+        function subscribe() {
+          const coll = collection(db, `/artifacts/${appId}/public/data/supportMessages`);
+          return onSnapshot(coll, (snap) => {
+            const docs = [];
+            snap.forEach(d => docs.push({ id: d.id, ...d.data() }));
 
-          container.innerHTML = '';
-          if (!docs.length) {
-            container.innerHTML = '<p class="text-gray-500 text-center">No messages yet.</p>';
-            return;
-          }
+            docs.sort((a,b) => {
+              const ta = (a.timestamp && a.timestamp.seconds) ? a.timestamp.seconds : 0;
+              const tb = (b.timestamp && b.timestamp.seconds) ? b.timestamp.seconds : 0;
+              return tb - ta;
+            });
 
-          docs.forEach(msg => {
-            const name = escapeHtml(msg.name || 'Anonymous');
-            const uid = escapeHtml((msg.userId || '').slice(0,8));
-            let tsText = 'Just now';
-            if (msg.timestamp && msg.timestamp.seconds) {
-              tsText = new Date(msg.timestamp.seconds * 1000).toLocaleString();
+            container.innerHTML = '';
+            if (!docs.length) {
+              container.innerHTML = '<p class="text-gray-500 text-center">No messages yet.</p>';
+              return;
             }
-            const messageHtml = (escapeHtml(msg.message || '')).replace(/\n/g, '<br/>');
 
-            const card = document.createElement('div');
-            card.className = 'tweet-card';
-
-            card.innerHTML = `
-              <div class="tweet-avatar" aria-hidden="true">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="#be185d" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-                </svg>
-              </div>
-              <div style="flex:1;">
-                <div class="tweet-header">
-                  <div style="display:flex;flex-direction:column;">
-                    <div style="display:flex;align-items:center;gap:0.4rem;">
-                      <span class="tweet-name">${name}</span>
-                      <span class="tweet-handle">@${uid}</span>
-                    </div>
-                  </div>
-                  <div class="tweet-timestamp">${escapeHtml(tsText)}</div>
-                </div>
-                <div class="tweet-content">${messageHtml}</div>
-                <div class="reactions" data-docid="${escapeHtml(msg.id || '')}"></div>
-              </div>
-            `;
-
-            const reactionContainer = card.querySelector('.reactions');
-            const reactions = (msg.reactions && typeof msg.reactions === 'object') ? msg.reactions : {};
-            const counts = {
-              heart: Number(reactions.heart || 0),
-              clap:  Number(reactions.clap  || 0),
-              party: Number(reactions.party || 0),
-              fire:  Number(reactions.fire  || 0),
-              smile: Number(reactions.smile || 0)
-            };
-
-            const heartObj = createReactionButton('❤️', 'heart', counts.heart);
-            reactionContainer.appendChild(heartObj.btn);
-
-            const clapObj  = createReactionButton('👏', 'clap', counts.clap);
-            reactionContainer.appendChild(clapObj.btn);
-
-            const partyObj = createReactionButton('🎉', 'party', counts.party);
-            reactionContainer.appendChild(partyObj.btn);
-
-            const fireObj  = createReactionButton('🔥', 'fire', counts.fire);
-            reactionContainer.appendChild(fireObj.btn);
-
-            const smileObj = createReactionButton('😊', 'smile', counts.smile);
-            reactionContainer.appendChild(smileObj.btn);
-
-            const docRef = doc(db, `/artifacts/${appId}/public/data/supportMessages/${msg.id}`);
-
-            async function handleReaction(obj, fieldKey) {
-              if (obj.btn.disabled) return;
-              obj.btn.disabled = true;
-              const prev = Number(obj.countSpan.textContent || 0);
-              obj.countSpan.textContent = String(prev + 1);
-              try {
-                await updateDoc(docRef, { [`reactions.${fieldKey}`]: increment(1) });
-                obj.btn.classList.add('reaction-pulse');
-                setTimeout(()=> obj.btn.classList.remove('reaction-pulse'), 450);
-              } catch (err) {
-                console.error('Reaction update error:', err);
-                obj.countSpan.textContent = String(Math.max(0, prev));
-                alert('Could not send reaction. Please try again.');
-              } finally {
-                setTimeout(()=> obj.btn.disabled = false, 800);
+            docs.forEach(msg => {
+              const name = escapeHtml(msg.name || 'Anonymous');
+              const uid = escapeHtml((msg.userId || '').slice(0,8));
+              let tsText = 'Just now';
+              if (msg.timestamp && msg.timestamp.seconds) {
+                tsText = new Date(msg.timestamp.seconds * 1000).toLocaleString();
               }
-            }
+              const messageHtml = (escapeHtml(msg.message || '')).replace(/\n/g, '<br/>');
 
-            heartObj.btn.addEventListener('click', () => handleReaction(heartObj, 'heart'));
-            clapObj.btn.addEventListener('click',  () => handleReaction(clapObj,  'clap'));
-            partyObj.btn.addEventListener('click', () => handleReaction(partyObj, 'party'));
-            fireObj.btn.addEventListener('click',  () => handleReaction(fireObj,  'fire'));
-            smileObj.btn.addEventListener('click', () => handleReaction(smileObj, 'smile'));
+              const card = document.createElement('div');
+              card.className = 'tweet-card';
 
-            container.appendChild(card);
+              card.innerHTML = `
+                <div class="tweet-avatar" aria-hidden="true">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="#be185d" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                  </svg>
+                </div>
+                <div style="flex:1;">
+                  <div class="tweet-header">
+                    <div style="display:flex;flex-direction:column;">
+                      <div style="display:flex;align-items:center;gap:0.4rem;">
+                        <span class="tweet-name">${name}</span>
+                        <span class="tweet-handle">@${uid}</span>
+                      </div>
+                    </div>
+                    <div class="tweet-timestamp">${escapeHtml(tsText)}</div>
+                  </div>
+                  <div class="tweet-content">${messageHtml}</div>
+                  <div class="reactions" data-docid="${escapeHtml(msg.id || '')}"></div>
+                </div>
+              `;
+
+              const reactionContainer = card.querySelector('.reactions');
+              const reactions = (msg.reactions && typeof msg.reactions === 'object') ? msg.reactions : {};
+              const counts = {
+                heart: Number(reactions.heart || 0),
+                clap:  Number(reactions.clap  || 0),
+                party: Number(reactions.party || 0),
+                fire:  Number(reactions.fire  || 0),
+                smile: Number(reactions.smile || 0)
+              };
+
+              const heartObj = createReactionButton('❤️', 'heart', counts.heart);
+              reactionContainer.appendChild(heartObj.btn);
+
+              const clapObj  = createReactionButton('👏', 'clap', counts.clap);
+              reactionContainer.appendChild(clapObj.btn);
+
+              const partyObj = createReactionButton('🎉', 'party', counts.party);
+              reactionContainer.appendChild(partyObj.btn);
+
+              const fireObj  = createReactionButton('🔥', 'fire', counts.fire);
+              reactionContainer.appendChild(fireObj.btn);
+
+              const smileObj = createReactionButton('😊', 'smile', counts.smile);
+              reactionContainer.appendChild(smileObj.btn);
+
+              const docRef = doc(db, `/artifacts/${appId}/public/data/supportMessages/${msg.id}`);
+
+              async function handleReaction(obj, fieldKey) {
+                if (obj.btn.disabled) return;
+                obj.btn.disabled = true;
+                const prev = Number(obj.countSpan.textContent || 0);
+                obj.countSpan.textContent = String(prev + 1);
+                try {
+                  await updateDoc(docRef, { [`reactions.${fieldKey}`]: increment(1) });
+                  obj.btn.classList.add('reaction-pulse');
+                  setTimeout(()=> obj.btn.classList.remove('reaction-pulse'), 450);
+                } catch (err) {
+                  console.error('Reaction update error:', err);
+                  obj.countSpan.textContent = String(Math.max(0, prev));
+                  alert('Could not send reaction. Please try again.');
+                } finally {
+                  setTimeout(()=> obj.btn.disabled = false, 800);
+                }
+              }
+
+              heartObj.btn.addEventListener('click', () => handleReaction(heartObj, 'heart'));
+              clapObj.btn.addEventListener('click',  () => handleReaction(clapObj,  'clap'));
+              partyObj.btn.addEventListener('click', () => handleReaction(partyObj, 'party'));
+              fireObj.btn.addEventListener('click',  () => handleReaction(fireObj,  'fire'));
+              smileObj.btn.addEventListener('click', () => handleReaction(smileObj, 'smile'));
+
+              container.appendChild(card);
+            });
+          }, (err) => {
+            console.error('supportMessages onSnapshot error:', err);
+            container.innerHTML = '<p class="text-gray-500 text-center">Unable to load messages.</p>';
           });
-        }, (err) => {
-          console.error('supportMessages onSnapshot error:', err);
-          container.innerHTML = '<p class="text-gray-500 text-center">Unable to load messages.</p>';
+        }
+
+        // auth & wiring
+        onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            currentUserId = user.uid;
+            // once authed, subscribe to messages
+            subscribe();
+          } else {
+            try {
+              await signInAnonymously(auth);
+            } catch (e) {
+              console.warn('Anonymous sign-in failed', e);
+              // still attempt to subscribe (if rules allow)
+              subscribe();
+            }
+          }
         });
 
-      } else {
-        try {
-          await signInAnonymously(auth);
-        } catch (err) {
-          console.error('Auth anonymous sign-in error:', err);
+        // support form submit handling
+        if (supportForm) {
+          supportForm.addEventListener('submit', async (ev) => {
+            ev.preventDefault();
+            const name = (nameInput.value || '').trim();
+            const subject = (subjectInput.value || '').trim();
+            const message = (messageInput.value || '').trim();
+            if (!name || !message) {
+              alert('Please add name and message.');
+              return;
+            }
+            try {
+              supportStatus.textContent = 'Posting...';
+              await addDoc(collection(db, `artifacts/${appId}/public/data/supportMessages`), {
+                name,
+                subject: subject || '',
+                message,
+                userId: currentUserId || 'anonymous',
+                createdAt: serverTimestamp(),
+                timestamp: serverTimestamp()
+              });
+              supportForm.reset();
+              supportStatus.textContent = 'Message posted — thank you!';
+              setTimeout(()=> supportStatus.textContent = 'Be kind — we read every message 💗', 3000);
+            } catch (err) {
+              console.error('Support add failed', err);
+              alert('Could not post message: ' + (err.message || err.code || err));
+              supportStatus.textContent = 'Posting failed — try again';
+              setTimeout(()=> supportStatus.textContent = 'Be kind — we read every message 💗', 3000);
+            }
+          });
         }
+
+      } catch (err) {
+        console.error('Firebase or module import failed:', err);
+        // graceful fallback
+        const container = document.getElementById('messages-container');
+        if (container) container.innerHTML = '<p class="text-gray-500 text-center">Support wall unavailable right now.</p>';
       }
-    });
+    })();
   </script>
 
 </body>
