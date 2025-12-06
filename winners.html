@@ -119,10 +119,13 @@
     };
     const APP_ID = firebaseConfig.appId;
 
-    // primary path where admin will store winners
-    const PATH_MAIN = `/artifacts/${APP_ID}/public/data/winners`;
-    // fallback (in case you use a different path)
-    const PATH_FALLBACK = `/public/data/winners`;
+    // Candidate collection paths (tries multiple variants to avoid leading-slash mismatches)
+    const CANDIDATE_PATHS = [
+      `/artifacts/${APP_ID}/public/data/winners`,
+      `artifacts/${APP_ID}/public/data/winners`,
+      `/public/data/winners`,
+      `public/data/winners`
+    ];
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
@@ -132,21 +135,26 @@
 
     function escapeHtml(s){ if(!s && s !== 0) return ''; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-    // try both paths — use the one that has docs
+    // Try each candidate path and return the first that contains documents
     async function detectPath() {
-      try {
-        const mainSnap = await getDocs(query(collection(db, PATH_MAIN), orderBy('createdAt','desc')));
-        if (!mainSnap.empty) return PATH_MAIN;
-      } catch(e){}
-      try {
-        const fallbackSnap = await getDocs(query(collection(db, PATH_FALLBACK), orderBy('createdAt','desc')));
-        if (!fallbackSnap.empty) return PATH_FALLBACK;
-      } catch(e){}
-      return PATH_MAIN;
+      for (const p of CANDIDATE_PATHS) {
+        try {
+          const q = query(collection(db, p), orderBy('createdAt','desc'));
+          const snap = await getDocs(q);
+          console.log('detectPath: tried', p, '->', snap.size, 'docs');
+          if (!snap.empty) return p;
+        } catch (err) {
+          // read errors can happen if the path doesn't exist or rules block it; continue trying
+          console.warn('detectPath: path check failed for', p, err && err.message ? err.message : err);
+        }
+      }
+      // fallback to the first (most likely) path
+      return CANDIDATE_PATHS[0];
     }
 
     (async () => {
       const winnersPath = await detectPath();
+      console.log('Winners will be loaded from:', winnersPath);
 
       try {
         const q = query(collection(db, winnersPath), orderBy('createdAt','desc'));
@@ -164,10 +172,11 @@
             const data = doc.data();
 
             // Only render winner's minimal info: image, name, handle, prize
+            const imgSrc = data.imageUrl && data.imageUrl.length ? data.imageUrl : 'images/opponent.png';
             const el = document.createElement('article');
             el.className = 'winner-card';
             el.innerHTML = `
-              <img src="${escapeHtml(data.imageUrl || 'images/opponent.png')}" alt="${escapeHtml(data.name || 'Winner')}" class="winner-thumb" onerror="this.onerror=null;this.src='images/opponent.png'"/>
+              <img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(data.name || 'Winner')}" class="winner-thumb" onerror="this.onerror=null;this.src='images/opponent.png'"/>
               <div class="winner-body">
                 <div class="winner-name">${escapeHtml(data.name || '(no name)')}</div>
                 <div class="winner-handle">${escapeHtml(data.handle || '')}</div>
