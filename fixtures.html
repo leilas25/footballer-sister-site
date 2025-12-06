@@ -72,25 +72,57 @@
     }
     .age-status { font-size:.95rem; color:var(--muted); text-align:right; }
 
-    /* Mobile: tight 3-column bar (logo / center / logo) and stacked center info under */
+    .small-muted { color:var(--muted); font-size:.9rem; }
+
+    /* MOBILE: Tight 3-column bar and stacked actions under */
     @media (max-width:900px){
+      /* 3-column bar: left logo / center content / right logo */
       .fixture-card {
         grid-template-columns: 56px 1fr 56px;
         gap:8px;
         padding:10px;
+        grid-auto-rows: auto;
       }
+
+      /* smaller logos on mobile */
       .team-logo { width:44px; height:44px; }
-      .team-block { gap:8px; }
-      .center-meta { align-items:center; }
+
+      /* center column content styling */
+      .center-meta { align-items:center; text-align:center; padding:0 6px; }
       .fixture-meta { font-size:.85rem; text-align:center; }
-      .score { font-size:1.2rem; }
-      .actions { align-items:center; justify-content:center; text-align:center; }
-      .age-status { text-align:center; }
-      .fixture-card .actions > * { margin-left:0; }
+      .score { font-size:1.15rem; }
+
+      /* ensure the right-team block sits visually at the right but we keep compact spacing */
+      .team-block { gap:8px; }
+
+      /* Make actions span full width under the 3 columns and center contents */
+      .fixture-card .actions {
+        grid-column: 1 / -1;        /* span all columns */
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        gap:8px;
+        padding-top:8px;
+      }
+
+      /* age/status above the button, centered, with a small gap */
+      .age-status {
+        text-align:center;
+        margin-bottom:0;
+        font-size:.94rem;
+      }
+
+      /* center the watch button and make it comfortable on small screens */
+      .actions .watch-btn {
+        min-width:120px;
+        padding:.5rem .9rem;
+      }
+
+      /* divider spacing tweaks for mobile */
+      .fixture-divider { margin:10px 0; }
     }
 
-    /* tiny tweaks */
-    .small-muted { color:var(--muted); font-size:.9rem; }
   </style>
 </head>
 <body>
@@ -239,7 +271,6 @@
     const DEFAULT_TRANSFORM = 'w_200,h_200,c_fill,g_auto,q_auto,f_auto';
     function cloudinaryResize(url) {
       if (!url || typeof url !== 'string') return url;
-      // quick heuristic: contains 'res.cloudinary.com' and '/upload/'
       try {
         if (url.includes('res.cloudinary.com') && url.includes('/upload/')) {
           return url.replace('/upload/', `/upload/${DEFAULT_TRANSFORM}/`);
@@ -292,7 +323,6 @@
         return;
       }
 
-      // For each fixture, build the card using the new layout
       filtered.forEach((f, idx) => {
         const kickoff = formatKickoff(f);
         const scorePresent = (typeof f.scoreHome !== 'undefined' && typeof f.scoreAway !== 'undefined' && f.scoreHome !== null && f.scoreAway !== null);
@@ -328,10 +358,8 @@
           </div>
         `;
 
-        // After card append a divider (thin)
         fixturesList.appendChild(wrapper);
 
-        // append divider except after last element
         if (idx < filtered.length - 1) {
           const div = document.createElement('div');
           div.className = 'fixture-divider';
