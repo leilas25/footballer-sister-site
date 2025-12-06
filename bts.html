@@ -99,7 +99,7 @@
     .collab-caption { padding:.9rem; text-align:center; font-weight:700; color:var(--accent); background:#fff; border-top:1px solid rgba(235,224,232,0.6); }
     .collab-caption::before { display:none !important; content:none !important; }
 
-    /* instruction caption above collabs */
+    /* instruction caption above collabs (clean & aesthetic) */
     .collab-instruction {
       text-align:center;
       color: #6b213f;
@@ -112,12 +112,6 @@
       justify-content:center;
       gap:.6rem;
     }
-    .collab-instruction .dot {
-      width:8px; height:8px; border-radius:999px;
-      background:linear-gradient(90deg,#be185d,#f472b6);
-      box-shadow:0 6px 18px rgba(190,24,93,0.12);
-    }
-    .collab-instruction em { font-style:normal; color:var(--muted); font-weight:600; margin-left:.5rem; font-size:.85rem; }
 
     /* arrow controls placed inside each carousel and responsive */
     .arrow-btn { background: rgba(255,255,255,0.95); width:44px; height:44px; display:flex;align-items:center;justify-content:center;border-radius:999px;border:1px solid rgba(0,0,0,0.06); box-shadow:0 10px 18px rgba(11,7,17,0.04); cursor:pointer; }
@@ -401,10 +395,9 @@
       <div>
         <h3 style="text-align:center; color:var(--accent); font-weight:800; margin-bottom:1rem;">Collaborations</h3>
 
-        <!-- Instruction caption added -->
+        <!-- Instruction caption updated to only the requested text -->
         <div class="collab-instruction" aria-hidden="false">
-          <span class="dot" aria-hidden="true"></span>
-          Click to open collabs <em>— hover (desktop) • tap (mobile)</em>
+          Click to open collabs
         </div>
 
         <div class="collab-carousel">
@@ -654,7 +647,8 @@
     const modalCloseBtn = modal.querySelector('.modal-close');
 
     let modalOpenTimer = null;
-    let isHoverCapable = window.matchMedia && window.matchMedia('(hover: hover)').matches;
+    // force click behavior on desktop as requested (no hover)
+    let isHoverCapable = false;
 
     function openModalForIndex(index){
       const item = collabItems[index];
@@ -682,7 +676,7 @@
       document.documentElement.style.overflow = '';
     }
 
-    // ---------- REPLACED attachCollabPreviewHandlers (robust version to avoid flicker) ----------
+    // ---------- REPLACED attachCollabPreviewHandlers (click-only for desktop & mobile) ----------
     function attachCollabPreviewHandlers(){
       // defensive: clear any previously scheduled timer(s)
       if (modalOpenTimer) { clearTimeout(modalOpenTimer); modalOpenTimer = null; }
@@ -697,64 +691,23 @@
         return clone;
       });
 
-      // Slightly longer delays to avoid accidental flicker
-      const OPEN_DELAY_MS = 200;
-      const CLOSE_DELAY_MS = 300;
-
       thumbs.forEach((thumb) => {
         thumb.setAttribute('tabindex', '0');
         const idx = Number(thumb.getAttribute('data-index'));
 
-        // Common helper to safely clear both timers
-        const clearTimers = () => {
-          if (modalOpenTimer) { clearTimeout(modalOpenTimer); modalOpenTimer = null; }
-        };
+        // Always use click/tap to open per your request (desktop & mobile)
+        thumb.addEventListener('click', (e) => {
+          e.preventDefault();
+          openModalForIndex(idx);
+        });
 
-        // Hover-capable devices: use enter/leave with delays
-        if (isHoverCapable) {
-          thumb.addEventListener('pointerenter', (e) => {
-            // start the open timer; clear any close timer first
-            clearTimers();
-            modalOpenTimer = setTimeout(() => {
-              openModalForIndex(idx);
-              // ensure any pending close timer won't fire immediately
-              if (modalOpenTimer) { clearTimeout(modalOpenTimer); modalOpenTimer = null; }
-            }, OPEN_DELAY_MS);
-          });
-
-          thumb.addEventListener('pointerleave', (e) => {
-            // clear pending open and schedule close
-            clearTimers();
-            modalOpenTimer = setTimeout(() => {
-              closeModal();
-              modalOpenTimer = null;
-            }, CLOSE_DELAY_MS);
-          });
-
-          // keyboard support
-          thumb.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              openModalForIndex(idx);
-            }
-          });
-
-        } else {
-          // Touch / click devices: open on click/tap
-          thumb.addEventListener('click', (e) => {
+        // keyboard support: Enter or Space opens modal
+        thumb.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            // open immediately on tap
             openModalForIndex(idx);
-          });
-
-          // also support keyboard
-          thumb.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              openModalForIndex(idx);
-            }
-          });
-        }
+          }
+        });
       });
     }
 
