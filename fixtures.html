@@ -123,6 +123,8 @@
       .fixture-divider { margin:10px 0; }
     }
 
+    /* dropdown animation helper for the standard dropdown */
+    .dropdown-open{ opacity:1!important; transform:scale(1)!important; }
   </style>
 </head>
 <body>
@@ -143,7 +145,19 @@
             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
           </svg>
         </button>
-        <!-- portal menu appended by JS -->
+
+        <!-- Standard dropdown (same markup as Giveaways) -->
+        <div id="dropdownMenu" class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0">
+          <div class="py-1">
+            <a href="index.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
+            <a href="bts.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
+            <a href="leila.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Meet Leila</a>
+            <a href="questions.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Q&A</a>
+            <a href="support-wall.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Support Wall</a>
+            <a href="fixtures.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Fixtures & Live Scores</a>
+            <a href="giveaways.html" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Giveaways</a>
+          </div>
+        </div>
       </div>
     </div>
   </header>
@@ -175,113 +189,34 @@
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- Portal dropdown appended to body by JS -->
+  <!-- Standard dropdown JS (same logic as Giveaways) -->
   <script>
-    (function(){
+    (function setupNavDropdown(){
       const navButton = document.getElementById('navButton');
+      const dropdownMenu = document.getElementById('dropdownMenu');
+      const navItems = document.querySelectorAll('.nav-item');
       const navTitle = document.getElementById('navTitle');
-      const pageTitles = {
-        "": "Home",
-        "index.html": "Home",
-        "bts.html": "Behind the Game",
-        "leila.html": "Meet Leila",
-        "questions.html": "Q&A",
-        "support-wall.html": "Support Wall",
-        "fixtures.html": "Fixtures & Live Scores",
-        "giveaways.html": "Giveaways"
-      };
       const currentPage = window.location.pathname.split('/').pop();
+      const pageTitles = { "index.html":"Home","bts.html":"Behind the Game","leila.html":"Meet Leila","questions.html":"Q&A","support-wall.html":"Support Wall","fixtures.html":"Fixtures & Live Scores","giveaways.html":"Giveaways" };
       navTitle.textContent = pageTitles[currentPage] || "Menu";
-
-      // Build the portal menu, use absolute paths so navigation works from any folder
-      const menu = document.createElement('div');
-      menu.id = 'dropdownMenu';
-      // Start hidden with Tailwind-style classes (matching your other pages)
-      menu.className = 'origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 transform transition-all duration-200 ease-out scale-95 opacity-0 hidden';
-      menu.setAttribute('role','menu');
-      menu.setAttribute('aria-hidden','true');
-      menu.innerHTML = `
-        <div class="py-1">
-          <a href="/index.html" role="menuitem" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
-          <a href="/bts.html" role="menuitem" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
-          <a href="/leila.html" role="menuitem" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Meet Leila</a>
-          <a href="/questions.html" role="menuitem" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Q&A</a>
-          <a href="/support-wall.html" role="menuitem" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Support Wall</a>
-          <a href="/fixtures.html" role="menuitem" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Fixtures & Live Scores</a>
-          <a href="/giveaways.html" role="menuitem" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Giveaways</a>
-        </div>
-      `;
-      document.body.appendChild(menu);
-
-      function positionMenu(){
-        const btnRect = navButton.getBoundingClientRect();
-        const top = window.scrollY + btnRect.bottom + 8;
-        const right = window.innerWidth - (btnRect.right);
-        menu.style.top = top + 'px';
-        menu.style.right = right + 'px';
-      }
-
-      function unhideMenu() {
-        menu.classList.remove('opacity-0','scale-95','hidden');
-        menu.classList.add('dropdown-open');
-        menu.style.pointerEvents = 'auto';
-        menu.style.display = 'block';
-      }
-
-      function hideMenu() {
-        menu.classList.remove('dropdown-open');
-        menu.classList.add('opacity-0','scale-95','hidden');
-        menu.style.pointerEvents = 'none';
-      }
-
-      function openMenu(){
-        positionMenu();
-        unhideMenu();
-        menu.setAttribute('aria-hidden','false');
-        navButton.setAttribute('aria-expanded','true');
-        document.addEventListener('click', outsideClick);
-        window.addEventListener('resize', positionMenu);
-        window.addEventListener('scroll', positionMenu, { passive:true });
-      }
-
-      function closeMenu(){
-        hideMenu();
-        menu.setAttribute('aria-hidden','true');
-        navButton.setAttribute('aria-expanded','false');
-        document.removeEventListener('click', outsideClick);
-        window.removeEventListener('resize', positionMenu);
-        window.removeEventListener('scroll', positionMenu);
-      }
-
-      function toggleMenu(ev){
-        ev && ev.stopPropagation && ev.stopPropagation();
-        const isOpen = menu.classList.contains('dropdown-open') && !menu.classList.contains('hidden');
-        if(isOpen) closeMenu(); else openMenu();
-      }
-
-      function outsideClick(ev){
-        if (!navButton.contains(ev.target) && !menu.contains(ev.target)) closeMenu();
-      }
-
-      navButton.addEventListener('click', (ev) => {
-        ev.stopPropagation();
-        toggleMenu(ev);
+      navItems.forEach(link => { if (link.getAttribute('href') === currentPage) link.classList.add("font-semibold","text-rose-600"); });
+      navButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = dropdownMenu.classList.contains('hidden');
+        if (isHidden) {
+          dropdownMenu.classList.remove('hidden');
+          setTimeout(()=>dropdownMenu.classList.add('dropdown-open'), 10);
+        } else {
+          dropdownMenu.classList.remove('dropdown-open');
+          setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
+        }
       });
-      navButton.addEventListener('keydown', (ev) => { if(ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); toggleMenu(ev); } });
-
-      menu.querySelectorAll('a').forEach(a => {
-        a.addEventListener('click', (ev) => {
-          ev.preventDefault();
-          const href = a.getAttribute('href') || a.dataset.target;
-          closeMenu();
-          setTimeout(() => { window.location.href = href; }, 120);
-        });
+      document.addEventListener('click', (e) => {
+        if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
+          dropdownMenu.classList.remove('dropdown-open');
+          setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
+        }
       });
-
-      document.addEventListener('click', (ev) => {
-        if (!navButton.contains(ev.target) && !menu.contains(ev.target)) closeMenu();
-      });
-      document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') closeMenu(); });
     })();
   </script>
 
