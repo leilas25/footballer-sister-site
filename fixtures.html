@@ -7,7 +7,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root { --accent: #be185d; --muted: #6b7280; --divider: rgba(243,211,226,0.75); }
-    body { background:#fff6f8; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color: #111827; margin:0; -webkit-font-smoothing:antialiased; }
+    html,body { height:100%; }
+    body { background:#fff6f8; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color: #111827; margin:0; -webkit-font-smoothing:antialiased; padding-bottom:120px; /* make room so content never sits under footer */ }
 
     /* Header / branding */
     header.bts-header {
@@ -80,6 +81,13 @@
     .fixture-meta { font-size:.95rem; color:var(--muted); margin-bottom:6px; }
     .score { font-size:1.6rem; font-weight:900; color:var(--accent); letter-spacing:0.02em; }
 
+    .actions {
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap:8px;
+    }
+
     .watch-btn {
       display:inline-flex; align-items:center; gap:8px;
       background: linear-gradient(90deg,#be185d,#f472b6);
@@ -92,7 +100,7 @@
        left: team A (logo + short name)
        center: score/time stacked
        right: team B (short name + logo)
-       The watch button will be smaller and placed below in compact form.
+       The watch button will be smaller and centered under the row.
     */
     @media (max-width:900px){
       .fixture-card {
@@ -104,10 +112,12 @@
       .team-left .team-logo, .team-right .team-logo { width:44px; height:44px; }
       .team-name { font-weight:800; font-size:.95rem; }
       .center-meta { display:flex; flex-direction:column; align-items:center; justify-content:center; }
-      .fixture-meta { font-size:.8rem; color:var(--muted); margin:4px 0 0; }
+      .fixture-meta { font-size:.8rem; color:var(--muted); margin:4px 0 0; text-align:center; } /* centered on mobile */
       .score { font-size:1.25rem; font-weight:900; color:var(--accent); }
       .watch-btn { font-size:.82rem; padding:.3rem .55rem; }
-      /* place watch under the row for mobile (small) */
+      .actions { align-items:center; } /* center actions on mobile */
+      /* ensure the Watch button appears on its own line under card on small screens */
+      .fixture-card .actions { margin-top:8px; }
       .fixture-card + .fixture-divider { margin-top:10px; margin-bottom:12px; }
     }
 
@@ -155,7 +165,7 @@
   </section>
 
   <!-- Footer -->
-  <footer class="text-center py-6" style="background:transparent;">
+  <footer class="text-center py-6" style="background:transparent; position:relative; z-index:200;">
     <div class="container" style="max-width:1100px; margin:0 auto;">
       <small class="footer-badge">© <span id="year"></span> The Footballer’s Sister</small>
     </div>
@@ -225,40 +235,18 @@
     const db = getFirestore(app);
 
     // --- CLOUDINARY HELPERS ---
-    // Your Cloudinary cloud name (we used this earlier)
     const CLOUDINARY_CLOUD = 'dk1df1qmi';
-    // Default transform for logos: change if you want a different size/aspect
     const DEFAULT_TRANSFORM = 'w_200,h_200,c_fill,g_auto,q_auto,f_auto';
-
-    /**
-     * transformCloudinaryUrl(url, transform)
-     * If url is a Cloudinary URL containing '/upload/', insert the transform string after '/upload/'.
-     * Otherwise return original url.
-     */
     function transformCloudinaryUrl(url, transform = DEFAULT_TRANSFORM) {
       if (!url || typeof url !== 'string') return url;
-      // quick detection for Cloudinary hosted image
       if (url.includes('res.cloudinary.com') && url.includes('/upload/')) {
         return url.replace('/upload/', `/upload/${transform}/`);
       }
-      // also support direct cloud name + path (rare)
-      if (url.includes(`${CLOUDINARY_CLOUD}.cloudinary.com`) && url.includes('/upload/')) {
-        return url.replace('/upload/', `/upload/${transform}/`);
-      }
-      // otherwise, not a Cloudinary url — return as-is
       return url;
     }
-
-    // Convenience: clean fallback that prioritizes Cloudinary transform when possible
     function logoUrlForDisplay(rawUrl) {
-      try {
-        return transformCloudinaryUrl(rawUrl || '');
-      } catch (e) {
-        return rawUrl || '';
-      }
+      try { return transformCloudinaryUrl(rawUrl || ''); } catch (e) { return rawUrl || ''; }
     }
-
-    // --------------------------
 
     const tabU14 = document.getElementById('tabU14');
     const tabU19 = document.getElementById('tabU19');
@@ -306,7 +294,6 @@
         const kickoff = formatKickoff(f);
         const scorePresent = (typeof f.scoreHome !== 'undefined' && typeof f.scoreAway !== 'undefined' && f.scoreHome !== null && f.scoreAway !== null);
 
-        // prepare logo URLs (apply Cloudinary transform when available)
         const teamALogo = logoUrlForDisplay(f.teamALogoUrl || '');
         const teamBLogo = logoUrlForDisplay(f.teamBLogoUrl || '');
 
@@ -340,7 +327,10 @@
           </div>
         `;
 
-        const actionHtml = f.streamUrl ? `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;"><div class="fixture-meta">${escapeHtml(f.ageGroup||'')} · ${escapeHtml(f.status||'')}</div><a class="watch-btn" href="${escapeHtml(f.streamUrl)}" target="_blank" rel="noopener noreferrer">Watch</a></div>` : `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;"><div class="fixture-meta">${escapeHtml(f.ageGroup||'')} · ${escapeHtml(f.status||'')}</div><div style="height:36px;"></div></div>`;
+        // use actions wrapper so we can center it on mobile via CSS
+        const actionHtml = f.streamUrl
+          ? `<div class="actions"><div class="fixture-meta">${escapeHtml(f.ageGroup||'')} · ${escapeHtml(f.status||'')}</div><a class="watch-btn" href="${escapeHtml(f.streamUrl)}" target="_blank" rel="noopener noreferrer">Watch</a></div>`
+          : `<div class="actions"><div class="fixture-meta">${escapeHtml(f.ageGroup||'')} · ${escapeHtml(f.status||'')}</div><div style="height:36px;"></div></div>`;
 
         card.innerHTML = leftHtml + centerHtml + rightHtml + actionHtml;
 
