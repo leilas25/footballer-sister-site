@@ -6,9 +6,10 @@
   <title>Fixtures & Live Scores • The Footballer’s Sister</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    :root { --accent: #be185d; --muted: #6b7280; }
-    body { background:#fff6f8; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color: #111827; margin:0; }
+    :root { --accent: #be185d; --muted: #6b7280; --divider: rgba(243,211,226,0.75); }
+    body { background:#fff6f8; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color: #111827; margin:0; -webkit-font-smoothing:antialiased; }
 
+    /* Header / branding */
     header.bts-header {
       background: linear-gradient(180deg, rgba(246,213,239,0.6), rgba(255,241,248,0.6));
       border-bottom: 1px solid rgba(235,200,215,0.6);
@@ -25,6 +26,7 @@
       font-weight:700;
     }
 
+    /* Hero */
     .page-hero { max-width:1100px; margin:0 auto; padding:3.25rem 1.5rem 2rem; }
     .hero-title { font-size:3rem; font-weight:800; color:#be185d; margin:0 0 .6rem; }
     .hero-sub { color:#4b5563; font-size:1.125rem; margin-bottom:1.5rem; }
@@ -35,29 +37,48 @@
 
     .fixtures-wrap { max-width:1100px; margin:0 auto; padding:0 1.5rem 3.25rem; }
 
+    /*
+      Desktop layout: 4 columns
+      [ left team (logo + name) | center meta+score (stacked) | right team (name + logo) | actions (watch) ]
+    */
     .fixture-card {
-      background:white;
+      background:#fff;
       border-radius:12px;
       padding:14px;
       box-shadow:0 6px 18px rgba(0,0,0,0.04);
       border:1px solid #f3d3e2;
       display:grid;
-      grid-template-columns: 1fr 2fr 1fr 160px;
+      grid-template-columns: 1fr 220px 1fr 150px;
       gap:12px;
       align-items:center;
     }
 
-    /* 🔥 Added divider style */
+    /* Divider between rows */
     .fixture-divider {
       height: 1px;
-      background: rgba(243, 211, 226, 0.7);
-      margin: 4px 0 12px;
+      background: var(--divider);
+      margin: 6px 0 12px;
       width: 100%;
     }
 
-    .team-logo { width:64px; height:64px; object-fit:cover; border-radius:8px; border:1px solid #f3d3e2; }
-    .fixture-meta { font-size:.95rem; color:#6b7280; }
-    .score { font-size:1.5rem; font-weight:800; color:#be185d; }
+    .team-left, .team-right {
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .team-left .team-logo, .team-right .team-logo {
+      width:64px;
+      height:64px;
+      object-fit:cover;
+      border-radius:8px;
+      border:1px solid #f3d3e2;
+      flex-shrink:0;
+    }
+    .team-name { font-weight:800; color:#111827; }
+
+    .center-meta { text-align:center; }
+    .fixture-meta { font-size:.95rem; color:var(--muted); margin-bottom:6px; }
+    .score { font-size:1.6rem; font-weight:900; color:var(--accent); letter-spacing:0.02em; }
 
     .watch-btn {
       display:inline-flex; align-items:center; gap:8px;
@@ -65,29 +86,37 @@
       color: white; padding:.5rem .8rem; border-radius:999px; font-weight:800; text-decoration:none;
       box-shadow: 0 6px 14px rgba(190,24,93,0.12);
     }
+    .watch-small { padding:.35rem .6rem; font-size:.85rem; border-radius:999px; }
 
+    /* MOBILE: Tight 3-column bar
+       left: team A (logo + short name)
+       center: score/time stacked
+       right: team B (short name + logo)
+       The watch button will be smaller and placed below in compact form.
+    */
     @media (max-width:900px){
-      .fixture-card { 
-        grid-template-columns: 1fr 1fr 1fr; 
-        text-align:center; 
-        gap:8px; 
-        padding:12px;
+      .fixture-card {
+        grid-template-columns: 1fr 120px 1fr; /* left / center / right */
+        gap:8px;
+        padding:10px;
+        align-items:center;
       }
-      .fixture-meta { text-align:center; font-size:.85rem; }
-      .team-logo { width:56px; height:56px; }
-      .hero-title { font-size:2.25rem; }
+      .team-left .team-logo, .team-right .team-logo { width:44px; height:44px; }
+      .team-name { font-weight:800; font-size:.95rem; }
+      .center-meta { display:flex; flex-direction:column; align-items:center; justify-content:center; }
+      .fixture-meta { font-size:.8rem; color:var(--muted); margin:4px 0 0; }
+      .score { font-size:1.25rem; font-weight:900; color:var(--accent); }
+      .watch-btn { font-size:.82rem; padding:.3rem .55rem; }
+      /* place watch under the row for mobile (small) */
+      .fixture-card + .fixture-divider { margin-top:10px; margin-bottom:12px; }
     }
 
-    .portal-dropdown { position:absolute; min-width:220px; background:white; border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,0.12); border:1px solid rgba(0,0,0,0.06); padding:6px 0;
-      transform-origin: top right; transition:transform .16s ease-out, opacity .16s ease-out;
-      opacity:0; transform:translateY(-6px) scale(.98); z-index:1200;}
-    .portal-dropdown.open { opacity:1; transform:translateY(0) scale(1);}
-    .portal-dropdown a { display:block; padding:.6rem 1rem; color:#374151; text-decoration:none; font-size:.95rem; }
-    .portal-dropdown a:hover { background:#fff0f6; color:var(--accent); }
+    /* small utility */
+    .muted { color:var(--muted); }
   </style>
 </head>
-
 <body>
+
   <!-- Header -->
   <header class="bts-header fixed top-0 left-0 right-0">
     <div class="flex justify-between items-center px-6 py-4 container" style="max-width:1100px; margin:0 auto;">
@@ -99,9 +128,7 @@
         <button id="navButton"
           class="inline-flex justify-center items-center gap-2 rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
           <span id="navTitle">Loading...</span>
-          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd"/>
-          </svg>
+          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd"/></svg>
         </button>
       </div>
     </div>
@@ -111,39 +138,83 @@
 
   <!-- HERO -->
   <section class="page-hero">
-    <h1 class="hero-title">Fixtures & Live Scores</h1>
-    <p class="hero-sub">Catch upcoming U14 & U19 fixtures below — scores update live.</p>
+    <div style="max-width:1100px;margin:0 auto;padding:0 1.5rem;">
+      <h1 class="hero-title">Fixtures & Live Scores</h1>
+      <p class="hero-sub">Catch upcoming U14 & U19 fixtures below — scores update live from the admin panel.</p>
 
-    <div class="tabs-wrap">
-      <button id="tabU14" class="tab-btn tab-active">U14</button>
-      <button id="tabU19" class="tab-btn">U19</button>
+      <div class="tabs-wrap" role="tablist" aria-label="Age group tabs">
+        <button id="tabU14" class="tab-btn tab-active" role="tab" aria-selected="true">U14</button>
+        <button id="tabU19" class="tab-btn" role="tab" aria-selected="false">U19</button>
+      </div>
     </div>
   </section>
 
-  <!-- FIXTURES LIST -->
+  <!-- Fixtures list -->
   <section class="fixtures-wrap">
-    <div id="fixturesList" style="display:grid; gap:12px;"></div>
+    <div id="fixturesList" style="display:grid; gap:0;"></div>
   </section>
 
-  <!-- FOOTER -->
-  <footer class="text-center py-6">
+  <!-- Footer -->
+  <footer class="text-center py-6" style="background:transparent;">
     <div class="container" style="max-width:1100px; margin:0 auto;">
       <small class="footer-badge">© <span id="year"></span> The Footballer’s Sister</small>
     </div>
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- FIREBASE FIXTURES JS -->
+  <!-- Portal dropdown menu script (same behavior) -->
+  <script>
+    (function(){
+      const navButton = document.getElementById('navButton');
+      const navTitle = document.getElementById('navTitle');
+      const pageTitles = {
+        "": "Home","index.html":"Home","bts.html":"Behind the Game","leila.html":"Meet Leila","questions.html":"Q&A","support-wall.html":"Support Wall","fixtures.html":"Fixtures & Live Scores","giveaways.html":"Giveaways"
+      };
+      const currentPage = window.location.pathname.split('/').pop();
+      navTitle.textContent = pageTitles[currentPage] || "Menu";
+
+      const menu = document.createElement('div');
+      menu.className = 'portal-dropdown';
+      menu.setAttribute('role','menu');
+      menu.setAttribute('aria-hidden','true');
+      menu.innerHTML = `
+        <a href="index.html" role="menuitem">Home</a>
+        <a href="bts.html" role="menuitem">Behind the Game</a>
+        <a href="leila.html" role="menuitem">Meet Leila</a>
+        <a href="questions.html" role="menuitem">Q&A</a>
+        <a href="support-wall.html" role="menuitem">Support Wall</a>
+        <a href="fixtures.html" role="menuitem">Fixtures & Live Scores</a>
+        <a href="giveaways.html" role="menuitem">Giveaways</a>
+      `;
+      document.body.appendChild(menu);
+
+      function positionMenu() {
+        const btnRect = navButton.getBoundingClientRect();
+        const top = window.scrollY + btnRect.bottom + 8;
+        const right = window.innerWidth - (btnRect.right);
+        menu.style.top = top + 'px';
+        menu.style.right = right + 'px';
+      }
+      function openMenu(){ positionMenu(); menu.classList.add('open'); menu.setAttribute('aria-hidden','false'); navButton.setAttribute('aria-expanded','true'); window.addEventListener('resize', positionMenu); window.addEventListener('scroll', positionMenu, { passive: true }); }
+      function closeMenu(){ menu.classList.remove('open'); menu.setAttribute('aria-hidden','true'); navButton.setAttribute('aria-expanded','false'); window.removeEventListener('resize', positionMenu); window.removeEventListener('scroll', positionMenu); }
+
+      navButton.addEventListener('click', (ev)=>{ ev.stopPropagation(); const isOpen = menu.classList.contains('open'); if(isOpen) closeMenu(); else openMenu(); });
+      document.addEventListener('click', (ev)=>{ if (!navButton.contains(ev.target) && !menu.contains(ev.target)) closeMenu(); });
+      document.addEventListener('keydown', (ev)=>{ if(ev.key==='Escape') closeMenu(); });
+      menu.querySelectorAll('a').forEach(a=>a.addEventListener('click', ()=> closeMenu()));
+    })();
+  </script>
+
+  <!-- Firestore fixtures logic + Cloudinary logo helper -->
   <script type="module">
     const firebaseConfig = {
-      apiKey:"AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
-      authDomain:"football-site-c3aa9.firebaseapp.com",
-      projectId:"football-site-c3aa9",
-      storageBucket:"football-site-c3aa9.appspot.com",
-      messagingSenderId:"65396604482",
-      appId:"1:65396604482:web:0f31625a714aa8352337db"
+      apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
+      authDomain: "football-site-c3aa9.firebaseapp.com",
+      projectId: "football-site-c3aa9",
+      storageBucket: "football-site-c3aa9.appspot.com",
+      messagingSenderId: "65396604482",
+      appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
-
     const APP_ID = firebaseConfig.appId;
     const FIXTURES_COLLECTION_PATH = `/artifacts/${APP_ID}/public/data/fixtures`;
 
@@ -153,78 +224,129 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // --- CLOUDINARY HELPERS ---
+    // Your Cloudinary cloud name (we used this earlier)
+    const CLOUDINARY_CLOUD = 'dk1df1qmi';
+    // Default transform for logos: change if you want a different size/aspect
+    const DEFAULT_TRANSFORM = 'w_200,h_200,c_fill,g_auto,q_auto,f_auto';
+
+    /**
+     * transformCloudinaryUrl(url, transform)
+     * If url is a Cloudinary URL containing '/upload/', insert the transform string after '/upload/'.
+     * Otherwise return original url.
+     */
+    function transformCloudinaryUrl(url, transform = DEFAULT_TRANSFORM) {
+      if (!url || typeof url !== 'string') return url;
+      // quick detection for Cloudinary hosted image
+      if (url.includes('res.cloudinary.com') && url.includes('/upload/')) {
+        return url.replace('/upload/', `/upload/${transform}/`);
+      }
+      // also support direct cloud name + path (rare)
+      if (url.includes(`${CLOUDINARY_CLOUD}.cloudinary.com`) && url.includes('/upload/')) {
+        return url.replace('/upload/', `/upload/${transform}/`);
+      }
+      // otherwise, not a Cloudinary url — return as-is
+      return url;
+    }
+
+    // Convenience: clean fallback that prioritizes Cloudinary transform when possible
+    function logoUrlForDisplay(rawUrl) {
+      try {
+        return transformCloudinaryUrl(rawUrl || '');
+      } catch (e) {
+        return rawUrl || '';
+      }
+    }
+
+    // --------------------------
+
     const tabU14 = document.getElementById('tabU14');
     const tabU19 = document.getElementById('tabU19');
     const fixturesList = document.getElementById('fixturesList');
 
     let currentTab = 'U14';
-    let lastDocs = [];
-
     function setActiveTab(tab) {
       currentTab = tab;
       tabU14.classList.toggle('tab-active', tab === 'U14');
       tabU19.classList.toggle('tab-active', tab === 'U19');
       renderFixtures(lastDocs);
     }
+    tabU14.addEventListener('click', ()=> setActiveTab('U14'));
+    tabU19.addEventListener('click', ()=> setActiveTab('U19'));
 
-    tabU14.onclick = () => setActiveTab('U14');
-    tabU19.onclick = () => setActiveTab('U19');
+    function escapeHtml(s){ if(s === null || typeof s === 'undefined') return ''; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-    function renderFixtures(docs){
+    let lastDocs = [];
+
+    function formatKickoff(f) {
+      try {
+        if (f.kickoffISO) return new Date(f.kickoffISO).toLocaleString();
+        if (f.kickoffTs && f.kickoffTs.seconds) return new Date(f.kickoffTs.seconds*1000).toLocaleString();
+      } catch(e){}
+      return '';
+    }
+
+    function renderFixtures(docs) {
       fixturesList.innerHTML = '';
 
       const filtered = docs.filter(f => {
         const ag = (f.ageGroup || '').toLowerCase();
-        return currentTab === 'U14' ? ag.includes('14') : ag.includes('19');
+        if (!ag) return false;
+        if (currentTab === 'U14') return ag.includes('14');
+        if (currentTab === 'U19') return ag.includes('19');
+        return true;
       });
 
-      if(!filtered.length){
-        fixturesList.innerHTML = `<div class="text-gray-500">No ${currentTab} fixtures yet.</div>`;
+      if (!filtered.length) {
+        fixturesList.innerHTML = `<div class="text-gray-500">No ${escapeHtml(currentTab)} fixtures yet.</div>`;
         return;
       }
 
-      filtered.forEach((f, i) => {
+      filtered.forEach((f, idx) => {
+        const kickoff = formatKickoff(f);
+        const scorePresent = (typeof f.scoreHome !== 'undefined' && typeof f.scoreAway !== 'undefined' && f.scoreHome !== null && f.scoreAway !== null);
+
+        // prepare logo URLs (apply Cloudinary transform when available)
+        const teamALogo = logoUrlForDisplay(f.teamALogoUrl || '');
+        const teamBLogo = logoUrlForDisplay(f.teamBLogoUrl || '');
+
         const card = document.createElement('div');
         card.className = 'fixture-card';
 
-        const kickoff = f.kickoffISO ? new Date(f.kickoffISO).toLocaleString() : '';
-
-        card.innerHTML = `
-          <div style="display:flex;align-items:center;gap:12px;">
-            <img class="team-logo" src="${f.teamALogoUrl || 'images/opponent.png'}"/>
-            <div style="font-weight:700;">${f.teamA}</div>
-          </div>
-
-          <div style="text-align:center;">
-            <div class="fixture-meta">${kickoff}${f.venue ? ' · ' + f.venue : ''}</div>
-            <div style="margin-top:6px;">
-              ${
-                f.scoreHome !== undefined && f.scoreAway !== undefined
-                ? `<span class="score">${f.scoreHome}</span> <span style="margin:0 .5rem;color:#888">:</span> <span class="score">${f.scoreAway}</span>`
-                : `<span style="color:#9CA3AF;font-weight:700;">vs</span>`
-              }
-            </div>
-          </div>
-
-          <div style="display:flex;align-items:center;gap:12px;">
-            <div style="font-weight:700;">${f.teamB}</div>
-            <img class="team-logo" src="${f.teamBLogoUrl || 'images/opponent.png'}"/>
-          </div>
-
-          <div style="display:flex;flex-direction:column;align-items:flex-end;">
-            <div class="fixture-meta">${f.ageGroup} · ${f.status}</div>
-            ${
-              f.streamUrl
-              ? `<a class="watch-btn" href="${f.streamUrl}" target="_blank">Watch</a>`
-              : `<div style="height:36px;"></div>`
-            }
+        const leftHtml = `
+          <div class="team-left">
+            <img class="team-logo" src="${escapeHtml(teamALogo || 'images/opponent.png')}" alt="${escapeHtml(f.teamA||'Team A')}" />
+            <div class="team-name">${escapeHtml(f.teamA || 'Team A')}</div>
           </div>
         `;
 
+        const centerHtml = `
+          <div class="center-meta">
+            <div class="fixture-meta">${escapeHtml(kickoff)}${ f.venue ? ' · ' + escapeHtml(f.venue) : '' }</div>
+            <div>
+              ${
+                scorePresent
+                ? `<div class="score">${escapeHtml(String(f.scoreHome))} <span style="color:var(--muted);font-weight:700;margin:0 .45rem">:</span> ${escapeHtml(String(f.scoreAway))}</div>`
+                : `<div style="color:#9CA3AF;font-weight:700;">vs</div>`
+              }
+            </div>
+          </div>
+        `;
+
+        const rightHtml = `
+          <div class="team-right" style="justify-content:flex-end;">
+            <div style="text-align:right;font-weight:800;">${escapeHtml(f.teamB || 'Team B')}</div>
+            <img class="team-logo" src="${escapeHtml(teamBLogo || 'images/opponent.png')}" alt="${escapeHtml(f.teamB||'Team B')}" />
+          </div>
+        `;
+
+        const actionHtml = f.streamUrl ? `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;"><div class="fixture-meta">${escapeHtml(f.ageGroup||'')} · ${escapeHtml(f.status||'')}</div><a class="watch-btn" href="${escapeHtml(f.streamUrl)}" target="_blank" rel="noopener noreferrer">Watch</a></div>` : `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;"><div class="fixture-meta">${escapeHtml(f.ageGroup||'')} · ${escapeHtml(f.status||'')}</div><div style="height:36px;"></div></div>`;
+
+        card.innerHTML = leftHtml + centerHtml + rightHtml + actionHtml;
+
         fixturesList.appendChild(card);
 
-        // 🔥 Add divider AFTER each card except the last one
-        if(i < filtered.length - 1){
+        if (idx < filtered.length - 1) {
           const divider = document.createElement('div');
           divider.className = 'fixture-divider';
           fixturesList.appendChild(divider);
@@ -232,15 +354,28 @@
       });
     }
 
-    const ref = collection(db, FIXTURES_COLLECTION_PATH);
-    const q = query(ref);
+    // Attach Firestore listener (real-time)
+    try {
+      const ref = collection(db, FIXTURES_COLLECTION_PATH);
+      const q = query(ref);
+      onSnapshot(q, snap => {
+        lastDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        lastDocs.sort((a,b) => {
+          const ta = a.kickoffISO ? new Date(a.kickoffISO).getTime() : (a.createdAt?.seconds ? a.createdAt.seconds*1000 : 0);
+          const tb = b.kickoffISO ? new Date(b.kickoffISO).getTime() : (b.createdAt?.seconds ? b.createdAt.seconds*1000 : 0);
+          return ta - tb;
+        });
+        renderFixtures(lastDocs);
+      }, err => {
+        console.error('fixtures onSnapshot error', err);
+        fixturesList.innerHTML = '<div class="text-red-600">Could not load fixtures.</div>';
+      });
+    } catch (err) {
+      console.error('Failed to attach fixtures listener', err);
+      fixturesList.innerHTML = '<div class="text-red-600">Could not load fixtures.</div>';
+    }
 
-    onSnapshot(q, snap => {
-      lastDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      lastDocs.sort((a,b)=> (new Date(a.kickoffISO) - new Date(b.kickoffISO)));
-      renderFixtures(lastDocs);
-    });
-
+    // default tab
     setActiveTab('U14');
   </script>
 
