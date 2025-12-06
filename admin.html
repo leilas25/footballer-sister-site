@@ -1254,36 +1254,55 @@
       createWinBtn.textContent = 'Posting...';
 
       try {
-        let imageUrl = '';
-        let publicId = '';
-        if (file) {
-          const cloudResp = await uploadToCloudinary(file);
-          if (!cloudResp || !cloudResp.secure_url) throw new Error('Cloudinary did not return secure_url');
-          imageUrl = cloudResp.secure_url;
-          publicId = cloudResp.public_id;
-        }
+  let imageUrl = '';
+  let publicId = '';
 
-        // 1) write to winners collection ONLY
-        await addDoc(collection(db, WINNERS_COLLECTION_PATH), {
-          name: nameVal,
-          handle: handleVal || '',
-          prize: prizeVal,
-          imageUrl: imageUrl || '',
-          publicId: publicId || '',
-          createdAt: serverTimestamp(),
-          uploader: auth.currentUser ? (auth.currentUser.email || auth.currentUser.uid) : 'admin'
-        });
+  // Upload to Cloudinary if a file was selected
+  if (file) {
+    const cloudResp = await uploadToCloudinary(file);
+    if (!cloudResp || !cloudResp.secure_url) {
+      throw new Error('Cloudinary did not return secure_url');
+    }
+    imageUrl = cloudResp.secure_url;
+    publicId = cloudResp.public_id;
+  }
 
-        if (winStatus) winStatus.textContent = 'Winner saved.';
+  // Build the Firestore payload
+  const winnerPayload = {
+    name: nameVal,
+    handle: handleVal || '',
+    prize: prizeVal,
+    imageUrl: imageUrl || '',
+    publicId: publicId || '',
+    createdAt: serverTimestamp(),
+    uploader: auth && auth.currentUser ? (auth.currentUser.email || auth.currentUser.uid) : 'admin',
+    // Add this so the public winners page will include it if it filters by "published"
+    published: true
+  };
+
+  // Debug logs
+  console.log('DEBUG: manual winnerPayload about to be saved:', winnerPayload);
+  console.log('DEBUG: WINNERS_COLLECTION_PATH =', WINNERS_COLLECTION_PATH);
+
+  // Save to the winners collection
+  const savedRef = await addDoc(collection(db, WINNERS_COLLECTION_PATH), winnerPayload);
+  console.log('DEBUG: manual winner saved id', savedRef.id);
+
+  // Success alert (keep your existing UI flow)
+  alert('Winner saved successfully! (id: ' + savedRef.id + ')');
+
+} catch (err) {
+  console.error('ERROR: manual winner save failed', err);
+  alert('Could not save winner: ' + (err && err.message ? err.message : err));
+}
+
+
+    if (winStatus) winStatus.textContent = 'Winner saved.';
         // clear form
-        winName.value=''; winHandle.value=''; winPrize.value=''; if (winImageFile) winImageFile.value='';
-      } catch(err) {
-        console.error('create winner failed', err);
-        if (winError) { winError.classList.remove('hidden-el'); winError.textContent = 'Save failed: ' + (err.message || err); }
-      } finally {
-        createWinBtn.disabled = false;
-        createWinBtn.textContent = 'Add Winner';
-      }
+      winName.value=''; winHandle.value=''; winPrize.value=''; if (winImageFile) winImageFile.value='';
+      console.error('create winner failed', err);
+      createWinBtn.disabled = false;
+      createWinBtn.textContent = 'Add Winner';
     }
 
     if (createWinBtn) {
