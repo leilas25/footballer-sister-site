@@ -176,22 +176,18 @@
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
   <!-- Portal dropdown appended to body by JS -->
-  <script>
-    (function(){
+     (function setupNavDropdown(){
       const navButton = document.getElementById('navButton');
+      const dropdownMenu = document.getElementById('dropdownMenu');
+      const navItems = document.querySelectorAll('.nav-item');
       const navTitle = document.getElementById('navTitle');
-      const pageTitles = {
-        "": "Home",
-        "index.html": "Home",
-        "bts.html": "Behind the Game",
-        "leila.html": "Meet Leila",
-        "questions.html": "Q&A",
-        "support-wall.html": "Support Wall",
-        "fixtures.html": "Fixtures & Live Scores",
-        "giveaways.html": "Giveaways"
-      };
       const currentPage = window.location.pathname.split('/').pop();
+      const pageTitles = { "index.html":"Home","bts.html":"Behind the Game","leila.html":"Meet Leila","questions.html":"Q&A","support-wall.html":"Support Wall","fixtures.html":"Fixtures & Live Scores","giveaways.html":"Giveaways" };
       navTitle.textContent = pageTitles[currentPage] || "Menu";
+      navItems.forEach(link => { if(link.getAttribute('href')===currentPage) link.classList.add("font-semibold","text-rose-600"); });
+      navButton.addEventListener('click', ()=>{ const isHidden = dropdownMenu.classList.contains('hidden'); if(isHidden){ dropdownMenu.classList.remove('hidden'); setTimeout(()=>dropdownMenu.classList.add('dropdown-open'),10);} else { dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'),200);} });
+      document.addEventListener('click', (e)=>{ if(!navButton.contains(e.target) && !dropdownMenu.contains(e.target)){ dropdownMenu.classList.remove('dropdown-open'); setTimeout(()=>dropdownMenu.classList.add('hidden'),200); }});
+    })();
 
       // Build the portal menu, use absolute paths so navigation works from any folder
       const menu = document.createElement('div');
