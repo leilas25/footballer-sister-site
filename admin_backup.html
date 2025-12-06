@@ -1358,109 +1358,106 @@
 
     // helper: create and show preview modal, handle confirm/cancel
     function showQuickPickPreviewModal({ giveawayId, giveawayTitle, entry, name, handle, note, image }) {
-  // create modal backdrop
-  const backdrop = document.createElement('div');
-  backdrop.className = 'qp-backdrop';
-  backdrop.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;z-index:9999;';
+      // modal backdrop
+      const backdrop = document.createElement('div');
+      backdrop.className = 'qp-backdrop';
+      backdrop.tabIndex = -1;
 
-  // modal container
-  const modal = document.createElement('div');
-  modal.className = 'qp-modal';
-  modal.style.cssText = 'background:white;padding:20px;border-radius:12px;max-width:760px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,0.15);';
-
-  modal.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <div style="font-weight:800;font-size:1.05rem;color:#be185d;">Preview Winner — ${escapeHtml(giveawayTitle || 'Giveaway')}</div>
-      <div style="color:#6b7280;font-size:.95rem;">Entry ID: ${escapeHtml(entry.id || '')}</div>
-    </div>
-
-    <div style="display:flex;gap:20px;">
-      <div style="flex:1;">
-        <div style="font-weight:700;">${escapeHtml(name || '')}</div>
-        <div style="margin-top:6px;color:#6b7280;font-size:.9rem;">Handle: ${escapeHtml(handle || '')}</div>
-        <div style="margin-top:8px;color:#6b7280;font-size:.9rem;">${escapeHtml(note || '')}</div>
-
-        <div style="margin-top:16px;display:flex;gap:10px;">
-          <button id="qpConfirm" class="px-4 py-2 rounded bg-rose-600 text-white font-semibold">Confirm & Save winner</button>
-          <button id="qpCancel" class="px-4 py-2 rounded border">Cancel</button>
+      const modal = document.createElement('div');
+      modal.className = 'qp-modal';
+      modal.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div style="font-weight:800;font-size:1.05rem;color:#be185d;">Preview Winner — ${escapeHtml(giveawayTitle || 'Giveaway')}</div>
+          <div style="color:#6b7280;font-size:.95rem;">Entry ID: ${escapeHtml(entry.id)}</div>
         </div>
-
-        <div style="margin-top:12px;color:#6b7280;font-size:.85rem;">
-          This will create a winner record and mark the giveaway as <strong>winner</strong>. Screenshot will <strong>NOT</strong> be saved publicly.
+        <div class="qp-grid">
+          <div style="flex:1;">
+            <div style="font-weight:700;">${escapeHtml(name)}</div>
+            <div class="muted-sm" style="margin-top:6px;">Handle: ${escapeHtml(handle || '')}</div>
+            <div class="muted-sm" style="margin-top:8px;">${escapeHtml(note || '')}</div>
+            <div class="qp-actions">
+              <button id="qpConfirm" class="btn bg-rose-600 text-white">Confirm & Save winner</button>
+              <button id="qpCancel" class="btn bg-white border">Cancel</button>
+            </div>
+            <div style="margin-top:8px;" class="muted-sm">This action will create a winner record in your <code>winners</code> collection and update the giveaway to <strong>status: winner</strong>. You can still edit the winner entry later in the Winners pane.</div>
+          </div>
+          <div style="width:340px;">
+            ${ image ? `<img src="${escapeHtml(image)}" class="qp-thumb" alt="Entrant screenshot" onerror="this.onerror=null;this.style.display='none'"/>` : `<div class="qp-thumb" style="display:flex;align-items:center;justify-content:center;color:#9ca3af;font-weight:700;">No screenshot</div>`}
+          </div>
         </div>
-      </div>
+      `;
+      backdrop.appendChild(modal);
+      document.body.appendChild(backdrop);
 
-      <div style="width:300px;">
-        ${ image ? `<img src="${escapeHtml(image)}" style="width:100%;border-radius:10px;object-fit:contain;"/>` : `<div style='width:100%;height:260px;background:#f3f4f6;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#9ca3af;'>No Screenshot</div>` }
-      </div>
-    </div>
-  `;
-
-  backdrop.appendChild(modal);
-  document.body.appendChild(backdrop);
-
-  const closeModal = () => { if (backdrop && backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); };
-
-  modal.querySelector('#qpCancel').addEventListener('click', closeModal);
-
-  modal.querySelector('#qpConfirm').addEventListener('click', async () => {
-    const btn = modal.querySelector('#qpConfirm');
-    btn.disabled = true;
-    btn.textContent = 'Saving...';
-
-    try {
-      // IMPORTANT: do NOT save the entrant screenshot into the winners collection
-      const winnerPayload = {
-        name: name || '',
-        handle: handle || '',
-        prize: giveawayTitle || '',
-        imageUrl: '', // intentionally left blank for quick-picked winners
-        sourceGiveawayId: giveawayId || '',
-        entryId: entry && entry.id ? entry.id : '',
-        createdAt: serverTimestamp(),
-        uploader: auth && auth.currentUser ? (auth.currentUser.email || auth.currentUser.uid) : 'admin'
+      // event handlers
+      const closeModal = () => {
+        if (backdrop && backdrop.parentNode) backdrop.parentNode.removeChild(backdrop);
       };
 
-      // save to winners collection (the public winners collection)
-      const winnerRef = await addDoc(collection(db, WINNERS_COLLECTION_PATH), winnerPayload);
+      modal.querySelector('#qpCancel').addEventListener('click', () => {
+        closeModal();
+      });
 
-      // update giveaway doc to link winnerId & set status (best-effort)
-      try {
-        await updateDoc(doc(db, `${GIVEAWAYS_COLLECTION_PATH}/${giveawayId}`), { winnerId: winnerRef.id, status: 'winner' });
-      } catch (err) {
-        console.warn('Non-fatal: could not update giveaway with winnerId/status', err);
-      }
+      modal.querySelector('#qpConfirm').addEventListener('click', async () => {
+        // disable while saving
+        const btn = modal.querySelector('#qpConfirm');
+        btn.disabled = true;
+        btn.textContent = 'Saving...';
+        try {
+          // create winner doc
+          const winnerPayload = {
+            name: name || '',
+            handle: handle || '',
+            prize: giveawayTitle || '',
+            imageUrl: image || '',
+            sourceGiveawayId: giveawayId,
+            entryId: entry.id,
+            createdAt: serverTimestamp(),
+            uploader: auth.currentUser ? (auth.currentUser.email || auth.currentUser.uid) : 'admin'
+          };
+          const winnerRef = await addDoc(collection(db, WINNERS_COLLECTION_PATH), winnerPayload);
 
-      // mark entry as used (best-effort)
-      try {
-        const entryPath = entry && entry.__path ? entry.__path : '';
-        if (entryPath) {
-          await updateDoc(doc(db, entryPath), { pickedAsWinnerAt: serverTimestamp(), pickedAsWinnerFor: giveawayId });
-        } else {
-          try { await updateDoc(doc(db, `${GIVEAWAYS_COLLECTION_PATH}/${giveawayId}/entries/${entry.id}`), { pickedAsWinnerAt: serverTimestamp(), pickedAsWinnerFor: giveawayId }); } catch(e) {}
-          try { await updateDoc(doc(db, `${ENTRIES_COLLECTION_PATH}/${entry.id}`), { pickedAsWinnerAt: serverTimestamp(), pickedAsWinnerFor: giveawayId }); } catch(e) {}
+          // update giveaway
+          try {
+            await updateDoc(doc(db, `${GIVEAWAYS_COLLECTION_PATH}/${giveawayId}`), { winnerId: winnerRef.id, status: 'winner' });
+          } catch (err) {
+            console.warn('Could not update giveaway with winnerId/status (non-fatal):', err);
+          }
+
+          // optionally mark the entry as 'used' or flagged if you want (non-fatal)
+          try {
+            // If top-level entry path (ENTRIES_COLLECTION_PATH) was used, update it; if subcollection, update that doc.
+            const entryPath = entry.__path || ''; // set earlier when reading
+            if (entryPath) {
+              // entry.__path is like "/artifacts/.../giveawayEntries/<id>" or ".../entries/<id>"
+              await updateDoc(doc(db, entryPath), { pickedAsWinnerAt: serverTimestamp(), pickedAsWinnerFor: giveawayId });
+            } else {
+              // fallback: try to update in both places with best-effort
+              try { await updateDoc(doc(db, `${GIVEAWAYS_COLLECTION_PATH}/${giveawayId}/entries/${entry.id}`), { pickedAsWinnerAt: serverTimestamp(), pickedAsWinnerFor: giveawayId }); } catch(e) {}
+              try { await updateDoc(doc(db, `${ENTRIES_COLLECTION_PATH}/${entry.id}`), { pickedAsWinnerAt: serverTimestamp(), pickedAsWinnerFor: giveawayId }); } catch(e) {}
+            }
+          } catch (err) {
+            console.warn('Could not mark entry as used (non-fatal):', err);
+          }
+
+          alert('Winner selected and saved (id: ' + winnerRef.id + ').');
+          closeModal();
+          // refresh winners pane / giveaways list if visible
+          loadWinnersAdmin();
+          loadGiveaways();
+        } catch (err) {
+          console.error('Saving winner failed', err);
+          alert('Could not save winner: ' + (err.message || err));
+          btn.disabled = false;
+          btn.textContent = 'Confirm & Save winner';
         }
-      } catch (err) {
-        console.warn('Non-fatal: could not mark entry as used', err);
-      }
+      });
 
-      alert('Winner saved successfully!');
-      closeModal();
-
-      // optional: reload admin lists if those functions exist
-      if (typeof loadWinnersAdmin === 'function') loadWinnersAdmin();
-      if (typeof loadGiveaways === 'function') loadGiveaways();
-
-    } catch (err) {
-      console.error('Failed to save winner', err);
-      alert('Failed to save winner: ' + (err && err.message ? err.message : err));
-      btn.disabled = false;
-      btn.textContent = 'Confirm & Save winner';
+      // close if backdrop clicked (outside modal)
+      backdrop.addEventListener('click', (ev) => {
+        if (ev.target === backdrop) closeModal();
+      });
     }
-  });
-
-  backdrop.addEventListener('click', (e) => { if (e.target === backdrop) closeModal(); });
-}
 
     // ---------- FIXTURES admin functions (UPDATED) ----------
     async function loadFixturesAdmin() {
