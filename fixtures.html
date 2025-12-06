@@ -193,18 +193,19 @@
       const currentPage = window.location.pathname.split('/').pop();
       navTitle.textContent = pageTitles[currentPage] || "Menu";
 
+      // Build the portal menu, use absolute paths so navigation works from any folder
       const menu = document.createElement('div');
       menu.className = 'portal-dropdown';
       menu.setAttribute('role','menu');
       menu.setAttribute('aria-hidden','true');
       menu.innerHTML = `
-        <a href="index.html" role="menuitem">Home</a>
-        <a href="bts.html" role="menuitem">Behind the Game</a>
-        <a href="leila.html" role="menuitem">Meet Leila</a>
-        <a href="questions.html" role="menuitem">Q&A</a>
-        <a href="support-wall.html" role="menuitem">Support Wall</a>
-        <a href="fixtures.html" role="menuitem">Fixtures & Live Scores</a>
-        <a href="giveaways.html" role="menuitem">Giveaways</a>
+        <a href="/index.html" role="menuitem" data-target="/index.html">Home</a>
+        <a href="/bts.html" role="menuitem" data-target="/bts.html">Behind the Game</a>
+        <a href="/leila.html" role="menuitem" data-target="/leila.html">Meet Leila</a>
+        <a href="/questions.html" role="menuitem" data-target="/questions.html">Q&A</a>
+        <a href="/support-wall.html" role="menuitem" data-target="/support-wall.html">Support Wall</a>
+        <a href="/fixtures.html" role="menuitem" data-target="/fixtures.html">Fixtures & Live Scores</a>
+        <a href="/giveaways.html" role="menuitem" data-target="/giveaways.html">Giveaways</a>
       `;
       document.body.appendChild(menu);
 
@@ -215,13 +216,46 @@
         menu.style.top = top + 'px';
         menu.style.right = right + 'px';
       }
-      function openMenu(){ positionMenu(); menu.classList.add('open'); menu.setAttribute('aria-hidden','false'); navButton.setAttribute('aria-expanded','true'); window.addEventListener('resize', positionMenu); window.addEventListener('scroll', positionMenu, { passive:true }); }
-      function closeMenu(){ menu.classList.remove('open'); menu.setAttribute('aria-hidden','true'); navButton.setAttribute('aria-expanded','false'); window.removeEventListener('resize', positionMenu); window.removeEventListener('scroll', positionMenu); }
 
-      navButton.addEventListener('click', (ev) => { ev.stopPropagation(); const isOpen = menu.classList.contains('open'); if (isOpen) closeMenu(); else openMenu(); });
-      document.addEventListener('click', (ev) => { if (!navButton.contains(ev.target) && !menu.contains(ev.target)) closeMenu(); });
+      function openMenu(){
+        positionMenu();
+        menu.classList.add('open');
+        menu.setAttribute('aria-hidden','false');
+        navButton.setAttribute('aria-expanded','true');
+        window.addEventListener('resize', positionMenu);
+        window.addEventListener('scroll', positionMenu, { passive:true });
+      }
+      function closeMenu(){
+        menu.classList.remove('open');
+        menu.setAttribute('aria-hidden','true');
+        navButton.setAttribute('aria-expanded','false');
+        window.removeEventListener('resize', positionMenu);
+        window.removeEventListener('scroll', positionMenu);
+      }
+
+      navButton.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        const isOpen = menu.classList.contains('open');
+        if (isOpen) closeMenu(); else openMenu();
+      });
+
+      // Force navigation via setting location.href — ensures mobile browsers navigate even if anchor was removed
+      menu.querySelectorAll('a').forEach(a => {
+        a.addEventListener('click', (ev) => {
+          ev.preventDefault();
+          const href = a.getAttribute('href') || a.dataset.target;
+          closeMenu();
+          // small delay to let menu close for a cleaner UX, then navigate
+          setTimeout(() => {
+            window.location.href = href;
+          }, 110);
+        });
+      });
+
+      document.addEventListener('click', (ev) => {
+        if (!navButton.contains(ev.target) && !menu.contains(ev.target)) closeMenu();
+      });
       document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') closeMenu(); });
-      menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => closeMenu()));
     })();
   </script>
 
