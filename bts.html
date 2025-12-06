@@ -369,39 +369,44 @@
         <h3 style="text-align:center; color:var(--accent); font-weight:800; margin-bottom:1rem;">My Vlogs & Highlights</h3>
 
         <div class="video-carousel">
-          <!-- carousel container -->
-          <div id="video-slides-container" style="display:flex; transition:transform .45s ease; gap:0; overflow:hidden; border-radius:12px;">
-            <!-- each .slide holds a single embed-wrap with a single iframe placeholder using data-src -->
-            <div class="slide" style="min-width:100%; box-sizing:border-box;">
-              <div class="embed-wrap">
-                <iframe data-src="https://www.tiktok.com/embed/v2/7529094647944072454" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
-              </div>
-            </div>
+  <!-- carousel container -->
+  <div id="video-slides-container" style="display:flex; transition:transform .45s ease; gap:0; overflow:hidden; border-radius:12px;">
+    <div class="slide" style="min-width:100%; box-sizing:border-box;">
+      <div class="embed-wrap">
+        <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" loading="lazy" allowfullscreen></iframe>
+      </div>
+    </div>
 
-            <div class="slide" style="min-width:100%; box-sizing:border-box;">
-              <div class="embed-wrap">
-                <iframe data-src="https://www.tiktok.com/embed/v2/7514262969786567943" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
-              </div>
-            </div>
+    <div class="slide" style="min-width:100%; box-sizing:border-box;">
+      <div class="embed-wrap">
+        <iframe src="https://www.tiktok.com/embed/v2/7514262969786567943" loading="lazy" allowfullscreen></iframe>
+      </div>
+    </div>
 
-            <div class="slide" style="min-width:100%; box-sizing:border-box;">
-              <div class="embed-wrap">
-                <iframe data-src="https://www.tiktok.com/embed/v2/7576746597195779346" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
-              </div>
-            </div>
+    <div class="slide" style="min-width:100%; box-sizing:border-box;">
+      <div class="embed-wrap">
+        <iframe src="https://www.tiktok.com/embed/v2/7576746597195779346" loading="lazy" allowfullscreen></iframe>
+      </div>
+    </div>
 
-            <div class="slide" style="min-width:100%; box-sizing:border-box;">
-              <div class="embed-wrap">
-                <iframe data-src="https://www.tiktok.com/embed/v2/7571503785806155016" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
-              </div>
-            </div>
-            <!-- add more slides below as needed -->
+    <div class="slide" style="min-width:100%; box-sizing:border-box;">
+      <div class="embed-wrap">
+        <iframe src="https://www.tiktok.com/embed/v2/7571503785806155016" loading="lazy" allowfullscreen></iframe>
+      </div>
+    </div>
+    <!-- add more slides below as needed -->
+  </div>
+
+  <!-- first pair of arrows (inside video area) -->
+  <button class="arrow-btn video-arrow video-prev" id="prevBtnA" aria-label="Previous video"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
+  <button class="arrow-btn video-arrow video-next" id="nextBtnA" aria-label="Next video"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
+</div>
+
+          <!-- second (duplicate) pair of arrows — kept per your request -->
+          <div style="text-align:center; margin-top:8px;">
+            <button class="arrow-btn video-arrow video-prev" id="prevBtnB" aria-label="Previous video (duplicate)"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
+            <button class="arrow-btn video-arrow video-next" id="nextBtnB" aria-label="Next video (duplicate)"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
           </div>
-
-          <!-- arrows (inside video area) -->
-          <button id="prevBtn" class="arrow-btn video-arrow arrow-left" aria-label="Previous video"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
-          <button id="nextBtn" class="arrow-btn video-arrow arrow-right" aria-label="Next video"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
-        </div>
       </div>
 
       <!-- RIGHT: Collaborations -->
@@ -736,74 +741,31 @@
     // ---------- TikTok carousel controls (separate carousel) ----------
     (function(){
       const slidesContainer = document.getElementById('video-slides-container');
-      const prevBtn = document.getElementById('prevBtn');
-      const nextBtn = document.getElementById('nextBtn');
+      // collect both sets of prev/next buttons (A and B)
+      const prevBtns = Array.from(document.querySelectorAll('.video-prev'));
+      const nextBtns = Array.from(document.querySelectorAll('.video-next'));
       if (!slidesContainer) return;
       let currentIndex = 0;
       const slides = slidesContainer.children;
-
-      // Helper to set iframe src from data-src only when needed
-      function setIframeSrcForSlide(index) {
-        const slide = slides[index];
-        if (!slide) return;
-        const iframe = slide.querySelector('iframe[data-src]');
-        if (!iframe) return;
-        if (!iframe.getAttribute('src')) {
-          iframe.setAttribute('src', iframe.getAttribute('data-src'));
-        }
-      }
-
-      // Optionally remove src from slides far away (free memory) — keep only current and next
-      function clearIframeSrcForSlide(index) {
-        const slide = slides[index];
-        if (!slide) return;
-        const iframe = slide.querySelector('iframe');
-        if (!iframe) return;
-        // keep data-src as the source of truth
-        if (iframe.getAttribute('data-src') && iframe.getAttribute('src') && index !== currentIndex && index !== (currentIndex + 1) % slides.length) {
-          // remove src to free resources (do not remove data-src)
-          iframe.removeAttribute('src');
-        }
-      }
-
-      function show(){
-        slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
-        // set src for current slide
-        setIframeSrcForSlide(currentIndex);
-        // preload next slide for smooth UX
-        setIframeSrcForSlide((currentIndex + 1) % slides.length);
-        // clear non-neighbouring slides to avoid many simultaneous loads
-        for (let i = 0; i < slides.length; i++){
-          if (i !== currentIndex && i !== ((currentIndex + 1) % slides.length)) {
-            clearIframeSrcForSlide(i);
-          }
-        }
-      }
+      function show(){ slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`; }
       function next(){ currentIndex = (currentIndex + 1) % slides.length; show(); }
       function prev(){ currentIndex = (currentIndex - 1 + slides.length) % slides.length; show(); }
-      if (nextBtn) nextBtn.addEventListener('click', next);
-      if (prevBtn) prevBtn.addEventListener('click', prev);
 
-      // touch swipe support on the carousel wrapper
+      // attach listeners to every prev/next button so duplicates both work
+      prevBtns.forEach(b => { if (b) b.addEventListener('click', prev); });
+      nextBtns.forEach(b => { if (b) b.addEventListener('click', next); });
+
       let startX = 0;
       const parent = slidesContainer.parentElement;
-      if (parent){
+      if (parent){ 
         parent.addEventListener('touchstart', (e)=> startX = e.touches[0].clientX);
-        parent.addEventListener('touchend', (e)=>{ const endX = e.changedTouches[0].clientX; const delta = startX - endX; if (Math.abs(delta) > 50) { if (delta > 0) next(); else prev(); } });
+        parent.addEventListener('touchend', (e)=>{ 
+          const endX = e.changedTouches[0].clientX; 
+          const delta = startX - endX; 
+          if (Math.abs(delta) > 50) { if (delta > 0) next(); else prev(); } 
+        }); 
       }
-
-      // initialize: set src for first slide and preload second
-      window.addEventListener('load', ()=>{
-        // ensure at least current and next slide load
-        setIframeSrcForSlide(0);
-        setIframeSrcForSlide(1 % slides.length);
-        show();
-      });
-
-      // Optional: auto-advance every 12s (commented out, enable if you want)
-      // let autoTimer = setInterval(next, 12000);
-      // parent.addEventListener('mouseenter', ()=> clearInterval(autoTimer));
-      // parent.addEventListener('mouseleave', ()=> autoTimer = setInterval(next, 12000));
+      window.addEventListener('load', ()=>{ show(); });
     })();
   </script>
 </body>
