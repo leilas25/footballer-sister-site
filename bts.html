@@ -70,12 +70,20 @@
       border-radius: 12px;
       height: 620px;
       overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:12px;
+      box-sizing:border-box;
     }
     @media (max-width:960px){ .embed-wrap { height:520px; } }
     @media (max-width:640px){ .embed-wrap { height:480px; } }
 
+    /* Ensure the tiktok blockquote fits nicely */
+    .embed-wrap blockquote.tiktok-embed { margin: 0 auto; max-width: 100%; width:100%; }
+
     .embed-wrap iframe {
-      position:absolute !important;
+      position:relative !important;
       left:0 !important;
       top:0 !important;
       width:100% !important;
@@ -342,7 +350,7 @@
         <div class="profile-list">
           <h4 style="color:var(--accent); font-weight:700;">Key Attributes:</h4>
           <ul style="margin-top:.5rem; list-style:disc; padding-left:1.25rem;">
-            <li><strong>Dribbling:</strong> Able to take on defenders with close control and quick feet.</li>
+            <li><strong>Dribbling:</strong> Able to take on defenders with close control and quick feet.</li>  
             <li><strong>Passing:</strong> Excellent vision to deliver precise short passes or long balls.</li>
             <li><strong>Shooting:</strong> Known as a free-kick or corner kick taker.</li>
           </ul>
@@ -371,30 +379,53 @@
         <div class="video-carousel">
           <!-- carousel container -->
           <div id="video-slides-container" style="display:flex; transition:transform .45s ease; gap:0; overflow:hidden; border-radius:12px;">
-            <!-- each .slide holds a single embed-wrap with a single iframe placeholder using data-src -->
+            <!-- Slide 1: existing embed (kept as iframe embed v2) -->
             <div class="slide" style="min-width:100%; box-sizing:border-box;">
               <div class="embed-wrap">
-                <iframe data-src="https://www.tiktok.com/embed/v2/7529094647944072454" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+                <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
               </div>
             </div>
 
+            <!-- Slide 2: blockquote embed you provided (7514262969786567943) -->
             <div class="slide" style="min-width:100%; box-sizing:border-box;">
               <div class="embed-wrap">
-                <iframe data-src="https://www.tiktok.com/embed/v2/7514262969786567943" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+                <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@leila_sono/video/7514262969786567943" data-video-id="7514262969786567943" style="max-width: 605px;min-width: 325px;" >
+                  <section>
+                    <a target="_blank" title="@leila_sono" href="https://www.tiktok.com/@leila_sono?refer=embed">@leila_sono</a>
+                    Player : @Elijah Sono
+                    <a target="_blank" title="♬ original sound - Don Deephouse" href="https://www.tiktok.com/music/original-sound-7282999474162502406?refer=embed">♬ original sound - Don Deephouse</a>
+                  </section>
+                </blockquote>
               </div>
             </div>
 
+            <!-- Slide 3: blockquote embed you provided (7576746597195779346) -->
             <div class="slide" style="min-width:100%; box-sizing:border-box;">
               <div class="embed-wrap">
-                <iframe data-src="https://www.tiktok.com/embed/v2/7576746597195779346" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+                <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@leila_sono/video/7576746597195779346" data-video-id="7576746597195779346" style="max-width: 605px;min-width: 325px;" >
+                  <section>
+                    <a target="_blank" title="@leila_sono" href="https://www.tiktok.com/@leila_sono?refer=embed">@leila_sono</a>
+                    Watching our starboy (@Bamuza Sono) play 😩 @Elijah Sono
+                    <a title="thefootballerssister" target="_blank" href="https://www.tiktok.com/tag/thefootballerssister?refer=embed">#thefootballerssister</a>
+                    <a target="_blank" title="♬ original sound - Wilosn DottCom@gmail.Com" href="https://www.tiktok.com/music/original-sound-7508054293859289912?refer=embed">♬ original sound - Wilosn DottCom@gmail.Com</a>
+                  </section>
+                </blockquote>
               </div>
             </div>
 
+            <!-- Slide 4: blockquote embed you provided (7571503785806155016) -->
             <div class="slide" style="min-width:100%; box-sizing:border-box;">
               <div class="embed-wrap">
-                <iframe data-src="https://www.tiktok.com/embed/v2/7571503785806155016" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+                <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@leila_sono/video/7571503785806155016" data-video-id="7571503785806155016" style="max-width: 605px;min-width: 325px;" >
+                  <section>
+                    <a target="_blank" title="@leila_sono" href="https://www.tiktok.com/@leila_sono?refer=embed">@leila_sono</a>
+                    I don’t watch much football but I know my team is the best 😓 @Bamuza Sono &amp; @Elijah Sono
+                    <a target="_blank" title="♬ original sound - Leila Sono" href="https://www.tiktok.com/music/original-sound-7571503805698378503?refer=embed">♬ original sound - Leila Sono</a>
+                  </section>
+                </blockquote>
               </div>
             </div>
+
             <!-- add more slides below as needed -->
           </div>
 
@@ -462,7 +493,7 @@
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- TikTok embed script -->
+  <!-- TikTok embed script (one copy only) -->
   <script async src="https://www.tiktok.com/embed.js"></script>
 
   <!-- Navbar dropdown script (fixed and accessible) -->
@@ -733,7 +764,7 @@
       if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
     });
 
-    // ---------- TikTok carousel controls (separate carousel) ----------
+    // ---------- TikTok carousel controls (simpler - works with blockquotes) ----------
     (function(){
       const slidesContainer = document.getElementById('video-slides-container');
       const prevBtn = document.getElementById('prevBtn');
@@ -741,44 +772,7 @@
       if (!slidesContainer) return;
       let currentIndex = 0;
       const slides = slidesContainer.children;
-
-      // Helper to set iframe src from data-src only when needed
-      function setIframeSrcForSlide(index) {
-        const slide = slides[index];
-        if (!slide) return;
-        const iframe = slide.querySelector('iframe[data-src]');
-        if (!iframe) return;
-        if (!iframe.getAttribute('src')) {
-          iframe.setAttribute('src', iframe.getAttribute('data-src'));
-        }
-      }
-
-      // Optionally remove src from slides far away (free memory) — keep only current and next
-      function clearIframeSrcForSlide(index) {
-        const slide = slides[index];
-        if (!slide) return;
-        const iframe = slide.querySelector('iframe');
-        if (!iframe) return;
-        // keep data-src as the source of truth
-        if (iframe.getAttribute('data-src') && iframe.getAttribute('src') && index !== currentIndex && index !== (currentIndex + 1) % slides.length) {
-          // remove src to free resources (do not remove data-src)
-          iframe.removeAttribute('src');
-        }
-      }
-
-      function show(){
-        slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
-        // set src for current slide
-        setIframeSrcForSlide(currentIndex);
-        // preload next slide for smooth UX
-        setIframeSrcForSlide((currentIndex + 1) % slides.length);
-        // clear non-neighbouring slides to avoid many simultaneous loads
-        for (let i = 0; i < slides.length; i++){
-          if (i !== currentIndex && i !== ((currentIndex + 1) % slides.length)) {
-            clearIframeSrcForSlide(i);
-          }
-        }
-      }
+      function show(){ slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`; }
       function next(){ currentIndex = (currentIndex + 1) % slides.length; show(); }
       function prev(){ currentIndex = (currentIndex - 1 + slides.length) % slides.length; show(); }
       if (nextBtn) nextBtn.addEventListener('click', next);
@@ -792,18 +786,8 @@
         parent.addEventListener('touchend', (e)=>{ const endX = e.changedTouches[0].clientX; const delta = startX - endX; if (Math.abs(delta) > 50) { if (delta > 0) next(); else prev(); } });
       }
 
-      // initialize: set src for first slide and preload second
-      window.addEventListener('load', ()=>{
-        // ensure at least current and next slide load
-        setIframeSrcForSlide(0);
-        setIframeSrcForSlide(1 % slides.length);
-        show();
-      });
+      window.addEventListener('load', ()=>{ show(); });
 
-      // Optional: auto-advance every 12s (commented out, enable if you want)
-      // let autoTimer = setInterval(next, 12000);
-      // parent.addEventListener('mouseenter', ()=> clearInterval(autoTimer));
-      // parent.addEventListener('mouseleave', ()=> autoTimer = setInterval(next, 12000));
     })();
   </script>
 </body>
