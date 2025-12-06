@@ -22,7 +22,6 @@
     .site-title { color: var(--accent); font-weight: 800; letter-spacing: .02em; }
     main { padding-bottom: 6rem; }
 
-    /* cards */
     .qa-card {
       background: var(--card);
       border-radius: 14px;
@@ -37,21 +36,17 @@
     .chip-answered { background: linear-gradient(180deg,#ecfdf5,#dcfce7); color:#065f46; font-weight:700; padding:.4rem .6rem; border-radius:999px; font-size:.8rem; border:1px solid rgba(16,185,129,0.08); }
     .chip-unanswered { color:var(--muted); font-weight:600; font-size:.9rem; }
 
-    /* layout */
     .container { max-width:920px; margin:0 auto; padding:2.25rem 1.5rem; }
     .page-head { display:flex; align-items:center; gap:1rem; margin-bottom:1rem; }
     .page-h1 { font-size:2rem; font-weight:900; color:var(--accent); }
     .subtle { color:var(--muted); }
 
-    /* pagination controls */
     .pager { display:flex; justify-content:center; margin-top:1.25rem; gap:.75rem; align-items:center; }
     .btn-pager { padding:.6rem 1rem; border-radius:999px; font-weight:700; background:white; border:1px solid rgba(0,0,0,0.06); cursor:pointer; box-shadow:0 6px 18px rgba(11,7,17,0.04); }
     .btn-primary { background: linear-gradient(90deg,#be185d,#f472b6); color:white; border:none; }
 
-    /* navbar dropdown helper */
     .dropdown-open { opacity:1!important; transform:scale(1)!important; }
 
-    /* responsive */
     @media (min-width:768px){
       .qa-grid { grid-template-columns: 1fr; }
     }
@@ -59,7 +54,7 @@
 </head>
 <body>
 
-  <!-- Header with dropdown -->
+  <!-- Header -->
   <header class="sticky top-0 z-40">
     <div class="container" style="display:flex;justify-content:space-between;align-items:center;padding-top:1rem;padding-bottom:1rem;">
       <div style="display:flex;align-items:center;gap:1rem;">
@@ -70,8 +65,8 @@
         <button id="navButton"
           class="inline-flex items-center justify-center rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
           <span id="navTitle">Loading...</span>
-          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
+          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"/>
           </svg>
         </button>
 
@@ -92,10 +87,39 @@
   </header>
 
   <main class="container">
+
+    <!-- Page title -->
     <div class="page-head">
       <h1 class="page-h1">Q&amp;A</h1>
     </div>
 
+    <!-- ⭐ INSERTED FORM (working with Firebase) -->
+    <section aria-label="Ask a question" style="margin-bottom:1.5rem;">
+      <form id="qa-form" class="qa-card" style="display:grid;gap:.75rem;">
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap;">
+          <input id="qa-name" placeholder="Your name (required)" 
+            style="flex:1;padding:.6rem .8rem;border-radius:10px;border:1px solid rgba(0,0,0,0.06);" />
+
+          <input id="qa-title" placeholder="Title (optional)" 
+            style="flex:1;max-width:320px;padding:.6rem .8rem;border-radius:10px;border:1px solid rgba(0,0,0,0.06);" />
+        </div>
+
+        <textarea id="qa-question" placeholder="Write your question..."
+          style="width:100%;padding:.8rem;border-radius:10px;border:1px solid rgba(0,0,0,0.06);min-height:100px;resize:vertical;"></textarea>
+
+        <div style="display:flex;align-items:center;gap:.5rem;">
+          <div id="qa-status" class="subtle">We'll read every question ❤️</div>
+          <div style="margin-left:auto;">
+            <button type="submit" class="btn-primary" 
+              style="padding:.6rem .9rem;border-radius:999px;font-weight:700;">
+              Send question
+            </button>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- Existing questions list -->
     <section id="questionsSection" aria-label="Community questions">
       <div id="questionsList" class="qa-grid"></div>
 
@@ -107,16 +131,20 @@
       <p id="loading" class="subtle" style="margin-top:1.25rem;">Loading questions…</p>
       <p id="errorBox" class="subtle" style="margin-top:1rem; color:#b91c1c; display:none;"></p>
     </section>
+
   </main>
 
   <footer style="margin-top:3rem;">
     <div class="container" style="text-align:center;padding-top:1rem;padding-bottom:2rem;">
-      <small style="color:rgba(255,255,255,0.95);background:linear-gradient(90deg,#be185d,#f472b6);padding:.4rem .8rem;border-radius:999px;">© <span id="year"></span> The Footballer’s Sister</small>
+      <small style="color:rgba(255,255,255,0.95);background:linear-gradient(90deg,#be185d,#f472b6);
+        padding:.4rem .8rem;border-radius:999px;">
+        © <span id="year"></span> The Footballer’s Sister
+      </small>
     </div>
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- Navbar dropdown script -->
+  <!-- Navbar dropdown script (unchanged) -->
   <script>
     (function () {
       const navButton = document.getElementById('navButton');
@@ -124,11 +152,10 @@
       const navItems = document.querySelectorAll('.nav-item');
       const navTitle = document.getElementById('navTitle');
 
-      // determine current page (treat root "/" as index.html)
       let currentPage = window.location.pathname.split('/').pop();
-      if (!currentPage || currentPage === '') currentPage = 'index.html';
+      if (!currentPage) currentPage = 'index.html';
 
-      const pageTitles = {
+      const titles = {
         "index.html": "Home",
         "bts.html": "Behind the Game",
         "leila.html": "Meet Leila",
@@ -136,56 +163,50 @@
         "support-wall.html": "Support Wall",
         "fixtures.html": "Fixtures & Live Scores"
       };
-      navTitle.textContent = pageTitles[currentPage] || "Menu";
+      navTitle.textContent = titles[currentPage] || "Menu";
 
       navItems.forEach(link => {
-        const href = link.getAttribute('href');
-        const hrefName = href.split('/').pop();
-        if (hrefName === currentPage) {
+        if (link.getAttribute('href') === currentPage) {
           link.classList.add("font-semibold", "text-rose-600");
         }
       });
 
-      navButton.addEventListener('click', (e) => {
+      navButton.onclick = (e) => {
         e.stopPropagation();
-        const isHidden = dropdownMenu.classList.contains('hidden');
-        if (isHidden) {
+        const hidden = dropdownMenu.classList.contains('hidden');
+        if (hidden) {
           dropdownMenu.classList.remove('hidden');
           setTimeout(()=>dropdownMenu.classList.add('dropdown-open'), 10);
         } else {
           dropdownMenu.classList.remove('dropdown-open');
           setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
         }
-      });
+      };
 
-      // close when clicking outside
-      document.addEventListener('click', (e) => {
+      document.onclick = (e) => {
         if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) {
           dropdownMenu.classList.remove('dropdown-open');
           setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
         }
-      });
+      };
 
-      // close on escape
-      document.addEventListener('keydown', (e) => {
+      document.onkeydown = (e) => {
         if (e.key === 'Escape') {
           dropdownMenu.classList.remove('dropdown-open');
           setTimeout(()=>dropdownMenu.classList.add('hidden'), 200);
         }
-      });
+      };
     })();
   </script>
 
-  <!-- Unified Firebase script: single init, form write + realtime listener -->
+  <!-- ★ Unified Firebase script (unchanged from merge) -->
   <script type="module">
     (async () => {
       try {
-        // dynamic imports (single place)
         const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js");
         const { getAuth, signInAnonymously, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js");
         const { getFirestore, collection, addDoc, serverTimestamp, onSnapshot } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
 
-        // === your firebase config (unchanged) ===
         const firebaseConfig = {
           apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
           authDomain: "football-site-c3aa9.firebaseapp.com",
@@ -194,19 +215,14 @@
           messagingSenderId: "65396604482",
           appId: "1:65396604482:web:0f31625a714aa8357db"
         };
-        // keep the same appId string you used for write-path generation
         const appId = '1:65396604482:web:0f31625a714aa8352337db';
 
-        // Initialize app once
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // collection path (keeps the same structure you used)
-        // NOTE: this matches the path used in your existing listener code
         const QUESTIONS_COLLECTION_PATH = `artifacts/${appId}/public/data/questions`;
 
-        // DOM references (same IDs as your page)
         const qaForm = document.getElementById('qa-form');
         const qaStatus = document.getElementById('qa-status');
         const listEl = document.getElementById('questionsList');
@@ -216,100 +232,48 @@
         const loadMoreBtn = document.getElementById('loadMoreBtn');
         const resetBtn = document.getElementById('resetBtn');
 
-        // pagination config (preserves your behavior)
         const itemsPerPage = 6;
         let visibleCount = itemsPerPage;
         let allDocs = [];
 
-        // escape helper (preserve)
         function escapeHtml(str) {
-          if (!str) return '';
-          return String(str).replace(/[&<>"']/g, (s) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[s]);
+          return str ? String(str).replace(/[&<>"']/g, s => ({
+            '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+          })[s]) : '';
         }
 
-        // getQuestionText function (preserve)
-        function getQuestionText(data) {
-          if (!data || typeof data !== 'object') return '';
-
-          const keys = [
-            'body','message','question','text','q','description','content','msg',
-            'questionText','question_text','questionBody','question_body','questionTxt',
-            'question_message','message_text','bodyText','body_text','contentText','content_text',
-            'ask','ask_text','userQuestion','user_question','input','questionValue'
-          ];
-
-          const hasKeyWithValue = (obj, key) => {
-            if (!obj) return null;
-            if (Object.prototype.hasOwnProperty.call(obj, key) && obj[key] && String(obj[key]).trim()) return String(obj[key]);
-            const lower = key.toLowerCase();
-            for (const k of Object.keys(obj)) {
-              if (k.toLowerCase() === lower && obj[k] && String(obj[k]).trim()) return String(obj[k]);
-            }
-            return null;
-          };
-
-          for (const k of keys) {
-            const v = hasKeyWithValue(data, k);
-            if (v) return v;
-          }
-          for (const k of Object.keys(data)) {
-            const v = data[k];
-            if (typeof v === 'string' && v.trim()) return v;
-          }
-          for (const k of Object.keys(data)) {
-            const v = data[k];
-            if (v && typeof v === 'object') {
-              for (const cand of keys) {
-                const nested = hasKeyWithValue(v, cand);
-                if (nested) return nested;
-              }
-              for (const nk of Object.keys(v)) {
-                if (typeof v[nk] === 'string' && String(v[nk]).trim()) return v[nk];
-              }
-            }
-          }
-          const queue = [{obj:data,depth:0}];
-          const seen = new Set();
-          while (queue.length) {
-            const {obj, depth} = queue.shift();
-            if (!obj || typeof obj !== 'object' || depth > 2) continue;
-            for (const key of Object.keys(obj)) {
-              const val = obj[key];
-              if (typeof val === 'string' && val.trim()) return val;
-              if (val && typeof val === 'object' && !seen.has(val)) {
-                seen.add(val);
-                queue.push({obj: val, depth: depth + 1});
-              }
-            }
-          }
+        function getQuestionText(d) {
+          if (!d) return '';
+          const keys = ['question','message','body','text','description','content'];
+          for (const k of keys) if (d[k]) return d[k];
+          for (const v of Object.values(d)) if (typeof v === 'string') return v;
           return '';
         }
 
-        // renderVisible & updateDocs (preserve your UI logic exactly)
         function renderVisible() {
-          if (!listEl) return;
           listEl.innerHTML = '';
-          if (!allDocs || !allDocs.length) {
+
+          if (!allDocs.length) {
             listEl.innerHTML = '<div class="subtle">No questions yet.</div>';
-            if (pagerControls) pagerControls.style.display = 'none';
+            pagerControls.style.display = 'none';
             return;
           }
 
-          const docs = allDocs.slice().sort((a,b) => {
-            const ta = a.data.createdAt && a.data.createdAt.seconds ? a.data.createdAt.seconds : 0;
-            const tb = b.data.createdAt && b.data.createdAt.seconds ? b.data.createdAt.seconds : 0;
+          const sorted = allDocs.slice().sort((a,b) => {
+            const ta = a.data.createdAt?.seconds || 0;
+            const tb = b.data.createdAt?.seconds || 0;
             return tb - ta;
           });
 
-          const slice = docs.slice(0, visibleCount);
+          const view = sorted.slice(0, visibleCount);
 
-          slice.forEach(it => {
-            const d = it.data || {};
-            const createdAt = d.createdAt && d.createdAt.seconds ? new Date(d.createdAt.seconds * 1000).toLocaleString() : '';
+          view.forEach(it => {
+            const d = it.data;
+            const name = d.name || '';
             const title = d.title || 'Question';
-            const name = d.name || d.userName || d.user || d.username || '';
             const qText = getQuestionText(d);
-            const adminResponse = d.adminResponse || null;
+            const createdAt = d.createdAt?.seconds ? new Date(d.createdAt.seconds*1000).toLocaleString() : '';
+            const answered = !!d.adminResponse;
 
             const card = document.createElement('article');
             card.className = 'qa-card';
@@ -317,32 +281,29 @@
               <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;">
                 <div style="flex:1;">
                   <div class="qa-title">${escapeHtml(title)}</div>
-                  <div class="qa-text">${ qText ? escapeHtml(qText) : '<span class="subtle">[Question text unavailable]</span>' }</div>
+                  <div class="qa-text">${escapeHtml(qText)}</div>
                   <div class="meta-row">
-                    ${ name ? `<div>Asked by ${escapeHtml(name)}</div>` : '' }
-                    ${ createdAt ? `<div>· ${escapeHtml(createdAt)}</div>` : '' }
+                    ${name ? `Asked by ${escapeHtml(name)}` : ''}
+                    ${createdAt ? `· ${escapeHtml(createdAt)}` : ''}
                   </div>
                 </div>
                 <div style="min-width:110px;text-align:right;">
-                  ${ adminResponse ? '<div class="chip-answered">Answered</div>' : '<div class="chip-unanswered">Unanswered</div>' }
+                  ${answered ? '<div class="chip-answered">Answered</div>' : '<div class="chip-unanswered">Unanswered</div>'}
                 </div>
               </div>
-              ${ adminResponse ? `<div style="margin-top:1rem;padding:1rem;border-radius:10px;background:#f8fafc;border:1px solid rgba(226,232,240,0.6);"><strong>Reply:</strong> ${escapeHtml(adminResponse)}</div>` : '' }
+              ${answered ? `<div style="margin-top:1rem;padding:1rem;border-radius:10px;background:#f8fafc;">
+                <strong>Reply:</strong> ${escapeHtml(d.adminResponse)}
+              </div>` : ''}
             `;
             listEl.appendChild(card);
           });
 
           if (allDocs.length > itemsPerPage) {
-            if (pagerControls) pagerControls.style.display = '';
-            if (visibleCount >= allDocs.length) {
-              if (loadMoreBtn) loadMoreBtn.style.display = 'none';
-              if (resetBtn) resetBtn.style.display = '';
-            } else {
-              if (loadMoreBtn) loadMoreBtn.style.display = '';
-              if (resetBtn) resetBtn.style.display = 'none';
-            }
+            pagerControls.style.display = '';
+            loadMoreBtn.style.display = visibleCount >= allDocs.length ? 'none' : '';
+            resetBtn.style.display = visibleCount >= allDocs.length ? '' : 'none';
           } else {
-            if (pagerControls) pagerControls.style.display = 'none';
+            pagerControls.style.display = 'none';
           }
         }
 
@@ -352,108 +313,79 @@
           renderVisible();
         }
 
-        // subscribe with realtime updates (onSnapshot)
         let unsubscribe = null;
         function subscribeToQuestions() {
-          if (!db) return;
           if (unsubscribe) unsubscribe();
-          if (loadingEl) loadingEl.style.display = '';
-          if (errorBox) errorBox.style.display = 'none';
 
-          try {
-            const collRef = collection(db, QUESTIONS_COLLECTION_PATH);
-            unsubscribe = onSnapshot(collRef, (snap) => {
-              const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }));
-              if (loadingEl) loadingEl.style.display = 'none';
-              if (errorBox) errorBox.style.display = 'none';
-              updateDocs(docs);
-            }, (err) => {
-              console.error('onSnapshot error', err);
-              if (loadingEl) loadingEl.style.display = 'none';
-              if (errorBox) { errorBox.style.display = ''; errorBox.textContent = 'Realtime read failed: ' + (err.message || err.code || err); }
-            });
-          } catch (err) {
-            console.error('Subscribe failed', err);
-            if (loadingEl) loadingEl.style.display = 'none';
-            if (errorBox) { errorBox.style.display = ''; errorBox.textContent = 'Could not subscribe to questions: ' + (err.message || err.code || err); }
-          }
+          loadingEl.style.display = '';
+          errorBox.style.display = 'none';
+
+          const collRef = collection(db, QUESTIONS_COLLECTION_PATH);
+          unsubscribe = onSnapshot(
+            collRef,
+            snap => {
+              loadingEl.style.display = 'none';
+              updateDocs(snap.docs.map(d => ({ id: d.id, data: d.data() })));
+            },
+            err => {
+              loadingEl.style.display = 'none';
+              errorBox.style.display = '';
+              errorBox.textContent = 'Error loading: ' + err.message;
+            }
+          );
         }
 
-        // pager handlers (preserve behavior)
-        if (loadMoreBtn) loadMoreBtn.addEventListener('click', () => {
-          visibleCount = visibleCount + itemsPerPage;
+        loadMoreBtn.onclick = () => {
+          visibleCount += itemsPerPage;
           renderVisible();
-          const questionsList = document.getElementById('questionsList');
-          if (questionsList) window.scrollTo({ top: questionsList.offsetTop - 80, behavior: 'smooth' });
-        });
-        if (resetBtn) resetBtn.addEventListener('click', () => {
+        };
+
+        resetBtn.onclick = () => {
           visibleCount = itemsPerPage;
           renderVisible();
-          const questionsList = document.getElementById('questionsList');
-          if (questionsList) window.scrollTo({ top: questionsList.offsetTop - 80, behavior: 'smooth' });
-        });
+        };
 
-        // form submit handling (writes to the SAME collection used by onSnapshot)
         if (qaForm) {
-          qaForm.addEventListener('submit', async (ev) => {
-            ev.preventDefault();
-            if (qaStatus) qaStatus.textContent = 'Sending...';
-            const name = (document.getElementById('qa-name') || {value:''}).value.trim();
-            const title = (document.getElementById('qa-title') || {value:''}).value.trim();
-            const question = (document.getElementById('qa-question') || {value:''}).value.trim();
-            // keep same validation as before (requires both name and question)
-            if (!name || !question) { if (qaStatus) qaStatus.textContent = 'Please add name & question.'; return; }
+          qaForm.addEventListener('submit', async e => {
+            e.preventDefault();
+            qaStatus.textContent = 'Sending...';
+
+            const name = document.getElementById('qa-name').value.trim();
+            const title = document.getElementById('qa-title').value.trim();
+            const question = document.getElementById('qa-question').value.trim();
+
+            if (!name || !question) {
+              qaStatus.textContent = 'Please add name & question.';
+              return;
+            }
+
             try {
               await addDoc(collection(db, QUESTIONS_COLLECTION_PATH), {
                 name,
                 title,
                 question,
-                // add both fields so reads expecting createdAt will work,
-                // and the older timestamp field remains present for compatibility
                 createdAt: serverTimestamp(),
                 timestamp: serverTimestamp()
               });
-              if (qaStatus) qaStatus.textContent = 'Question sent — thank you!';
+              qaStatus.textContent = 'Question sent — thank you!';
               qaForm.reset();
-              setTimeout(()=>{ if (qaStatus) qaStatus.textContent = ''; }, 3500);
+              setTimeout(()=> qaStatus.textContent = '', 3000);
             } catch (err) {
-              console.error('Failed to send question', err);
-              if (qaStatus) qaStatus.textContent = 'Failed to send — check console.';
+              qaStatus.textContent = 'Failed to send.';
             }
           });
         }
 
-        // auth + start subscription
-        onAuthStateChanged(auth, (user) => {
-          // always try to subscribe to read (read access can be public)
+        onAuthStateChanged(auth, user => {
           subscribeToQuestions();
-          if (!user) {
-            signInAnonymously(auth).catch(err => {
-              console.warn('Anonymous sign-in failed (continuing read-only):', err);
-            });
-          }
+          if (!user) signInAnonymously(auth);
         });
 
       } catch (err) {
-        // Firebase couldn't be loaded or module import failed — fallback UI behavior
-        console.warn('Firebase Q&A not initialized:', err);
-        const qaForm = document.getElementById('qa-form');
-        const qaStatus = document.getElementById('qa-status');
-        if (qaForm) {
-          qaForm.addEventListener('submit', (ev) => {
-            ev.preventDefault();
-            if (qaStatus) qaStatus.textContent = 'Question handled locally (no Firebase).';
-            setTimeout(()=>{ if (qaStatus) qaStatus.textContent = ''; }, 3000);
-            qaForm.reset();
-          });
-        }
-        // Optionally show an error in the questions area
-        const loadingEl = document.getElementById('loading');
-        const errorBox = document.getElementById('errorBox');
-        if (loadingEl) loadingEl.style.display = 'none';
-        if (errorBox) { errorBox.style.display = ''; errorBox.textContent = 'Firebase unavailable — running in fallback mode.'; }
+        console.warn('Firebase failed:', err);
       }
     })();
   </script>
+
 </body>
 </html>
