@@ -369,23 +369,39 @@
         <h3 style="text-align:center; color:var(--accent); font-weight:800; margin-bottom:1rem;">My Vlogs & Highlights</h3>
 
         <div class="video-carousel">
-          <!-- carousel container -->
-          <div id="video-slides-container" style="display:flex; transition:transform .45s ease; gap:0; overflow:hidden; border-radius:12px;">
-            <div class="slide" style="min-width:100%; box-sizing:border-box;">
-              <div class="embed-wrap">
-                <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" allowfullscreen></iframe>
-              </div>
-            </div>
+  <!-- carousel container -->
+  <div id="video-slides-container" style="display:flex; transition:transform .45s ease; gap:0; overflow:hidden; border-radius:12px;">
+    <div class="slide" style="min-width:100%; box-sizing:border-box;">
+      <div class="embed-wrap">
+        <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" loading="lazy" allowfullscreen></iframe>
+      </div>
+    </div>
 
-            <div class="slide" style="min-width:100%; box-sizing:border-box;">
-              <div class="embed-wrap">
-                <iframe src="https://www.tiktok.com/embed/v2/7514262969786567943" allowfullscreen></iframe>
-                <iframe src="https://www.tiktok.com/@leila_sono/video/7514262969786567943?is_from_webapp=1&sender_device=pc&web_id=7505047934267672069" allowfullscreen></iframe>
-                <iframe src="https://www.tiktok.com/embed/v2/7514262969786567943" allowfullscreen></iframe>
-              </div>
-            </div>
-            <!-- add more iframes as needed -->
-          </div>
+    <div class="slide" style="min-width:100%; box-sizing:border-box;">
+      <div class="embed-wrap">
+        <iframe src="https://www.tiktok.com/embed/v2/7514262969786567943" loading="lazy" allowfullscreen></iframe>
+      </div>
+    </div>
+
+    <div class="slide" style="min-width:100%; box-sizing:border-box;">
+      <div class="embed-wrap">
+        <iframe src="https://www.tiktok.com/embed/v2/7576746597195779346" loading="lazy" allowfullscreen></iframe>
+      </div>
+    </div>
+
+    <div class="slide" style="min-width:100%; box-sizing:border-box;">
+      <div class="embed-wrap">
+        <iframe src="https://www.tiktok.com/embed/v2/7571503785806155016" loading="lazy" allowfullscreen></iframe>
+      </div>
+    </div>
+    <!-- add more slides below as needed -->
+  </div>
+
+  <!-- arrows (inside video area) -->
+  <button id="prevBtn" class="arrow-btn video-arrow arrow-left" aria-label="Previous video"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
+  <button id="nextBtn" class="arrow-btn video-arrow arrow-right" aria-label="Next video"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
+</div>
+
 
           <!-- arrows (inside video area) -->
           <button id="prevBtn" class="arrow-btn video-arrow arrow-left" aria-label="Previous video"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
