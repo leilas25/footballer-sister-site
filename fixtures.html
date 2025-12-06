@@ -8,7 +8,7 @@
   <style>
     :root { --accent: #be185d; --muted: #6b7280; --divider: rgba(243,211,226,0.75); }
     html,body { height:100%; }
-    body { background:#fff6f8; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color: #111827; margin:0; -webkit-font-smoothing:antialiased; padding-bottom:120px; /* make room so content never sits under footer */ }
+    body { background:#fff6f8; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color: #111827; margin:0; -webkit-font-smoothing:antialiased; padding-bottom:120px; /* make room for footer */ }
 
     /* Header / branding */
     header.bts-header {
@@ -38,115 +38,86 @@
 
     .fixtures-wrap { max-width:1100px; margin:0 auto; padding:0 1.5rem 3.25rem; }
 
-    /*
-      Desktop layout: 4 columns
-      [ left team (logo + name) | center meta+score (stacked) | right team (name + logo) | actions (watch) ]
-    */
+    /* Desktop: 4 columns: left team, center meta+score, right team, actions */
     .fixture-card {
-      background:#fff;
+      background:white;
       border-radius:12px;
       padding:14px;
       box-shadow:0 6px 18px rgba(0,0,0,0.04);
       border:1px solid #f3d3e2;
       display:grid;
-      grid-template-columns: 1fr 220px 1fr 150px;
+      grid-template-columns: 1fr 180px 1fr 160px;
       gap:12px;
       align-items:center;
+      position:relative;
     }
+    .fixture-divider { height:1px; background:var(--divider); width:100%; margin:12px 0 0; border-radius:2px; }
 
-    /* Divider between rows */
-    .fixture-divider {
-      height: 1px;
-      background: var(--divider);
-      margin: 6px 0 12px;
-      width: 100%;
-    }
+    .team-block { display:flex; align-items:center; gap:12px; }
+    .team-left { justify-content:flex-start; }
+    .team-right { justify-content:flex-end; }
+    .team-logo { width:64px; height:64px; object-fit:cover; border-radius:8px; border:1px solid #f3d3e2; flex-shrink:0; }
 
-    .team-left, .team-right {
-      display:flex;
-      align-items:center;
-      gap:12px;
-    }
-    .team-left .team-logo, .team-right .team-logo {
-      width:64px;
-      height:64px;
-      object-fit:cover;
-      border-radius:8px;
-      border:1px solid #f3d3e2;
-      flex-shrink:0;
-    }
-    .team-name { font-weight:800; color:#111827; }
+    /* center column: kickoff + score */
+    .center-meta { text-align:center; display:flex; flex-direction:column; gap:8px; align-items:center; justify-content:center; }
+    .fixture-meta { font-size:.95rem; color:var(--muted); }
+    .score { font-size:1.8rem; font-weight:900; color:var(--accent); letter-spacing:0.02em; }
 
-    .center-meta { text-align:center; }
-    .fixture-meta { font-size:.95rem; color:var(--muted); margin-bottom:6px; }
-    .score { font-size:1.6rem; font-weight:900; color:var(--accent); letter-spacing:0.02em; }
-
-    .actions {
-      display:flex;
-      flex-direction:column;
-      align-items:flex-end;
-      gap:8px;
-    }
-
+    .actions { display:flex; flex-direction:column; align-items:flex-end; gap:8px; justify-content:center; }
     .watch-btn {
       display:inline-flex; align-items:center; gap:8px;
       background: linear-gradient(90deg,#be185d,#f472b6);
-      color: white; padding:.5rem .8rem; border-radius:999px; font-weight:800; text-decoration:none;
+      color: white; padding:.6rem .9rem; border-radius:999px; font-weight:800; text-decoration:none;
       box-shadow: 0 6px 14px rgba(190,24,93,0.12);
     }
-    .watch-small { padding:.35rem .6rem; font-size:.85rem; border-radius:999px; }
+    .age-status { font-size:.95rem; color:var(--muted); text-align:right; }
 
-    /* MOBILE: Tight 3-column bar
-       left: team A (logo + short name)
-       center: score/time stacked
-       right: team B (short name + logo)
-       The watch button will be smaller and centered under the row.
-    */
+    /* Mobile: tight 3-column bar (logo / center / logo) and stacked center info under */
     @media (max-width:900px){
       .fixture-card {
-        grid-template-columns: 1fr 120px 1fr; /* left / center / right */
+        grid-template-columns: 56px 1fr 56px;
         gap:8px;
         padding:10px;
-        align-items:center;
       }
-      .team-left .team-logo, .team-right .team-logo { width:44px; height:44px; }
-      .team-name { font-weight:800; font-size:.95rem; }
-      .center-meta { display:flex; flex-direction:column; align-items:center; justify-content:center; }
-      .fixture-meta { font-size:.8rem; color:var(--muted); margin:4px 0 0; text-align:center; } /* centered on mobile */
-      .score { font-size:1.25rem; font-weight:900; color:var(--accent); }
-      .watch-btn { font-size:.82rem; padding:.3rem .55rem; }
-      .actions { align-items:center; } /* center actions on mobile */
-      /* ensure the Watch button appears on its own line under card on small screens */
-      .fixture-card .actions { margin-top:8px; }
-      .fixture-card + .fixture-divider { margin-top:10px; margin-bottom:12px; }
+      .team-logo { width:44px; height:44px; }
+      .team-block { gap:8px; }
+      .center-meta { align-items:center; }
+      .fixture-meta { font-size:.85rem; text-align:center; }
+      .score { font-size:1.2rem; }
+      .actions { align-items:center; justify-content:center; text-align:center; }
+      .age-status { text-align:center; }
+      .fixture-card .actions > * { margin-left:0; }
     }
 
-    /* small utility */
-    .muted { color:var(--muted); }
+    /* tiny tweaks */
+    .small-muted { color:var(--muted); font-size:.9rem; }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
+  <!-- Header / nav button -->
   <header class="bts-header fixed top-0 left-0 right-0">
     <div class="flex justify-between items-center px-6 py-4 container" style="max-width:1100px; margin:0 auto;">
       <div style="display:flex;align-items:center;gap:1rem;">
         <div class="site-title" style="font-size:1.15rem;">THE FOOTBALLER’S SISTER</div>
       </div>
 
-      <div class="relative inline-block text-left">
+      <div class="relative inline-block text-left" style="z-index:0;">
         <button id="navButton"
-          class="inline-flex justify-center items-center gap-2 rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
+          class="inline-flex justify-center items-center gap-2 rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none"
+          aria-expanded="false" aria-haspopup="true" type="button">
           <span id="navTitle">Loading...</span>
-          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd"/></svg>
+          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
+          </svg>
         </button>
+        <!-- portal menu appended by JS -->
       </div>
     </div>
   </header>
 
   <div style="height:92px;"></div>
 
-  <!-- HERO -->
   <section class="page-hero">
     <div style="max-width:1100px;margin:0 auto;padding:0 1.5rem;">
       <h1 class="hero-title">Fixtures & Live Scores</h1>
@@ -159,26 +130,33 @@
     </div>
   </section>
 
-  <!-- Fixtures list -->
   <section class="fixtures-wrap">
-    <div id="fixturesList" style="display:grid; gap:0;"></div>
+    <div id="fixturesList" style="display:grid; gap:12px;">
+      <div class="text-gray-500">Loading fixtures…</div>
+    </div>
   </section>
 
-  <!-- Footer -->
-  <footer class="text-center py-6" style="background:transparent; position:relative; z-index:200;">
+  <footer class="text-center py-6" style="background:transparent;">
     <div class="container" style="max-width:1100px; margin:0 auto;">
       <small class="footer-badge">© <span id="year"></span> The Footballer’s Sister</small>
     </div>
   </footer>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
-  <!-- Portal dropdown menu script (same behavior) -->
+  <!-- Portal dropdown appended to body by JS -->
   <script>
     (function(){
       const navButton = document.getElementById('navButton');
       const navTitle = document.getElementById('navTitle');
       const pageTitles = {
-        "": "Home","index.html":"Home","bts.html":"Behind the Game","leila.html":"Meet Leila","questions.html":"Q&A","support-wall.html":"Support Wall","fixtures.html":"Fixtures & Live Scores","giveaways.html":"Giveaways"
+        "": "Home",
+        "index.html": "Home",
+        "bts.html": "Behind the Game",
+        "leila.html": "Meet Leila",
+        "questions.html": "Q&A",
+        "support-wall.html": "Support Wall",
+        "fixtures.html": "Fixtures & Live Scores",
+        "giveaways.html": "Giveaways"
       };
       const currentPage = window.location.pathname.split('/').pop();
       navTitle.textContent = pageTitles[currentPage] || "Menu";
@@ -205,17 +183,17 @@
         menu.style.top = top + 'px';
         menu.style.right = right + 'px';
       }
-      function openMenu(){ positionMenu(); menu.classList.add('open'); menu.setAttribute('aria-hidden','false'); navButton.setAttribute('aria-expanded','true'); window.addEventListener('resize', positionMenu); window.addEventListener('scroll', positionMenu, { passive: true }); }
+      function openMenu(){ positionMenu(); menu.classList.add('open'); menu.setAttribute('aria-hidden','false'); navButton.setAttribute('aria-expanded','true'); window.addEventListener('resize', positionMenu); window.addEventListener('scroll', positionMenu, { passive:true }); }
       function closeMenu(){ menu.classList.remove('open'); menu.setAttribute('aria-hidden','true'); navButton.setAttribute('aria-expanded','false'); window.removeEventListener('resize', positionMenu); window.removeEventListener('scroll', positionMenu); }
 
-      navButton.addEventListener('click', (ev)=>{ ev.stopPropagation(); const isOpen = menu.classList.contains('open'); if(isOpen) closeMenu(); else openMenu(); });
-      document.addEventListener('click', (ev)=>{ if (!navButton.contains(ev.target) && !menu.contains(ev.target)) closeMenu(); });
-      document.addEventListener('keydown', (ev)=>{ if(ev.key==='Escape') closeMenu(); });
-      menu.querySelectorAll('a').forEach(a=>a.addEventListener('click', ()=> closeMenu()));
+      navButton.addEventListener('click', (ev) => { ev.stopPropagation(); const isOpen = menu.classList.contains('open'); if (isOpen) closeMenu(); else openMenu(); });
+      document.addEventListener('click', (ev) => { if (!navButton.contains(ev.target) && !menu.contains(ev.target)) closeMenu(); });
+      document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') closeMenu(); });
+      menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => closeMenu()));
     })();
   </script>
 
-  <!-- Firestore fixtures logic + Cloudinary logo helper -->
+  <!-- Firestore logic + rendering (unchanged behaviour) -->
   <script type="module">
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
@@ -233,30 +211,23 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    // expose for console debugging
+    window.db = db;
 
-    // --- CLOUDINARY HELPERS ---
-    const CLOUDINARY_CLOUD = 'dk1df1qmi';
-    const DEFAULT_TRANSFORM = 'w_200,h_200,c_fill,g_auto,q_auto,f_auto';
-    function transformCloudinaryUrl(url, transform = DEFAULT_TRANSFORM) {
-      if (!url || typeof url !== 'string') return url;
-      if (url.includes('res.cloudinary.com') && url.includes('/upload/')) {
-        return url.replace('/upload/', `/upload/${transform}/`);
-      }
-      return url;
-    }
-    function logoUrlForDisplay(rawUrl) {
-      try { return transformCloudinaryUrl(rawUrl || ''); } catch (e) { return rawUrl || ''; }
-    }
-
+    // Tabs
     const tabU14 = document.getElementById('tabU14');
     const tabU19 = document.getElementById('tabU19');
     const fixturesList = document.getElementById('fixturesList');
-
     let currentTab = 'U14';
     function setActiveTab(tab) {
       currentTab = tab;
-      tabU14.classList.toggle('tab-active', tab === 'U14');
-      tabU19.classList.toggle('tab-active', tab === 'U19');
+      if (tab === 'U14') {
+        tabU14.classList.add('tab-active'); tabU14.setAttribute('aria-selected','true');
+        tabU19.classList.remove('tab-active'); tabU19.setAttribute('aria-selected','false');
+      } else {
+        tabU19.classList.add('tab-active'); tabU19.setAttribute('aria-selected','true');
+        tabU14.classList.remove('tab-active'); tabU14.setAttribute('aria-selected','false');
+      }
       renderFixtures(lastDocs);
     }
     tabU14.addEventListener('click', ()=> setActiveTab('U14'));
@@ -264,7 +235,39 @@
 
     function escapeHtml(s){ if(s === null || typeof s === 'undefined') return ''; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+    // Cloudinary helper: if logo URL looks like cloudinary, insert transformation for consistent size
+    const DEFAULT_TRANSFORM = 'w_200,h_200,c_fill,g_auto,q_auto,f_auto';
+    function cloudinaryResize(url) {
+      if (!url || typeof url !== 'string') return url;
+      // quick heuristic: contains 'res.cloudinary.com' and '/upload/'
+      try {
+        if (url.includes('res.cloudinary.com') && url.includes('/upload/')) {
+          return url.replace('/upload/', `/upload/${DEFAULT_TRANSFORM}/`);
+        }
+      } catch(e){}
+      return url;
+    }
+
     let lastDocs = [];
+    try {
+      const ref = collection(db, FIXTURES_COLLECTION_PATH);
+      const q = query(ref);
+      onSnapshot(q, (snap) => {
+        lastDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        lastDocs.sort((a,b) => {
+          const ta = a.kickoffISO ? new Date(a.kickoffISO).getTime() : (a.createdAt?.seconds ? a.createdAt.seconds*1000 : 0);
+          const tb = b.kickoffISO ? new Date(b.kickoffISO).getTime() : (b.createdAt?.seconds ? b.createdAt.seconds*1000 : 0);
+          return ta - tb;
+        });
+        renderFixtures(lastDocs);
+      }, (err) => {
+        console.error('fixtures onSnapshot error', err);
+        fixturesList.innerHTML = '<div class="text-red-600">Could not load fixtures.</div>';
+      });
+    } catch (err) {
+      console.error('Failed to attach fixtures listener', err);
+      fixturesList.innerHTML = '<div class="text-red-600">Could not load fixtures.</div>';
+    }
 
     function formatKickoff(f) {
       try {
@@ -276,12 +279,11 @@
 
     function renderFixtures(docs) {
       fixturesList.innerHTML = '';
-
       const filtered = docs.filter(f => {
         const ag = (f.ageGroup || '').toLowerCase();
         if (!ag) return false;
-        if (currentTab === 'U14') return ag.includes('14');
-        if (currentTab === 'U19') return ag.includes('19');
+        if (currentTab === 'U14') return ag === 'u14' || ag === 'u/14' || ag.includes('14');
+        if (currentTab === 'U19') return ag === 'u19' || ag === 'u/19' || ag.includes('19');
         return true;
       });
 
@@ -290,84 +292,56 @@
         return;
       }
 
+      // For each fixture, build the card using the new layout
       filtered.forEach((f, idx) => {
         const kickoff = formatKickoff(f);
         const scorePresent = (typeof f.scoreHome !== 'undefined' && typeof f.scoreAway !== 'undefined' && f.scoreHome !== null && f.scoreAway !== null);
 
-        const teamALogo = logoUrlForDisplay(f.teamALogoUrl || '');
-        const teamBLogo = logoUrlForDisplay(f.teamBLogoUrl || '');
+        const teamALogo = cloudinaryResize(f.teamALogoUrl || 'images/opponent.png');
+        const teamBLogo = cloudinaryResize(f.teamBLogoUrl || 'images/opponent.png');
+        const shouldShowWatch = !!(f.streamUrl && String(f.streamUrl).trim());
 
-        const card = document.createElement('div');
-        card.className = 'fixture-card';
-
-        const leftHtml = `
-          <div class="team-left">
-            <img class="team-logo" src="${escapeHtml(teamALogo || 'images/opponent.png')}" alt="${escapeHtml(f.teamA||'Team A')}" />
-            <div class="team-name">${escapeHtml(f.teamA || 'Team A')}</div>
+        const wrapper = document.createElement('div');
+        wrapper.className = 'fixture-card';
+        wrapper.innerHTML = `
+          <div class="team-block team-left">
+            <img class="team-logo" src="${escapeHtml(teamALogo)}" alt="${escapeHtml(f.teamA||'Team A')}" onerror="this.onerror=null;this.src='images/opponent.png'"/>
+            <div style="font-weight:700;">${escapeHtml(f.teamA || 'Team A')}</div>
           </div>
-        `;
 
-        const centerHtml = `
           <div class="center-meta">
-            <div class="fixture-meta">${escapeHtml(kickoff)}${ f.venue ? ' · ' + escapeHtml(f.venue) : '' }</div>
-            <div>
-              ${
-                scorePresent
-                ? `<div class="score">${escapeHtml(String(f.scoreHome))} <span style="color:var(--muted);font-weight:700;margin:0 .45rem">:</span> ${escapeHtml(String(f.scoreAway))}</div>`
-                : `<div style="color:#9CA3AF;font-weight:700;">vs</div>`
-              }
+            <div class="fixture-meta small-muted">${escapeHtml(kickoff)}${ f.venue ? ' · ' + escapeHtml(f.venue) : '' }</div>
+            <div style="margin-top:4px;">
+              ${ scorePresent ? `<span class="score">${escapeHtml(String(f.scoreHome))}</span> <span style="color:#6b7280;font-weight:700;margin:0 .5rem;">:</span> <span class="score">${escapeHtml(String(f.scoreAway))}</span>` : '<span style="color:#9CA3AF;font-weight:800;">vs</span>' }
             </div>
+            <div class="fixture-meta small-muted" style="margin-top:6px;">${escapeHtml(f.broadcast || '')}</div>
+          </div>
+
+          <div class="team-block team-right">
+            <div style="font-weight:700;text-align:right;">${escapeHtml(f.teamB || 'Team B')}</div>
+            <img class="team-logo" src="${escapeHtml(teamBLogo)}" alt="${escapeHtml(f.teamB||'Team B')}" onerror="this.onerror=null;this.src='images/opponent.png'"/>
+          </div>
+
+          <div class="actions">
+            <div class="age-status small-muted">${escapeHtml(f.ageGroup || '')} · ${escapeHtml(f.status || '')}</div>
+            ${ shouldShowWatch ? `<a class="watch-btn" href="${escapeHtml(f.streamUrl)}" target="_blank" rel="noopener noreferrer">Watch</a>` : `<div style="height:36px;"></div>` }
           </div>
         `;
 
-        const rightHtml = `
-          <div class="team-right" style="justify-content:flex-end;">
-            <div style="text-align:right;font-weight:800;">${escapeHtml(f.teamB || 'Team B')}</div>
-            <img class="team-logo" src="${escapeHtml(teamBLogo || 'images/opponent.png')}" alt="${escapeHtml(f.teamB||'Team B')}" />
-          </div>
-        `;
+        // After card append a divider (thin)
+        fixturesList.appendChild(wrapper);
 
-        // use actions wrapper so we can center it on mobile via CSS
-        const actionHtml = f.streamUrl
-          ? `<div class="actions"><div class="fixture-meta">${escapeHtml(f.ageGroup||'')} · ${escapeHtml(f.status||'')}</div><a class="watch-btn" href="${escapeHtml(f.streamUrl)}" target="_blank" rel="noopener noreferrer">Watch</a></div>`
-          : `<div class="actions"><div class="fixture-meta">${escapeHtml(f.ageGroup||'')} · ${escapeHtml(f.status||'')}</div><div style="height:36px;"></div></div>`;
-
-        card.innerHTML = leftHtml + centerHtml + rightHtml + actionHtml;
-
-        fixturesList.appendChild(card);
-
+        // append divider except after last element
         if (idx < filtered.length - 1) {
-          const divider = document.createElement('div');
-          divider.className = 'fixture-divider';
-          fixturesList.appendChild(divider);
+          const div = document.createElement('div');
+          div.className = 'fixture-divider';
+          fixturesList.appendChild(div);
         }
       });
     }
 
-    // Attach Firestore listener (real-time)
-    try {
-      const ref = collection(db, FIXTURES_COLLECTION_PATH);
-      const q = query(ref);
-      onSnapshot(q, snap => {
-        lastDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        lastDocs.sort((a,b) => {
-          const ta = a.kickoffISO ? new Date(a.kickoffISO).getTime() : (a.createdAt?.seconds ? a.createdAt.seconds*1000 : 0);
-          const tb = b.kickoffISO ? new Date(b.kickoffISO).getTime() : (b.createdAt?.seconds ? b.createdAt.seconds*1000 : 0);
-          return ta - tb;
-        });
-        renderFixtures(lastDocs);
-      }, err => {
-        console.error('fixtures onSnapshot error', err);
-        fixturesList.innerHTML = '<div class="text-red-600">Could not load fixtures.</div>';
-      });
-    } catch (err) {
-      console.error('Failed to attach fixtures listener', err);
-      fixturesList.innerHTML = '<div class="text-red-600">Could not load fixtures.</div>';
-    }
-
-    // default tab
+    // initial default
     setActiveTab('U14');
   </script>
-
 </body>
 </html>
