@@ -90,7 +90,7 @@
 
     /* collab carousel sizing — narrower and centered to avoid cropping on desktop */
     .collab-carousel { border-radius:12px; overflow:visible; max-width:540px; margin:0 auto; position:relative; }
-    .collab-slide { background:var(--card); border-radius:12px; box-shadow: var(--shadow); border:1px solid rgba(235,224,232,0.6); overflow:hidden; }
+    .collab-slide { background:var(--card); border-radius:12px; box-shadow: var(--shadow); border:1px solid rgba(235,224,232,0.6); overflow:hidden; display:flex; flex-direction:column; }
     .collab-slide img { width:100%; height:420px; object-fit:cover; object-position:center 22%; display:block; }
     @media (max-width:960px){ .collab-slide img { height:360px; } }
     @media (max-width:640px){ .collab-slide img { height:260px; } }
@@ -138,6 +138,69 @@
       .collab-carousel .arrow-left { left:8px; }
       .collab-carousel .arrow-right { right:8px; }
     }
+
+    /* ------------------- Modal styles for collab preview ------------------- */
+    .collab-modal {
+      position: fixed;
+      inset: 0;
+      display: none; /* toggled via JS */
+      align-items: center;
+      justify-content: center;
+      z-index: 120;
+      background: rgba(11,7,17,0.55);
+      padding: 2rem;
+    }
+    .collab-modal.open { display: flex; }
+    .collab-modal .modal-card {
+      background: white;
+      border-radius: 14px;
+      max-width: 1000px;
+      width: 95%;
+      max-height: 90vh;
+      overflow: auto;
+      box-shadow: 0 30px 80px rgba(6,4,11,0.45);
+      animation: modalIn .18s ease;
+      position: relative;
+      padding: 0;
+    }
+    @keyframes modalIn {
+      from { transform: translateY(8px) scale(.995); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    .collab-modal .modal-img {
+      width: 100%;
+      height: min(78vh, 720px);
+      object-fit: contain;
+      background: #f9fafb;
+      border-top-left-radius: 14px;
+      border-top-right-radius: 14px;
+      display:block;
+    }
+    .collab-modal .modal-body {
+      padding: 1rem 1.25rem 1.25rem;
+      text-align: left;
+    }
+    .collab-modal .modal-caption {
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: .5rem;
+    }
+    .collab-modal .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: white;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.06);
+      width:38px; height:38px; display:flex; align-items:center; justify-content:center;
+      cursor:pointer;
+      box-shadow: 0 8px 24px rgba(11,7,17,0.08);
+    }
+    .collab-modal .modal-meta { color: #444; font-size: .95rem; }
+
+    /* ensure keyboard focus outline visible */
+    .collab-slide a, .collab-slide img { outline: none; }
+    .collab-slide a:focus, .collab-slide img:focus { box-shadow: 0 0 0 4px rgba(190,24,93,0.12); border-radius:8px; }
+
   </style>
 </head>
 <body>
@@ -505,11 +568,12 @@
     function renderCollabSlides(items){
       collabSlidesEl.innerHTML='';
       if(!items||!items.length){ collabSlidesEl.innerHTML = '<div class="collab-slide" style="min-width:100%; padding:2.5rem; text-align:center; color:var(--muted);">No collaborations yet.</div>'; return; }
-      items.forEach(it=>{
+      items.forEach((it, idx)=>{
         const wrapper = document.createElement('div'); wrapper.className='collab-slide'; wrapper.style.minWidth='100%';
         const imageUrl = it.imageUrl||it.image||it.url||''; const caption = it.caption||it.title||'';
+        // include data attributes for JS modal logic and make link focusable
         wrapper.innerHTML = `
-          <a href="${escapeHtml(it.link||'')}" target="_blank" rel="noreferrer">
+          <a href="${escapeHtml(it.link||'')}" target="_blank" rel="noreferrer" class="collab-thumb" data-index="${idx}">
             <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(caption)}" />
           </a>
           <div class="collab-caption">${escapeHtml(caption||'')}</div>
@@ -517,6 +581,9 @@
         collabSlidesEl.appendChild(wrapper);
       });
       collabIndex=0; updateCollabPosition();
+
+      // attach hover/click handlers for modal preview
+      attachCollabPreviewHandlers();
     }
 
     function updateCollabPosition(){ collabSlidesEl.style.transform = `translateX(-${collabIndex * 100}%)`; }
@@ -535,6 +602,113 @@
         collabSlidesEl.innerHTML = '<div class="collab-slide" style="min-width:100%; padding:2.5rem; text-align:center; color:var(--muted);">No collaborations yet.</div>';
       });
     }catch(e){ console.error('collabs subscribe failed', e); collabSlidesEl.innerHTML = '<div class="collab-slide" style="min-width:100%; padding:2.5rem; text-align:center; color:var(--muted);">No collaborations yet.</div>'; }
+
+    // ---------- Collab modal logic ----------
+    // create modal element and attach to body
+    const modal = document.createElement('div');
+    modal.className = 'collab-modal';
+    modal.setAttribute('role','dialog');
+    modal.setAttribute('aria-modal','true');
+    modal.innerHTML = `
+      <div class="modal-card" role="document">
+        <button class="modal-close" aria-label="Close preview">&times;</button>
+        <img class="modal-img" src="" alt="" />
+        <div class="modal-body">
+          <div class="modal-caption"></div>
+          <div class="modal-meta"></div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    const modalCard = modal.querySelector('.modal-card');
+    const modalImg = modal.querySelector('.modal-img');
+    const modalCaption = modal.querySelector('.modal-caption');
+    const modalMeta = modal.querySelector('.modal-meta');
+    const modalCloseBtn = modal.querySelector('.modal-close');
+
+    let modalOpenTimer = null;
+    let isHoverCapable = window.matchMedia && window.matchMedia('(hover: hover)').matches;
+
+    function openModalForIndex(index){
+      const item = collabItems[index];
+      if (!item) return;
+      const src = item.imageUrl || item.image || item.url || '';
+      const caption = item.caption || item.title || '';
+      modalImg.src = src;
+      modalImg.alt = caption || 'Collaboration image';
+      modalCaption.textContent = caption || '';
+      // optional: show link or uploadedAt
+      const uploaded = item.uploadedAt?.seconds ? new Date(item.uploadedAt.seconds * 1000).toLocaleString() : '';
+      modalMeta.textContent = uploaded ? `Uploaded: ${uploaded}` : '';
+      modal.classList.add('open');
+      // focus trap: focus close button
+      modalCloseBtn.focus();
+      // prevent body scroll when modal open
+      document.documentElement.style.overflow = 'hidden';
+    }
+
+    function closeModal(){
+      modal.classList.remove('open');
+      modalImg.src = '';
+      modalCaption.textContent = '';
+      modalMeta.textContent = '';
+      document.documentElement.style.overflow = '';
+    }
+
+    function attachCollabPreviewHandlers(){
+      // remove any previous handlers (defensive)
+      const thumbs = collabSlidesEl.querySelectorAll('.collab-thumb');
+      thumbs.forEach((thumb)=>{
+        // ensure it's focusable and has index
+        thumb.setAttribute('tabindex','0');
+        const idx = Number(thumb.getAttribute('data-index'));
+
+        // pointer / hover behavior for devices that support hover:
+        if (isHoverCapable) {
+          thumb.addEventListener('mouseenter', onThumbEnter);
+          thumb.addEventListener('mouseleave', onThumbLeave);
+          // allow opening by keyboard Enter
+          thumb.addEventListener('keydown', onThumbKeyDown);
+        } else {
+          // touch / click devices: open on click
+          thumb.addEventListener('click', onThumbClick);
+          // allow opening by keyboard Enter
+          thumb.addEventListener('keydown', onThumbKeyDown);
+        }
+
+        // helper functions (defined inline so they can close over idx)
+        function onThumbEnter(e){
+          clearTimeout(modalOpenTimer);
+          // slight delay so quick passes don't open modal
+          modalOpenTimer = setTimeout(()=> openModalForIndex(idx), 120);
+        }
+        function onThumbLeave(e){
+          clearTimeout(modalOpenTimer);
+          // close soon after leaving
+          modalOpenTimer = setTimeout(()=> closeModal(), 180);
+        }
+        function onThumbClick(e){
+          e.preventDefault();
+          openModalForIndex(idx);
+        }
+        function onThumbKeyDown(e){
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openModalForIndex(idx);
+          }
+        }
+      });
+    }
+
+    // modal interactions
+    modalCloseBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
+    });
 
     // ---------- TikTok carousel controls (separate carousel) ----------
     (function(){
