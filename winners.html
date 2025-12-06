@@ -107,7 +107,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
@@ -117,20 +117,13 @@
       messagingSenderId: "65396604482",
       appId: "1:65396604482:web:0f31625a714aa8352337db"
     };
-    const APP_ID = firebaseConfig.appId;
 
-    // Candidate collection paths (tries multiple variants to avoid leading-slash mismatches)
-    const CANDIDATE_PATHS = [
-      `/artifacts/${APP_ID}/public/data/winners`,
-      `artifacts/${APP_ID}/public/data/winners`,
-      `/public/data/winners`,
-      `public/data/winners`
-    ];
+    // Forcing the exact, working collection path we confirmed in console
+    const winnersPath = "artifacts/1:65396604482:web:0f31625a714aa8352337db/public/data/winners";
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-
-    // Expose db to the global window so DevTools/console tests can access it
+    // also expose for debugging in console
     window.db = db;
 
     const wrap = document.getElementById('winnersWrap');
@@ -138,30 +131,7 @@
 
     function escapeHtml(s){ if(!s && s !== 0) return ''; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-    // Try each candidate path and return the first that contains documents
-    async function detectPath() {
-      for (const p of CANDIDATE_PATHS) {
-        try {
-          const q = query(collection(db, p), orderBy('createdAt','desc'));
-          const snap = await getDocs(q);
-          console.log('detectPath: tried', p, '->', snap.size, 'docs');
-          if (!snap.empty) return p;
-        } catch (err) {
-          // read errors can happen if the path doesn't exist or rules block it; continue trying
-          console.warn('detectPath: path check failed for', p, err && err.message ? err.message : err);
-        }
-      }
-      // fallback to the first (most likely) path
-      return CANDIDATE_PATHS[0];
-    }
-
-    // expose detectPath to console for quick debugging
-    window.detectPath = detectPath;
-
-    (async () => {
-      const winnersPath = await detectPath();
-      console.log('Winners will be loaded from:', winnersPath);
-
+    (function init() {
       try {
         const q = query(collection(db, winnersPath), orderBy('createdAt','desc'));
         onSnapshot(q, snap => {
@@ -176,8 +146,6 @@
 
           snap.docs.forEach(doc => {
             const data = doc.data();
-
-            // Only render winner's minimal info: image, name, handle, prize
             const imgSrc = data.imageUrl && data.imageUrl.length ? data.imageUrl : 'images/opponent.png';
             const el = document.createElement('article');
             el.className = 'winner-card';
@@ -201,7 +169,7 @@
       }
     })();
 
-    // NAV DROPDOWN: same behaviour as other pages
+    // NAV DROPDOWN unchanged...
     (function setupNavDropdown(){
       const navButton = document.getElementById('navButton');
       const dropdownMenu = document.getElementById('dropdownMenu');
