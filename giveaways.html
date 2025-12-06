@@ -43,6 +43,27 @@
     .entry-row input[type="text"]{ padding:.55rem .7rem; border-radius:8px; border:1px solid #E6E6E6; min-width:220px; }
     .checkbox-inline { display:inline-flex; gap:8px; align-items:center; }
     .muted { color: #6b7280; }
+
+    /* winners cards (reuse winner-card classes used elsewhere) */
+    .winner-card {
+      background:#fff;
+      border:1px solid #f3d3e2;
+      border-radius:12px;
+      overflow:hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+      text-align:left;
+      display:flex;
+      flex-direction:column;
+      transition: transform .14s ease, box-shadow .14s ease;
+    }
+    .winner-card:hover { transform: translateY(-6px); box-shadow: 0 18px 36px rgba(0,0,0,0.08); }
+    .winner-thumb { width:100%; height:220px; object-fit:cover; display:block; }
+    .winner-body { padding:14px; }
+    .winner-name { font-weight:800; color:var(--accent); font-size:1.05rem; margin-bottom:6px; }
+    .winner-handle { color:#6b7280; font-size:.95rem; margin-bottom:8px; }
+    .winner-prize { color:#374151; font-weight:600; padding:.25rem .5rem; border-radius:8px; display:inline-block; font-size:.95rem; }
+
+    .empty { color:#6b7280; margin-top:1.25rem; text-align:center; }
   </style>
 </head>
 <body class="bg-pink-50">
@@ -89,6 +110,8 @@
 
     <section id="giveGridWrap" class="mb-12">
       <div id="giveGrid" class="give-grid"></div>
+      <!-- Winners container will be injected here when the winners tab is loaded -->
+      <section id="winnersSection" class="mt-8" aria-live="polite"></section>
     </section>
 
     <div id="giveEmpty" class="text-gray-500 mt-8 hidden">No giveaways in this category.</div>
@@ -106,7 +129,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
     const firebaseConfig = {
@@ -123,6 +146,8 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    // expose db so the console/tests can access it and other scripts can reuse it
+    window.db = db;
     const auth = getAuth(app);
 
     // anonymous auth to allow writes
@@ -335,6 +360,126 @@
     } catch(err){ console.error('Giveaways init error', err); giveGrid.innerHTML = '<div class="text-red-600">Could not load giveaways.</div>'; }
 
     pills.forEach(p => p.addEventListener('click', ()=>{ pills.forEach(x=>x.classList.remove('active')); p.classList.add('active'); currentFilter = p.dataset.filter; renderGrid(giveawaysCache); }));
+
+    // --------- ADDED: Winners loading logic (loads into the Winners tab area) ----------
+    // Use the exact path we validated earlier so the public view reads the same collection admin writes to.
+    const WINNERS_PATH = `artifacts/${ARTIFACT_ID}/public/data/winners`;
+
+    // Ensure there's a container for winners (will inject into winnersSection if present)
+    function ensureWinnersContainer() {
+      // Prefer the winnersSection you have injected above; otherwise create an element within the giveaways area.
+      let container = document.getElementById('winnersWrap');
+      if (container) return container;
+
+      const winnersSection = document.getElementById('winnersSection');
+      if (winnersSection) {
+        container = document.createElement('div');
+        container.id = 'winnersWrap';
+        container.className = 'grid-3';
+        winnersSection.appendChild(container);
+        return container;
+      }
+
+      // fallback to adding to main section
+      const main = document.querySelector('main') || document.body;
+      container = document.createElement('div');
+      container.id = 'winnersWrap';
+      container.className = 'grid-3';
+      main.appendChild(container);
+      return container;
+    }
+
+    function renderWinnersList(docs) {
+      const wrap = ensureWinnersContainer();
+      let empty = document.getElementById('winnersEmpty');
+      if (!empty) {
+        empty = document.createElement('div');
+        empty.id = 'winnersEmpty';
+        empty.className = 'empty hidden';
+        empty.textContent = 'No winners yet.';
+        wrap.parentNode && wrap.parentNode.appendChild(empty);
+      }
+
+      wrap.innerHTML = '';
+      if (!docs || !docs.length) {
+        empty.classList.remove('hidden');
+        wrap.setAttribute('aria-busy','false');
+        return;
+      }
+      empty.classList.add('hidden');
+      wrap.setAttribute('aria-busy','false');
+
+      docs.forEach(d => {
+        const data = (d && d.data) ? d.data() : d;
+        const imgSrc = data && data.imageUrl ? data.imageUrl : 'images/opponent.png';
+        const el = document.createElement('article');
+        el.className = 'winner-card';
+        el.innerHTML = `
+          <img src="${escapeHtml(imgSrc)}" alt="${escapeHtml((data && data.name) || 'Winner')}" class="winner-thumb" onerror="this.onerror=null;this.src='images/opponent.png'"/>
+          <div class="winner-body">
+            <div class="winner-name">${escapeHtml((data && data.name) || '(no name)')}</div>
+            <div class="winner-handle">${escapeHtml((data && data.handle) || '')}</div>
+            <div class="winner-prize">Prize: ${escapeHtml((data && data.prize) || '')}</div>
+          </div>
+        `;
+        wrap.appendChild(el);
+      });
+    }
+
+    async function loadAndSubscribeWinners() {
+      if (!db) { console.warn('loadAndSubscribeWinners: db not available'); return; }
+      try {
+        const q = query(collection(db, WINNERS_PATH), orderBy('createdAt','desc'));
+
+        // one-time fetch to render immediately
+        try {
+          const snap = await getDocs(q);
+          if (snap && snap.docs && snap.docs.length) {
+            renderWinnersList(snap.docs);
+          } else {
+            renderWinnersList([]);
+          }
+        } catch(e) {
+          console.warn('Winners one-time fetch failed (continuing to subscribe):', e);
+        }
+
+        // subscribe to live updates
+        onSnapshot(q, s => {
+          if (!s || !s.docs || !s.docs.length) {
+            renderWinnersList([]);
+            return;
+          }
+          renderWinnersList(s.docs);
+        }, err => {
+          console.error('winners onSnapshot error', err);
+        });
+      } catch (err) {
+        console.error('loadAndSubscribeWinners failed', err);
+      }
+    }
+
+    // Hook winners load to the Winners pill/tab button (click) and also trigger once on load
+    function hookWinnersTabAndLoad() {
+      // Look for a button that says "Winners" (case-insensitive) or use the winners pill
+      const tabBtn = document.querySelector('[data-tab-btn="winners"]')
+                   || Array.from(document.querySelectorAll('button, a')).find(el => (el.textContent || '').trim().toLowerCase() === 'winners')
+                   || document.getElementById('pill-winners');
+
+      if (tabBtn) {
+        tabBtn.addEventListener('click', () => { setTimeout(loadAndSubscribeWinners, 120); });
+      }
+
+      // attempt to load immediately (safe)
+      loadAndSubscribeWinners();
+    }
+
+    // run after DOM ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', hookWinnersTabAndLoad);
+    } else {
+      hookWinnersTabAndLoad();
+    }
+    // --------- END winners logic ----------
 
     // nav dropdown (copied pattern)
     (function setupNavDropdown(){
