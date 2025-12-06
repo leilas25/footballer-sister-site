@@ -131,6 +131,60 @@
     }
     /* end header/footer additions */
 
+    /* === New small email-note style for modal actions (Option B: soft pink highlight) === */
+    .email-note {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: linear-gradient(90deg, rgba(255,240,247,1), rgba(255,230,242,1));
+      border: 1px solid rgba(251,205,231,0.7);
+      color: #9b1630;
+      font-size: 0.95rem;
+      text-align: center;
+      line-height: 1.3;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+    }
+    .email-note strong { color: #7a0f2c; font-weight:800; }
+
+    /* copy button visual */
+    .copy-email-btn {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      background: transparent;
+      border: 1px solid rgba(250,215,230,0.6);
+      padding:6px 8px;
+      border-radius:999px;
+      cursor:pointer;
+      color:#7a0f2c;
+      font-weight:700;
+      font-size:0.88rem;
+      box-shadow: 0 4px 12px rgba(186,92,131,0.06);
+    }
+    .copy-email-btn:active { transform: translateY(1px); }
+    .copy-email-svg { width:16px; height:16px; display:inline-block; vertical-align:middle; }
+
+    /* toast */
+    .toast {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 30px;
+      background: rgba(17,24,39,0.95);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-weight:700;
+      z-index: 200;
+      opacity: 0;
+      transition: opacity .2s ease, transform .2s ease;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+
   </style>
 </head>
 <body class="bg-pink-50 text-black font-sans">
@@ -352,15 +406,21 @@
     </div>
   </div>
 
+  <!-- toast container -->
+  <div id="toast" class="toast" role="status" aria-live="polite">Email copied</div>
+
   <script>
-    // Utility for creating form HTML snippets
+    // Handy constant
+    const CONTACT_EMAIL = 'thefootballerssister@gmail.com';
+
+    // Utility for creating form HTML snippets (each email-note contains copy button)
     function createPlayerProfileFormHtml() {
       return `
         <div class="modal-hero">
           <div class="icon">PP</div>
           <div>
             <h3>Player Profile Request</h3>
-            <div class="muted" style="font-size:0.9rem;margin-top:6px;">Fill in the fields below and I'll get back to you about the profile package. Please format email subject like this - 'Player profile - Bamuza'"</div>
+            <div class="muted" style="font-size:0.9rem;margin-top:6px;">Fill in the fields below and I'll get back to you about the profile package. Please format email subject like this - 'Player profile - Bamuza'</div>
             <div class="price-badge">R150</div>
           </div>
           <button class="modal-close" id="modalCloseBtn" title="Close">✕</button>
@@ -378,6 +438,18 @@
           <div class="modal-actions">
             <button type="button" id="playerCancel" class="modal-outline-btn">Cancel</button>
             <button type="submit" class="modal-cta">Send Request</button>
+          </div>
+
+          <div class="email-note">
+            <div>If the email button does not work, please copy and send your request to: <strong>${CONTACT_EMAIL}</strong></div>
+            <button type="button" class="copy-email-btn" data-email="${CONTACT_EMAIL}" aria-label="Copy email">
+              <svg class="copy-email-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M8 7h8a1 1 0 011 1v10a1 1 0 01-1 1H8a1 1 0 01-1-1V8a1 1 0 011-1z" stroke="#7a0f2c" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M6 11V6a2 2 0 012-2h7" stroke="#7a0f2c" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9 13l2 2 4-4" stroke="#7a0f2c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Copy
+            </button>
           </div>
         </form>
       `;
@@ -404,6 +476,18 @@
             <button type="button" id="supersportCancel" class="modal-outline-btn">Cancel</button>
             <button type="submit" class="modal-cta">Send Request</button>
           </div>
+
+          <div class="email-note">
+            <div>If the email button does not work, please copy and send your request to: <strong>${CONTACT_EMAIL}</strong></div>
+            <button type="button" class="copy-email-btn" data-email="${CONTACT_EMAIL}" aria-label="Copy email">
+              <svg class="copy-email-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M8 7h8a1 1 0 011 1v10a1 1 0 01-1 1H8a1 1 0 01-1-1V8a1 1 0 011-1z" stroke="#7a0f2c" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M6 11V6a2 2 0 012-2h7" stroke="#7a0f2c" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9 13l2 2 4-4" stroke="#7a0f2c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Copy
+            </button>
+          </div>
         </form>
       `;
     }
@@ -429,7 +513,19 @@
 
         <div class="modal-cta-row">
           <button id="contentClose" class="modal-outline-btn">Close</button>
-          <a href="mailto:thefootballerssister@gmail.com?subject=Content%20Creation%20Inquiry" class="modal-cta">Email to Book</a>
+          <a href="mailto:${CONTACT_EMAIL}?subject=Content%20Creation%20Inquiry" class="modal-cta">Email to Book</a>
+        </div>
+
+        <div class="email-note">
+          <div>If the email button does not work, please copy and send your request to: <strong>${CONTACT_EMAIL}</strong></div>
+          <button type="button" class="copy-email-btn" data-email="${CONTACT_EMAIL}" aria-label="Copy email">
+            <svg class="copy-email-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M8 7h8a1 1 0 011 1v10a1 1 0 01-1 1H8a1 1 0 01-1-1V8a1 1 0 011-1z" stroke="#7a0f2c" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M6 11V6a2 2 0 012-2h7" stroke="#7a0f2c" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9 13l2 2 4-4" stroke="#7a0f2c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Copy
+          </button>
         </div>
       `;
     }
@@ -455,7 +551,19 @@
 
         <div class="modal-cta-row">
           <button id="websiteClose" class="modal-outline-btn">Close</button>
-          <a href="mailto:thefootballerssister@gmail.com?subject=Website%20Creation%20Inquiry" class="modal-cta">Email Me</a>
+          <a href="mailto:${CONTACT_EMAIL}?subject=Website%20Creation%20Inquiry" class="modal-cta">Email Me</a>
+        </div>
+
+        <div class="email-note">
+          <div>If the email button does not work, please copy and send your request to: <strong>${CONTACT_EMAIL}</strong></div>
+          <button type="button" class="copy-email-btn" data-email="${CONTACT_EMAIL}" aria-label="Copy email">
+            <svg class="copy-email-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M8 7h8a1 1 0 011 1v10a1 1 0 01-1 1H8a1 1 0 01-1-1V8a1 1 0 011-1z" stroke="#7a0f2c" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M6 11V6a2 2 0 012-2h7" stroke="#7a0f2c" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9 13l2 2 4-4" stroke="#7a0f2c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Copy
+          </button>
         </div>
       `;
     }
@@ -471,7 +579,7 @@
           <button class="modal-close" id="modalCloseBtn" title="Close">✕</button>
         </div>
 
-        <div class="player-highlight-note">Please send clips via WeTransfer to <strong>thefootballerssister@gmail.com</strong>. Include player's full name and preferred edit style (short/long, music preference).Please format email subject like this - 'Highlight vid - Bamuza'</div>
+        <div class="player-highlight-note">Please send clips via WeTransfer to <strong>${CONTACT_EMAIL}</strong>. Include player's full name and preferred edit style (short/long, music preference).Please format email subject like this - 'Highlight vid - Bamuza'</div>
 
         <ul class="modal-list">
           <li><span class="label">Extended cut (2–4 min)</span><span class="price"> R350</span></li>
@@ -480,8 +588,20 @@
         </ul>
 
         <div class="modal-cta-row">
-          <a href="mailto:thefootballerssister@gmail.com?subject=Player%20Highlight%20Video" class="modal-cta">Email me</a>
+          <a href="mailto:${CONTACT_EMAIL}?subject=Player%20Highlight%20Video" class="modal-cta">Email me</a>
           <button id="playerHighlightClose" class="modal-outline-btn">Close</button>
+        </div>
+
+        <div class="email-note">
+          <div>If the email button does not work, please copy and send your request to: <strong>${CONTACT_EMAIL}</strong></div>
+          <button type="button" class="copy-email-btn" data-email="${CONTACT_EMAIL}" aria-label="Copy email">
+            <svg class="copy-email-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M8 7h8a1 1 0 011 1v10a1 1 0 01-1 1H8a1 1 0 01-1-1V8a1 1 0 011-1z" stroke="#7a0f2c" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M6 11V6a2 2 0 012-2h7" stroke="#7a0f2c" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9 13l2 2 4-4" stroke="#7a0f2c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Copy
+          </button>
         </div>
       `;
     }
@@ -489,6 +609,39 @@
     // Modal open/close helpers
     const backdrop = document.getElementById('modalBackdrop');
     const container = document.getElementById('modalContainer');
+    const toastEl = document.getElementById('toast');
+
+    function showToast(text = 'Email copied') {
+      toastEl.textContent = text;
+      toastEl.classList.add('show');
+      setTimeout(() => toastEl.classList.remove('show'), 1600);
+    }
+
+    function copyToClipboard(text) {
+      // try navigator.clipboard first
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(text);
+      } else {
+        // fallback
+        return new Promise((resolve, reject) => {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.left = '-9999px';
+          document.body.appendChild(ta);
+          ta.focus();
+          ta.select();
+          try {
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            resolve();
+          } catch (err) {
+            document.body.removeChild(ta);
+            reject(err);
+          }
+        });
+      }
+    }
 
     function openModal({ html, size = 'default' }) {
       // set classes and insert html
@@ -505,6 +658,38 @@
       // generic cancel or close buttons
       container.querySelectorAll('#playerCancel, #supersportCancel, #contentClose, #websiteClose, #playerHighlightClose')
         .forEach(btn => btn.addEventListener('click', closeModal));
+
+      // copy button handler (delegated inside modal)
+      container.querySelectorAll('.copy-email-btn').forEach(btn => {
+        btn.addEventListener('click', async (ev) => {
+          const email = btn.getAttribute('data-email') || '${CONTACT_EMAIL}';
+          try {
+            await copyToClipboard(email);
+            showToast('Email copied');
+            // small visual feedback on the button (optional)
+            btn.innerHTML = `
+              <svg class="copy-email-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M20 6L9 17l-5-5" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Copied
+            `;
+            setTimeout(()=>{
+              // restore original content
+              btn.innerHTML = `
+                <svg class="copy-email-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M8 7h8a1 1 0 011 1v10a1 1 0 01-1 1H8a1 1 0 01-1-1V8a1 1 0 011-1z" stroke="#7a0f2c" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M6 11V6a2 2 0 012-2h7" stroke="#7a0f2c" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M9 13l2 2 4-4" stroke="#7a0f2c" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Copy
+              `;
+            }, 900);
+          } catch (err) {
+            console.error('Copy failed', err);
+            showToast('Copy failed — please manually copy the email');
+          }
+        });
+      });
 
       // intercept forms
       const playerForm = container.querySelector('#playerProfileForm');
@@ -531,7 +716,7 @@
           const body = encodeURIComponent(bodyLines.join('\n'));
 
           // Open user's mail client with nicely formatted body
-          window.location.href = `mailto:thefootballerssister@gmail.com?subject=${subject}&body=${body}`;
+          window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
           closeModal();
         });
       }
@@ -548,13 +733,13 @@
             `Teams played: ${fd.teams || ''}`,
             `Supersport link: ${fd.link || ''}`,
             ``,
-            `Submitted from: Leila site (thefootballerssister@gmail.com)`
+            `Submitted from: Leila site (${CONTACT_EMAIL})`
           ];
           const subject = encodeURIComponent(`Supersport Highlight Request: ${fd.matchDate || 'date'}`);
           const body = encodeURIComponent(bodyLines.join('\n'));
 
           // Open mail client
-          window.location.href = `mailto:thefootballerssister@gmail.com?subject=${subject}&body=${body}`;
+          window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
           closeModal();
         });
       }
