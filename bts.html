@@ -96,14 +96,46 @@
       border-radius:12px;
     }
 
-    /* collab carousel sizing — narrower and centered to avoid cropping on desktop */
-    .collab-carousel { border-radius:12px; overflow:visible; max-width:540px; margin:0 auto; position:relative; }
-    .collab-slide { background:var(--card); border-radius:12px; box-shadow: var(--shadow); border:1px solid rgba(235,224,232,0.6); overflow:hidden; display:flex; flex-direction:column; }
-    .collab-slide img { width:100%; height:420px; object-fit:cover; object-position:center 22%; display:block; }
+    /* collab carousel sizing — show one card at a time like TikTok */
+    .collab-carousel {
+      border-radius:12px;
+      overflow:hidden;            /* important: hide neighboring slides */
+      max-width:540px;
+      width:100%;
+      margin:0 auto;
+      position:relative;
+      background: transparent;
+    }
+
+    /* slides wrapper */
+    #collab-slides {
+      display:flex;
+      transition: transform .45s ease;
+      gap: 0;                     /* no visible gap so only one shown at a time */
+      width: 100%;
+      will-change: transform;
+    }
+
+    /* each collab occupies full carousel width so only one is visible */
+    .collab-slide {
+      flex: 0 0 100%;
+      max-width: 100%;
+      background:var(--card);
+      border-radius:12px;
+      box-shadow: var(--shadow);
+      border:1px solid rgba(235,224,232,0.6);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      align-items:stretch;
+      justify-content:flex-start;
+    }
+
+    .collab-slide img { width:100%; height:420px; object-fit:cover; object-position:center 22%; display:block; border-bottom-left-radius:0; border-bottom-right-radius:0; }
     @media (max-width:960px){ .collab-slide img { height:360px; } }
     @media (max-width:640px){ .collab-slide img { height:260px; } }
 
-    /* caption style — remove any bullet/pseudo-element */
+    /* caption style — clean & no date displayed on card */
     .collab-caption { padding:.9rem; text-align:center; font-weight:700; color:var(--accent); background:#fff; border-top:1px solid rgba(235,224,232,0.6); }
     .collab-caption::before { display:none !important; content:none !important; }
 
@@ -125,8 +157,8 @@
     .arrow-btn { background: rgba(255,255,255,0.95); width:44px; height:44px; display:flex;align-items:center;justify-content:center;border-radius:999px;border:1px solid rgba(0,0,0,0.06); box-shadow:0 10px 18px rgba(11,7,17,0.04); cursor:pointer; }
     .video-carousel .arrow-left { position:absolute; left:8px; top:50%; transform:translateY(-50%); z-index:30; }
     .video-carousel .arrow-right { position:absolute; right:8px; top:50%; transform:translateY(-50%); z-index:30; }
-    .collab-carousel .arrow-left { position:absolute; left:-22px; top:50%; transform:translateY(-50%); z-index:20; }
-    .collab-carousel .arrow-right { position:absolute; right:-22px; top:50%; transform:translateY(-50%); z-index:20; }
+    .collab-carousel .arrow-left { position:absolute; left:8px; top:50%; transform:translateY(-50%); z-index:40; } /* moved inside edges */
+    .collab-carousel .arrow-right { position:absolute; right:8px; top:50%; transform:translateY(-50%); z-index:40; }
 
     /* dropdown animation (used by JS) */
     .dropdown-anim { transition: opacity .18s ease, transform .18s ease; transform-origin: top right; opacity:0; transform: scale(.96); }
@@ -157,8 +189,6 @@
       .page-hero h2 { font-size:1.75rem; }
       .collab-carousel { max-width:100%; margin:0; }
       .collab-carousel .arrow-left, .collab-carousel .arrow-right { left:8px; right:8px; }
-      .collab-carousel .arrow-left { left:8px; }
-      .collab-carousel .arrow-right { right:8px; }
     }
 
     /* ------------------- Modal styles for collab preview ------------------- */
@@ -217,7 +247,6 @@
       cursor:pointer;
       box-shadow: 0 8px 24px rgba(11,7,17,0.08);
     }
-    .collab-modal .modal-meta { color: #444; font-size: .95rem; }
 
     /* ensure keyboard focus outline visible */
     .collab-slide a, .collab-slide img { outline: none; }
@@ -350,7 +379,7 @@
         <div class="profile-list">
           <h4 style="color:var(--accent); font-weight:700;">Key Attributes:</h4>
           <ul style="margin-top:.5rem; list-style:disc; padding-left:1.25rem;">
-            <li><strong>Dribbling:</strong> Able to take on defenders with close control and quick feet.</li>  
+            <li><strong>Dribbling:</strong> Able to take on defenders with close control and quick feet.</li>
             <li><strong>Passing:</strong> Excellent vision to deliver precise short passes or long balls.</li>
             <li><strong>Shooting:</strong> Known as a free-kick or corner kick taker.</li>
           </ul>
@@ -372,21 +401,21 @@
     <!-- Two-column: left = TikTok, right = Collabs -->
     <section class="two-col" aria-label="Vlogs and Collaborations">
 
-      <!-- LEFT: TikTok carousel -->
+      <!-- LEFT: TikTok carousel (kept as-is for later) -->
       <div>
         <h3 style="text-align:center; color:var(--accent); font-weight:800; margin-bottom:1rem;">My Vlogs & Highlights</h3>
 
         <div class="video-carousel">
           <!-- carousel container -->
           <div id="video-slides-container" style="display:flex; transition:transform .45s ease; gap:0; overflow:hidden; border-radius:12px;">
-            <!-- Slide 1: existing embed (kept as iframe embed v2) -->
+            <!-- Slide 1 -->
             <div class="slide" style="min-width:100%; box-sizing:border-box;">
               <div class="embed-wrap">
                 <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
               </div>
             </div>
 
-            <!-- Slide 2: blockquote embed you provided (7514262969786567943) -->
+            <!-- Slide 2 -->
             <div class="slide" style="min-width:100%; box-sizing:border-box;">
               <div class="embed-wrap">
                 <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@leila_sono/video/7514262969786567943" data-video-id="7514262969786567943" style="max-width: 605px;min-width: 325px;" >
@@ -399,7 +428,7 @@
               </div>
             </div>
 
-            <!-- Slide 3: blockquote embed you provided (7576746597195779346) -->
+            <!-- Slide 3 -->
             <div class="slide" style="min-width:100%; box-sizing:border-box;">
               <div class="embed-wrap">
                 <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@leila_sono/video/7576746597195779346" data-video-id="7576746597195779346" style="max-width: 605px;min-width: 325px;" >
@@ -413,7 +442,7 @@
               </div>
             </div>
 
-            <!-- Slide 4: blockquote embed you provided (7571503785806155016) -->
+            <!-- Slide 4 -->
             <div class="slide" style="min-width:100%; box-sizing:border-box;">
               <div class="embed-wrap">
                 <blockquote class="tiktok-embed" cite="https://www.tiktok.com/@leila_sono/video/7571503785806155016" data-video-id="7571503785806155016" style="max-width: 605px;min-width: 325px;" >
@@ -426,7 +455,6 @@
               </div>
             </div>
 
-            <!-- add more slides below as needed -->
           </div>
 
           <!-- arrows (inside video area) -->
@@ -435,20 +463,20 @@
         </div>
       </div>
 
-      <!-- RIGHT: Collaborations -->
+      <!-- RIGHT: Collaborations (single-card view, arrows preserved) -->
       <div>
         <h3 style="text-align:center; color:var(--accent); font-weight:800; margin-bottom:1rem;">Collaborations</h3>
 
-        <!-- Instruction caption updated to only the requested text -->
+        <!-- Instruction caption -->
         <div class="collab-instruction" aria-hidden="false">
           Click to open collabs
         </div>
 
         <div class="collab-carousel">
-          <div id="collab-slides" style="display:flex; transition:transform .45s ease; gap:1rem;">
+          <div id="collab-slides" style="display:flex; transition:transform .45s ease; gap:0;">
             <!-- placeholder slide shown while loading -->
-            <div class="collab-slide" style="min-width:100%; display:flex; align-items:center; justify-content:center; padding:2.5rem;">
-              <div style="color:var(--muted);">Loading collaborations…</div>
+            <div class="collab-slide" style="min-width:100%; display:flex; align-items:center; justify-content:center; padding:0;">
+              <div style="padding:2.5rem; color:var(--muted);">Loading collaborations…</div>
             </div>
           </div>
 
@@ -456,7 +484,6 @@
           <button id="collabNext" class="arrow-btn arrow-right" aria-label="Next collab">›</button>
         </div>
 
-        <!-- hidden debug removed per request -->
         <div id="collabDebug" class="muted"></div>
       </div>
 
@@ -630,22 +657,29 @@
 
     function renderCollabSlides(items){
       collabSlidesEl.innerHTML='';
-      if(!items||!items.length){ collabSlidesEl.innerHTML = '<div class="collab-slide" style="min-width:100%; padding:2.5rem; text-align:center; color:var(--muted);">No collaborations yet.</div>'; return; }
+      if(!items||!items.length){
+        collabSlidesEl.innerHTML = '<div class="collab-slide" style="min-width:100%; padding:2.5rem; text-align:center; color:var(--muted);">No collaborations yet.</div>';
+        return;
+      }
       items.forEach((it, idx)=>{
-        const wrapper = document.createElement('div'); wrapper.className='collab-slide'; wrapper.style.minWidth='100%';
-        const imageUrl = it.imageUrl||it.image||it.url||''; const caption = it.caption||it.title||'';
+        const wrapper = document.createElement('div');
+        wrapper.className='collab-slide';
+        wrapper.style.minWidth='100%';
+        const imageUrl = it.imageUrl||it.image||it.url||'';
+        const caption = it.caption||it.title||'';
         // include data attributes for JS modal logic and make link focusable
         wrapper.innerHTML = `
-          <a href="${escapeHtml(it.link||'')}" target="_blank" rel="noreferrer" class="collab-thumb" data-index="${idx}">
+          <a href="${escapeHtml(it.link||'')}" target="_blank" rel="noreferrer" class="collab-thumb" data-index="${idx}" style="display:block; width:100%; height:100%;">
             <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(caption)}" />
           </a>
           <div class="collab-caption">${escapeHtml(caption||'')}</div>
         `;
         collabSlidesEl.appendChild(wrapper);
       });
-      collabIndex=0; updateCollabPosition();
+      collabIndex=0;
+      updateCollabPosition();
 
-      // attach hover/click handlers for modal preview
+      // attach click handlers for modal preview
       attachCollabPreviewHandlers();
     }
 
@@ -678,7 +712,6 @@
         <img class="modal-img" src="" alt="" />
         <div class="modal-body">
           <div class="modal-caption"></div>
-          <div class="modal-meta"></div>
         </div>
       </div>
     `;
@@ -687,7 +720,6 @@
     const modalCard = modal.querySelector('.modal-card');
     const modalImg = modal.querySelector('.modal-img');
     const modalCaption = modal.querySelector('.modal-caption');
-    const modalMeta = modal.querySelector('.modal-meta');
     const modalCloseBtn = modal.querySelector('.modal-close');
 
     let modalOpenTimer = null;
@@ -702,9 +734,7 @@
       modalImg.src = src;
       modalImg.alt = caption || 'Collaboration image';
       modalCaption.textContent = caption || '';
-      // optional: show link or uploadedAt
-      const uploaded = item.uploadedAt?.seconds ? new Date(item.uploadedAt.seconds * 1000).toLocaleString() : '';
-      modalMeta.textContent = uploaded ? `Uploaded: ${uploaded}` : '';
+      // NOTE: per your request we DO NOT show the uploaded/post date on the card or modal
       modal.classList.add('open');
       // focus trap: focus close button
       modalCloseBtn.focus();
@@ -716,11 +746,10 @@
       modal.classList.remove('open');
       modalImg.src = '';
       modalCaption.textContent = '';
-      modalMeta.textContent = '';
       document.documentElement.style.overflow = '';
     }
 
-    // ---------- REPLACED attachCollabPreviewHandlers (click-only for desktop & mobile) ----------
+    // ---------- attach handlers (click-only for preview) ----------
     function attachCollabPreviewHandlers(){
       // defensive: clear any previously scheduled timer(s)
       if (modalOpenTimer) { clearTimeout(modalOpenTimer); modalOpenTimer = null; }
@@ -764,7 +793,7 @@
       if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
     });
 
-    // ---------- TikTok carousel controls (simpler - works with blockquotes) ----------
+    // ---------- TikTok carousel controls (kept simple for blockquote embeds) ----------
     (function(){
       const slidesContainer = document.getElementById('video-slides-container');
       const prevBtn = document.getElementById('prevBtn');
@@ -787,8 +816,56 @@
       }
 
       window.addEventListener('load', ()=>{ show(); });
-
     })();
+
+    // ---------- Collab carousel: ensure only one is visible and arrows work ----------
+    (function(){
+      const slides = document.getElementById('collab-slides');
+      if (!slides) return;
+      const prev = document.getElementById('collabPrev');
+      const next = document.getElementById('collabNext');
+      let idx = 0;
+
+      function update(){
+        slides.style.transform = `translateX(-${idx * 100}%)`;
+      }
+
+      prev?.addEventListener('click', ()=> {
+        if (!slides.children.length) return;
+        idx = (idx - 1 + slides.children.length) % slides.children.length;
+        update();
+      });
+      next?.addEventListener('click', ()=> {
+        if (!slides.children.length) return;
+        idx = (idx + 1) % slides.children.length;
+        update();
+      });
+
+      // swipe support for collabs
+      let startX = 0;
+      const carouselWrapper = slides.parentElement;
+      if (carouselWrapper){
+        carouselWrapper.addEventListener('touchstart', (e)=> startX = e.touches[0].clientX);
+        carouselWrapper.addEventListener('touchend', (e)=> {
+          const endX = e.changedTouches[0].clientX;
+          const delta = startX - endX;
+          if (Math.abs(delta) > 50) {
+            if (delta > 0) { idx = (idx + 1) % slides.children.length; } else { idx = (idx - 1 + slides.children.length) % slides.children.length; }
+            update();
+          }
+        });
+      }
+
+      // Keep in sync when collabSlides are re-rendered from Firebase
+      const observer = new MutationObserver(()=> {
+        // clamp idx
+        if (slides.children.length === 0) { idx = 0; slides.style.transform = 'translateX(0)'; return; }
+        idx = Math.min(idx, slides.children.length - 1);
+        update();
+      });
+      observer.observe(slides, { childList: true, subtree: false });
+    })();
+
   </script>
 </body>
 </html>
