@@ -50,13 +50,9 @@
     /* layout: two columns equal width */
     .two-col { display:grid; grid-template-columns: 1fr 1fr; gap:2rem; align-items:start; }
 
-    /* ------------------ OPTION A: TikTok tall size ------------------ */
-    /* unified carousel sizing (Option A) */
-    :root {
-      --carousel-height-desktop: 720px; /* OPTION A: tall TikTok height */
-      --carousel-height-tablet: 640px;
-      --carousel-height-mobile: 560px;
-    }
+    /* unified carousel sizing */
+    /* change this number to resize both carousels together */
+    :root { --carousel-height-desktop: 520px; --carousel-height-tablet: 440px; --carousel-height-mobile: 320px; }
 
     .carousel-card { border-radius:12px; overflow:visible; position:relative; }
 
@@ -252,17 +248,16 @@
 
     <section class="two-col" aria-label="Vlogs and Collaborations">
 
-      <!-- LEFT: TikTok carousel (Option A tall height, lazy loaded) -->
+      <!-- LEFT: TikTok carousel (same visual size as collabs) -->
       <div class="carousel-card">
         <h3 style="text-align:center; color:var(--accent); font-weight:800; margin-bottom:1rem;">My Vlogs & Highlights</h3>
 
         <div class="video-carousel" style="position:relative;">
           <div class="embed-wrap">
-            <!-- slides container -->
+            <!-- keep the same slides approach as before -->
             <div id="video-slides-container" style="display:flex; transition:transform .45s ease; gap:0; width:100%;">
               <div class="slide" style="min-width:100%; box-sizing:border-box;">
-                <!-- data-src lazy load (we'll set src when slide shown) -->
-                <iframe data-src="https://www.tiktok.com/embed/v2/7529094647944072454" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+                <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
               </div>
 
               <div class="slide" style="min-width:100%; box-sizing:border-box;">
@@ -288,8 +283,8 @@
           </div>
 
           <!-- video arrows -->
-          <button id="prevBtn" class="arrow-btn video-arrow video-left" aria-label="Previous video"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
-          <button id="nextBtn" class="arrow-btn video-arrow video-right" aria-label="Next video"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
+          <button id="prevBtn" class="arrow-btn video-arrow video-left" aria-label="Previous video" style="position:absolute; left:8px; top:50%; transform:translateY(-50%);"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
+          <button id="nextBtn" class="arrow-btn video-arrow video-right" aria-label="Next video" style="position:absolute; right:8px; top:50%; transform:translateY(-50%);"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
         </div>
       </div>
 
@@ -526,7 +521,7 @@
       observer.observe(slides, { childList: true, subtree: false });
     })();
 
-    // TikTok carousel JS with lazy iframe loading (Option A)
+    // basic tiktok carousel JS (works with blockquotes and iframes)
     (function(){
       const slidesContainer = document.getElementById('video-slides-container');
       const prevBtn = document.getElementById('prevBtn');
@@ -535,44 +530,8 @@
       let currentIndex = 0;
       const slides = slidesContainer.children;
 
-      // set iframe.src from data-src for the slide index
-      function setIframeSrcForSlide(index) {
-        const slide = slides[index];
-        if (!slide) return;
-        const iframe = slide.querySelector('iframe[data-src]');
-        if (!iframe) return;
-        if (!iframe.getAttribute('src')) {
-          iframe.setAttribute('src', iframe.getAttribute('data-src'));
-        }
-      }
-
-      // clear iframe src for slide (optional to free resources)
-      function clearIframeSrcForSlide(index) {
-        const slide = slides[index];
-        if (!slide) return;
-        const iframe = slide.querySelector('iframe');
-        if (!iframe) return;
-        // only clear if data-src exists (we can restore later)
-        if (iframe.getAttribute('data-src') && iframe.getAttribute('src') && index !== currentIndex && index !== (currentIndex + 1) % slides.length) {
-          iframe.removeAttribute('src');
-        }
-      }
-
       function show(){
         slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
-        // ensure current and next iframe slides have src set
-        setIframeSrcForSlide(currentIndex);
-        setIframeSrcForSlide((currentIndex + 1) % slides.length);
-        // clear non-neighboring iframes
-        for (let i = 0; i < slides.length; i++){
-          if (i !== currentIndex && i !== ((currentIndex + 1) % slides.length)) {
-            clearIframeSrcForSlide(i);
-          }
-        }
-        // try re-run TikTok embed parser if present so blockquotes transform on load
-        if (window.tiktokEmbed && typeof window.tiktokEmbed === 'function') {
-          try { window.tiktokEmbed(); } catch(e){ /* ignore errors */ }
-        }
       }
       function next(){ if (!slides.length) return; currentIndex = (currentIndex + 1) % slides.length; show(); }
       function prev(){ if (!slides.length) return; currentIndex = (currentIndex - 1 + slides.length) % slides.length; show(); }
@@ -587,12 +546,7 @@
         parent.addEventListener('touchend', (e)=>{ const endX = e.changedTouches[0].clientX; const delta = startX - endX; if (Math.abs(delta) > 40) { if (delta > 0) next(); else prev(); } });
       }
 
-      // initialize on load: set first slide src and preload next
-      window.addEventListener('load', ()=>{
-        setIframeSrcForSlide(0);
-        setIframeSrcForSlide(1 % slides.length);
-        show();
-      });
+      window.addEventListener('load', ()=>{ show(); });
     })();
 
   </script>
