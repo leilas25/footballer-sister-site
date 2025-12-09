@@ -14,10 +14,10 @@
       --muted: #6b7280;
       --card: #ffffff;
       --shadow: 0 10px 30px rgba(11,7,17,0.06);
-      /* unified carousel height */
-      --carousel-height-desktop: 640px; /* tiktok-like height */
-      --carousel-height-tablet: 520px;
-      --carousel-height-mobile: 360px;
+      /* === ONLY CHANGED: taller carousel heights to better fit portrait TikTok videos === */
+      --carousel-height-desktop: 920px; /* increased so the full portrait video shows */
+      --carousel-height-tablet: 720px;
+      --carousel-height-mobile: 520px;
     }
     html,body{height:100%;}
     body { background: #fff2f6; color: #111827; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin:0; }
@@ -68,7 +68,7 @@
     /* carousel card container (centered) */
     .carousel-wrapper { max-width:820px; margin-left:auto; margin-right:auto; padding: 0 1rem; }
 
-    /* TikTok embed sizing — matches collab height */
+    /* TikTok embed sizing — now matches collab height */
     .video-carousel { border-radius:12px; overflow:visible; position:relative; display:flex; flex-direction:column; }
     .embed-wrap {
       position: relative;
