@@ -1,8 +1,8 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Behind the Game – The Footballer’s Sister</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
@@ -14,10 +14,6 @@
       --muted: #6b7280;
       --card: #ffffff;
       --shadow: 0 10px 30px rgba(11,7,17,0.06);
-      /* === ONLY CHANGED: taller carousel heights to better fit portrait TikTok videos === */
-      --carousel-height-desktop: 920px; /* increased so the full portrait video shows */
-      --carousel-height-tablet: 720px;
-      --carousel-height-mobile: 520px;
     }
     html,body{height:100%;}
     body { background: #fff2f6; color: #111827; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin:0; }
@@ -62,32 +58,38 @@
     .profile-meta { color: #374151; margin-top:.45rem; }
     .profile-list { margin-top:.5rem; color:#374151; font-size:.95rem; line-height:1.45; }
 
-    /* layout: stacked columns (video then collabs) on desktop */
-    .stack { display:block; }
+    /* hero and columns */
+    .two-col { display:grid; grid-template-columns: 1fr 1fr; gap:2rem; align-items:start; }
 
-    /* carousel card container (centered) */
-    .carousel-wrapper { max-width:820px; margin-left:auto; margin-right:auto; padding: 0 1rem; }
+    /* ---------------------------
+       TIKTOK CAROUSEL SIZING CHANGE
+       Make TikTok height tall enough so the full vertical video displays.
+       Desktop/tablet/mobile heights adjusted below.
+       --------------------------- */
+    :root {
+      --tiktok-height-desktop: 820px;  /* increased to show full vertical video comfortably */
+      --tiktok-height-tablet: 700px;
+      --tiktok-height-mobile: 520px;
+      --carousel-max-width: 605px; /* center width to match typical TikTok embed width */
+    }
 
-    /* TikTok embed sizing — now matches collab height */
-    .video-carousel { border-radius:12px; overflow:visible; position:relative; display:flex; flex-direction:column; }
+    /* TikTok embed sizing — taller so whole video sits comfortably */
+    .video-carousel { border-radius:12px; overflow:visible; position:relative; }
+    .carousel-center { max-width: var(--carousel-max-width); margin: 0 auto; } /* centers the carousel visually */
     .embed-wrap {
       position: relative;
       width: 100%;
       background: #fff0f6;
       border-radius: 12px;
-      height: var(--carousel-height-desktop);
+      height: var(--tiktok-height-desktop);
       overflow:hidden;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:12px;
-      box-sizing:border-box;
     }
-    @media (max-width:960px){ .embed-wrap { height: var(--carousel-height-tablet); } }
-    @media (max-width:640px){ .embed-wrap { height: var(--carousel-height-mobile); } }
+    @media (max-width:960px){ .embed-wrap { height: var(--tiktok-height-tablet); } }
+    @media (max-width:640px){ .embed-wrap { height: var(--tiktok-height-mobile); } }
 
+    .embed-wrap blockquote.tiktok-embed { margin: 0 auto; max-width: 100%; width:100%; }
     .embed-wrap iframe {
-      position:relative !important;
+      position:absolute !important;
       left:0 !important;
       top:0 !important;
       width:100% !important;
@@ -100,21 +102,27 @@
       border-radius:12px;
     }
 
-    /* collab carousel sizing — single card visible at a time */
+    /* collab carousel sizing — now match tiktok width/height and centered */
     .collab-carousel {
       border-radius:12px;
       overflow:hidden;
       width:100%;
-      max-width:820px;
-      margin:1.25rem auto 0;
+      max-width: var(--carousel-max-width);
+      margin: 1.25rem auto 0;
       position:relative;
       display:flex;
       flex-direction:column;
-      align-items:center;
     }
 
-    /* slides wrapper: one slide visible at a time */
-    #collab-slides { display:flex; transition: transform .45s ease; gap:0; width:100%; will-change: transform; }
+    /* slides wrapper: one slide visible at a time (no side-by-side) */
+    #collab-slides {
+      display:flex;
+      transition: transform .45s ease;
+      gap: 0;
+      width: 100%;
+      will-change: transform;
+    }
+
     .collab-slide {
       flex: 0 0 100%;
       max-width: 100%;
@@ -132,14 +140,14 @@
     /* match image height to embed-wrap so they look identical */
     .collab-slide img {
       width:100%;
-      height: var(--carousel-height-desktop);
+      height: var(--tiktok-height-desktop);
       object-fit:cover;
       object-position:center 22%;
       display:block;
       border-bottom: none;
     }
-    @media (max-width:960px){ .collab-slide img { height: var(--carousel-height-tablet); } }
-    @media (max-width:640px){ .collab-slide img { height: var(--carousel-height-mobile); } }
+    @media (max-width:960px){ .collab-slide img { height: var(--tiktok-height-tablet); } }
+    @media (max-width:640px){ .collab-slide img { height: var(--tiktok-height-mobile); } }
 
     /* caption style — no date */
     .collab-caption { padding:.9rem; text-align:center; font-weight:700; color:var(--accent); background:#fff; border-top:1px solid rgba(235,224,232,0.6); }
@@ -149,8 +157,8 @@
 
     /* arrow controls (placed inside each carousel) */
     .arrow-btn { background: rgba(255,255,255,0.95); width:44px; height:44px; display:flex;align-items:center;justify-content:center;border-radius:999px;border:1px solid rgba(0,0,0,0.06); box-shadow:0 10px 18px rgba(11,7,17,0.04); cursor:pointer; }
-    .video-arrow.left { position:absolute; left:8px; top:50%; transform:translateY(-50%); z-index:30; }
-    .video-arrow.right { position:absolute; right:8px; top:50%; transform:translateY(-50%); z-index:30; }
+    .video-carousel .arrow-left { position:absolute; left:8px; top:50%; transform:translateY(-50%); z-index:30; }
+    .video-carousel .arrow-right { position:absolute; right:8px; top:50%; transform:translateY(-50%); z-index:30; }
     .collab-carousel .arrow-left { position:absolute; left:10px; top:50%; transform:translateY(-50%); z-index:40; }
     .collab-carousel .arrow-right { position:absolute; right:10px; top:50%; transform:translateY(-50%); z-index:40; }
 
@@ -165,18 +173,20 @@
     .footer-badge { display:inline-block; background: linear-gradient(90deg,#be185d,#f472b6); color:white; padding:.45rem .85rem; border-radius:999px; font-weight:700; }
 
     @media (max-width:900px) {
+      .two-col { grid-template-columns: 1fr; }
+      .profile-grid { grid-template-columns: 1fr; }
       .container { padding:1rem; }
       .page-hero h2 { font-size:1.75rem; }
-      .collab-carousel { max-width:100%; margin:1rem 0; }
-      .embed-wrap { padding:10px; }
-      .collab-slide img { height: var(--carousel-height-tablet); }
+      .collab-carousel { max-width:100%; margin:1rem auto 0; }
+      .collab-carousel .arrow-left, .collab-carousel .arrow-right { left:8px; right:8px; }
+      .collab-carousel .arrow-left { left:8px; }
+      .collab-carousel .arrow-right { right:8px; }
     }
 
-    /* Modal styles (kept full info but removed upload date display) */
     .collab-modal {
       position: fixed;
       inset: 0;
-      display: none;
+      display: none; /* toggled via JS */
       align-items: center;
       justify-content: center;
       z-index: 120;
@@ -208,8 +218,18 @@
       border-top-right-radius: 14px;
       display:block;
     }
-    .collab-modal .modal-body { padding: 1rem 1.25rem 1.25rem; text-align: left; }
-    .collab-modal .modal-caption { font-weight: 800; color: var(--accent); margin-bottom: .5rem; }
+    .collab-modal .modal-body {
+      padding: 1rem 1.25rem 1.25rem;
+      text-align: left;
+    }
+    .collab-modal .modal-caption {
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: .5rem;
+    }
+    /* modal-meta still present in DOM for compatibility but we'll not set it in JS per your request */
+    .collab-modal .modal-meta { display:none; }
+
     .collab-modal .modal-close {
       position: absolute;
       top: 10px;
@@ -221,16 +241,26 @@
       cursor:pointer;
       box-shadow: 0 8px 24px rgba(11,7,17,0.08);
     }
-    .collab-modal .modal-nav {
+
+    /* modal arrows (inside modal) */
+    .modal-nav-btn {
       position:absolute;
-      left:8px;
       top:50%;
       transform:translateY(-50%);
-      z-index:60;
+      width:48px;
+      height:48px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      background:white;
+      border:1px solid rgba(0,0,0,0.06);
+      box-shadow:0 10px 18px rgba(11,7,17,0.06);
+      cursor:pointer;
+      z-index:140;
     }
-    .collab-modal .modal-nav.right {
-      left:auto; right:8px;
-    }
+    .modal-nav-left { left:12px; }
+    .modal-nav-right { right:12px; }
 
     /* ensure keyboard focus outline visible */
     .collab-slide a, .collab-slide img { outline: none; }
@@ -283,7 +313,7 @@
 
   <main class="container">
 
-    <!-- Player profiles (kept intact) -->
+    <!-- Player profiles (RESTORED) -->
     <section class="profile-grid" aria-label="Meet the brothers">
       <!-- Elijah -->
       <div class="profile-card">
@@ -382,68 +412,79 @@
       </div>
     </section>
 
-    <!-- VIDEO (centered) then COLLABS under it -->
-    <div class="stack">
-      <div class="carousel-wrapper">
+    <!-- Two-column: left = TikTok (with collabs moved below inside same column), right = empty for balance -->
+    <section class="two-col" aria-label="Vlogs and Collaborations">
+
+      <!-- LEFT: TikTok carousel -->
+      <div>
         <h3 style="text-align:center; color:var(--accent); font-weight:800; margin-bottom:1rem;">My Vlogs & Highlights</h3>
 
-        <!-- TikTok carousel -->
-        <div class="video-carousel" style="position:relative;">
-          <div class="embed-wrap" aria-hidden="false">
-            <div id="video-slides-container" style="display:flex; transition:transform .45s ease; gap:0; width:100%;">
-              <!-- Slide 1 -->
+        <!-- center the carousel using .carousel-center -->
+        <div class="carousel-center">
+          <div class="video-carousel" style="position:relative;">
+            <div id="video-slides-container" style="display:flex; transition:transform .45s ease; gap:0; overflow:hidden; border-radius:12px; width:100%;">
               <div class="slide" style="min-width:100%; box-sizing:border-box;">
-                <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+                <div class="embed-wrap">
+                  <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" loading="lazy" allowfullscreen></iframe>
+                </div>
               </div>
 
-              <!-- Slide 2 -->
               <div class="slide" style="min-width:100%; box-sizing:border-box;">
-                <iframe src="https://www.tiktok.com/embed/v2/7514262969786567943" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+                <div class="embed-wrap">
+                  <iframe src="https://www.tiktok.com/embed/v2/7514262969786567943" loading="lazy" allowfullscreen></iframe>
+                </div>
               </div>
 
-              <!-- Slide 3 -->
               <div class="slide" style="min-width:100%; box-sizing:border-box;">
-                <iframe src="https://www.tiktok.com/embed/v2/7576746597195779346" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+                <div class="embed-wrap">
+                  <iframe src="https://www.tiktok.com/embed/v2/7576746597195779346" loading="lazy" allowfullscreen></iframe>
+                </div>
               </div>
 
-              <!-- Slide 4 -->
               <div class="slide" style="min-width:100%; box-sizing:border-box;">
-                <iframe src="https://www.tiktok.com/embed/v2/7571503785806155016" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+                <div class="embed-wrap">
+                  <iframe src="https://www.tiktok.com/embed/v2/7571503785806155016" loading="lazy" allowfullscreen></iframe>
+                </div>
               </div>
+            </div>
 
-              <!-- Slide 5 (extra you provided) -->
-              <div class="slide" style="min-width:100%; box-sizing:border-box;">
-                <iframe src="https://www.tiktok.com/embed/v2/7571823112166165767" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
-              </div>
+            <!-- video arrows (positioned relative to carousel-center) -->
+            <button id="prevBtn" class="arrow-btn video-arrow arrow-left" aria-label="Previous video" style="position:absolute; left:8px; top:50%; transform:translateY(-50%);"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
+            <button id="nextBtn" class="arrow-btn video-arrow arrow-right" aria-label="Next video" style="position:absolute; right:8px; top:50%; transform:translateY(-50%);"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
+          </div>
+        </div>
 
-              <!-- add more slides as needed -->
+        <!-- -------------------------
+             COLLAB GALLERY (now matches tiktok width/height and centered)
+             ------------------------- -->
+        <h3 style="text-align:center; color:var(--accent); font-weight:800; margin:1.6rem 0 0.6rem;">Collaborations</h3>
+
+        <!-- Instruction caption (unchanged) -->
+        <div class="collab-instruction" aria-hidden="false">
+          Click to open collabs
+        </div>
+
+        <!-- Collab carousel centered and matching TikTok width -->
+        <div class="collab-carousel" aria-roledescription="carousel" role="region">
+          <div id="collab-slides" style="display:flex; transition:transform .45s ease; gap:0;">
+            <!-- placeholder slide shown while loading -->
+            <div class="collab-slide" style="min-width:100%; display:flex; align-items:center; justify-content:center; padding:2.5rem;">
+              <div style="color:var(--muted);">Loading collaborations…</div>
             </div>
           </div>
 
-          <!-- arrows (inside video area) -->
-          <button id="prevBtn" class="arrow-btn video-arrow left" aria-label="Previous video"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
-          <button id="nextBtn" class="arrow-btn video-arrow right" aria-label="Next video"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
-        </div>
-      </div>
-
-      <!-- Collabs (under video) -->
-      <div class="collab-carousel" aria-roledescription="carousel" role="region" aria-label="Collaborations">
-        <h3 style="text-align:center; color:var(--accent); font-weight:800; margin-bottom:0.75rem;">Collaborations</h3>
-        <div class="collab-instruction">Click to open collabs</div>
-
-        <div id="collab-slides" style="display:flex; transition:transform .45s ease; gap:0; width:100%;">
-          <!-- placeholder slide shown while loading -->
-          <div class="collab-slide" style="min-width:100%; display:flex; align-items:center; justify-content:center; padding:2.5rem;">
-            <div style="color:var(--muted);">Loading collaborations…</div>
-          </div>
+          <button id="collabPrev" class="arrow-btn arrow-left" aria-label="Previous collab">‹</button>
+          <button id="collabNext" class="arrow-btn arrow-right" aria-label="Next collab">›</button>
         </div>
 
-        <button id="collabPrev" class="arrow-btn arrow-left" aria-label="Previous collab">‹</button>
-        <button id="collabNext" class="arrow-btn arrow-right" aria-label="Next collab">›</button>
-
-        <div id="collabDebug" class="muted" style="display:none"></div>
       </div>
-    </div>
+
+      <!-- RIGHT column preserved but left intentionally blank so grid stays consistent on desktop.
+           You can keep this for layout balance, or remove it later if you'd prefer full-width.
+      -->
+      <div aria-hidden="true"></div>
+
+    </section>
 
     <!-- Support Wall (restored) -->
     <section style="margin-top:2.25rem;">
@@ -479,7 +520,7 @@
   <!-- TikTok embed script -->
   <script async src="https://www.tiktok.com/embed.js"></script>
 
-  <!-- Navbar dropdown script (keeps your behaviour) -->
+  <!-- Navbar dropdown script (fixed and accessible) -->
   <script>
     (function () {
       const navButton = document.getElementById('navButton');
@@ -487,6 +528,7 @@
       const navItems = document.querySelectorAll('.nav-item');
       const navTitle = document.getElementById('navTitle');
 
+      // determine current page (treat root "/" as index.html)
       let currentPage = window.location.pathname.split('/').pop();
       if (!currentPage || currentPage === '') currentPage = 'index.html';
 
@@ -500,22 +542,33 @@
       };
       navTitle.textContent = pageTitles[currentPage] || "Menu";
 
+      // highlight current page
       navItems.forEach(link => {
         const href = link.getAttribute('href');
         const hrefName = href.split('/').pop();
         if (hrefName === currentPage) link.classList.add("font-semibold", "text-rose-600");
-        link.addEventListener('click', (e) => { closeMenu(); });
+
+        // make nav items close dropdown on click and navigate
+        link.addEventListener('click', (e) => {
+          // normal navigation allowed; just ensure dropdown closes quickly for UX
+          closeMenu();
+        });
       });
 
+      // open/close helpers: use inline display to avoid collisions with other hidden classes
       function openMenu(){
         dropdownMenu.style.display = 'block';
+        // small delay to allow transition
         requestAnimationFrame(()=> dropdownMenu.classList.add('open'));
         navButton.setAttribute('aria-expanded','true');
         dropdownMenu.setAttribute('aria-hidden','false');
       }
       function closeMenu(){
         dropdownMenu.classList.remove('open');
-        setTimeout(()=> { dropdownMenu.style.display = 'none'; }, 200);
+        // wait for transition then hide
+        setTimeout(()=> {
+          dropdownMenu.style.display = 'none';
+        }, 200);
         navButton.setAttribute('aria-expanded','false');
         dropdownMenu.setAttribute('aria-hidden','true');
       }
@@ -526,11 +579,15 @@
         if (!isOpen) openMenu(); else closeMenu();
       });
 
+      // close when clicking outside
       document.addEventListener('click', (e) => {
         if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) closeMenu();
       });
+
+      // close on escape
       document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
 
+      // small fix: ensure menu is hidden on load
       window.addEventListener('load', ()=> {
         dropdownMenu.style.display = 'none';
         dropdownMenu.classList.remove('open');
@@ -546,7 +603,7 @@
     import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // your firebase config (unchanged)
+    // your firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
       authDomain: "football-site-c3aa9.firebaseapp.com",
@@ -604,10 +661,9 @@
       }
       items.forEach((it, idx)=>{
         const wrapper = document.createElement('div'); wrapper.className='collab-slide'; wrapper.style.minWidth='100%';
-        const imageUrl = it.imageUrl||it.image||it.url||'';
-        const caption = it.caption||it.title||'';
+        const imageUrl = it.imageUrl||it.image||it.url||''; const caption = it.caption||it.title||'';
         wrapper.innerHTML = `
-          <a href="${escapeHtml(it.link||'')}" target="_blank" rel="noreferrer" class="collab-thumb" data-index="${idx}" style="display:block; width:100%; height:100%;">
+          <a href="${escapeHtml(it.link||'')}" target="_blank" rel="noreferrer" class="collab-thumb" data-index="${idx}">
             <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(caption)}" />
           </a>
           <div class="collab-caption">${escapeHtml(caption||'')}</div>
@@ -616,7 +672,7 @@
       });
       collabIndex=0; updateCollabPosition();
 
-      // attach click handlers for modal preview
+      // attach hover/click handlers for modal preview
       attachCollabPreviewHandlers();
     }
 
@@ -646,11 +702,12 @@
     modal.innerHTML = `
       <div class="modal-card" role="document">
         <button class="modal-close" aria-label="Close preview">&times;</button>
-        <button class="arrow-btn modal-nav arrow-left" aria-label="Previous in modal" style="left:8px; top:50%; position:absolute; z-index:70;">‹</button>
-        <button class="arrow-btn modal-nav arrow-right right" aria-label="Next in modal" style="right:8px; top:50%; position:absolute; z-index:70;">›</button>
+        <button class="modal-nav-btn modal-nav-left" aria-label="Prev in modal">‹</button>
+        <button class="modal-nav-btn modal-nav-right" aria-label="Next in modal">›</button>
         <img class="modal-img" src="" alt="" />
         <div class="modal-body">
           <div class="modal-caption"></div>
+          <div class="modal-meta"></div>
         </div>
       </div>
     `;
@@ -659,54 +716,80 @@
     const modalCard = modal.querySelector('.modal-card');
     const modalImg = modal.querySelector('.modal-img');
     const modalCaption = modal.querySelector('.modal-caption');
+    const modalMeta = modal.querySelector('.modal-meta');
     const modalCloseBtn = modal.querySelector('.modal-close');
-    const modalPrevBtn = modal.querySelector('.modal-nav.arrow-left');
-    const modalNextBtn = modal.querySelector('.modal-nav.arrow-right');
+    const modalPrevBtn = modal.querySelector('.modal-nav-left');
+    const modalNextBtn = modal.querySelector('.modal-nav-right');
 
-    let modalOpenIndex = -1;
+    let modalOpenTimer = null;
+    let modalCurrentIndex = 0;
 
     function openModalForIndex(index){
       const item = collabItems[index];
       if (!item) return;
+      modalCurrentIndex = index;
       const src = item.imageUrl || item.image || item.url || '';
       const caption = item.caption || item.title || '';
       modalImg.src = src;
       modalImg.alt = caption || 'Collaboration image';
       modalCaption.textContent = caption || '';
+      // per your request: DO NOT show upload date — leave modal-meta empty
+      modalMeta.textContent = '';
       modal.classList.add('open');
-      modalOpenIndex = index;
+      // focus trap: focus close button
       modalCloseBtn.focus();
+      // prevent body scroll when modal open
       document.documentElement.style.overflow = 'hidden';
+      // add keydown listener for left/right navigation while modal open
+      window.addEventListener('keydown', modalKeyHandler);
     }
 
     function closeModal(){
       modal.classList.remove('open');
       modalImg.src = '';
       modalCaption.textContent = '';
-      modalOpenIndex = -1;
+      modalMeta.textContent = '';
       document.documentElement.style.overflow = '';
+      // remove modal key handler
+      window.removeEventListener('keydown', modalKeyHandler);
     }
 
-    function modalShowPrev(){
-      if (collabItems.length === 0) return;
-      modalOpenIndex = (modalOpenIndex - 1 + collabItems.length) % collabItems.length;
-      const item = collabItems[modalOpenIndex];
+    function modalShowIndex(idx){
+      if (!collabItems || !collabItems.length) return;
+      modalCurrentIndex = ((idx % collabItems.length) + collabItems.length) % collabItems.length;
+      const item = collabItems[modalCurrentIndex];
+      if (!item) return;
       modalImg.src = item.imageUrl || item.image || item.url || '';
+      modalImg.alt = item.caption || item.title || '';
       modalCaption.textContent = item.caption || item.title || '';
+      modalMeta.textContent = ''; // keep blank per request
     }
 
-    function modalShowNext(){
-      if (collabItems.length === 0) return;
-      modalOpenIndex = (modalOpenIndex + 1) % collabItems.length;
-      const item = collabItems[modalOpenIndex];
-      modalImg.src = item.imageUrl || item.image || item.url || '';
-      modalCaption.textContent = item.caption || item.title || '';
+    function modalNext(){
+      if (!collabItems.length) return;
+      modalShowIndex(modalCurrentIndex + 1);
+    }
+    function modalPrev(){
+      if (!collabItems.length) return;
+      modalShowIndex(modalCurrentIndex - 1);
     }
 
+    function modalKeyHandler(e){
+      if (!modal.classList.contains('open')) return;
+      if (e.key === 'ArrowLeft') { e.preventDefault(); modalPrev(); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); modalNext(); }
+      else if (e.key === 'Escape') { e.preventDefault(); closeModal(); }
+    }
+
+    // ---------- REPLACED attachCollabPreviewHandlers (click-only for desktop & mobile) ----------
     function attachCollabPreviewHandlers(){
+      // defensive: clear any previously scheduled timer(s)
+      if (modalOpenTimer) { clearTimeout(modalOpenTimer); modalOpenTimer = null; }
+
       // Collect all thumbs
       const thumbsNodeList = collabSlidesEl.querySelectorAll('.collab-thumb');
-      // remove old listeners by cloning
+
+      // To avoid duplicate event listeners, replace each thumb with a clone (removes all prior listeners)
       const thumbs = Array.from(thumbsNodeList).map((thumb) => {
         const clone = thumb.cloneNode(true);
         thumb.parentNode.replaceChild(clone, thumb);
@@ -716,25 +799,32 @@
       thumbs.forEach((thumb) => {
         thumb.setAttribute('tabindex', '0');
         const idx = Number(thumb.getAttribute('data-index'));
-        thumb.addEventListener('click', (e) => { e.preventDefault(); openModalForIndex(idx); });
-        thumb.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModalForIndex(idx); } });
+
+        // Always use click/tap to open per your request (desktop & mobile)
+        thumb.addEventListener('click', (e) => {
+          e.preventDefault();
+          openModalForIndex(idx);
+        });
+
+        // keyboard support: Enter or Space opens modal
+        thumb.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openModalForIndex(idx);
+          }
+        });
       });
     }
 
+    // modal interactions
     modalCloseBtn.addEventListener('click', closeModal);
-    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && modal.classList.contains('open')) closeModal();
-      // left/right navigation when modal open
-      if (modal.classList.contains('open')) {
-        if (e.key === 'ArrowLeft') { e.preventDefault(); modalShowPrev(); }
-        if (e.key === 'ArrowRight') { e.preventDefault(); modalShowNext(); }
-      }
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
     });
-    modalPrevBtn.addEventListener('click', (e)=>{ e.stopPropagation(); modalShowPrev(); });
-    modalNextBtn.addEventListener('click', (e)=>{ e.stopPropagation(); modalShowNext(); });
+    modalPrevBtn.addEventListener('click', (e) => { e.preventDefault(); modalPrev(); });
+    modalNextBtn.addEventListener('click', (e) => { e.preventDefault(); modalNext(); });
 
-    // ---------- Collab swipe support & keep arrows working ----------
+    // collab swipe support & keep arrows working (keeps idx in range)
     (function(){
       const slides = document.getElementById('collab-slides');
       if (!slides) return;
@@ -761,7 +851,7 @@
       observer.observe(slides, { childList: true, subtree: false });
     })();
 
-    // ---------- TikTok carousel controls (works with iframes) ----------
+    // ---------- TikTok carousel controls (separate carousel) ----------
     (function(){
       const slidesContainer = document.getElementById('video-slides-container');
       const prevBtn = document.getElementById('prevBtn');
@@ -778,18 +868,17 @@
       if (nextBtn) nextBtn.addEventListener('click', next);
       if (prevBtn) prevBtn.addEventListener('click', prev);
 
-      // touch swipe support on the carousel wrapper
+      // swipe
       let startX = 0;
       const parent = slidesContainer.parentElement;
       if (parent){
         parent.addEventListener('touchstart', (e)=> startX = e.touches[0].clientX);
-        parent.addEventListener('touchend', (e)=>{ const endX = e.changedTouches[0].clientX; const delta = startX - endX; if (Math.abs(delta) > 40) { if (delta > 0) next(); else prev(); } });
+        parent.addEventListener('touchend', (e)=>{ const endX = e.changedTouches[0].clientX; const delta = startX - endX; if (Math.abs(delta) > 50) { if (delta > 0) next(); else prev(); } });
       }
 
-      // initialize: ensure first slide visible
       window.addEventListener('load', ()=>{ show(); });
-
     })();
+
   </script>
 </body>
 </html>
