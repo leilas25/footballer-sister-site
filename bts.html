@@ -393,7 +393,7 @@
         <div class="profile-list">
           <h4 style="color:var(--accent); font-weight:700;">Key Attributes:</h4>
           <ul style="margin-top:.5rem; list-style:disc; padding-left:1.25rem;">
-            <li><strong>Dribbling:</strong> Able to take on defenders with close control and quick feet.</li>
+            <li><strong>Dribbling:</strong> Able to take on defenders with close control and quick feet.</li>  
             <li><strong>Passing:</strong> Excellent vision to deliver precise short passes or long balls.</li>
             <li><strong>Shooting:</strong> Known as a free-kick or corner kick taker.</li>
           </ul>
@@ -423,36 +423,27 @@
         <div class="carousel-center">
           <div class="video-carousel" style="position:relative;">
             <div id="video-slides-container" style="display:flex; transition:transform .45s ease; gap:0; overflow:hidden; border-radius:12px; width:100%;">
-              <!-- existing video slides kept in original order; replaced blockquotes with iframe embeds -->
               <div class="slide" style="min-width:100%; box-sizing:border-box;">
                 <div class="embed-wrap">
-                  <iframe data-src="https://www.tiktok.com/embed/v2/7529094647944072454" src="" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+                  <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" loading="lazy" allowfullscreen></iframe>
                 </div>
               </div>
 
               <div class="slide" style="min-width:100%; box-sizing:border-box;">
                 <div class="embed-wrap">
-                  <iframe data-src="https://www.tiktok.com/embed/v2/7514262969786567943" src="" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+                  <iframe src="https://www.tiktok.com/embed/v2/7514262969786567943" loading="lazy" allowfullscreen></iframe>
                 </div>
               </div>
 
               <div class="slide" style="min-width:100%; box-sizing:border-box;">
                 <div class="embed-wrap">
-                  <iframe data-src="https://www.tiktok.com/embed/v2/7576746597195779346" src="" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+                  <iframe src="https://www.tiktok.com/embed/v2/7576746597195779346" loading="lazy" allowfullscreen></iframe>
                 </div>
               </div>
 
-              <!-- newly added TikToks you provided -->
               <div class="slide" style="min-width:100%; box-sizing:border-box;">
                 <div class="embed-wrap">
-                  <iframe data-src="https://www.tiktok.com/embed/v2/7571823112166165767" src="" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
-                </div>
-              </div>
-
-              <!-- original remaining slide -->
-              <div class="slide" style="min-width:100%; box-sizing:border-box;">
-                <div class="embed-wrap">
-                  <iframe data-src="https://www.tiktok.com/embed/v2/7571503785806155016" src="" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>
+                  <iframe src="https://www.tiktok.com/embed/v2/7571503785806155016" loading="lazy" allowfullscreen></iframe>
                 </div>
               </div>
             </div>
@@ -885,23 +876,7 @@
         parent.addEventListener('touchend', (e)=>{ const endX = e.changedTouches[0].clientX; const delta = startX - endX; if (Math.abs(delta) > 50) { if (delta > 0) next(); else prev(); } });
       }
 
-      // PRELOAD: set iframe src from data-src so every slide actually loads its embed.
-      function preloadAllIframes(){
-        for (let i=0;i<slides.length;i++){
-          try {
-            const iframe = slides[i].querySelector('iframe');
-            if (!iframe) continue;
-            const dataSrc = iframe.getAttribute('data-src');
-            if (dataSrc && (!iframe.src || iframe.src === '' || iframe.src === 'about:blank')) {
-              iframe.src = dataSrc;
-            }
-          } catch (e) { /* ignore individual slide errors */ }
-        }
-      }
-
-      // ensure iframes get their src after page load and a small fallback delay
-      window.addEventListener('load', ()=>{ preloadAllIframes(); show(); });
-      setTimeout(()=> { preloadAllIframes(); show(); }, 700);
+      window.addEventListener('load', ()=>{ show(); });
     })();
 
   </script>
