@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Essentials – The Footballer’s Sister</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root {
+      --accent: #be185d;
+      --bg: #fff2f6;
+    }
+    body {
+      background: var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui;
+      color: #111827;
+      margin: 0;
+    }
+
+    header {
+      background: linear-gradient(180deg, rgba(246,213,239,0.6), rgba(255,241,248,0.6));
+      border-bottom: 1px solid rgba(235,200,215,0.6);
+      backdrop-filter: blur(4px);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .site-title {
+      color: var(--accent);
+      font-weight: 800;
+      letter-spacing: .02em;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    .blog-card {
+      background: white;
+      border-radius: 1.25rem;
+      border: 1px solid #fbcfe8;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      padding: 1.75rem;
+      margin-top: 2rem;
+    }
+
+    footer {
+      margin-top: 3rem;
+      text-align: center;
+    }
+
+    .footer-badge {
+      background: linear-gradient(90deg,#be185d,#f472b6);
+      color: white;
+      padding: .45rem .85rem;
+      border-radius: 999px;
+      font-weight: 700;
+      display: inline-block;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="container flex justify-between items-center">
+    <div class="site-title text-lg">THE FOOTBALLER’S SISTER</div>
+    <a href="bts.html"
+       class="text-sm font-semibold text-rose-600 bg-white border border-pink-200 px-4 py-2 rounded-full hover:bg-pink-50 transition">
+      ← Back to Behind the Game
+    </a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="container text-center mt-6">
+  <h1 class="text-4xl font-extrabold text-rose-600">
+    From One Football Family to Another 🤍
+  </h1>
+
+  <p class="max-w-2xl mx-auto text-gray-600 mt-4">
+    A curated space where I share the things that support our football journey —
+    on the sidelines, behind the scenes, and in everyday life.
+  </p>
+
+  <p class="max-w-xl mx-auto text-sm text-gray-400 mt-3">
+    Some links may earn me a small commission at no extra cost to you.
+    Thank you for supporting my journey 🤍
+  </p>
+</section>
+
+<!-- BLOG POSTS -->
+
+<main class="container">
+
+  <!-- POST 1 -->
+  <div class="blog-card">
+    <h2 class="text-2xl font-extrabold text-rose-600 mb-3">
+      Matchday Essentials I Never Forget ⚽
+    </h2>
+
+    <p class="text-gray-600 mb-4">
+      Matchdays are long — early mornings, late finishes, emotions running high.
+      These are the small things that make the day smoother,
+      whether you're on the pitch or standing on the sidelines.
+    </p>
+
+    <ul class="list-disc pl-5 text-gray-600 space-y-2 mb-5">
+      <li>A reliable water bottle (hydration is everything)</li>
+      <li>Comfortable trainers for long days on your feet</li>
+      <li>A compact bag that fits essentials without being bulky</li>
+    </ul>
+
+    <a href="YOUR_AMAZON_LINK"
+       target="_blank"
+       rel="nofollow sponsored"
+       class="inline-block bg-rose-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-rose-700 transition">
+      Shop Matchday Essentials
+    </a>
+  </div>
+
+  <!-- POST 2 -->
+  <div class="blog-card">
+    <h2 class="text-2xl font-extrabold text-rose-600 mb-3">
+      What I Use to Film My Content 📸
+    </h2>
+
+    <p class="text-gray-600 mb-4">
+      Most of my content is filmed in real moments — before matches,
+      after games, or on the go. These tools help me capture memories
+      without overcomplicating things.
+    </p>
+
+    <ul class="list-disc pl-5 text-gray-600 space-y-2 mb-5">
+      <li>Phone tripod with adjustable height</li>
+      <li>Clip-on microphone for clear audio</li>
+      <li>Portable ring light for evening content</li>
+    </ul>
+
+    <a href="YOUR_AMAZON_LINK"
+       target="_blank"
+       rel="nofollow sponsored"
+       class="inline-block bg-rose-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-rose-700 transition">
+      View My Content Tools
+    </a>
+  </div>
+
+  <!-- POST 3 -->
+  <div class="blog-card">
+    <h2 class="text-2xl font-extrabold text-rose-600 mb-3">
+      Recovery Matters Too 🤍
+    </h2>
+
+    <p class="text-gray-600 mb-4">
+      Football isn't just about training hard — recovery is part of the journey.
+      These are recovery tools I believe every football family should know about.
+    </p>
+
+    <ul class="list-disc pl-5 text-gray-600 space-y-2 mb-5">
+      <li>Foam roller or massage gun</li>
+      <li>Comfortable slides for post-match recovery</li>
+      <li>Stretching bands for mobility</li>
+    </ul>
+
+    <a href="YOUR_AMAZON_LINK"
+       target="_blank"
+       rel="nofollow sponsored"
+       class="inline-block bg-rose-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-rose-700 transition">
+      Shop Recovery Favourites
+    </a>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <small class="footer-badge">
+      © <span id="year"></span> The Footballer’s Sister
+    </small>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>
