@@ -1770,16 +1770,6 @@
       fxStatusMsg.textContent = '';
     });
 
-    // ---------- start: ensure auth + show admin -->
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        signInAnonymously(auth).catch(err => {
-          console.warn('Anonymous sign-in failed (not fatal):', err);
-        });
-      }
-    });
-
-    // done
   </script>
 </body>
 </html>
