@@ -491,27 +491,43 @@
     });
 
     // Auth state
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
+    onAuthStateChanged(auth, async (user) => {
+
+    // 🚫 HARD BLOCK anonymous users (fixes multi-device issue)
+    if (user && user.isAnonymous) {
+      await signOut(auth);
+      loginMessage.textContent = 'Admin login required.';
+      loginSection.classList.remove('hidden-el');
+      adminUI.classList.add('hidden-el');
+      hideAllPanes();
+      return;
+    }
+
+    if (!user) {
+      loginSection.classList.remove('hidden-el');
+      adminUI.classList.add('hidden-el');
+      hideAllPanes();
+      return;
+    }
+
+
+      // Show signed-in UID + email for debugging
+      loginMessage.textContent = 'Signed in UID: ' + (user.uid || '(none)') + ' — Email: ' + (user.email || '(no-email)');
+
+      // Allow admin if UID matches OR email matches ADMIN_EMAIL (case-insensitive)
+      const isAdmin =
+      user.email &&
+      user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+
+      if (!isAdmin) {
+        await signOut(auth);
+        loginMessage.textContent = 'This account is not authorised as admin.';
         loginSection.classList.remove('hidden-el');
         adminUI.classList.add('hidden-el');
         hideAllPanes();
         return;
       }
 
-      // Show signed-in UID + email for debugging
-      loginMessage.textContent = 'Signed in UID: ' + (user.uid || '(none)') + ' — Email: ' + (user.email || '(no-email)');
-
-      // Allow admin if UID matches OR email matches ADMIN_EMAIL (case-insensitive)
-      const isAdminByUid = (user.uid === ADMIN_UID);
-      const isAdminByEmail = (user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
-
-      if (!isAdminByUid && !isAdminByEmail) {
-        // If not the expected admin, sign out and show message
-        signOut(auth).catch(()=>{});
-        loginMessage.textContent = `Signed in UID ${user.uid} / Email ${user.email || '(none)'} is not the configured admin. Signed out.`;
-        return;
-      }
 
       // If we reach here the user is allowed admin access
       loginSection.classList.add('hidden-el');
