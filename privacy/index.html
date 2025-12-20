@@ -1,32 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Privacy Policy | The Footballer’s Sister</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>Privacy Policy – The Footballer’s Sister</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root {
+      --accent: #be185d;
+      --bg: #fff2f6;
+      --card: #ffffff;
+    }
+
+    body {
+      background: var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui;
+      color: #111827;
+      margin: 0;
+    }
+
+    header {
+      background: linear-gradient(180deg, rgba(246,213,239,0.6), rgba(255,241,248,0.6));
+      border-bottom: 1px solid rgba(235,200,215,0.6);
+      backdrop-filter: blur(4px);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    .policy-card {
+      background: var(--card);
+      border-radius: 1.25rem;
+      border: 1px solid #fbcfe8;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      padding: 2rem;
+      margin-top: 2rem;
+    }
+
+    h1 {
+      color: var(--accent);
+      font-size: 2.5rem;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    h2 {
+      color: var(--accent);
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-top: 2rem;
+      margin-bottom: .5rem;
+    }
+
+    p {
+      color: #4b5563;
+      line-height: 1.7;
+      margin-top: .5rem;
+    }
+
+    a {
+      color: var(--accent);
+      font-weight: 600;
+      text-decoration: underline;
+    }
+
+    footer {
+      margin-top: 3rem;
+      text-align: center;
+    }
+
+    .footer-badge {
+      background: linear-gradient(90deg,#be185d,#f472b6);
+      color: white;
+      padding: .45rem .85rem;
+      border-radius: 999px;
+      font-weight: 700;
+      display: inline-block;
+    }
+  </style>
 </head>
-<body style="font-family:Arial; padding:40px; max-width:900px; margin:auto; line-height:1.6;">
 
-<h1>Privacy Policy</h1>
+<body>
 
-<p>At The Footballer’s Sister, accessible at thefootballerssister.co.za, we value your privacy.</p>
+<!-- HEADER -->
+<header>
+  <div class="container flex justify-between items-center">
+    <div class="text-lg font-extrabold text-rose-600">
+      THE FOOTBALLER’S SISTER
+    </div>
 
-<h2>Information We Collect</h2>
-<p>We may collect personal information such as names or email addresses when visitors voluntarily submit forms.</p>
+    <a href="index.html"
+       class="text-sm font-semibold text-rose-600 bg-white border border-pink-200 px-4 py-2 rounded-full hover:bg-pink-50 transition">
+      ← Back to Home
+    </a>
+  </div>
+</header>
 
-<h2>Cookies & Advertising</h2>
-<p>We use cookies to personalize content and ads, provide social media features, and analyze our traffic.</p>
+<!-- CONTENT -->
+<main class="container">
+  <div class="policy-card">
 
-<p>Google, as a third-party vendor, uses cookies (including the DoubleClick cookie) to serve ads based on users’ visits to this and other websites.</p>
+    <h1>Privacy Policy 🤍</h1>
 
-<p>Users may opt out of personalized advertising by visiting:  
-<a href="https://www.adssettings.google.com" target="_blank">https://www.adssettings.google.com</a></p>
+    <p>
+      At <strong>The Footballer’s Sister</strong>, accessible at
+      <strong>thefootballerssister.co.za</strong>, your privacy matters to us.
+      This page explains what information we collect and how it is used.
+    </p>
 
-<h2>Third-Party Privacy Policies</h2>
-<p>The Footballer’s Sister’s Privacy Policy does not apply to other advertisers or websites.</p>
+    <h2>Information We Collect</h2>
+    <p>
+      We may collect personal information such as your name or email address
+      when you voluntarily submit a form, leave a message, or contact us directly.
+      We only collect what is necessary and never sell your data.
+    </p>
 
-<h2>Consent</h2>
-<p>By using our website, you consent to our Privacy Policy.</p>
+    <h2>Cookies & Advertising</h2>
+    <p>
+      We use cookies to personalize content, improve your experience,
+      analyze site traffic, and support advertising efforts.
+    </p>
+
+    <p>
+      Google, as a third-party vendor, uses cookies (including the DoubleClick cookie)
+      to serve ads based on your visits to this and other websites.
+    </p>
+
+    <p>
+      You can opt out of personalized Google advertising by visiting:
+      <br />
+      <a href="https://www.adssettings.google.com" target="_blank" rel="noopener">
+        https://www.adssettings.google.com
+      </a>
+    </p>
+
+    <h2>Third-Party Privacy Policies</h2>
+    <p>
+      The Footballer’s Sister’s Privacy Policy does not apply to other advertisers,
+      affiliate links, or external websites. We encourage you to review their
+      privacy policies separately.
+    </p>
+
+    <h2>Your Consent</h2>
+    <p>
+      By using our website, you hereby consent to our Privacy Policy
+      and agree to its terms.
+    </p>
+
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <small class="footer-badge">
+      © <span id="year"></span> The Footballer’s Sister
+    </small>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
 
 </body>
 </html>
