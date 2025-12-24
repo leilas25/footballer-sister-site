@@ -72,7 +72,7 @@
     :root {
       --tiktok-height-desktop: 820px;  /* increased to show full vertical video comfortably */
       --tiktok-height-tablet: 700px;
-      --tiktok-height-mobile: 520px;
+      --tiktok-height-mobile: 460px;
       --carousel-max-width: 605px; /* center width to match typical TikTok embed width */
     }
     /* TikTok embed sizing — taller so whole video sits comfortably */
@@ -172,8 +172,12 @@
     .footer-badge { display:inline-block; background: linear-gradient(90deg,#be185d,#f472b6); color:white; padding:.45rem .85rem; border-radius:999px; font-weight:700; }
 
     @media (max-width:900px) {
-      .two-col { grid-template-columns: 1fr; }
-      .profile-grid { grid-template-columns: 1fr; }
+      .two-col,
+      .profile-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+      }
       .container { padding:1rem; }
       .page-hero h2 { font-size:1.75rem; }
       .collab-carousel { max-width:100%; margin:1rem auto 0; }
@@ -271,10 +275,6 @@
       padding-left: 1rem !important;
       padding-right: 1rem !important;
     }
-    /* FORCE VERTICAL STACKING */
-    .flex {
-      flex-direction: column !important;
-    }
     /* FIX COLLAB / GALLERY IMAGES */
     img {
       max-width: 100%;
@@ -306,6 +306,41 @@
       width: 100% !important;
       margin-bottom: 1.25rem;
     }
+  }
+  /* ===============================
+   MOBILE CENTERING & OVERFLOW FIX
+   =============================== */
+@media (max-width: 768px) {
+  html, body {
+    width: 100%;
+    overflow-x: hidden;
+  }
+  .container {
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  main {
+    max-width: 100%;
+  }
+  section {
+    max-width: 100%;
+  }
+}
+  /* CENTER CAROUSELS ON MOBILE */
+  .carousel-center,
+  .collab-carousel {
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  /* FIX COLLAB IMAGE OVERFLOW ON MOBILE */
+  .collab-slide img {
+    height: auto !important;
+    max-height: 360px;
+    object-fit: cover;
   }
   </style>
 </head>
@@ -452,14 +487,11 @@
         </div>
       </div>
     </section>
-
     <!-- Two-column: left = TikTok (with collabs moved below inside same column), right = empty for balance -->
     <section class="two-col" aria-label="Vlogs and Collaborations">
-
       <!-- LEFT: TikTok carousel -->
       <div>
         <h3 style="text-align:center; color:var(--accent); font-weight:800; margin-bottom:1rem;">My Vlogs & Highlights</h3>
-
         <!-- center the carousel using .carousel-center -->
         <div class="carousel-center">
           <div class="video-carousel" style="position:relative;">
