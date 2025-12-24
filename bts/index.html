@@ -93,6 +93,27 @@
       }
     }
 
+    /* Skeleton loader for TikTok */
+  .tiktok-skeleton {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      #fde7ef 25%,
+      #fbcfe8 37%,
+      #fde7ef 63%
+    );
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+    border-radius: 12px;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 100% 0; }
+    100% { background-position: 0 0; }
+  }
+
+
     .embed-wrap blockquote.tiktok-embed { margin: 0 auto; max-width: 100%; width:100%; }
     .embed-wrap iframe {
       position:absolute !important;
@@ -504,28 +525,47 @@
               <!-- 1: 7565224564171607303 -->
               <div class="slide" style="min-width:100%; box-sizing:border-box;">
                 <div class="embed-wrap">
-                  <iframe src="https://www.tiktok.com/embed/v2/7565224564171607303" loading="lazy" allowfullscreen></iframe>
+                  <div class="tiktok-skeleton"></div>
+                  <iframe
+                    src="https://www.tiktok.com/embed/v2/7565224564171607303"
+                    loading="eager"
+                    allowfullscreen
+                    onload="this.previousElementSibling.remove()"
+                  ></iframe>
                 </div>
               </div>
 
               <!-- 2: 7562607860497059080 -->
               <div class="slide" style="min-width:100%; box-sizing:border-box;">
                 <div class="embed-wrap">
-                  <iframe src="https://www.tiktok.com/embed/v2/7562607860497059080" loading="lazy" allowfullscreen></iframe>
+                  <iframe
+                  data-src="https://www.tiktok.com/embed/v2/7562607860497059080"
+                  loading="lazy"
+                  allowfullscreen
+                  ></iframe>
+
                 </div>
               </div>
 
               <!-- 3: 7514262969786567943 -->
               <div class="slide" style="min-width:100%; box-sizing:border-box;">
                 <div class="embed-wrap">
-                  <iframe src="https://www.tiktok.com/embed/v2/7514262969786567943" loading="lazy" allowfullscreen></iframe>
+                  <iframe
+                  data-src="https://www.tiktok.com/embed/v2/7514262969786567943"
+                  loading="lazy"
+                  allowfullscreen
+                  ></iframe>
                 </div>
               </div>
 
               <!-- 4: 7529094647944072454 -->
               <div class="slide" style="min-width:100%; box-sizing:border-box;">
                 <div class="embed-wrap">
-                  <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" loading="lazy" allowfullscreen></iframe>
+                  <iframe
+                  data-src="https://www.tiktok.com/embed/v2/7529094647944072454"
+                  loading="lazy"
+                  allowfullscreen
+                  ></iframe>
                 </div>
               </div>
 
@@ -932,31 +972,35 @@
       observer.observe(slides, { childList: true, subtree: false });
     })();
     // ---------- TikTok carousel controls (separate carousel) ----------
-    (function(){
-      const slidesContainer = document.getElementById('video-slides-container');
-      const prevBtn = document.getElementById('prevBtn');
-      const nextBtn = document.getElementById('nextBtn');
-      if (!slidesContainer) return;
-      let currentIndex = 0;
-      const slides = slidesContainer.children;
+      (function(){
+        const slidesContainer = document.getElementById('video-slides-container');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        if (!slidesContainer) return;
 
-      function show(){
-        slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
-      }
-      function next(){ if (!slides.length) return; currentIndex = (currentIndex + 1) % slides.length; show(); }
-      function prev(){ if (!slides.length) return; currentIndex = (currentIndex - 1 + slides.length) % slides.length; show(); }
-      if (nextBtn) nextBtn.addEventListener('click', next);
-      if (prevBtn) prevBtn.addEventListener('click', prev);
-      // swipe
-      let startX = 0;
-      const parent = slidesContainer.parentElement;
-      if (parent){
-        parent.addEventListener('touchstart', (e)=> startX = e.touches[0].clientX);
-        parent.addEventListener('touchend', (e)=>{ const endX = e.changedTouches[0].clientX; const delta = startX - endX; if (Math.abs(delta) > 50) { if (delta > 0) next(); else prev(); } });
-      }
+        let currentIndex = 0;
+        const slides = slidesContainer.children;
 
-      window.addEventListener('load', ()=>{ show(); });
-    })();
+        function show(){
+          slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+          const slide = slides[currentIndex];
+          if (!slide) return;
+
+          const iframe = slide.querySelector('iframe');
+          if (iframe && !iframe.src) {
+            iframe.src = iframe.dataset.src;
+          }
+        }
+
+        function next(){ currentIndex = (currentIndex + 1) % slides.length; show(); }
+        function prev(){ currentIndex = (currentIndex - 1 + slides.length) % slides.length; show(); }
+
+        nextBtn?.addEventListener('click', next);
+        prevBtn?.addEventListener('click', prev);
+
+        window.addEventListener('load', show);
+      })();
 
   </script>
 </body>
