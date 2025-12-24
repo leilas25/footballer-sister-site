@@ -87,7 +87,11 @@
       overflow:hidden;
     }
     @media (max-width:960px){ .embed-wrap { height: var(--tiktok-height-tablet); } }
-    @media (max-width:640px){ .embed-wrap { height: var(--tiktok-height-mobile); } }
+    @media (max-width:640px){ 
+      .embed-wrap {
+        height: 420px;
+      }
+    }
 
     .embed-wrap blockquote.tiktok-embed { margin: 0 auto; max-width: 100%; width:100%; }
     .embed-wrap iframe {
@@ -607,6 +611,16 @@
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
   <!-- TikTok embed script -->
   <script async src="https://www.tiktok.com/embed.js"></script>
+  <script>
+  // Fix iOS Safari layout shift after TikTok loads
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.body.style.minHeight = '100vh';
+      window.dispatchEvent(new Event('resize'));
+    }, 300);
+  });
+</script>
+
   <!-- Navbar dropdown script (fixed and accessible) -->
   <script>
     (function () {
