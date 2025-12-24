@@ -24,23 +24,10 @@
       --muted: #6b7280;
       --card: #ffffff;
       --shadow: 0 10px 30px rgba(11,7,17,0.06);
-
-      /* unified heights so TikTok + collabs stay aligned */
-      --tiktok-height-desktop: 820px;
-      --tiktok-height-tablet: 700px;
-      --tiktok-height-mobile: auto; /* IMPORTANT: auto on mobile to prevent cropping */
-      --carousel-max-width: 605px;
     }
-
     html,body{height:100%;}
-    body {
-      background: #fff2f6;
-      color: #111827;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      margin:0;
-    }
-
-    /* HEADER */
+    body { background: #fff2f6; color: #111827; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin:0; }
+    /* header style saved */
     header {
       background: linear-gradient(180deg, rgba(246,213,239,0.6), rgba(255,241,248,0.6));
       border-bottom: 1px solid rgba(235,200,215,0.6);
@@ -50,174 +37,881 @@
       z-index: 40;
     }
     .site-title { color: var(--accent); font-weight: 800; letter-spacing: .02em; }
-
-    /* LAYOUT */
+    /* container */
     .container { max-width:1100px; margin:0 auto; padding:1.5rem; }
-
+    /* page title */
     .page-hero { padding-top:1.25rem; padding-bottom:1.5rem; text-align:center; }
     .page-hero h2 { font-size:2.25rem; color:var(--accent); font-weight:800; margin:0; }
-
-    /* PROFILE CARDS */
+    /* cards / player profiles match your original look */
     .profile-card {
       background: var(--card);
       border-radius: 12px;
       padding: 1rem;
       box-shadow: var(--shadow);
       border: 1px solid rgba(235,224,232,0.6);
-      display:flex;
-      flex-direction:column;
+      display:flex; flex-direction:column;
     }
     .profile-grid { display:grid; grid-template-columns: 1fr 1fr; gap:1.25rem; margin-bottom:2rem; }
+    /* make images responsive but preserve faces (object-position slightly higher) */
+    .profile-card img { width:100%; height:360px; object-fit:cover; object-position:center 28%; border-radius:10px; display:block; }
+    @media (min-width:1300px){ .profile-card img { height:420px; } }
+    @media (max-width:900px){ .profile-card img{height:320px; object-position:center 30%;} }
 
-    .profile-card img {
-      width:100%;
-      height:360px;
-      object-fit:cover;
-      object-position:center 28%;
-      border-radius:10px;
-    }
-
-    /* TWO COLUMN */
+    .profile-name-row { display:flex; align-items:center; gap:.5rem; margin-top:.6rem; }
+    .profile-name { color:var(--accent); font-weight:800; font-size:1.25rem; }
+    .social-icons { margin-left:auto; display:flex; gap:.5rem; align-items:center; }
+    .profile-meta { color: #374151; margin-top:.45rem; }
+    .profile-list { margin-top:.5rem; color:#374151; font-size:.95rem; line-height:1.45; }
+    /* hero and columns */
     .two-col { display:grid; grid-template-columns: 1fr 1fr; gap:2rem; align-items:start; }
 
-    /* TIKTOK */
-    .carousel-center { max-width: var(--carousel-max-width); margin: 0 auto; }
+    /* ---------------------------
+       TIKTOK CAROUSEL SIZING CHANGE
+       Desktop/tablet/mobile heights adjusted below.
+       --------------------------- */
+    :root {
+      --tiktok-height-desktop: 820px;  /* increased to show full vertical video comfortably */
+      --tiktok-height-tablet: 700px;
+      --tiktok-height-mobile: 520px;
+      --carousel-max-width: 605px; /* center width to match typical TikTok embed width */
+    }
+    /* TikTok embed sizing — taller so whole video sits comfortably */
+    .video-carousel { border-radius:12px; overflow:visible; position:relative; }
+    .carousel-center { max-width: var(--carousel-max-width); margin: 0 auto; } /* centers the carousel visually */
     .embed-wrap {
+      position: relative;
       width: 100%;
       background: #fff0f6;
       border-radius: 12px;
       height: var(--tiktok-height-desktop);
       overflow:hidden;
     }
+    @media (max-width:960px){ .embed-wrap { height: var(--tiktok-height-tablet); } }
+    @media (max-width:640px){ .embed-wrap { height: var(--tiktok-height-mobile); } }
 
+    .embed-wrap blockquote.tiktok-embed { margin: 0 auto; max-width: 100%; width:100%; }
     .embed-wrap iframe {
+      position:absolute !important;
+      left:0 !important;
+      top:0 !important;
       width:100% !important;
       height:100% !important;
       border:0 !important;
+      margin:0 !important;
+      padding:0 !important;
+      display:block !important;
+      background:transparent !important;
+      border-radius:12px;
     }
-
-    /* COLLABS */
+    /* collab carousel sizing — now match tiktok width/height and centered */
     .collab-carousel {
+      border-radius:12px;
+      overflow:hidden;
       width:100%;
       max-width: var(--carousel-max-width);
       margin: 1.25rem auto 0;
-      border-radius:12px;
-      overflow:hidden;
       position:relative;
+      display:flex;
+      flex-direction:column;
+    }
+    /* slides wrapper: one slide visible at a time (no side-by-side) */
+    #collab-slides {
+      display:flex;
+      transition: transform .45s ease;
+      gap: 0;
+      width: 100%;
+      will-change: transform;
     }
 
+    .collab-slide {
+      flex: 0 0 100%;
+      max-width: 100%;
+      background:var(--card);
+      border-radius:12px;
+      box-shadow: var(--shadow);
+      border:1px solid rgba(235,224,232,0.6);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      align-items:stretch;
+      justify-content:flex-start;
+    }
+
+    /* match image height to embed-wrap so they look identical */
     .collab-slide img {
       width:100%;
       height: var(--tiktok-height-desktop);
       object-fit:cover;
       object-position:center 22%;
+      display:block;
+      border-bottom: none;
     }
+    @media (max-width:960px){ .collab-slide img { height: var(--tiktok-height-tablet); } }
+    @media (max-width:640px){ .collab-slide img { height: var(--tiktok-height-mobile); } }
 
-    /* FOOTER */
-    .footer-badge {
-      display:inline-block;
-      background: linear-gradient(90deg,#be185d,#f472b6);
-      color:white;
-      padding:.45rem .85rem;
-      border-radius:999px;
-      font-weight:700;
-    }
+    /* caption style — no date */
+    .collab-caption { padding:.9rem; text-align:center; font-weight:700; color:var(--accent); background:#fff; border-top:1px solid rgba(235,224,232,0.6); }
+    .collab-caption::before { display:none !important; content:none !important; }
 
-    /* ===============================
-       MOBILE FIXES (KEY PART)
-       =============================== */
-    @media (max-width: 900px) {
+    .collab-instruction { text-align:center; color: #6b213f; font-weight:700; margin-bottom:.8rem; font-size:0.95rem; letter-spacing: .01em; display:flex; align-items:center; justify-content:center; gap:.6rem; }
+    /* arrow controls (placed inside each carousel) */
+    .arrow-btn { background: rgba(255,255,255,0.95); width:44px; height:44px; display:flex;align-items:center;justify-content:center;border-radius:999px;border:1px solid rgba(0,0,0,0.06); box-shadow:0 10px 18px rgba(11,7,17,0.04); cursor:pointer; }
+    .video-carousel .arrow-left { position:absolute; left:8px; top:50%; transform:translateY(-50%); z-index:30; }
+    .video-carousel .arrow-right { position:absolute; right:8px; top:50%; transform:translateY(-50%); z-index:30; }
+    .collab-carousel .arrow-left { position:absolute; left:10px; top:50%; transform:translateY(-50%); z-index:40; }
+    .collab-carousel .arrow-right { position:absolute; right:10px; top:50%; transform:translateY(-50%); z-index:40; }
+
+    .dropdown-anim { transition: opacity .18s ease, transform .18s ease; transform-origin: top right; opacity:0; transform: scale(.96); }
+    .dropdown-anim.open { opacity:1; transform: scale(1); }
+
+    #collabDebug { display:none; }
+
+    .support-card { background:linear-gradient(180deg,#fff,#fff); border-radius:14px; padding:1rem; border:1px solid rgba(235,224,232,0.6); box-shadow:var(--shadow); }
+
+    footer { margin-top:2.5rem; }
+    .footer-badge { display:inline-block; background: linear-gradient(90deg,#be185d,#f472b6); color:white; padding:.45rem .85rem; border-radius:999px; font-weight:700; }
+
+    @media (max-width:900px) {
       .two-col { grid-template-columns: 1fr; }
       .profile-grid { grid-template-columns: 1fr; }
-      .page-hero h2 { font-size:1.75rem; }
-    }
-
-    @media (max-width: 640px) {
       .container { padding:1rem; }
-
-      /* stop image cropping */
-      .profile-card img,
-      .collab-slide img {
-        height: auto !important;
-        object-fit: contain !important;
-      }
-
-      /* TikTok must size naturally */
-      .embed-wrap {
-        height: auto !important;
-        aspect-ratio: 9 / 16;
-      }
-
-      .embed-wrap iframe {
-        position: relative !important;
-      }
+      .page-hero h2 { font-size:1.75rem; }
+      .collab-carousel { max-width:100%; margin:1rem auto 0; }
+      .collab-carousel .arrow-left, .collab-carousel .arrow-right { left:8px; right:8px; }
+      .collab-carousel .arrow-left { left:8px; }
+      .collab-carousel .arrow-right { right:8px; }
     }
+    .collab-modal {
+      position: fixed;
+      inset: 0;
+      display: none; /* toggled via JS */
+      align-items: center;
+      justify-content: center;
+      z-index: 120;
+      background: rgba(11,7,17,0.55);
+      padding: 2rem;
+    }
+    .collab-modal.open { display: flex; }
+    .collab-modal .modal-card {
+      background: white;
+      border-radius: 14px;
+      max-width: 1000px;
+      width: 95%;
+      max-height: 90vh;
+      overflow: auto;
+      box-shadow: 0 30px 80px rgba(6,4,11,0.45);
+      animation: modalIn .18s ease;
+      position: relative;
+      padding: 0;
+    }
+    @keyframes modalIn {
+      from { transform: translateY(8px) scale(.995); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    .collab-modal .modal-img {
+      width: 100%;
+      height: min(78vh, 720px);
+      object-fit: contain;
+      background: #f9fafb;
+      border-top-left-radius: 14px;
+      border-top-right-radius: 14px;
+      display:block;
+    }
+    .collab-modal .modal-body {
+      padding: 1rem 1.25rem 1.25rem;
+      text-align: left;
+    }
+    .collab-modal .modal-caption {
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: .5rem;
+    }
+    /* modal-meta still present in DOM for compatibility but we'll not set it in JS per your request */
+    .collab-modal .modal-meta { display:none; }
+
+    .collab-modal .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: white;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.06);
+      width:38px; height:38px; display:flex; align-items:center; justify-content:center;
+      cursor:pointer;
+      box-shadow: 0 8px 24px rgba(11,7,17,0.08);
+    }
+    /* modal arrows (inside modal) */
+    .modal-nav-btn {
+      position:absolute;
+      top:50%;
+      transform:translateY(-50%);
+      width:48px;
+      height:48px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      background:white;
+      border:1px solid rgba(0,0,0,0.06);
+      box-shadow:0 10px 18px rgba(11,7,17,0.06);
+      cursor:pointer;
+      z-index:140;
+    }
+    .modal-nav-left { left:12px; }
+    .modal-nav-right { right:12px; }
+    /* ensure keyboard focus outline visible */
+    .collab-slide a, .collab-slide img { outline: none; }
+    .collab-slide a:focus, .collab-slide img:focus { box-shadow: 0 0 0 4px rgba(190,24,93,0.12); border-radius:8px; }
+    /* ----------------==============
+   MOBILE FIXES — BTS PAGE
+   =============================== */
+    @media (max-width: 768px) {
+    /* GENERAL PAGE FLOW */
+    main,
+    section {
+      padding-left: 1rem !important;
+      padding-right: 1rem !important;
+    }
+    /* FORCE VERTICAL STACKING */
+    .flex {
+      flex-direction: column !important;
+    }
+    /* FIX COLLAB / GALLERY IMAGES */
+    img {
+      max-width: 100%;
+      height: auto !important;
+    }
+    /* Prevent face cropping */
+    .collab-image,
+    .gallery-image,
+    .collab-thumb {
+      width: 100% !important;
+      height: auto !important;
+      object-fit: contain !important;
+      border-radius: 12px;
+    }
+    /* FIX LARGE FEATURE IMAGES */
+    .hero-image,
+    .feature-image {
+      width: 100%;
+      height: auto !important;
+      object-fit: contain !important;
+    }
+    /* CENTER CONTENT */
+    .text-left {
+      text-align: center !important;
+    }
+    /* CARDS SHOULD STACK */
+    .card,
+    .collab-card {
+      width: 100% !important;
+      margin-bottom: 1.25rem;
+    }
+  }
   </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header>
-  <div class="container" style="display:flex;justify-content:space-between;align-items:center;">
-    <div class="site-title">THE FOOTBALLER’S SISTER</div>
-    <a href="/" class="text-rose-600 font-semibold">Home</a>
-  </div>
-</header>
-
-<!-- HERO -->
-<section class="page-hero container">
-  <h2>Behind the Game 📸⚽</h2>
-  <p style="color:var(--muted); margin-top:.6rem; max-width:760px; margin-inline:auto;">
-    From pre-match rituals to post-match reflections — this is football, sister-style.
-  </p>
-</section>
-
-<main class="container">
-
-  <!-- PROFILES -->
-  <section class="profile-grid">
-    <div class="profile-card">
-      <img src="images/elijah2.jpeg" alt="Elijah Sono">
-      <h3 class="mt-3 font-extrabold text-rose-600">Elijah Sono</h3>
-      <p class="text-sm text-gray-600">Midfielder</p>
-    </div>
-
-    <div class="profile-card">
-      <img src="images/Bamuza.jpeg" alt="Bamuza Sono">
-      <h3 class="mt-3 font-extrabold text-rose-600">Bamuza Sono Jnr</h3>
-      <p class="text-sm text-gray-600">Midfielder</p>
-    </div>
-  </section>
-
-  <!-- MEDIA -->
-  <section class="two-col">
-    <div>
-      <h3 class="text-center text-rose-600 font-extrabold mb-4">My Vlogs & Highlights</h3>
-      <div class="carousel-center">
-        <div class="embed-wrap">
-          <iframe src="https://www.tiktok.com/embed/v2/7565224564171607303" loading="lazy" allowfullscreen></iframe>
-        </div>
+  <!-- Header with dropdown (saved style) -->
+  <header>
+    <div class="container" style="display:flex;justify-content:space-between;align-items:center;padding-top:0.9rem;padding-bottom:0.9rem;">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <div class="site-title" style="font-size:1.15rem;">THE FOOTBALLER’S SISTER</div>
       </div>
 
-      <h3 class="text-center text-rose-600 font-extrabold mt-8">Collaborations</h3>
-      <div class="collab-carousel">
-        <div class="collab-slide">
-          <img src="images/collab-placeholder.jpg" alt="Collaboration">
+      <div class="relative inline-block text-left">
+        <button id="navButton" aria-expanded="false"
+          class="inline-flex items-center justify-center rounded-md border border-pink-200 shadow-sm px-4 py-2 bg-white text-sm font-medium text-rose-600 hover:bg-pink-50 focus:outline-none">
+          <span id="navTitle">Behind the Game</span>
+          <svg class="-mr-1 ml-2 h-5 w-5 text-rose-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd" />
+          </svg>
+        </button>
+
+        <div id="dropdownMenu" role="menu" aria-hidden="true"
+          class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 dropdown-anim"
+          style="display:none;">
+          <div class="py-1">
+            <a href="/" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Home</a>
+            <a href="/bts" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Behind the Game</a>
+            <a href="/leila" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Meet Leila</a>
+            <a href="/questions" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Q&A</a>
+            <a href="/support-wall" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Support Wall</a>
+            <a href="/fixtures" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Fixtures & Live Scores</a>
+            <a href="/giveaways" class="nav-item block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50">Giveaways</a>
+          </div>
         </div>
       </div>
     </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="page-hero container">
+    <h2>Behind the Game 📸⚽</h2>
+    <p style="color:var(--muted); margin-top:.6rem; max-width:760px; margin-left:auto; margin-right:auto;">
+      From pre-match rituals to post-match reflections, skills on the field and creative vlogs — Welcome to the real story. This is football, sister-style.
+    </p>
   </section>
 
-</main>
+  <main class="container">
 
-<footer>
-  <div class="container text-center">
-    <small class="footer-badge">© <span id="year"></span> The Footballer’s Sister</small>
-  </div>
-</footer>
+    <!-- Player profiles (RESTORED) -->
+    <section class="profile-grid" aria-label="Meet the brothers">
+      <!-- Elijah -->
+      <div class="profile-card">
+        <img src="images/elijah2.jpeg" alt="Elijah Sono">
+        <div class="profile-name-row">
+          <div class="profile-name">Elijah Sono</div>
+          <div class="social-icons" aria-hidden="true">
+            <a id="elijah-instagram" href="https://www.instagram.com/elijah_sono?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" title="Instagram">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="5" stroke="#BE185D" stroke-width="1.5" fill="none"/>
+                <path d="M7.75 11.99a4.25 4.25 0 1 1 8.5 0 4.25 4.25 0 0 1-8.5 0z" stroke="#BE185D" stroke-width="1.5" fill="none"/>
+                <circle cx="17.8" cy="6.2" r="0.7" fill="#BE185D"/>
+              </svg>
+            </a>
+            <a id="elijah-tiktok" href="https://www.tiktok.com/@elijah_sono_?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" title="TikTok">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M15 6.5c.6.6 1.6 1.1 3 1.1v2.1c-1.3 0-2.4-.4-3-.9v5.8a3.6 3.6 0 1 1-3.6-3.6c.2 0 .5 0 .7.1v2.2a1.4 1.4 0 1 0 1.4 1.4V6.5z"
+                      stroke="#BE185D"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </div>
+        </div>
 
-<script>document.getElementById('year').textContent = new Date().getFullYear();</script>
-<script async src="https://www.tiktok.com/embed.js"></script>
+        <div class="profile-meta"><strong>Position:</strong> Midfielder</div>
 
+        <div class="profile-list">
+          <h4 class="mt-3" style="color:var(--accent); font-weight:700;">Key Attributes:</h4>
+          <ul style="margin-top:.5rem; list-style:disc; padding-left:1.25rem;">
+            <li><strong>Dribbling:</strong> Confident on the ball with quick feet to navigate tight spaces.</li>
+            <li><strong>Passing:</strong> Excellent vision and timing to consistently find teammates.</li>
+            <li><strong>Tackling:</strong> Reads the game well with precise and controlled tackling.</li>
+          </ul>
+
+          <h4 style="color:var(--accent); font-weight:700; margin-top:.6rem;">Experience:</h4>
+          <ul style="margin-top:.5rem; list-style:disc; padding-left:1.25rem;">
+            <li>Currently plays for the u13 Jomo Cosmos team in the GDL league.</li>
+            <li>Played for the u13 Jomo Cosmos team at age 10 and 11.</li>
+            <li>Developed skills at Wanderers Discovery Soccer Club.</li>
+          </ul>
+
+          <div style="margin-top:.9rem; display:flex; gap:8px; align-items:center;">
+            <a href="pdfs/ELIJAHSONO-player-profile.pdf" class="inline-block bg-rose-600 text-white px-4 py-2 rounded-full hover:bg-rose-700 transition font-semibold">View Player Profile</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bamuza -->
+      <div class="profile-card">
+        <img src="images/Bamuza.jpeg" alt="Bamuza Sono">
+        <div class="profile-name-row">
+          <div class="profile-name">Bamuza Sono Jnr</div>
+          <div class="social-icons" aria-hidden="true">
+            <a id="bamuza-instagram" href="https://www.instagram.com/bamuza_sono?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer" title="Instagram">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="5" stroke="#BE185D" stroke-width="1.5" fill="none"/>
+                <path d="M7.75 11.99a4.25 4.25 0 1 1 8.5 0 4.25 4.25 0 0 1-8.5 0z" stroke="#BE185D" stroke-width="1.5" fill="none"/>
+                <circle cx="17.8" cy="6.2" r="0.7" fill="#BE185D"/>
+              </svg>
+            </a>
+            <a id="bamuza-tiktok" href="https://www.tiktok.com/@bamuza_sono?is_from_webapp=1&sender_device=pc" target="_blank" rel="noreferrer" title="TikTok">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M15 6.5c.6.6 1.6 1.1 3 1.1v2.1c-1.3 0-2.4-.4-3-.9v5.8a3.6 3.6 0 1 1-3.6-3.6c.2 0 .5 0 .7.1v2.2a1.4 1.4 0 1 0 1.4 1.4V6.5z"
+                      stroke="#BE185D"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="profile-meta"><strong>Position:</strong> Midfielder</div>
+
+        <div class="profile-list">
+          <h4 style="color:var(--accent); font-weight:700;">Key Attributes:</h4>
+          <ul style="margin-top:.5rem; list-style:disc; padding-left:1.25rem;">
+            <li><strong>Dribbling:</strong> Able to take on defenders with close control and quick feet.</li>  
+            <li><strong>Passing:</strong> Excellent vision to deliver precise short passes or long balls.</li>
+            <li><strong>Shooting:</strong> Known as a free-kick or corner kick taker.</li>
+          </ul>
+
+          <h4 style="color:var(--accent); font-weight:700; margin-top:.6rem;">Experience:</h4>
+          <ul style="margin-top:.5rem; list-style:disc; padding-left:1.25rem;">
+            <li>Currently playing for the U17 Jomo Cosmos FC team in the GDL league.</li>
+            <li>Played for the U15 and U17 teams in previous years.</li>
+            <li>Developed skills at Wanderers Discovery Soccer Club.</li>
+          </ul>
+
+          <div style="margin-top:.9rem; display:flex; gap:8px; align-items:center;">
+            <a href="pdfs/BAMUZASONO-player-profile.pdf" class="inline-block bg-rose-600 text-white px-4 py-2 rounded-full hover:bg-rose-700 transition font-semibold">View Player Profile</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Two-column: left = TikTok (with collabs moved below inside same column), right = empty for balance -->
+    <section class="two-col" aria-label="Vlogs and Collaborations">
+
+      <!-- LEFT: TikTok carousel -->
+      <div>
+        <h3 style="text-align:center; color:var(--accent); font-weight:800; margin-bottom:1rem;">My Vlogs & Highlights</h3>
+
+        <!-- center the carousel using .carousel-center -->
+        <div class="carousel-center">
+          <div class="video-carousel" style="position:relative;">
+            <div id="video-slides-container" style="display:flex; transition:transform .45s ease; gap:0; overflow:hidden; border-radius:12px; width:100%;">
+
+              <!-- 1: 7565224564171607303 -->
+              <div class="slide" style="min-width:100%; box-sizing:border-box;">
+                <div class="embed-wrap">
+                  <iframe src="https://www.tiktok.com/embed/v2/7565224564171607303" loading="lazy" allowfullscreen></iframe>
+                </div>
+              </div>
+
+              <!-- 2: 7562607860497059080 -->
+              <div class="slide" style="min-width:100%; box-sizing:border-box;">
+                <div class="embed-wrap">
+                  <iframe src="https://www.tiktok.com/embed/v2/7562607860497059080" loading="lazy" allowfullscreen></iframe>
+                </div>
+              </div>
+
+              <!-- 3: 7514262969786567943 -->
+              <div class="slide" style="min-width:100%; box-sizing:border-box;">
+                <div class="embed-wrap">
+                  <iframe src="https://www.tiktok.com/embed/v2/7514262969786567943" loading="lazy" allowfullscreen></iframe>
+                </div>
+              </div>
+
+              <!-- 4: 7529094647944072454 -->
+              <div class="slide" style="min-width:100%; box-sizing:border-box;">
+                <div class="embed-wrap">
+                  <iframe src="https://www.tiktok.com/embed/v2/7529094647944072454" loading="lazy" allowfullscreen></iframe>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- video arrows (positioned relative to carousel-center) -->
+            <button id="prevBtn" class="arrow-btn video-arrow arrow-left" aria-label="Previous video" style="position:absolute; left:8px; top:50%; transform:translateY(-50%);"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
+            <button id="nextBtn" class="arrow-btn video-arrow arrow-right" aria-label="Next video" style="position:absolute; right:8px; top:50%; transform:translateY(-50%);"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
+          </div>
+        </div>
+
+        <!-- NEW LINE ADDED HERE -->
+        <p style="text-align:center; margin-top:0.75rem; font-size:0.9rem; color:#6b7280;">
+          If the videos don’t load, you can watch them on TikTok:
+          <a href="https://www.tiktok.com/@leila_sono" target="_blank" rel="noreferrer" style="color:#be185d; font-weight:600;">
+            @leila_sono
+          </a>
+        </p>
+        <!-- -------------------------
+             COLLAB GALLERY (now matches tiktok width/height and centered)
+             ------------------------- -->
+        <h3 style="text-align:center; color:var(--accent); font-weight:800; margin:1.6rem 0 0.6rem;">Collaborations</h3>
+        <!-- Instruction caption (unchanged) -->
+        <div class="collab-instruction" aria-hidden="false">
+          Click to open collabs
+        </div>
+        <!-- Collab carousel centered and matching TikTok width -->
+        <div class="collab-carousel" aria-roledescription="carousel" role="region">
+          <div id="collab-slides" style="display:flex; transition:transform .45s ease; gap:0;">
+            <!-- placeholder slide shown while loading -->
+            <div class="collab-slide" style="min-width:100%; display:flex; align-items:center; justify-content:center; padding:2.5rem;">
+              <div style="color:var(--muted);">Loading collaborations…</div>
+            </div>
+          </div>
+
+          <button id="collabPrev" class="arrow-btn arrow-left" aria-label="Previous collab">‹</button>
+          <button id="collabNext" class="arrow-btn arrow-right" aria-label="Next collab">›</button>
+        </div>
+
+      </div>
+      <!-- RIGHT column preserved but left intentionally blank so grid stays consistent on desktop.
+      -->
+      <div aria-hidden="true"></div>
+    </section>
+
+     <div style="text-align:center; margin-top:2rem;">
+        <a href="/essentials"
+          class="inline-block bg-white text-rose-600 border border-rose-300 px-6 py-3 rounded-full font-semibold hover:bg-rose-50 transition">
+          From One Football Family to Another 🤍
+        </a>
+
+        <p class="text-sm text-rose-400 mt-2">
+          Matchday favourites, content tools & everyday essentials we actually use.
+        </p>
+      </div>
+    <!-- Support Wall (restored) -->
+    <section style="margin-top:2.25rem;">
+      <div class="support-card">
+        <h3 style="text-align:center; color:var(--accent); font-weight:800;">The Support Wall ❤️</h3>
+        <p style="text-align:center; color:var(--muted);">Leave a message of support and it will appear on the wall!</p>
+
+        <div style="max-width:720px; margin:1rem auto 0;">
+          <form id="support-form" class="space-y-4">
+            <div><label for="name" class="sr-only">Your Name</label><input id="name" type="text" placeholder="Your Name" required class="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-rose-500" /></div>
+            <div><label for="message" class="sr-only">Your Message</label><textarea id="message" rows="3" placeholder="Write your message here..." required class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500"></textarea></div>
+            <div style="text-align:center;"><button type="submit" class="bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition font-semibold">Post Message</button></div>
+          </form>
+        </div>
+      </div>
+    </section>
+    <!-- Back button -->
+    <div style="text-align:center; margin-top:2rem;">
+      <a href="/" class="bg-rose-600 text-white px-6 py-3 rounded-full hover:bg-rose-700 transition">Back to Home</a>
+    </div>
+
+  </main>
+  <!-- Footer with badge -->
+  <footer>
+    <div class="container" style="text-align:center;padding-top:1rem;padding-bottom:2rem;">
+      <small class="footer-badge">© <span id="year"></span> The Footballer’s Sister</small>
+    </div>
+  </footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <!-- TikTok embed script -->
+  <script async src="https://www.tiktok.com/embed.js"></script>
+  <!-- Navbar dropdown script (fixed and accessible) -->
+  <script>
+    (function () {
+      const navButton = document.getElementById('navButton');
+      const dropdownMenu = document.getElementById('dropdownMenu');
+      const navItems = document.querySelectorAll('.nav-item');
+      const navTitle = document.getElementById('navTitle');
+      // determine current page (treat root "/" as index.html)
+      let currentPage = window.location.pathname.split('/').pop();
+      if (!currentPage || currentPage === '') currentPage = 'index.html';
+
+      const pageTitles = {
+        "index.html": "Home",
+        "bts.html": "Behind the Game",
+        "leila.html": "Meet Leila",
+        "questions.html": "Q&A",
+        "support-wall.html": "Support Wall",
+        "fixtures.html": "Fixtures & Live Scores"
+      };
+      navTitle.textContent = pageTitles[currentPage] || "Menu";
+      // highlight current page
+      navItems.forEach(link => {
+        const href = link.getAttribute('href');
+        const hrefName = href.split('/').pop();
+        if (hrefName === currentPage) link.classList.add("font-semibold", "text-rose-600");
+        // make nav items close dropdown on click and navigate
+        link.addEventListener('click', (e) => {
+          // normal navigation allowed; just ensure dropdown closes quickly for UX
+          closeMenu();
+        });
+      });
+      // open/close helpers: use inline display to avoid collisions with other hidden classes
+      function openMenu(){
+        dropdownMenu.style.display = 'block';
+        // small delay to allow transition
+        requestAnimationFrame(()=> dropdownMenu.classList.add('open'));
+        navButton.setAttribute('aria-expanded','true');
+        dropdownMenu.setAttribute('aria-hidden','false');
+      }
+      function closeMenu(){
+        dropdownMenu.classList.remove('open');
+        // wait for transition then hide
+        setTimeout(()=> {
+          dropdownMenu.style.display = 'none';
+        }, 200);
+        navButton.setAttribute('aria-expanded','false');
+        dropdownMenu.setAttribute('aria-hidden','true');
+      }
+
+      navButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = dropdownMenu.style.display === 'block' && dropdownMenu.classList.contains('open');
+        if (!isOpen) openMenu(); else closeMenu();
+      });
+      // close when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!navButton.contains(e.target) && !dropdownMenu.contains(e.target)) closeMenu();
+      });
+      // close on escape
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+      // small fix: ensure menu is hidden on load
+      window.addEventListener('load', ()=> {
+        dropdownMenu.style.display = 'none';
+        dropdownMenu.classList.remove('open');
+        dropdownMenu.setAttribute('aria-hidden','true');
+        navButton.setAttribute('aria-expanded','false');
+      });
+    })();
+  </script>
+  <!-- FIREBASE: support wall + collabs subscription (keeps same collection path) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    // your firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
+      authDomain: "football-site-c3aa9.firebaseapp.com",
+      projectId: "football-site-c3aa9",
+      storageBucket: "football-site-c3aa9.appspot.com",
+      messagingSenderId: "65396604482",
+      appId: "1:65396604482:web:0f31625a714aa8352337db"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    // ---------- SUPPORT WALL ----------
+    const supportForm = document.getElementById('support-form');
+    const nameInput = document.getElementById('name');
+    const messageInput = document.getElementById('message');
+
+    let currentUserId = null;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) currentUserId = user.uid; else try { await signInAnonymously(auth); } catch(e){ console.warn(e); }
+    });
+
+    supportForm.addEventListener('submit', async (ev)=>{
+      ev.preventDefault();
+      const name = (nameInput.value||'').trim();
+      const message = (messageInput.value||'').trim();
+      if (!name || !message) return alert('Please add name and message.');
+      try{
+        const APP_ID = firebaseConfig.appId;
+        await addDoc(collection(db, `artifacts/${APP_ID}/public/data/supportMessages`), { name, message, userId: currentUserId||'anonymous', createdAt: serverTimestamp() });
+        nameInput.value=''; messageInput.value=''; alert('Message posted. Thank you!');
+      }catch(err){ console.error('Support add failed', err); alert('Could not post message: '+(err.message||err.code||err)); }
+    });
+    // ---------- COLLABS: subscribe and render ----------
+    const collabSlidesEl = document.getElementById('collab-slides');
+    const collabPrev = document.getElementById('collabPrev');
+    const collabNext = document.getElementById('collabNext');
+
+    const APP_ID = firebaseConfig.appId;
+    const COLLABS_PATH = `artifacts/${APP_ID}/public/data/collabs`;
+
+    let collabItems = [];
+    let collabIndex = 0;
+
+    function escapeHtml(s){ if(!s) return ''; return String(s).replace(/[&<>\"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+    function renderCollabSlides(items){
+      collabSlidesEl.innerHTML='';
+      if(!items||!items.length){
+        collabSlidesEl.innerHTML = '<div class="collab-slide" style="min-width:100%; padding:2.5rem; text-align:center; color:var(--muted);">No collaborations yet.</div>';
+        collabIndex = 0;
+        return;
+      }
+      items.forEach((it, idx)=>{
+        const wrapper = document.createElement('div'); wrapper.className='collab-slide'; wrapper.style.minWidth='100%';
+        const imageUrl = it.imageUrl||it.image||it.url||''; const caption = it.caption||it.title||'';
+        wrapper.innerHTML = `
+          <a href="${escapeHtml(it.link||'')}" target="_blank" rel="noreferrer" class="collab-thumb" data-index="${idx}">
+            <img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(caption)}" />
+          </a>
+          <div class="collab-caption">${escapeHtml(caption||'')}</div>
+        `;
+        collabSlidesEl.appendChild(wrapper);
+      });
+      collabIndex=0; updateCollabPosition();
+      // attach hover/click handlers for modal preview
+      attachCollabPreviewHandlers();
+    }
+
+    function updateCollabPosition(){ collabSlidesEl.style.transform = `translateX(-${collabIndex * 100}%)`; }
+
+    collabPrev?.addEventListener('click', ()=>{ if(!collabItems.length) return; collabIndex=(collabIndex-1+collabItems.length)%collabItems.length; updateCollabPosition(); });
+    collabNext?.addEventListener('click', ()=>{ if(!collabItems.length) return; collabIndex=(collabIndex+1)%collabItems.length; updateCollabPosition(); });
+
+    try{
+      const q = query(collection(db, COLLABS_PATH), orderBy('uploadedAt','desc'));
+      onSnapshot(q, snap=>{
+        const docs = snap.docs.map(d=>({ id:d.id, ...d.data()}));
+        collabItems = docs.filter(d => (d.imageUrl||d.image||d.url));
+        renderCollabSlides(collabItems);
+      }, err=>{
+        console.warn('collabs onSnapshot error', err);
+        collabSlidesEl.innerHTML = '<div class="collab-slide" style="min-width:100%; padding:2.5rem; text-align:center; color:var(--muted);">No collaborations yet.</div>';
+      });
+    }catch(e){ console.error('collabs subscribe failed', e); collabSlidesEl.innerHTML = '<div class="collab-slide" style="min-width:100%; padding:2.5rem; text-align:center; color:var(--muted);">No collaborations yet.</div>'; }
+    // ---------- Collab modal logic ----------
+    // create modal element and attach to body
+    const modal = document.createElement('div');
+    modal.className = 'collab-modal';
+    modal.setAttribute('role','dialog');
+    modal.setAttribute('aria-modal','true');
+    modal.innerHTML = `
+      <div class="modal-card" role="document">
+        <button class="modal-close" aria-label="Close preview">&times;</button>
+        <button class="modal-nav-btn modal-nav-left" aria-label="Prev in modal">‹</button>
+        <button class="modal-nav-btn modal-nav-right" aria-label="Next in modal">›</button>
+        <img class="modal-img" src="" alt="" />
+        <div class="modal-body">
+          <div class="modal-caption"></div>
+          <div class="modal-meta"></div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    const modalCard = modal.querySelector('.modal-card');
+    const modalImg = modal.querySelector('.modal-img');
+    const modalCaption = modal.querySelector('.modal-caption');
+    const modalMeta = modal.querySelector('.modal-meta');
+    const modalCloseBtn = modal.querySelector('.modal-close');
+    const modalPrevBtn = modal.querySelector('.modal-nav-left');
+    const modalNextBtn = modal.querySelector('.modal-nav-right');
+
+    let modalOpenTimer = null;
+    let modalCurrentIndex = 0;
+
+    function openModalForIndex(index){
+      const item = collabItems[index];
+      if (!item) return;
+      modalCurrentIndex = index;
+      const src = item.imageUrl || item.image || item.url || '';
+      const caption = item.caption || item.title || '';
+      modalImg.src = src;
+      modalImg.alt = caption || 'Collaboration image';
+      modalCaption.textContent = caption || '';
+      // per your request: DO NOT show upload date — leave modal-meta empty
+      modalMeta.textContent = '';
+      modal.classList.add('open');
+      // focus trap: focus close button
+      modalCloseBtn.focus();
+      // prevent body scroll when modal open
+      document.documentElement.style.overflow = 'hidden';
+      // add keydown listener for left/right navigation while modal open
+      window.addEventListener('keydown', modalKeyHandler);
+    }
+
+    function closeModal(){
+      modal.classList.remove('open');
+      modalImg.src = '';
+      modalCaption.textContent = '';
+      modalMeta.textContent = '';
+      document.documentElement.style.overflow = '';
+      // remove modal key handler
+      window.removeEventListener('keydown', modalKeyHandler);
+    }
+
+    function modalShowIndex(idx){
+      if (!collabItems || !collabItems.length) return;
+      modalCurrentIndex = ((idx % collabItems.length) + collabItems.length) % collabItems.length;
+      const item = collabItems[modalCurrentIndex];
+      if (!item) return;
+      modalImg.src = item.imageUrl || item.image || item.url || '';
+      modalImg.alt = item.caption || item.title || '';
+      modalCaption.textContent = item.caption || item.title || '';
+      modalMeta.textContent = ''; // keep blank per request
+    }
+
+    function modalNext(){
+      if (!collabItems.length) return;
+      modalShowIndex(modalCurrentIndex + 1);
+    }
+    function modalPrev(){
+      if (!collabItems.length) return;
+      modalShowIndex(modalCurrentIndex - 1);
+    }
+
+    function modalKeyHandler(e){
+      if (!modal.classList.contains('open')) return;
+      if (e.key === 'ArrowLeft') { e.preventDefault(); modalPrev(); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); modalNext(); }
+      else if (e.key === 'Escape') { e.preventDefault(); closeModal(); }
+    }
+    // ---------- REPLACED attachCollabPreviewHandlers (click-only for desktop & mobile) ----------
+    function attachCollabPreviewHandlers(){
+      // defensive: clear any previously scheduled timer(s)
+      if (modalOpenTimer) { clearTimeout(modalOpenTimer); modalOpenTimer = null; }
+      // Collect all thumbs
+      const thumbsNodeList = collabSlidesEl.querySelectorAll('.collab-thumb');
+      // To avoid duplicate event listeners, replace each thumb with a clone (removes all prior listeners)
+      const thumbs = Array.from(thumbsNodeList).map((thumb) => {
+        const clone = thumb.cloneNode(true);
+        thumb.parentNode.replaceChild(clone, thumb);
+        return clone;
+      });
+
+      thumbs.forEach((thumb) => {
+        thumb.setAttribute('tabindex', '0');
+        const idx = Number(thumb.getAttribute('data-index'));
+        // Always use click/tap to open per your request (desktop & mobile)
+        thumb.addEventListener('click', (e) => {
+          e.preventDefault();
+          openModalForIndex(idx);
+        });
+        // keyboard support: Enter or Space opens modal
+        thumb.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openModalForIndex(idx);
+          }
+        });
+      });
+    }
+    // modal interactions
+    modalCloseBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+    modalPrevBtn.addEventListener('click', (e) => { e.preventDefault(); modalPrev(); });
+    modalNextBtn.addEventListener('click', (e) => { e.preventDefault(); modalNext(); });
+    // collab swipe support & keep arrows working (keeps idx in range)
+    (function(){
+      const slides = document.getElementById('collab-slides');
+      if (!slides) return;
+      let startX = 0;
+      const wrapper = slides.parentElement;
+      if (wrapper) {
+        wrapper.addEventListener('touchstart', (e)=> startX = e.touches[0].clientX);
+        wrapper.addEventListener('touchend', (e)=> {
+          const endX = e.changedTouches[0].clientX;
+          const delta = startX - endX;
+          if (Math.abs(delta) > 40 && slides.children.length) {
+            if (delta > 0) collabIndex = (collabIndex + 1) % slides.children.length;
+            else collabIndex = (collabIndex - 1 + slides.children.length) % slides.children.length;
+            updateCollabPosition();
+          }
+        });
+      }
+      // keep carousel position if slides updated
+      const observer = new MutationObserver(()=> {
+        if (!slides || !slides.children) return;
+        collabIndex = Math.min(collabIndex, slides.children.length - 1);
+        updateCollabPosition();
+      });
+      observer.observe(slides, { childList: true, subtree: false });
+    })();
+    // ---------- TikTok carousel controls (separate carousel) ----------
+    (function(){
+      const slidesContainer = document.getElementById('video-slides-container');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      if (!slidesContainer) return;
+      let currentIndex = 0;
+      const slides = slidesContainer.children;
+
+      function show(){
+        slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
+      }
+      function next(){ if (!slides.length) return; currentIndex = (currentIndex + 1) % slides.length; show(); }
+      function prev(){ if (!slides.length) return; currentIndex = (currentIndex - 1 + slides.length) % slides.length; show(); }
+      if (nextBtn) nextBtn.addEventListener('click', next);
+      if (prevBtn) prevBtn.addEventListener('click', prev);
+      // swipe
+      let startX = 0;
+      const parent = slidesContainer.parentElement;
+      if (parent){
+        parent.addEventListener('touchstart', (e)=> startX = e.touches[0].clientX);
+        parent.addEventListener('touchend', (e)=>{ const endX = e.changedTouches[0].clientX; const delta = startX - endX; if (Math.abs(delta) > 50) { if (delta > 0) next(); else prev(); } });
+      }
+
+      window.addEventListener('load', ()=>{ show(); });
+    })();
+
+  </script>
 </body>
 </html>
