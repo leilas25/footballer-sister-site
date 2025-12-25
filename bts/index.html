@@ -371,6 +371,31 @@
   position: relative;
   z-index: 5;
   }
+
+  /* ===============================
+   MOBILE: SMALLER COLLAB GALLERY
+   =============================== */
+  @media (max-width: 640px) {
+
+    /* Reduce overall collab carousel height */
+    .collab-carousel {
+      max-width: 100%;
+    }
+
+    /* Make collab images smaller */
+    .collab-slide img {
+      height: auto !important;
+      max-height: 240px;
+      object-fit: cover;
+    }
+
+    /* Reduce padding inside placeholder/loading slide */
+    .collab-slide {
+      padding: 1.25rem !important;
+    }
+
+  }
+
   </style>
 </head>
 <body>
