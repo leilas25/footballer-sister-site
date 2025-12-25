@@ -367,6 +367,10 @@
     max-height: 360px;
     object-fit: cover;
   }
+  .collab-instruction-wrapper {
+  position: relative;
+  z-index: 5;
+  }
   </style>
 </head>
 <body>
@@ -568,11 +572,29 @@
         <!-- -------------------------
              COLLAB GALLERY (now matches tiktok width/height and centered)
              ------------------------- -->
-        <h3 style="text-align:center; color:var(--accent); font-weight:800; margin:1.6rem 0 0.6rem;">Collaborations</h3>
-        <!-- Instruction caption (unchanged) -->
-        <p class="collab-instruction" style="margin-top:0.5rem;">
-          Click to open collabs
-        </p>
+        <section id="collabs-section" style="margin-top:1.6rem;">
+          <h3 style="text-align:center; color:var(--accent); font-weight:800; margin-bottom:0.4rem;">
+            Collaborations
+          </h3>
+
+          <div class="collab-instruction-wrapper" style="text-align:center; margin-bottom:0.6rem;">
+            <span class="collab-instruction">
+              Click to open collabs
+            </span>
+          </div>
+
+          <div class="collab-carousel" aria-roledescription="carousel" role="region">
+            <div id="collab-slides" style="display:flex; transition:transform .45s ease;">
+              <div class="collab-slide" style="min-width:100%; padding:2.5rem; text-align:center;">
+                <div style="color:var(--muted);">Loading collaborations…</div>
+              </div>
+            </div>
+
+            <button id="collabPrev" class="arrow-btn arrow-left" aria-label="Previous collab">‹</button>
+            <button id="collabNext" class="arrow-btn arrow-right" aria-label="Next collab">›</button>
+          </div>
+
+  </section>
 
         <!-- Collab carousel centered and matching TikTok width -->
         <div class="collab-carousel" aria-roledescription="carousel" role="region">
