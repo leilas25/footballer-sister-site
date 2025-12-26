@@ -361,12 +361,7 @@
     margin-left: auto;
     margin-right: auto;
   }
-  /* FIX COLLAB IMAGE OVERFLOW ON MOBILE */
-  .collab-slide img {
-    height: auto !important;
-    max-height: 360px;
-    object-fit: cover;
-  }
+  
   .collab-instruction-wrapper {
   position: relative;
   z-index: 5;
@@ -392,6 +387,36 @@
     /* Reduce padding inside placeholder/loading slide */
     .collab-slide {
       padding: 1.25rem !important;
+    }
+
+  }
+
+/* ===============================
+   RESPONSIVE COLLAB GALLERY (MOBILE)
+   =============================== */
+  @media (max-width: 768px) {
+
+    /* Ensure gallery fits any screen width */
+    .collab-carousel {
+      width: 100%;
+      max-width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Remove inherited TikTok height logic */
+    .collab-slide img {
+      width: 100%;
+      height: auto !important;
+      max-height: none !important;
+      aspect-ratio: 4 / 5; /* perfect for portraits & lifestyle */
+      object-fit: cover;
+      border-radius: 12px;
+    }
+
+    /* Reduce visual bulk of slide container */
+    .collab-slide {
+      padding: 0 !important;
     }
 
   }
