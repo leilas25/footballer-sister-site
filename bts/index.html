@@ -290,48 +290,7 @@
     /* ensure keyboard focus outline visible */
     .collab-slide a, .collab-slide img { outline: none; }
     .collab-slide a:focus, .collab-slide img:focus { box-shadow: 0 0 0 4px rgba(190,24,93,0.12); border-radius:8px; }
-    /* ----------------==============
-   MOBILE FIXES — BTS PAGE
-   =============================== */
-    @media (max-width: 768px) {
-    /* GENERAL PAGE FLOW */
-    main,
-    section {
-      padding-left: 1rem !important;
-      padding-right: 1rem !important;
-    }
-    /* FIX COLLAB / GALLERY IMAGES */
-    img {
-      max-width: 100%;
-      height: auto !important;
-    }
-    /* Prevent face cropping */
-    .collab-image,
-    .gallery-image,
-    .collab-thumb {
-      width: 100% !important;
-      height: auto !important;
-      object-fit: contain !important;
-      border-radius: 12px;
-    }
-    /* FIX LARGE FEATURE IMAGES */
-    .hero-image,
-    .feature-image {
-      width: 100%;
-      height: auto !important;
-      object-fit: contain !important;
-    }
-    /* CENTER CONTENT */
-    .text-left {
-      text-align: center !important;
-    }
-    /* CARDS SHOULD STACK */
-    .card,
-    .collab-card {
-      width: 100% !important;
-      margin-bottom: 1.25rem;
-    }
-  }
+    
   /* ===============================
    MOBILE CENTERING & OVERFLOW FIX
    =============================== */
@@ -354,73 +313,50 @@
     max-width: 100%;
   }
 }
-  /* CENTER CAROUSELS ON MOBILE */
-  .carousel-center,
-  .collab-carousel {
-    max-width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  
+ 
   .collab-instruction-wrapper {
   position: relative;
   z-index: 5;
   }
 
-  /* ===============================
-   MOBILE: SMALLER COLLAB GALLERY
-   =============================== */
-  @media (max-width: 640px) {
-
-    /* Reduce overall collab carousel height */
-    .collab-carousel {
-      max-width: 100%;
-    }
-
-    /* Make collab images smaller */
-    .collab-slide img {
-      height: auto !important;
-      max-height: 220px;
-      object-fit: cover;
-    }
-
-    /* Reduce padding inside placeholder/loading slide */
-    .collab-slide {
-      padding: 1.25rem !important;
-    }
-
-  }
-
 /* ===============================
-   RESPONSIVE COLLAB GALLERY (MOBILE)
+   MOBILE COLLAB GALLERY – CLEAN SQUARE CARD
    =============================== */
   @media (max-width: 768px) {
 
-    /* Ensure gallery fits any screen width */
+    /* Center the entire collab carousel */
     .collab-carousel {
-      width: 100%;
-      max-width: 100%;
-      margin-left: auto;
-      margin-right: auto;
+      max-width: 320px;          /* neat square size */
+      margin: 0.75rem auto 0;    /* centered with breathing room */
     }
 
-    /* Remove inherited TikTok height logic */
+    /* Force slides to behave like cards */
+    .collab-slide {
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    /* Make image a perfect square */
     .collab-slide img {
       width: 100%;
+      aspect-ratio: 1 / 1;       /* KEY: square shape */
+      object-fit: cover;
       height: auto !important;
       max-height: none !important;
-      aspect-ratio: 4 / 5; /* perfect for portraits & lifestyle */
-      object-fit: cover;
-      border-radius: 12px;
     }
 
-    /* Reduce visual bulk of slide container */
-    .collab-slide {
-      padding: 0 !important;
+    /* Caption stays compact */
+    .collab-caption {
+      font-size: 0.9rem;
+      padding: 0.6rem;
     }
 
+    /* Keep instruction text visible */
+    .collab-instruction {
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+    }
   }
-
   </style>
 </head>
 <body>
