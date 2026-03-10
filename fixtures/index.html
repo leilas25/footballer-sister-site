@@ -309,8 +309,16 @@
 
     function formatKickoff(f) {
       try {
-        if (f.kickoffISO) return new Date(f.kickoffISO).toLocaleString();
-        if (f.kickoffTs && f.kickoffTs.seconds) return new Date(f.kickoffTs.seconds*1000).toLocaleString();
+        const options = {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        };
+
+        if (f.kickoffISO) return new Date(f.kickoffISO).toLocaleString([], options);
+        if (f.kickoffTs && f.kickoffTs.seconds) return new Date(f.kickoffTs.seconds*1000).toLocaleString([], options);
       } catch(e){}
       return '';
     }
