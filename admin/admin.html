@@ -75,13 +75,14 @@
 
     <!-- ADMIN UI -->
     <section id="adminUI" class="hidden-el" aria-hidden="true">
-      <div class="flex gap-3 items-center mb-6">
+      <div class="flex gap-3 items-center mb-6 flex-wrap">
         <button id="navSupport" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Support Wall</button>
         <button id="navQA" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Q&A</button>
         <button id="navFixtures" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Fixtures</button>
         <button id="navMedia" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Media / Gallery</button>
         <button id="navWinners" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Winners</button>
         <button id="navGiveaways" class="rounded-full bg-white px-4 py-2 shadow-sm small-muted">Giveaways</button>
+        <button id="navBlog" class="rounded-full bg-rose-100 border border-rose-300 px-4 py-2 shadow-sm font-semibold text-rose-700">Blog Posts</button>
 
         <div class="ml-auto text-sm small-muted">
           Signed in as <span id="adminEmailDisplay"></span>
@@ -313,7 +314,57 @@
           </div>
         </div>
 
-        <div id="paneGiveawaysBackup" class="card hidden-el"><h3 class="text-lg font-bold">Giveaways Backup (unchanged)</h3></div>
+        <!-- Blog Posts Pane -->
+        <div id="paneBlog" class="card hidden-el">
+          <h3 class="text-xl font-bold mb-1 text-rose-700">Blog Posts (admin)</h3>
+          <p class="small-muted mb-4">Add, edit and delete blog posts. Posts appear on the public Blog page instantly. Hashtags are applied automatically.</p>
+          <div class="grid gap-3 md:grid-cols-2">
+            <div class="md:col-span-2">
+              <label class="small-muted block mb-1">Post Title *</label>
+              <input id="blogTitle" placeholder="e.g. Welcome to My World" class="p-2 rounded border w-full" />
+            </div>
+            <div>
+              <label class="small-muted block mb-1">Post Image *</label>
+              <input id="blogImageFile" type="file" accept="image/*" class="p-2 rounded border w-full bg-white" />
+              <div id="blogImagePreview" class="mt-2 hidden-el">
+                <img id="blogImagePreviewImg" src="" alt="Preview" style="max-height:140px;border-radius:8px;border:1px solid #f3d3e2;" />
+              </div>
+            </div>
+            <div>
+              <label class="small-muted block mb-1">Post Date</label>
+              <input id="blogDate" type="date" class="p-2 rounded border w-full" />
+              <p class="text-xs text-gray-400 mt-1">Leave blank to use today's date.</p>
+            </div>
+            <div class="md:col-span-2">
+              <label class="small-muted block mb-1">Blog Post Body *</label>
+              <textarea id="blogBody" rows="10" placeholder="Write your full blog post here..." class="p-2 rounded border w-full" style="resize:vertical;"></textarea>
+            </div>
+            <div class="md:col-span-2">
+              <label class="small-muted block mb-1">Short Excerpt (shown on the card)</label>
+              <input id="blogExcerpt" placeholder="A short teaser for the post card..." class="p-2 rounded border w-full" />
+            </div>
+            <div class="md:col-span-2">
+              <p class="small-muted">Hashtags applied to every post automatically:</p>
+              <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem;">
+                <span style="font-size:.75rem;font-weight:700;background:#fce7f3;color:#be185d;padding:.2rem .6rem;border-radius:999px;">#footballfamily</span>
+                <span style="font-size:.75rem;font-weight:700;background:#fce7f3;color:#be185d;padding:.2rem .6rem;border-radius:999px;">#footballerssister</span>
+                <span style="font-size:.75rem;font-weight:700;background:#fce7f3;color:#be185d;padding:.2rem .6rem;border-radius:999px;">#southafricanfootball</span>
+                <span style="font-size:.75rem;font-weight:700;background:#fce7f3;color:#be185d;padding:.2rem .6rem;border-radius:999px;">#leilasono</span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 flex gap-3 items-center flex-wrap">
+            <button id="createBlogBtn" class="btn bg-rose-600 text-white">Publish Post</button>
+            <button id="updateBlogBtn" class="btn bg-white border hidden-el">Save Changes</button>
+            <button id="cancelBlogEditBtn" class="btn bg-white border hidden-el">Cancel Edit</button>
+            <div id="blogStatusMsg" class="small-muted ml-2"></div>
+          </div>
+          <div id="blogError" class="error-box hidden-el mt-4"></div>
+          <h4 class="mt-8 font-semibold text-rose-700">Published Posts</h4>
+          <div id="blogPostsList" class="mt-4 space-y-3">
+            <div class="text-gray-500">Loading posts...</div>
+          </div>
+        </div>
 
       </div>
     </section>
@@ -360,6 +411,7 @@
     const FIXTURES_COLLECTION_PATH = `/artifacts/${APP_ID}/public/data/fixtures`;
     // NEW: top-level entries collection (where validated entries live by default)
     const ENTRIES_COLLECTION_PATH = `/artifacts/${APP_ID}/public/data/giveawayEntries`;
+    const BLOG_COLLECTION_PATH = `/artifacts/${APP_ID}/public/data/blogPosts`;
 
     // Candidate bases to try (used by other panes)
     const CANDIDATE_BASES = [
@@ -401,6 +453,7 @@
     const navMedia = document.getElementById('navMedia');
     const navGiveaways = document.getElementById('navGiveaways');
     const navWinners = document.getElementById('navWinners');
+    const navBlog = document.getElementById('navBlog');
 
     const paneSupport = document.getElementById('paneSupport');
     const paneQA = document.getElementById('paneQA');
@@ -408,6 +461,7 @@
     const paneGiveaways = document.getElementById('paneGiveaways');
     const paneWinners = document.getElementById('paneWinners');
     const paneFixtures = document.getElementById('paneFixtures');
+    const paneBlog = document.getElementById('paneBlog');
 
     const refreshSupportBtn = document.getElementById('refreshSupportBtn');
     const supportList = document.getElementById('supportList');
@@ -470,12 +524,28 @@
     const fxStatusMsg = document.getElementById('fxStatusMsg');
     const fxError = document.getElementById('fxError');
     const fixturesList = document.getElementById('fixturesList');
+    // blog elements
+    const blogTitle = document.getElementById('blogTitle');
+    const blogImageFile = document.getElementById('blogImageFile');
+    const blogImagePreview = document.getElementById('blogImagePreview');
+    const blogImagePreviewImg = document.getElementById('blogImagePreviewImg');
+    const blogDate = document.getElementById('blogDate');
+    const blogBody = document.getElementById('blogBody');
+    const blogExcerpt = document.getElementById('blogExcerpt');
+    const createBlogBtn = document.getElementById('createBlogBtn');
+    const updateBlogBtn = document.getElementById('updateBlogBtn');
+    const cancelBlogEditBtn = document.getElementById('cancelBlogEditBtn');
+    const blogStatusMsg = document.getElementById('blogStatusMsg');
+    const blogError = document.getElementById('blogError');
+    const blogPostsList = document.getElementById('blogPostsList');
 
     let currentEditId = null;
     let currentEditFxId = null;
+    let currentEditBlogId = null;
+    const BLOG_HASHTAGS = ['#footballfamily','#footballerssister','#southafricanfootball','#leilasono'];
 
     function hideAllPanes() {
-      [paneSupport, paneQA, paneMedia, paneGiveaways, paneWinners, paneFixtures].forEach(p => p.classList.add('hidden-el'));
+      [paneSupport, paneQA, paneMedia, paneGiveaways, paneWinners, paneFixtures, paneBlog].forEach(p => p.classList.add('hidden-el'));
     }
 
     // ---------- AUTH ----------
@@ -548,6 +618,7 @@
     navGiveaways.addEventListener('click', showGiveawaysPane);
     navWinners.addEventListener('click', showWinnersPane);
     navFixtures.addEventListener('click', showFixturesPane);
+    navBlog.addEventListener('click', showBlogPane);
 
     function showSupportPane(){ hideAllPanes(); paneSupport.classList.remove('hidden-el'); loadSupport(); }
     function showQAPane(){ hideAllPanes(); paneQA.classList.remove('hidden-el'); loadQA(); }
@@ -555,6 +626,7 @@
     function showGiveawaysPane(){ hideAllPanes(); paneGiveaways.classList.remove('hidden-el'); loadGiveaways(); }
     function showWinnersPane(){ hideAllPanes(); paneWinners.classList.remove('hidden-el'); loadWinnersAdmin(); }
     function showFixturesPane(){ hideAllPanes(); paneFixtures.classList.remove('hidden-el'); loadFixturesAdmin(); }
+    function showBlogPane(){ hideAllPanes(); paneBlog.classList.remove('hidden-el'); loadBlogPosts(); }
 
     refreshSupportBtn.addEventListener('click', loadSupport);
     refreshQABtn.addEventListener('click', loadQA);
@@ -1786,6 +1858,184 @@
       fxStatusMsg.textContent = '';
     });
 
+
+    // ── BLOG POSTS ──
+
+    if (blogImageFile) {
+      blogImageFile.addEventListener('change', () => {
+        const file = blogImageFile.files && blogImageFile.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => { blogImagePreviewImg.src = e.target.result; blogImagePreview.classList.remove('hidden-el'); };
+          reader.readAsDataURL(file);
+        } else { blogImagePreview.classList.add('hidden-el'); }
+      });
+    }
+
+    function loadBlogPosts() {
+      if (!blogPostsList) return;
+      blogPostsList.innerHTML = '<div class="text-gray-500">Loading posts...</div>';
+      if (blogError) blogError.classList.add('hidden-el');
+      try {
+        onSnapshot(collection(db, BLOG_COLLECTION_PATH), snap => {
+          const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          docs.sort((a,b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
+          renderBlogPostsList(docs);
+        }, err => {
+          console.error('Blog onSnapshot error', err);
+          if (blogPostsList) blogPostsList.innerHTML = '<div class="text-red-600">Could not load posts.</div>';
+        });
+      } catch(err) {
+        if (blogPostsList) blogPostsList.innerHTML = '<div class="text-red-600">Could not load posts.</div>';
+      }
+    }
+
+    function renderBlogPostsList(docs) {
+      if (!blogPostsList) return;
+      blogPostsList.innerHTML = '';
+      if (!docs.length) { blogPostsList.innerHTML = '<div class="text-gray-500">No posts yet.</div>'; return; }
+      docs.forEach(p => {
+        const dateLabel = p.postDate || (p.createdAt?.seconds ? new Date(p.createdAt.seconds*1000).toLocaleDateString('en-ZA',{day:'numeric',month:'long',year:'numeric'}) : '');
+        const el = document.createElement('div');
+        el.className = 'blog-admin-card';
+        el.innerHTML = `
+          ${ p.imageUrl ? `<img class="blog-admin-thumb" src="${escapeHtml(p.imageUrl)}" alt="${escapeHtml(p.title||'')}" />` : `<div class="blog-admin-thumb" style="display:flex;align-items:center;justify-content:center;color:#be185d;font-size:2rem;">&#x26BD;</div>` }
+          <div style="flex:1;">
+            <div style="font-weight:800;color:#9d174d;">${escapeHtml(p.title||'(no title)')}</div>
+            <div style="color:#6b7280;font-size:.82rem;margin-top:.2rem;">${escapeHtml(dateLabel)}</div>
+            <div style="margin-top:.4rem;color:#4b5563;font-size:.88rem;">${escapeHtml((p.excerpt||p.body||'').substring(0,120))}${(p.excerpt||p.body||'').length>120?'...':''}</div>
+            <div style="margin-top:.6rem;display:flex;gap:.5rem;flex-wrap:wrap;">
+              <button class="btn bg-white border edit-blog" data-id="${p.id}" style="font-size:.8rem;padding:.3rem .8rem;">Edit</button>
+              <button class="btn bg-white border delete-blog" data-id="${p.id}" style="font-size:.8rem;padding:.3rem .8rem;">Delete</button>
+            </div>
+          </div>
+        `;
+        blogPostsList.appendChild(el);
+      });
+      blogPostsList.querySelectorAll('.edit-blog').forEach(b => {
+        b.addEventListener('click', async (ev) => {
+          const id = ev.currentTarget.getAttribute('data-id');
+          const snap = await getDocs(query(collection(db, BLOG_COLLECTION_PATH)));
+          const found = snap.docs.find(d => d.id === id);
+          if (!found) return alert('Post not found.');
+          const data = found.data();
+          currentEditBlogId = id;
+          if (blogTitle) blogTitle.value = data.title || '';
+          if (blogBody) blogBody.value = data.body || '';
+          if (blogExcerpt) blogExcerpt.value = data.excerpt || '';
+          if (blogDate) blogDate.value = data.postDate || '';
+          if (data.imageUrl && blogImagePreviewImg) { blogImagePreviewImg.src = data.imageUrl; blogImagePreview.classList.remove('hidden-el'); }
+          if (createBlogBtn) createBlogBtn.classList.add('hidden-el');
+          if (updateBlogBtn) updateBlogBtn.classList.remove('hidden-el');
+          if (cancelBlogEditBtn) cancelBlogEditBtn.classList.remove('hidden-el');
+          if (blogStatusMsg) blogStatusMsg.textContent = 'Editing post — remember to Save Changes.';
+          if (paneBlog) window.scrollTo({top: paneBlog.offsetTop - 20, behavior: 'smooth'});
+        });
+      });
+      blogPostsList.querySelectorAll('.delete-blog').forEach(b => {
+        b.addEventListener('click', async (ev) => {
+          const id = ev.currentTarget.getAttribute('data-id');
+          if (!confirm('Delete this blog post? This cannot be undone.')) return;
+          try {
+            await deleteDoc(doc(db, `${BLOG_COLLECTION_PATH}/${id}`));
+            if (blogStatusMsg) blogStatusMsg.textContent = 'Post deleted.';
+          } catch(err) { alert('Delete failed: ' + (err.message || err)); }
+        });
+      });
+    }
+
+    if (createBlogBtn) {
+      createBlogBtn.addEventListener('click', async () => {
+        if (blogError) blogError.classList.add('hidden-el');
+        if (blogStatusMsg) blogStatusMsg.textContent = '';
+        const title = (blogTitle?.value || '').trim();
+        const body  = (blogBody?.value || '').trim();
+        const excerpt = (blogExcerpt?.value || '').trim();
+        const postDate = blogDate?.value || new Date().toISOString().slice(0,10);
+        const file = blogImageFile?.files && blogImageFile.files[0];
+        if (!title || !body) {
+          if (blogError) { blogError.classList.remove('hidden-el'); blogError.textContent = 'Please add a title and body text.'; }
+          return;
+        }
+        if (!file) {
+          if (blogError) { blogError.classList.remove('hidden-el'); blogError.textContent = 'Please select an image for this post.'; }
+          return;
+        }
+        createBlogBtn.disabled = true; createBlogBtn.textContent = 'Publishing...';
+        try {
+          const cr = await uploadToCloudinary(file);
+          await addDoc(collection(db, BLOG_COLLECTION_PATH), {
+            title, body,
+            excerpt: excerpt || body.substring(0,160) + '...',
+            imageUrl: cr.secure_url, publicId: cr.public_id,
+            postDate, hashtags: BLOG_HASHTAGS,
+            createdAt: serverTimestamp(),
+            author: auth.currentUser?.email || 'admin'
+          });
+          if (blogStatusMsg) blogStatusMsg.textContent = 'Post published!';
+          if (blogTitle) blogTitle.value = '';
+          if (blogBody) blogBody.value = '';
+          if (blogExcerpt) blogExcerpt.value = '';
+          if (blogDate) blogDate.value = '';
+          if (blogImageFile) blogImageFile.value = '';
+          if (blogImagePreview) blogImagePreview.classList.add('hidden-el');
+        } catch(err) {
+          if (blogError) { blogError.classList.remove('hidden-el'); blogError.textContent = 'Publish failed: ' + (err.message || err); }
+        } finally { createBlogBtn.disabled = false; createBlogBtn.textContent = 'Publish Post'; }
+      });
+    }
+
+    if (updateBlogBtn) {
+      updateBlogBtn.addEventListener('click', async () => {
+        if (!currentEditBlogId) return;
+        if (blogError) blogError.classList.add('hidden-el');
+        if (blogStatusMsg) blogStatusMsg.textContent = '';
+        const title = (blogTitle?.value || '').trim();
+        const body  = (blogBody?.value || '').trim();
+        const excerpt = (blogExcerpt?.value || '').trim();
+        const postDate = blogDate?.value || '';
+        if (!title || !body) {
+          if (blogError) { blogError.classList.remove('hidden-el'); blogError.textContent = 'Please add a title and body.'; }
+          return;
+        }
+        updateBlogBtn.disabled = true; updateBlogBtn.textContent = 'Saving...';
+        try {
+          const payload = { title, body, excerpt: excerpt || body.substring(0,160)+'...', postDate, hashtags: BLOG_HASHTAGS, updatedAt: serverTimestamp() };
+          const file = blogImageFile?.files && blogImageFile.files[0];
+          if (file) { const cr = await uploadToCloudinary(file); payload.imageUrl = cr.secure_url; payload.publicId = cr.public_id; }
+          await updateDoc(doc(db, `${BLOG_COLLECTION_PATH}/${currentEditBlogId}`), payload);
+          if (blogStatusMsg) blogStatusMsg.textContent = 'Post updated.';
+          currentEditBlogId = null;
+          if (blogTitle) blogTitle.value = '';
+          if (blogBody) blogBody.value = '';
+          if (blogExcerpt) blogExcerpt.value = '';
+          if (blogDate) blogDate.value = '';
+          if (blogImageFile) blogImageFile.value = '';
+          if (blogImagePreview) blogImagePreview.classList.add('hidden-el');
+          if (createBlogBtn) createBlogBtn.classList.remove('hidden-el');
+          if (updateBlogBtn) updateBlogBtn.classList.add('hidden-el');
+          if (cancelBlogEditBtn) cancelBlogEditBtn.classList.add('hidden-el');
+        } catch(err) {
+          if (blogError) { blogError.classList.remove('hidden-el'); blogError.textContent = 'Save failed: ' + (err.message || err); }
+        } finally { updateBlogBtn.disabled = false; updateBlogBtn.textContent = 'Save Changes'; }
+      });
+    }
+
+    if (cancelBlogEditBtn) {
+      cancelBlogEditBtn.addEventListener('click', () => {
+        currentEditBlogId = null;
+        if (blogTitle) blogTitle.value = '';
+        if (blogBody) blogBody.value = '';
+        if (blogExcerpt) blogExcerpt.value = '';
+        if (blogDate) blogDate.value = '';
+        if (blogImageFile) blogImageFile.value = '';
+        if (blogImagePreview) blogImagePreview.classList.add('hidden-el');
+        if (createBlogBtn) createBlogBtn.classList.remove('hidden-el');
+        if (updateBlogBtn) updateBlogBtn.classList.add('hidden-el');
+        if (cancelBlogEditBtn) cancelBlogEditBtn.classList.add('hidden-el');
+        if (blogStatusMsg) blogStatusMsg.textContent = '';
+      });
+    }
   </script>
 </body>
 </html>

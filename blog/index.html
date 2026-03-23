@@ -3,540 +3,192 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
   <title>Blog | The Footballer's Sister</title>
-
-  <meta name="description" content="Real stories, matchday experiences, lessons from the journey, and behind-the-scenes moments from a footballer's sister.">
-
-  <link rel="canonical" href="https://thefootballerssister.co.za/blog" />
-
+  <meta name="description" content="Real stories, matchday experiences, lessons from the journey, and behind-the-scenes moments from a footballer's sister in South Africa.">
+  <link rel="canonical" href="https://thefootballerssister.co.za/blog.html" />
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
-  <link rel="apple-touch-icon" href="/favicon.ico">
-
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Google AdSense -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9732717171066512"
-     crossorigin="anonymous"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9732717171066512" crossorigin="anonymous"></script>
 
   <style>
-    :root {
-      --accent: #be185d;
-    }
+    :root { --accent: #be185d; }
 
     header.bts-header {
-      background: linear-gradient(180deg, rgba(246,213,239,0.6), rgba(255,241,248,0.6));
+      background: linear-gradient(180deg, rgba(246,213,239,0.95), rgba(255,241,248,0.95));
       border-bottom: 1px solid rgba(235,200,215,0.6);
       backdrop-filter: blur(4px);
     }
+    .site-title { color: var(--accent); font-weight: 800; letter-spacing: .02em; }
 
-    .site-title {
-      color: var(--accent);
-      font-weight: 800;
-      letter-spacing: .02em;
-    }
-
-    /* ── Instagram-style post card ── */
+    /* Post cards */
     .post-card {
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(190, 24, 93, 0.10);
-      overflow: hidden;
-      transition: transform 0.2s, box-shadow 0.2s;
-      display: flex;
-      flex-direction: column;
+      background: #fff; border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(190,24,93,0.10);
+      overflow: hidden; display: flex; flex-direction: column;
+      transition: transform 0.2s, box-shadow 0.2s; cursor: pointer;
     }
+    .post-card:hover { transform: translateY(-4px); box-shadow: 0 8px 28px rgba(190,24,93,0.18); }
+    .post-img-wrap { width:100%; aspect-ratio:1/1; overflow:hidden; background:#fce7f3; }
+    .post-img-wrap img { width:100%; height:100%; object-fit:cover; }
+    .post-img-placeholder { width:100%; aspect-ratio:1/1; background:linear-gradient(135deg,#fce7f3,#fbcfe8); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.4rem; }
+    .post-body { padding:1.2rem 1.3rem 1.4rem; display:flex; flex-direction:column; flex:1; }
+    .post-meta { display:flex; align-items:center; gap:.6rem; margin-bottom:.7rem; }
+    .post-avatar { width:2rem; height:2rem; border-radius:9999px; background:linear-gradient(135deg,#be185d,#f472b6); display:flex; align-items:center; justify-content:center; color:white; font-size:.75rem; font-weight:700; flex-shrink:0; }
+    .post-author { font-size:.82rem; font-weight:700; color:#be185d; }
+    .post-date { font-size:.75rem; color:#9ca3af; }
+    .post-title { font-size:1.05rem; font-weight:800; color:#9d174d; margin-bottom:.5rem; line-height:1.35; }
+    .post-excerpt { font-size:.88rem; color:#4b5563; line-height:1.6; flex:1; }
+    .post-tags { display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.9rem; }
+    .post-tag { font-size:.72rem; font-weight:700; background:#fce7f3; color:#be185d; padding:.2rem .6rem; border-radius:999px; }
+    .post-foot { display:flex; align-items:center; justify-content:space-between; margin-top:.8rem; border-top:1px solid #fce7f3; padding-top:.7rem; }
+    .read-more { font-size:.82rem; font-weight:700; color:#be185d; }
 
-    .post-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 28px rgba(190, 24, 93, 0.18);
+    /* Full post modal */
+    .post-modal-backdrop {
+      position:fixed; inset:0; background:rgba(0,0,0,0.5);
+      display:flex; align-items:flex-start; justify-content:center;
+      z-index:1000; overflow-y:auto; padding:2rem 1rem;
     }
-
-    .post-card .post-image {
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      object-fit: cover;
-      background-color: #fce7f3;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .post-modal {
+      background:#fff; border-radius:20px; max-width:700px;
+      width:100%; padding:2rem; position:relative;
     }
-
-    .post-card .post-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    .modal-close {
+      position:absolute; top:1rem; right:1rem; background:#fce7f3;
+      border:none; border-radius:9999px; width:2rem; height:2rem;
+      font-size:1.1rem; color:#be185d; cursor:pointer; font-weight:700;
     }
+    .modal-hero { width:100%; border-radius:12px; margin-bottom:1.5rem; object-fit:cover; max-height:420px; }
+    .modal-title { font-size:1.8rem; font-weight:900; color:#9d174d; margin-bottom:.5rem; }
+    .modal-date { font-size:.82rem; color:#9ca3af; margin-bottom:1.5rem; }
+    .modal-body { color:#374151; font-size:1rem; line-height:1.8; white-space:pre-wrap; }
+    .modal-tags { display:flex; flex-wrap:wrap; gap:.4rem; margin-top:1.5rem; }
+    .modal-tag { font-size:.75rem; font-weight:700; background:#fce7f3; color:#be185d; padding:.25rem .7rem; border-radius:999px; }
 
-    /* Placeholder when no image yet */
-    .post-card .post-image-placeholder {
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-
-    .post-card .post-image-placeholder span {
-      font-size: 3rem;
-    }
-
-    .post-card .post-image-placeholder p {
-      color: #be185d;
-      font-size: 0.8rem;
-      font-weight: 600;
-    }
-
-    .post-card .post-body {
-      padding: 1.2rem 1.3rem 1.4rem;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-    }
-
-    .post-card .post-meta {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      margin-bottom: 0.7rem;
-    }
-
-    .post-card .post-avatar {
-      width: 2rem;
-      height: 2rem;
-      border-radius: 9999px;
-      background: linear-gradient(135deg, #be185d, #f472b6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 0.75rem;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    .post-card .post-author {
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: #be185d;
-    }
-
-    .post-card .post-date {
-      font-size: 0.75rem;
-      color: #9ca3af;
-    }
-
-    .post-card .post-title {
-      font-size: 1.05rem;
-      font-weight: 800;
-      color: #9d174d;
-      margin-bottom: 0.5rem;
-      line-height: 1.35;
-    }
-
-    .post-card .post-excerpt {
-      font-size: 0.88rem;
-      color: #4b5563;
-      line-height: 1.6;
-      flex: 1;
-    }
-
-    .post-card .post-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.4rem;
-      margin-top: 0.9rem;
-    }
-
-    .post-card .post-tag {
-      font-size: 0.72rem;
-      font-weight: 700;
-      background: #fce7f3;
-      color: #be185d;
-      padding: 0.2rem 0.6rem;
-      border-radius: 999px;
-    }
-
-    .post-card .post-read-more {
-      display: inline-block;
-      margin-top: 1rem;
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: #be185d;
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .post-card .post-read-more:hover {
-      color: #9d174d;
-    }
-
-    .post-card .post-likes {
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-      font-size: 0.8rem;
-      color: #be185d;
-      font-weight: 600;
-      margin-top: 0.7rem;
-      border-top: 1px solid #fce7f3;
-      padding-top: 0.7rem;
-    }
-
-    /* ── Subscribe section ── */
+    /* Subscribe */
     .subscribe-section {
-      background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
-      border: 1.5px solid #f9a8d4;
-      border-radius: 20px;
-      padding: 2.5rem 2rem;
-      text-align: center;
+      background:linear-gradient(135deg,#fdf2f8,#fce7f3);
+      border:1.5px solid #f9a8d4; border-radius:20px;
+      padding:2.5rem 2rem; text-align:center;
     }
-
     .subscribe-input {
-      border: 1.5px solid #f9a8d4;
-      border-radius: 999px;
-      padding: 0.7rem 1.3rem;
-      font-size: 0.95rem;
-      outline: none;
-      width: 100%;
-      max-width: 340px;
-      transition: border-color 0.2s;
+      border:1.5px solid #f9a8d4; border-radius:999px;
+      padding:.7rem 1.3rem; font-size:.95rem; outline:none;
+      width:100%; max-width:340px; transition:border-color .2s;
     }
-
-    .subscribe-input:focus {
-      border-color: #be185d;
-    }
-
+    .subscribe-input:focus { border-color:#be185d; }
     .subscribe-btn {
-      background: linear-gradient(90deg, #be185d, #f472b6);
-      color: white;
-      font-weight: 700;
-      border: none;
-      border-radius: 999px;
-      padding: 0.7rem 1.8rem;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: opacity 0.2s;
+      background:linear-gradient(90deg,#be185d,#f472b6); color:white;
+      font-weight:700; border:none; border-radius:999px;
+      padding:.7rem 1.8rem; font-size:.95rem; cursor:pointer; transition:opacity .2s;
     }
+    .subscribe-btn:hover { opacity:.88; }
 
-    .subscribe-btn:hover {
-      opacity: 0.88;
-    }
+    /* Footer */
+    .site-footer { background-color:#fce7f3; border-top:1px solid #f9a8d4; }
+    .footer-col-heading { color:#be185d; font-size:.7rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; margin-bottom:.9rem; }
+    .footer-col-link { display:block; font-size:.92rem; font-weight:600; color:#4b5563; text-decoration:none; margin-bottom:.55rem; transition:color .2s; }
+    .footer-col-link:hover { color:#be185d; }
+    .footer-divider { border:none; border-top:1px solid #f9a8d4; margin:2rem 0 1.5rem; }
+    .footer-badge { display:inline-block; background:linear-gradient(90deg,#be185d,#f472b6); color:white; padding:.45rem 1rem; border-radius:999px; font-weight:700; }
+    .footer-social-btn { display:inline-flex; align-items:center; justify-content:center; width:2.4rem; height:2.4rem; border-radius:9999px; border:1.5px solid #f9a8d4; color:#be185d; transition:background-color .2s,border-color .2s; }
+    .footer-social-btn:hover { background-color:#fda4af; border-color:#be185d; }
 
-    /* ── Footer ── */
-    .site-footer {
-      background-color: #fce7f3;
-      border-top: 1px solid #f9a8d4;
-    }
-
-    .site-footer .footer-col-heading {
-      color: #be185d;
-      font-size: 0.7rem;
-      font-weight: 800;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      margin-bottom: 0.9rem;
-    }
-
-    .site-footer .footer-col-link {
-      display: block;
-      font-size: 0.92rem;
-      font-weight: 600;
-      color: #4b5563;
-      text-decoration: none;
-      margin-bottom: 0.55rem;
-      transition: color 0.2s;
-    }
-
-    .site-footer .footer-col-link:hover { color: #be185d; }
-
-    .site-footer .footer-divider {
-      border: none;
-      border-top: 1px solid #f9a8d4;
-      margin: 2rem 0 1.5rem;
-    }
-
-    .site-footer .footer-badge {
-      display: inline-block;
-      background: linear-gradient(90deg, #be185d, #f472b6);
-      color: white;
-      padding: .45rem 1rem;
-      border-radius: 999px;
-      font-weight: 700;
-    }
-
-    .site-footer .footer-social-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 2.4rem;
-      height: 2.4rem;
-      border-radius: 9999px;
-      border: 1.5px solid #f9a8d4;
-      color: #be185d;
-      transition: background-color 0.2s, border-color 0.2s;
-    }
-
-    .site-footer .footer-social-btn:hover {
-      background-color: #fda4af;
-      border-color: #be185d;
-    }
+    #loadingPosts { text-align:center; padding:2rem; color:#be185d; font-weight:600; }
   </style>
 </head>
-
 <body class="bg-pink-50 text-black font-sans">
 
   <!-- HEADER -->
   <header class="bts-header fixed top-0 w-full z-50">
-    <div class="flex justify-between items-center px-6 py-4 container" style="max-width:1100px; margin:0 auto;">
+    <div style="max-width:1100px;margin:0 auto;" class="flex justify-between items-center px-6 py-4">
       <div class="site-title text-lg">Life of a Footballer's Sister</div>
       <nav class="flex gap-3">
-        <a href="/" class="font-semibold text-rose-600 bg-white px-4 py-2 rounded-md shadow-sm hover:bg-pink-50">Home</a>
-        <a href="/my-life" class="font-semibold text-rose-600 bg-white px-4 py-2 rounded-md shadow-sm hover:bg-pink-50">My Life</a>
+        <a href="index.html" class="font-semibold text-rose-600 bg-white px-4 py-2 rounded-md shadow-sm hover:bg-pink-50">Home</a>
+        <a href="my-life.html" class="font-semibold text-rose-600 bg-white px-4 py-2 rounded-md shadow-sm hover:bg-pink-50">My Life</a>
       </nav>
     </div>
   </header>
 
-  <!-- SPACER -->
   <div class="pt-24"></div>
 
   <!-- PAGE TITLE -->
   <section class="px-6 pt-10 pb-4 max-w-5xl mx-auto text-center">
     <h1 class="text-4xl font-extrabold text-rose-700 mb-3">The Blog</h1>
-    <p class="text-gray-600 text-lg max-w-2xl mx-auto">
-      Real stories. Real moments. From one football family to another.
-    </p>
-    <div class="w-16 h-1 rounded-full mx-auto mt-4" style="background: linear-gradient(90deg, #be185d, #f472b6);"></div>
+    <p class="text-gray-600 text-lg max-w-2xl mx-auto">Real stories. Real moments. From one football family to another.</p>
+    <div class="w-16 h-1 rounded-full mx-auto mt-4" style="background:linear-gradient(90deg,#be185d,#f472b6);"></div>
   </section>
 
-  <!-- ══ EMAIL SUBSCRIBE ══ -->
+  <!-- AD SLOT -->
+  <div class="max-w-5xl mx-auto px-6 pt-6">
+    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9732717171066512" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </div>
+
+  <!-- SUBSCRIBE -->
   <section class="px-6 py-10 max-w-2xl mx-auto">
     <div class="subscribe-section">
       <p class="text-2xl mb-1">💌</p>
       <h2 class="text-xl font-extrabold text-rose-700 mb-2">Don't Miss a Post</h2>
-      <p class="text-gray-600 text-sm mb-5 max-w-md mx-auto">
-        Subscribe and get notified the moment a new blog post, update, or exclusive giveaway drops.
-        Trust me — you don't want to miss what's coming.
-      </p>
-      <form
-        onsubmit="handleSubscribe(event)"
-        style="display:flex; flex-wrap:wrap; gap:0.75rem; justify-content:center; align-items:center;">
-        <input
-          type="email"
-          id="subscribe-email"
-          class="subscribe-input"
-          placeholder="Enter your email address"
-          required
-        />
+      <p class="text-gray-600 text-sm mb-5 max-w-md mx-auto">Subscribe and get notified the moment a new blog post, update, or exclusive giveaway drops.</p>
+      <form onsubmit="handleSubscribe(event)" style="display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center;align-items:center;">
+        <input type="email" id="subscribe-email" class="subscribe-input" placeholder="Enter your email address" required />
         <button type="submit" class="subscribe-btn">Subscribe 💖</button>
       </form>
-      <p id="subscribe-msg" style="display:none; margin-top:1rem; color:#be185d; font-weight:700; font-size:0.9rem;">
-        You're in! Welcome to the family 💖
-      </p>
+      <p id="subscribe-msg" style="display:none;margin-top:1rem;color:#be185d;font-weight:700;font-size:.9rem;">You're in! Welcome to the family 💖</p>
     </div>
   </section>
 
-  <!-- ══ BLOG POSTS GRID ══ -->
+  <!-- POSTS GRID -->
   <section class="px-6 pb-16 max-w-5xl mx-auto">
-
     <h2 class="text-xl font-bold text-rose-700 mb-6">Latest Posts</h2>
-
-    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:1.5rem;">
-
-      <!-- ─── POST 1: Welcome to My World ─── -->
-      <article class="post-card">
-
-        <!-- Image area: replace src with your actual image path, e.g. images/blog-welcome.jpg -->
-        <!-- If you have an image, use this: -->
-        <!-- <div class="post-image"><img src="images/blog-welcome.jpg" alt="Welcome to My World" /></div> -->
-
-        <!-- Placeholder shown until you add a photo: -->
-        <div class="post-image-placeholder">
-          <span>⚽💖</span>
-          <p>Add your photo here</p>
-        </div>
-
-        <div class="post-body">
-
-          <!-- Author row -->
-          <div class="post-meta">
-            <div class="post-avatar">LS</div>
-            <div>
-              <div class="post-author">leila_sono_</div>
-              <div class="post-date">23 March 2026</div>
-            </div>
-          </div>
-
-          <!-- Title -->
-          <div class="post-title">Welcome to My World ⚽💖</div>
-
-          <!-- Excerpt -->
-          <div class="post-excerpt">
-            If you're reading this, you're officially part of something special. This blog is more than
-            just posts — it's a space where I share the real side of football life. The emotions, the
-            lessons, the growth, and everything in between…
-          </div>
-
-          <!-- Tags -->
-          <div class="post-tags">
-            <span class="post-tag">#footballfamily</span>
-            <span class="post-tag">#footballerssister</span>
-            <span class="post-tag">#welcome</span>
-          </div>
-
-          <!-- Likes + Read more -->
-          <div class="post-likes">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="15" height="15" viewBox="0 0 24 24">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.27 2 8.5 2 5.41 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 3.77-3.4 6.86-8.55 11.53L12 21.35z"/>
-            </svg>
-            ❤️ Be the first to like this
-          </div>
-
-          <a href="/blog/welcome-to-my-world" class="post-read-more">Read full post →</a>
-
-        </div>
-      </article>
-
-      <!-- ─── PLACEHOLDER CARD: upcoming post ─── -->
-      <article class="post-card" style="opacity:0.5; pointer-events:none;">
-        <div class="post-image-placeholder">
-          <span>✨</span>
-          <p>Coming soon</p>
-        </div>
-        <div class="post-body">
-          <div class="post-meta">
-            <div class="post-avatar">LS</div>
-            <div>
-              <div class="post-author">leila_sono_</div>
-              <div class="post-date">Coming soon</div>
-            </div>
-          </div>
-          <div class="post-title">Next post coming soon…</div>
-          <div class="post-excerpt">Stay subscribed so you're the first to know when the next post drops.</div>
-        </div>
-      </article>
-
-    </div>
+    <div id="loadingPosts">Loading posts…</div>
+    <div id="postsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;"></div>
+    <div id="noPostsMsg" style="display:none;color:#6b7280;text-align:center;padding:2rem 0;">No posts yet — check back soon!</div>
   </section>
 
-  <!-- ══ FULL BLOG POST SECTION ══ -->
-  <section class="px-6 pb-20 max-w-3xl mx-auto">
-
-    <div style="border-top: 2px solid #f9a8d4; padding-top: 2.5rem;">
-
-      <p class="text-sm text-gray-400 font-semibold mb-1 uppercase tracking-widest">Blog Post — 23 March 2026</p>
-      <h2 class="text-3xl font-extrabold text-rose-700 mb-6">Welcome to My World ⚽💖</h2>
-
-      <!-- Full post image: replace with your actual image -->
-      <!-- <img src="images/blog-welcome.jpg" alt="Welcome" style="width:100%; border-radius:16px; margin-bottom:2rem; object-fit:cover; max-height:420px;" /> -->
-
-      <!-- Placeholder image block -->
-      <div style="width:100%; border-radius:16px; margin-bottom:2rem; background:linear-gradient(135deg,#fce7f3,#fbcfe8); aspect-ratio:16/9; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.5rem;">
-        <span style="font-size:3rem;">⚽💖</span>
-        <p style="color:#be185d; font-size:0.85rem; font-weight:600;">Replace with your photo — images/blog-welcome.jpg</p>
-      </div>
-
-      <p class="text-gray-700 text-lg leading-relaxed mb-5">
-        If you're reading this, you're officially part of something special.
-      </p>
-
-      <p class="text-gray-700 text-lg leading-relaxed mb-5">
-        This blog is more than just posts — it's a space where I share the real side of football life.
-        Not just the highlights, but the behind-the-scenes moments that people don't always see.
-        The emotions, the lessons, the growth, and everything in between.
-      </p>
-
-      <p class="text-gray-700 text-lg leading-relaxed mb-5">
-        Being a footballer's sister has taught me so much about resilience, patience, and belief.
-        It's taught me that success doesn't happen overnight, and that sometimes the most important
-        role you can play is simply being there for someone.
-      </p>
-
-      <p class="text-gray-700 text-lg font-semibold mb-3">On this blog, I'll be sharing:</p>
-      <ul style="list-style:none; padding:0; margin-bottom:1.5rem;">
-        <li style="display:flex; gap:0.6rem; align-items:center; margin-bottom:0.5rem; color:#4b5563; font-size:1rem;">
-          <span style="color:#be185d;">⚽</span> Matchday experiences
-        </li>
-        <li style="display:flex; gap:0.6rem; align-items:center; margin-bottom:0.5rem; color:#4b5563; font-size:1rem;">
-          <span style="color:#be185d;">💬</span> Personal stories
-        </li>
-        <li style="display:flex; gap:0.6rem; align-items:center; margin-bottom:0.5rem; color:#4b5563; font-size:1rem;">
-          <span style="color:#be185d;">💡</span> Lessons from the journey
-        </li>
-        <li style="display:flex; gap:0.6rem; align-items:center; margin-bottom:0.5rem; color:#4b5563; font-size:1rem;">
-          <span style="color:#be185d;">🎁</span> Giveaways and opportunities
-        </li>
-        <li style="display:flex; gap:0.6rem; align-items:center; margin-bottom:0.5rem; color:#4b5563; font-size:1rem;">
-          <span style="color:#be185d;">❤️</span> Real-life moments from our football family
-        </li>
-      </ul>
-
-      <p class="text-gray-700 text-lg leading-relaxed mb-5">
-        I want this to feel like a safe space — somewhere you can come to feel inspired, understood, and connected.
-      </p>
-
-      <div style="background:#fdf2f8; border-left:4px solid #f472b6; border-radius:0 12px 12px 0; padding:1.2rem 1.6rem; margin:1.5rem 0;">
-        <p style="font-style:italic; color:#9d174d; font-size:1.05rem; font-weight:600; margin:0;">
-          💌 Make sure you subscribe so you don't miss any blog posts, updates, or exclusive giveaways.
-          I have so much planned, and trust me… you don't want to miss what's coming.
-        </p>
-      </div>
-
-      <p class="text-rose-700 text-xl font-bold text-center mt-8 mb-1">
-        From one football family to another — welcome 💖
-      </p>
-
-      <!-- Tags -->
-      <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:1.5rem;">
-        <span style="font-size:0.75rem; font-weight:700; background:#fce7f3; color:#be185d; padding:0.25rem 0.7rem; border-radius:999px;">#footballfamily</span>
-        <span style="font-size:0.75rem; font-weight:700; background:#fce7f3; color:#be185d; padding:0.25rem 0.7rem; border-radius:999px;">#footballerssister</span>
-        <span style="font-size:0.75rem; font-weight:700; background:#fce7f3; color:#be185d; padding:0.25rem 0.7rem; border-radius:999px;">#welcome</span>
-        <span style="font-size:0.75rem; font-weight:700; background:#fce7f3; color:#be185d; padding:0.25rem 0.7rem; border-radius:999px;">#southafricanfootball</span>
-      </div>
-
+  <!-- FULL POST MODAL -->
+  <div id="postModal" class="post-modal-backdrop" style="display:none;" onclick="closeModalOnBackdrop(event)">
+    <div class="post-modal">
+      <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+      <img id="modalImage" class="modal-hero" src="" alt="" style="display:none;" />
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-date" id="modalDate"></div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-tags" id="modalTags"></div>
     </div>
-  </section>
+  </div>
 
-  <!-- ══ FOOTER ══ -->
+  <!-- FOOTER -->
   <footer class="site-footer">
-    <div style="max-width:1100px; margin:0 auto; padding:3rem 1.5rem 0;">
-
-      <div style="display:flex; flex-wrap:wrap; gap:2.5rem; justify-content:space-between;">
-
+    <div style="max-width:1100px;margin:0 auto;padding:3rem 1.5rem 0;">
+      <div style="display:flex;flex-wrap:wrap;gap:2.5rem;justify-content:space-between;">
         <div style="min-width:150px;">
           <p class="footer-col-heading">About</p>
-          <a href="/about" class="footer-col-link">About Me</a>
-          <a href="/my-life" class="footer-col-link">My Life as a Footballer's Sister</a>
-          <a href="/bts" class="footer-col-link">Behind the Game</a>
+          <a href="about.html" class="footer-col-link">About Me</a>
+          <a href="my-life.html" class="footer-col-link">My Life as a Footballer's Sister</a>
         </div>
-
         <div style="min-width:150px;">
           <p class="footer-col-heading">Explore</p>
-          <a href="/blog" class="footer-col-link">Blog</a>
-          <a href="/fixtures" class="footer-col-link">Fixtures</a>
-          <a href="/giveaways" class="footer-col-link">Giveaways</a>
-          <a href="/support-wall" class="footer-col-link">Support Wall</a>
-          <a href="/questions" class="footer-col-link">Q&amp;A</a>
+          <a href="blog.html" class="footer-col-link">Blog</a>
+          <a href="index.html#fixtures" class="footer-col-link">Fixtures</a>
+          <a href="index.html#giveaways" class="footer-col-link">Giveaways</a>
+          <a href="index.html#support" class="footer-col-link">Support Wall</a>
+          <a href="index.html#qa" class="footer-col-link">Q&amp;A</a>
         </div>
-
         <div style="min-width:150px;">
           <p class="footer-col-heading">Connect</p>
-          <a href="/contact" class="footer-col-link">Contact</a>
+          <a href="contact.html" class="footer-col-link">Contact</a>
           <a href="https://instagram.com/leila_sono_" target="_blank" class="footer-col-link">Instagram</a>
           <a href="https://www.tiktok.com/@leila_sono" target="_blank" class="footer-col-link">TikTok</a>
           <a href="https://youtube.com/@leilasono" target="_blank" class="footer-col-link">YouTube</a>
         </div>
-
         <div style="min-width:150px;">
           <p class="footer-col-heading">Legal</p>
-          <a href="/privacy-policy" class="footer-col-link">Privacy Policy</a>
-          <a href="/privacy-policy#cookies" class="footer-col-link">Cookie Notice</a>
+          <a href="privacy-policy.html" class="footer-col-link">Privacy Policy</a>
+          <a href="privacy-policy.html#cookies" class="footer-col-link">Cookie Notice</a>
         </div>
-
-        <div style="display:flex; align-items:flex-start; gap:0.5rem; flex-wrap:wrap;">
+        <div style="display:flex;align-items:flex-start;gap:.5rem;flex-wrap:wrap;padding-top:.2rem;">
           <a href="https://instagram.com/leila_sono_" target="_blank" class="footer-social-btn" aria-label="Instagram">
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="17" height="17" viewBox="0 0 24 24"><path d="M7.75 2A5.75 5.75 0 002 7.75v8.5A5.75 5.75 0 007.75 22h8.5A5.75 5.75 0 0022 16.25v-8.5A5.75 5.75 0 0016.25 2h-8.5zM12 7a5 5 0 100 10 5 5 0 000-10z"/></svg>
           </a>
@@ -550,15 +202,11 @@
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="17" height="17" viewBox="0 0 24 24"><path d="M2 5.75A2.75 2.75 0 014.75 3h14.5A2.75 2.75 0 0122 5.75v.765l-10 6.25-10-6.25V5.75zm0 2.545V18.25A2.75 2.75 0 004.75 21h14.5A2.75 2.75 0 0022 18.25V8.295l-9.45 5.906a1 1 0 01-1.1 0L2 8.295z"/></svg>
           </a>
         </div>
-
       </div>
-
       <hr class="footer-divider" />
-
-      <div style="text-align:center; padding-bottom:2rem;">
-        <span class="footer-badge">© 2025 The Footballer's Sister</span>
+      <div style="text-align:center;padding-bottom:2rem;">
+        <span class="footer-badge">&#169; 2025 The Footballer's Sister</span>
       </div>
-
     </div>
   </footer>
 
@@ -574,7 +222,127 @@
         document.querySelector('.subscribe-btn').style.opacity = '0.5';
       }
     }
+
+    function closeModal() {
+      document.getElementById('postModal').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    function closeModalOnBackdrop(e) {
+      if (e.target === document.getElementById('postModal')) closeModal();
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+    function openPost(post) {
+      const modal = document.getElementById('postModal');
+      const img = document.getElementById('modalImage');
+      if (post.imageUrl) { img.src = post.imageUrl; img.alt = post.title || ''; img.style.display = 'block'; }
+      else { img.style.display = 'none'; }
+      document.getElementById('modalTitle').textContent = post.title || '';
+      document.getElementById('modalDate').textContent = post.postDate
+        ? new Date(post.postDate + 'T00:00:00').toLocaleDateString('en-ZA',{day:'numeric',month:'long',year:'numeric'})
+        : '';
+      document.getElementById('modalBody').textContent = post.body || '';
+      const tagsEl = document.getElementById('modalTags');
+      tagsEl.innerHTML = '';
+      const tags = post.hashtags || ['#footballfamily','#footballerssister','#southafricanfootball','#leilasono'];
+      tags.forEach(t => {
+        const span = document.createElement('span');
+        span.className = 'modal-tag';
+        span.textContent = t;
+        tagsEl.appendChild(span);
+      });
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      modal.scrollTop = 0;
+    }
   </script>
 
+  <!-- Firebase: load posts live from Firestore -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import {
+      getFirestore, collection, onSnapshot, query
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBiIvIHLYEQc0UGDcg4Qq0-w2Sv8NHmc6w",
+      authDomain: "football-site-c3aa9.firebaseapp.com",
+      projectId: "football-site-c3aa9",
+      storageBucket: "football-site-c3aa9.appspot.com",
+      messagingSenderId: "65396604482",
+      appId: "1:65396604482:web:0f31625a714aa8352337db"
+    };
+    const APP_ID = firebaseConfig.appId;
+    const BLOG_PATH = `/artifacts/${APP_ID}/public/data/blogPosts`;
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+
+    const grid    = document.getElementById('postsGrid');
+    const loading = document.getElementById('loadingPosts');
+    const noMsg   = document.getElementById('noPostsMsg');
+
+    function esc(s){ if(!s&&s!==0)return''; return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+    onSnapshot(collection(db, BLOG_PATH), snap => {
+      loading.style.display = 'none';
+      const posts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      posts.sort((a,b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
+
+      if (!posts.length) { noMsg.style.display = 'block'; grid.innerHTML = ''; return; }
+      noMsg.style.display = 'none';
+      grid.innerHTML = '';
+
+      posts.forEach(post => {
+        const dateLabel = post.postDate
+          ? new Date(post.postDate + 'T00:00:00').toLocaleDateString('en-ZA',{day:'numeric',month:'long',year:'numeric'})
+          : (post.createdAt?.seconds ? new Date(post.createdAt.seconds*1000).toLocaleDateString('en-ZA',{day:'numeric',month:'long',year:'numeric'}) : '');
+        const excerpt = post.excerpt || (post.body ? post.body.substring(0,140) + '…' : '');
+        const tags = post.hashtags || ['#footballfamily','#footballerssister','#southafricanfootball','#leilasono'];
+
+        const card = document.createElement('article');
+        card.className = 'post-card';
+        card.setAttribute('role','button');
+        card.setAttribute('tabindex','0');
+        card.setAttribute('aria-label','Read: ' + (post.title || 'Blog post'));
+
+        card.innerHTML = `
+          ${ post.imageUrl
+            ? `<div class="post-img-wrap"><img src="${esc(post.imageUrl)}" alt="${esc(post.title||'')}" loading="lazy" /></div>`
+            : `<div class="post-img-placeholder"><span style="font-size:3rem;">&#x26BD;&#x1F496;</span></div>` }
+          <div class="post-body">
+            <div class="post-meta">
+              <div class="post-avatar">LS</div>
+              <div>
+                <div class="post-author">leila_sono_</div>
+                <div class="post-date">${esc(dateLabel)}</div>
+              </div>
+            </div>
+            <div class="post-title">${esc(post.title||'')}</div>
+            <div class="post-excerpt">${esc(excerpt)}</div>
+            <div class="post-tags">
+              ${tags.map(t=>`<span class="post-tag">${esc(t)}</span>`).join('')}
+            </div>
+            <div class="post-foot">
+              <span style="font-size:.8rem;color:#be185d;">&#x2764;&#xFE0F;</span>
+              <span class="read-more">Read full post &#x2192;</span>
+            </div>
+          </div>
+        `;
+
+        const openFn = () => window.openPost(post);
+        card.addEventListener('click', openFn);
+        card.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') openFn(); });
+        grid.appendChild(card);
+      });
+
+    }, err => {
+      loading.style.display = 'none';
+      loading.textContent = 'Could not load posts.';
+      console.error('Blog load error', err);
+    });
+  </script>
 </body>
 </html>
