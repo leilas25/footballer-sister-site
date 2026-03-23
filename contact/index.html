@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact | The Footballer's Sister</title>
+  <meta name="description" content="Get in touch with Leila Sono — collaborations, business partnerships, or just saying hello.">
+  <link rel="canonical" href="https://thefootballerssister.co.za/contact.html" />
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9732717171066512" crossorigin="anonymous"></script>
+
+  <style>
+    :root { --accent: #be185d; --accent-light: #f472b6; }
+
+    * { box-sizing: border-box; }
+
+    body { background: #fdf2f8; }
+
+    /* Header */
+    header.site-header {
+      background: linear-gradient(180deg, rgba(246,213,239,0.95), rgba(255,241,248,0.95));
+      border-bottom: 1px solid rgba(235,200,215,0.6);
+      backdrop-filter: blur(4px);
+    }
+
+    /* Hero */
+    .hero-section {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 40%, #f9a8d4 100%);
+      padding: 5rem 1.5rem 4rem;
+      text-align: center;
+    }
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(244,114,182,0.25), transparent 70%);
+      top: -150px; right: -100px;
+      border-radius: 9999px;
+    }
+    .hero-section::after {
+      content: '';
+      position: absolute;
+      width: 350px; height: 350px;
+      background: radial-gradient(circle, rgba(190,24,93,0.15), transparent 70%);
+      bottom: -100px; left: -80px;
+      border-radius: 9999px;
+    }
+    .hero-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 5rem; height: 5rem;
+      background: linear-gradient(135deg, #be185d, #f472b6);
+      border-radius: 9999px;
+      font-size: 2.2rem;
+      box-shadow: 0 8px 30px rgba(190,24,93,0.35);
+      margin-bottom: 1.5rem;
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .hero-title {
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      font-weight: 900; color: #9d174d;
+      line-height: 1.15; margin-bottom: 1rem;
+    }
+    .hero-sub {
+      font-size: 1.1rem; color: #be185d;
+      max-width: 520px; margin: 0 auto; line-height: 1.7;
+    }
+    .hero-divider {
+      width: 60px; height: 4px; border-radius: 999px;
+      background: linear-gradient(90deg, #be185d, #f472b6);
+      margin: 1.5rem auto 0;
+    }
+
+    /* Contact cards */
+    .contact-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+    }
+
+    .contact-card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 2.2rem 2rem;
+      border: 1.5px solid #f9a8d4;
+      box-shadow: 0 6px 30px rgba(190,24,93,0.10);
+      position: relative; overflow: hidden;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .contact-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(190,24,93,0.18); }
+    .contact-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, #be185d, #f472b6);
+      border-radius: 24px 24px 0 0;
+    }
+    .card-icon-wrap {
+      width: 3.5rem; height: 3.5rem;
+      border-radius: 9999px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.2rem;
+    }
+    .card-personal .card-icon-wrap { background: linear-gradient(135deg, #fce7f3, #fbcfe8); }
+    .card-business .card-icon-wrap { background: linear-gradient(135deg, #fdf2f8, #fce7f3); }
+    .card-label {
+      font-size: .7rem; font-weight: 800;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: #be185d; margin-bottom: .5rem;
+    }
+    .card-title {
+      font-size: 1.25rem; font-weight: 800; color: #9d174d;
+      margin-bottom: .6rem;
+    }
+    .card-desc {
+      font-size: .92rem; color: #6b7280;
+      line-height: 1.6; margin-bottom: 1.4rem;
+    }
+    .email-chip {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+      border: 1px solid #f9a8d4;
+      border-radius: 999px;
+      padding: .55rem 1.1rem;
+      font-size: .88rem; font-weight: 700; color: #be185d;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.2s;
+      cursor: pointer; word-break: break-all;
+    }
+    .email-chip:hover { background: linear-gradient(135deg,#fbcfe8,#f9a8d4); transform: scale(1.03); }
+    .copy-tick { display:none; font-size:.9rem; color:#166534; }
+
+    /* Social strip */
+    .social-strip {
+      max-width: 800px; margin: 0 auto;
+      padding: 0 1.5rem 3.5rem;
+      text-align: center;
+    }
+    .social-strip h3 { font-size:1rem; font-weight:800; color:#9d174d; margin-bottom:1.2rem; }
+    .social-buttons { display:flex; flex-wrap:wrap; gap:.75rem; justify-content:center; }
+    .social-btn {
+      display:inline-flex; align-items:center; gap:.5rem;
+      padding:.65rem 1.3rem; border-radius:999px;
+      font-weight:700; font-size:.9rem;
+      text-decoration:none; transition:transform .2s,box-shadow .2s;
+      border: 1.5px solid transparent;
+    }
+    .social-btn:hover { transform:translateY(-3px); box-shadow:0 6px 20px rgba(190,24,93,0.2); }
+    .social-btn-ig  { background:linear-gradient(135deg,#fce7f3,#fbcfe8); color:#be185d; border-color:#f9a8d4; }
+    .social-btn-tt  { background:linear-gradient(135deg,#fdf2f8,#fce7f3); color:#9d174d; border-color:#f9a8d4; }
+    .social-btn-yt  { background:linear-gradient(135deg,#fff1f2,#fce7f3); color:#be185d; border-color:#f9a8d4; }
+
+    /* Bottom note */
+    .bottom-note {
+      max-width: 800px; margin: 0 auto 2rem;
+      padding: 0 1.5rem;
+    }
+    .note-box {
+      background: linear-gradient(135deg,#fff,#fdf2f8);
+      border: 1.5px solid #f9a8d4;
+      border-radius: 20px;
+      padding: 1.8rem 2rem;
+      text-align: center;
+    }
+    .note-box p { color:#4b5563; font-size:.95rem; line-height:1.75; }
+    .note-box strong { color:#be185d; }
+
+    /* Footer */
+    .site-footer { background-color:#fce7f3; border-top:1px solid #f9a8d4; }
+    .footer-col-heading { color:#be185d; font-size:.7rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; margin-bottom:.9rem; }
+    .footer-col-link { display:block; font-size:.92rem; font-weight:600; color:#4b5563; text-decoration:none; margin-bottom:.55rem; transition:color .2s; }
+    .footer-col-link:hover { color:#be185d; }
+    .footer-divider { border:none; border-top:1px solid #f9a8d4; margin:2rem 0 1.5rem; }
+    .footer-badge { display:inline-block; background:linear-gradient(90deg,#be185d,#f472b6); color:white; padding:.45rem 1rem; border-radius:999px; font-weight:700; }
+    .footer-social-btn { display:inline-flex; align-items:center; justify-content:center; width:2.4rem; height:2.4rem; border-radius:9999px; border:1.5px solid #f9a8d4; color:#be185d; transition:background-color .2s,border-color .2s; }
+    .footer-social-btn:hover { background-color:#fda4af; border-color:#be185d; }
+
+    /* Copied toast */
+    #copyToast {
+      position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+      background: #166534; color: white; font-weight: 700;
+      padding: .6rem 1.4rem; border-radius: 999px;
+      font-size: .9rem; z-index: 9999;
+      opacity: 0; transition: opacity .3s;
+      pointer-events: none;
+    }
+    #copyToast.show { opacity: 1; }
+  </style>
+</head>
+<body class="font-sans text-black">
+
+  <div id="copyToast">Copied! &#x2713;</div>
+
+  <!-- HEADER -->
+  <header class="site-header fixed top-0 w-full z-50">
+    <div style="max-width:1100px;margin:0 auto;" class="flex justify-between items-center px-6 py-4">
+      <div style="color:#be185d;font-weight:800;letter-spacing:.02em;" class="text-lg">Life of a Footballer's Sister</div>
+      <nav class="flex gap-3">
+        <a href="index.html" class="font-semibold text-rose-600 bg-white px-4 py-2 rounded-md shadow-sm hover:bg-pink-50">Home</a>
+        <a href="blog.html" class="font-semibold text-rose-600 bg-white px-4 py-2 rounded-md shadow-sm hover:bg-pink-50">Blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="pt-20"></div>
+
+  <!-- HERO -->
+  <section class="hero-section">
+    <div style="position:relative;z-index:1;">
+      <div class="hero-icon">&#x1F4E9;</div>
+      <h1 class="hero-title">Contact Me</h1>
+      <p class="hero-sub">Whether it's collaborations, business opportunities, or just connecting with the community — I'd love to hear from you!</p>
+      <div class="hero-divider"></div>
+    </div>
+  </section>
+
+  <!-- CONTACT CARDS -->
+  <div class="contact-cards">
+
+    <!-- Personal -->
+    <div class="contact-card card-personal">
+      <div class="card-label">Personal Enquiries</div>
+      <div class="card-icon-wrap">&#x1F48C;</div>
+      <div class="card-title">Say Hello</div>
+      <p class="card-desc">Fan mail, community messages, questions about the journey — my personal inbox is always open.</p>
+      <button class="email-chip" onclick="copyEmail('leilasono1@gmail.com', this)" aria-label="Copy personal email address">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M2 5.75A2.75 2.75 0 014.75 3h14.5A2.75 2.75 0 0122 5.75v.765l-10 6.25-10-6.25V5.75zm0 2.545V18.25A2.75 2.75 0 004.75 21h14.5A2.75 2.75 0 0022 18.25V8.295l-9.45 5.906a1 1 0 01-1.1 0L2 8.295z"/></svg>
+        <span class="email-text">leilasono1@gmail.com</span>
+        <span class="copy-tick">&#x2714;</span>
+      </button>
+    </div>
+
+    <!-- Business -->
+    <div class="contact-card card-business">
+      <div class="card-label">Business &amp; Partnerships</div>
+      <div class="card-icon-wrap">&#x1F4BC;</div>
+      <div class="card-title">Let's Collaborate</div>
+      <p class="card-desc">Brand partnerships, sponsorships, content collaborations, and media enquiries — let's create something amazing together.</p>
+      <button class="email-chip" onclick="copyEmail('thefootballerssister@gmail.com', this)" aria-label="Copy business email address">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M2 5.75A2.75 2.75 0 014.75 3h14.5A2.75 2.75 0 0122 5.75v.765l-10 6.25-10-6.25V5.75zm0 2.545V18.25A2.75 2.75 0 004.75 21h14.5A2.75 2.75 0 0022 18.25V8.295l-9.45 5.906a1 1 0 01-1.1 0L2 8.295z"/></svg>
+        <span class="email-text">thefootballerssister@gmail.com</span>
+        <span class="copy-tick">&#x2714;</span>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- SOCIAL STRIP -->
+  <div class="social-strip">
+    <h3>Or find me on social media</h3>
+    <div class="social-buttons">
+      <a href="https://instagram.com/leila_sono_" target="_blank" class="social-btn social-btn-ig">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="18" height="18" viewBox="0 0 24 24"><path d="M7.75 2A5.75 5.75 0 002 7.75v8.5A5.75 5.75 0 007.75 22h8.5A5.75 5.75 0 0022 16.25v-8.5A5.75 5.75 0 0016.25 2h-8.5zM12 7a5 5 0 100 10 5 5 0 000-10z"/></svg>
+        @leila_sono_
+      </a>
+      <a href="https://www.tiktok.com/@leila_sono" target="_blank" class="social-btn social-btn-tt">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="17" height="17" viewBox="0 0 24 24"><path d="M9.5 3C9.776 3 10 3.224 10 3.5v12.008a2.5 2.5 0 11-2-2.45v-2.006a4.5 4.5 0 102.001 4.748V7.877c.62.076 1.25.114 1.893.114a5.994 5.994 0 004.607-2.133c.088-.11.152-.24.181-.38c.036-.174.052-.387.052-.628V4a.5.5 0 00-.5-.5h-1.627a.5.5 0 00-.5.5v.149a.25.25 0 01-.335.237A4.498 4.498 0 0112 2.5h-2.5a.5.5 0 00-.5.5z"/></svg>
+        @leila_sono
+      </a>
+      <a href="https://youtube.com/@leilasono" target="_blank" class="social-btn social-btn-yt">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="19" height="19" viewBox="0 0 24 24"><path d="M9.545 15.568V8.432L15.818 12l-6.273 3.568z"/><path fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12zm10-8a8 8 0 100 16A8 8 0 0012 4z" clip-rule="evenodd"/></svg>
+        YouTube
+      </a>
+    </div>
+  </div>
+
+  <!-- BOTTOM NOTE -->
+  <div class="bottom-note">
+    <div class="note-box">
+      <p style="font-size:1.6rem;margin-bottom:.6rem;">&#x1F496;</p>
+      <p>I aim to respond as soon as possible. <strong>Thank you for being part of this journey</strong> — every message means the world to me!</p>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div style="max-width:1100px;margin:0 auto;padding:3rem 1.5rem 0;">
+      <div style="display:flex;flex-wrap:wrap;gap:2.5rem;justify-content:space-between;">
+        <div style="min-width:150px;">
+          <p class="footer-col-heading">About</p>
+          <a href="about.html" class="footer-col-link">About Me</a>
+          <a href="my-life.html" class="footer-col-link">My Life as a Footballer's Sister</a>
+        </div>
+        <div style="min-width:150px;">
+          <p class="footer-col-heading">Explore</p>
+          <a href="blog.html" class="footer-col-link">Blog</a>
+          <a href="index.html#fixtures" class="footer-col-link">Fixtures</a>
+          <a href="index.html#giveaways" class="footer-col-link">Giveaways</a>
+        </div>
+        <div style="min-width:150px;">
+          <p class="footer-col-heading">Connect</p>
+          <a href="contact.html" class="footer-col-link">Contact</a>
+          <a href="https://instagram.com/leila_sono_" target="_blank" class="footer-col-link">Instagram</a>
+          <a href="https://www.tiktok.com/@leila_sono" target="_blank" class="footer-col-link">TikTok</a>
+        </div>
+        <div style="min-width:150px;">
+          <p class="footer-col-heading">Legal</p>
+          <a href="privacy-policy.html" class="footer-col-link">Privacy Policy</a>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:.5rem;flex-wrap:wrap;padding-top:.2rem;">
+          <a href="https://instagram.com/leila_sono_" target="_blank" class="footer-social-btn" aria-label="Instagram">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="17" height="17" viewBox="0 0 24 24"><path d="M7.75 2A5.75 5.75 0 002 7.75v8.5A5.75 5.75 0 007.75 22h8.5A5.75 5.75 0 0022 16.25v-8.5A5.75 5.75 0 0016.25 2h-8.5zM12 7a5 5 0 100 10 5 5 0 000-10z"/></svg>
+          </a>
+          <a href="https://www.tiktok.com/@leila_sono" target="_blank" class="footer-social-btn" aria-label="TikTok">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="17" height="17" viewBox="0 0 24 24"><path d="M9.5 3C9.776 3 10 3.224 10 3.5v12.008a2.5 2.5 0 11-2-2.45v-2.006a4.5 4.5 0 102.001 4.748V7.877c.62.076 1.25.114 1.893.114a5.994 5.994 0 004.607-2.133c.088-.11.152-.24.181-.38c.036-.174.052-.387.052-.628V4a.5.5 0 00-.5-.5h-1.627a.5.5 0 00-.5.5v.149a.25.25 0 01-.335.237A4.498 4.498 0 0112 2.5h-2.5a.5.5 0 00-.5.5z"/></svg>
+          </a>
+          <a href="mailto:leilasono1@gmail.com" class="footer-social-btn" aria-label="Email">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="17" height="17" viewBox="0 0 24 24"><path d="M2 5.75A2.75 2.75 0 014.75 3h14.5A2.75 2.75 0 0122 5.75v.765l-10 6.25-10-6.25V5.75zm0 2.545V18.25A2.75 2.75 0 004.75 21h14.5A2.75 2.75 0 0022 18.25V8.295l-9.45 5.906a1 1 0 01-1.1 0L2 8.295z"/></svg>
+          </a>
+        </div>
+      </div>
+      <hr class="footer-divider" />
+      <div style="text-align:center;padding-bottom:2rem;">
+        <span class="footer-badge">&#169; 2025 The Footballer's Sister</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function copyEmail(email, btn) {
+      navigator.clipboard.writeText(email).then(() => {
+        const tick = btn.querySelector('.copy-tick');
+        const text = btn.querySelector('.email-text');
+        const origText = text.textContent;
+        text.textContent = 'Copied!';
+        tick.style.display = 'inline';
+        btn.style.background = 'linear-gradient(135deg,#dcfce7,#bbf7d0)';
+        btn.style.borderColor = '#86efac';
+        btn.style.color = '#166534';
+
+        const toast = document.getElementById('copyToast');
+        toast.classList.add('show');
+
+        setTimeout(() => {
+          text.textContent = origText;
+          tick.style.display = 'none';
+          btn.style.background = '';
+          btn.style.borderColor = '';
+          btn.style.color = '';
+          toast.classList.remove('show');
+        }, 2500);
+      }).catch(() => {
+        window.location.href = 'mailto:' + email;
+      });
+    }
+  </script>
+
+</body>
+</html>
