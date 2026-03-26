@@ -221,52 +221,98 @@
   </footer>
 
   <script>
-    function handleSubscribe(e) {
-      e.preventDefault();
-      const email = document.getElementById('subscribe-email').value;
-      if (email) {
-        document.getElementById('subscribe-msg').style.display = 'block';
-        document.getElementById('subscribe-email').value = '';
-        document.getElementById('subscribe-email').disabled = true;
-        document.querySelector('.subscribe-btn').disabled = true;
-        document.querySelector('.subscribe-btn').style.opacity = '0.5';
+  async function handleSubscribe(e) {
+    e.preventDefault();
+    const emailInput = document.getElementById('subscribe-email');
+    const email = emailInput.value;
+
+    if (email) {
+
+      document.getElementById('subscribe-msg').style.display = 'block';
+      emailInput.value = '';
+      emailInput.disabled = true;
+
+      const btn = document.querySelector('.subscribe-btn');
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+
+      // ✅ NEW: Send to Brevo
+      try {
+        await fetch("https://api.brevo.com/v3/contacts", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "api-key": ""
+          },
+          body: JSON.stringify({
+            email: email,
+            listIds: [4],
+            updateEnabled: true
+          })
+        });
+      } catch (error) {
+        console.error("Brevo error:", error);
       }
     }
+  }
 
-    function closeModal() {
-      document.getElementById('postModal').style.display = 'none';
-      document.body.style.overflow = '';
+  function closeModal() {
+    document.getElementById('postModal').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  function closeModalOnBackdrop(e) {
+    if (e.target === document.getElementById('postModal')) closeModal();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  function openPost(post) {
+    const modal = document.getElementById('postModal');
+    const img = document.getElementById('modalImage');
+
+    if (post.imageUrl) {
+      img.src = post.imageUrl;
+      img.alt = post.title || '';
+      img.style.display = 'block';
+    } else {
+      img.style.display = 'none';
     }
 
-    function closeModalOnBackdrop(e) {
-      if (e.target === document.getElementById('postModal')) closeModal();
-    }
+    document.getElementById('modalTitle').textContent = post.title || '';
+    document.getElementById('modalDate').textContent = post.postDate
+      ? new Date(post.postDate + 'T00:00:00').toLocaleDateString('en-ZA', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        })
+      : '';
 
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    document.getElementById('modalBody').textContent = post.body || '';
 
-    function openPost(post) {
-      const modal = document.getElementById('postModal');
-      const img = document.getElementById('modalImage');
-      if (post.imageUrl) { img.src = post.imageUrl; img.alt = post.title || ''; img.style.display = 'block'; }
-      else { img.style.display = 'none'; }
-      document.getElementById('modalTitle').textContent = post.title || '';
-      document.getElementById('modalDate').textContent = post.postDate
-        ? new Date(post.postDate + 'T00:00:00').toLocaleDateString('en-ZA',{day:'numeric',month:'long',year:'numeric'})
-        : '';
-      document.getElementById('modalBody').textContent = post.body || '';
-      const tagsEl = document.getElementById('modalTags');
-      tagsEl.innerHTML = '';
-      const tags = post.hashtags || ['#footballfamily','#footballerssister','#southafricanfootball','#leilasono'];
-      tags.forEach(t => {
-        const span = document.createElement('span');
-        span.className = 'modal-tag';
-        span.textContent = t;
-        tagsEl.appendChild(span);
-      });
-      modal.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-      modal.scrollTop = 0;
-    }
+    const tagsEl = document.getElementById('modalTags');
+    tagsEl.innerHTML = '';
+
+    const tags = post.hashtags || [
+      '#footballfamily',
+      '#footballerssister',
+      '#southafricanfootball',
+      '#leilasono'
+    ];
+
+    tags.forEach(t => {
+      const span = document.createElement('span');
+      span.className = 'modal-tag';
+      span.textContent = t;
+      tagsEl.appendChild(span);
+    });
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    modal.scrollTop = 0;
+  }
   </script>
 
   <!-- Firebase: load posts live from Firestore -->
