@@ -229,7 +229,7 @@
 
     if (email) {
 
-      // ✅ Send to Brevo using hidden form submission
+      // Create hidden form
       const form = document.createElement("form");
       form.method = "POST";
       form.action = "https://5f114176.sibforms.com/serve/MUIFAA5yiBLGoR0J7PfL1n1RTjEG-XDOvSHeS6fqnzhuxOdlskjmr8GShQKPdvw0tu2G6RQz0BAr47Ihg4yaCIYp3QbqIpWOXL2Pe3zR8wfyHbPeQzAV7NRtyHbqcPdb9ar2KuSpdh0hmLdiCS0R1NO8TBho77dgj-hzyY8bKRnBym0UF18Gef0RGYqRoEG6btfuDvYMOiQMY8MG3A==";
@@ -240,10 +240,18 @@
       input.value = email;
 
       form.appendChild(input);
+
+      // Hidden iframe (prevents redirect)
+      const iframe = document.createElement("iframe");
+      iframe.name = "hidden_iframe";
+      iframe.style.display = "none";
+      document.body.appendChild(iframe);
+
+      form.target = "hidden_iframe";
       document.body.appendChild(form);
       form.submit();
 
-      // ✅ Keep your original UI behaviour
+      // Your UI (unchanged)
       document.getElementById('subscribe-msg').style.display = 'block';
       emailInput.value = '';
       emailInput.disabled = true;
