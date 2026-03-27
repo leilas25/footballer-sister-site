@@ -234,12 +234,25 @@
       form.method = "POST";
       form.action = "https://5f114176.sibforms.com/serve/MUIFAIMD47fYLl3dDV8zBQp0EqMQsLPALXONjD0ltzm1G45HIynJnvGVvrwrb_231W8BkBupuYHyuoUexlb5mcrUg_ewBVGcuaXwawUsA0Tifkr-GsUK5FHnlabQVMOv5XU8jIuS7LzIq89Edq6skAd1DnHfGclWD5RZPVMGpDYg8eEVkCxf7RVVLNfGJypj7lVdATTftZzokQPGbw==";
 
-      const input = document.createElement("input");
-      input.type = "hidden";
-      input.name = "EMAIL";
-      input.value = email;
+      // EMAIL field
+      const emailField = document.createElement("input");
+      emailField.type = "hidden";
+      emailField.name = "EMAIL";
+      emailField.value = email;
+      form.appendChild(emailField);
 
-      form.appendChild(input);
+      // REQUIRED hidden fields (THIS FIXES YOUR ISSUE)
+      const localeField = document.createElement("input");
+      localeField.type = "hidden";
+      localeField.name = "locale";
+      localeField.value = "en";
+      form.appendChild(localeField);
+
+      const htmlTypeField = document.createElement("input");
+      htmlTypeField.type = "hidden";
+      htmlTypeField.name = "html_type";
+      htmlTypeField.value = "simple";
+      form.appendChild(htmlTypeField);
 
       // Hidden iframe (prevents redirect)
       const iframe = document.createElement("iframe");
@@ -251,7 +264,7 @@
       document.body.appendChild(form);
       form.submit();
 
-      // Your UI (unchanged)
+      // Your UI
       document.getElementById('subscribe-msg').style.display = 'block';
       emailInput.value = '';
       emailInput.disabled = true;
