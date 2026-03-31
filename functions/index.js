@@ -1,15 +1,8 @@
-res.set("Access-Control-Allow-Origin", "*");
-res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
-res.set("Access-Control-Allow-Headers", "Content-Type");
-
-if (req.method === "OPTIONS") {
-  return res.status(204).send("");
-}
 const functions = require("firebase-functions");
 const axios = require("axios");
 
 exports.subscribeUser = functions.https.onRequest(async (req, res) => {
-  // ✅ CORS HEADERS (THIS FIXES YOUR ERROR)
+  // ✅ CORS headers MUST be inside the function
   res.set("Access-Control-Allow-Origin", "*");
   res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.set("Access-Control-Allow-Headers", "Content-Type");
