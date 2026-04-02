@@ -1972,8 +1972,24 @@
             createdAt: serverTimestamp(),
             author: auth.currentUser?.email || 'admin'
           });
-          if (blogStatusMsg) blogStatusMsg.textContent = 'Post published!';
-          if (blogTitle) blogTitle.value = '';
+        if (blogStatusMsg) blogStatusMsg.textContent = 'Notifying subscribers...';
+
+        // Send email notification to all Brevo subscribers
+        try {
+          await fetch('https://sendblognotification-u7wovluuvq-uc.a.run.app', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: title,
+              url: 'https://thefootballerssister.co.za/blog.html',
+              previewText: excerpt || body.substring(0, 160)
+            })
+          });
+          if (blogStatusMsg) blogStatusMsg.textContent = 'Post published & subscribers notified! 💖';
+        } catch (notifyErr) {
+          console.warn('Email notification failed:', notifyErr);
+          if (blogStatusMsg) blogStatusMsg.textContent = 'Post published! (Email notification failed — check console)';
+}         if (blogTitle) blogTitle.value = '';
           if (blogBody) blogBody.value = '';
           if (blogExcerpt) blogExcerpt.value = '';
           if (blogDate) blogDate.value = '';
