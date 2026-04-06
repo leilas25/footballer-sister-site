@@ -361,5 +361,46 @@
       console.error('Blog load error', err);
     });
   </script>
+
+  <script>
+    window.openPost = function(post) {
+      const dateLabel = post.postDate
+        ? new Date(post.postDate + 'T00:00:00').toLocaleDateString('en-ZA', {day:'numeric', month:'long', year:'numeric'})
+        : (post.createdAt?.seconds ? new Date(post.createdAt.seconds * 1000).toLocaleDateString('en-ZA', {day:'numeric', month:'long', year:'numeric'}) : '');
+
+      const modalImg = document.getElementById('modalImage');
+      if (post.imageUrl) {
+        modalImg.src = post.imageUrl;
+        modalImg.alt = post.title || '';
+        modalImg.style.display = 'block';
+      } else {
+        modalImg.style.display = 'none';
+      }
+
+      document.getElementById('modalTitle').textContent = post.title || '';
+      document.getElementById('modalDate').textContent = dateLabel;
+      document.getElementById('modalBody').textContent = post.body || '';
+
+      const tagsEl = document.getElementById('modalTags');
+      const tags = post.hashtags || [];
+      tagsEl.innerHTML = tags.map(t => `<span class="modal-tag">${t}</span>`).join('');
+
+      document.getElementById('postModal').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    };
+
+    function closeModal() {
+      document.getElementById('postModal').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    function closeModalOnBackdrop(e) {
+      if (e.target === document.getElementById('postModal')) closeModal();
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeModal();
+    });
+  </script>
 </body>
 </html>
