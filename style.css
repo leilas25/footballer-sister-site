@@ -195,4 +195,16 @@ header.bts-header {
   .dropdown-menu {
     width: 13rem;
   }
+
+  /* Highlights the page currently being viewed */
+.nav-item.current-page {
+  background-color: #fce7f3;
+  color: #be185d;
+  font-weight: 700;
+}
+
+/* Makes the highlight slightly darker when hovered */
+.nav-item.current-page:hover {
+  background-color: #fbcfe8;
+}
 }

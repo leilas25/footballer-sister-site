@@ -254,7 +254,7 @@
         aria-expanded="false"
         aria-controls="dropdownMenu"
       >
-        <span id="navTitle">About Me</span>
+        <span>Menu</span>
 
         <svg
           class="dropdown-arrow"
@@ -487,32 +487,72 @@
   </footer>
 
 <script>
-  const navButton = document.getElementById("navButton");
-  const dropdownMenu = document.getElementById("dropdownMenu");
+  (function () {
+    const navButton = document.getElementById("navButton");
+    const dropdownMenu = document.getElementById("dropdownMenu");
+    const navItems = document.querySelectorAll(".nav-item");
 
-  navButton.addEventListener("click", function () {
-    const isOpen = navButton.getAttribute("aria-expanded") === "true";
+    function cleanPath(path) {
+      path = path.replace(/\/+$/, "");
+      path = path.replace(/\.html$/, "");
 
-    navButton.setAttribute("aria-expanded", String(!isOpen));
-    dropdownMenu.hidden = isOpen;
-  });
+      if (path === "/index" || path === "") {
+        return "/";
+      }
 
-  document.addEventListener("click", function (event) {
-    if (
-      !navButton.contains(event.target) &&
-      !dropdownMenu.contains(event.target)
-    ) {
-      navButton.setAttribute("aria-expanded", "false");
-      dropdownMenu.hidden = true;
+      return path;
     }
-  });
 
-  document.addEventListener("keydown", function (event) {
-    if (event.key === "Escape") {
-      navButton.setAttribute("aria-expanded", "false");
-      dropdownMenu.hidden = true;
+    const currentPath = cleanPath(window.location.pathname);
+
+    navItems.forEach(function (link) {
+      const linkPath = cleanPath(
+        new URL(link.href, window.location.origin).pathname
+      );
+
+      if (linkPath === currentPath) {
+        link.classList.add("current-page");
+        link.setAttribute("aria-current", "page");
+      }
+
+      link.addEventListener("click", closeMenu);
+    });
+
+    function openMenu() {
+      dropdownMenu.hidden = false;
+      navButton.setAttribute("aria-expanded", "true");
     }
-  });
+
+    function closeMenu() {
+      dropdownMenu.hidden = true;
+      navButton.setAttribute("aria-expanded", "false");
+    }
+
+    navButton.addEventListener("click", function (event) {
+      event.stopPropagation();
+
+      if (dropdownMenu.hidden) {
+        openMenu();
+      } else {
+        closeMenu();
+      }
+    });
+
+    document.addEventListener("click", function (event) {
+      if (
+        !navButton.contains(event.target) &&
+        !dropdownMenu.contains(event.target)
+      ) {
+        closeMenu();
+      }
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") {
+        closeMenu();
+      }
+    });
+  })();
 </script>
 
 </body>
