@@ -597,8 +597,8 @@
 
       // Allow admin if UID matches OR email matches ADMIN_EMAIL (case-insensitive)
       const isAdmin =
-      user.email &&
-      user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+        user.uid === ADMIN_UID ||
+        (user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
 
       if (!isAdmin) {
         await signOut(auth);
