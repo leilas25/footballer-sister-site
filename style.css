@@ -1,0 +1,82 @@
+:root {
+  --accent: #be185d;
+  --muted: #6b7280;
+}
+
+/* HEADER */
+header.bts-header {
+  background: linear-gradient(
+    180deg,
+    rgba(246, 213, 239, 0.6),
+    rgba(255, 241, 248, 0.6)
+  );
+  border-bottom: 1px solid rgba(235, 200, 215, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.site-title {
+  color: var(--accent);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+/* FOOTER */
+.site-footer {
+  background-color: #fce7f3;
+  border-top: 1px solid #f9a8d4;
+}
+
+.footer-col-heading {
+  color: #be185d;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 0.9rem;
+}
+
+.footer-col-link {
+  display: block;
+  color: #4b5563;
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: none;
+  margin-bottom: 0.55rem;
+  transition: color 0.2s;
+}
+
+.footer-col-link:hover {
+  color: #be185d;
+}
+
+.footer-divider {
+  border: none;
+  border-top: 1px solid #f9a8d4;
+  margin: 2rem 0 1.5rem;
+}
+
+.footer-social-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 1.5px solid #f9a8d4;
+  border-radius: 50%;
+  color: #be185d;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.footer-social-btn:hover {
+  background-color: #fda4af;
+  border-color: #be185d;
+}
+
+.footer-badge {
+  display: inline-block;
+  background: linear-gradient(90deg, #be185d, #f472b6);
+  color: white;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  font-weight: 700;
+}
