@@ -461,59 +461,5 @@
     </div>
   </footer>
 
-  <script>
-    (function () {
-      const navButton = document.getElementById("navButton");
-      const dropdownMenu = document.getElementById("dropdownMenu");
-      const navItems = document.querySelectorAll(".nav-item");
-
-      if (!navButton || !dropdownMenu) return;
-
-      function cleanPath(path) {
-        path = path.replace(/\/+$/, "");
-        path = path.replace(/\.html$/, "");
-        if (path === "/index" || path === "") return "/";
-        return path;
-      }
-
-      const currentPath = cleanPath(window.location.pathname);
-
-      navItems.forEach(function (link) {
-        const linkPath = cleanPath(new URL(link.href, window.location.origin).pathname);
-        if (linkPath === currentPath) {
-          link.classList.add("current-page");
-          link.setAttribute("aria-current", "page");
-        }
-        link.addEventListener("click", closeMenu);
-      });
-
-      function openMenu() {
-        dropdownMenu.hidden = false;
-        navButton.setAttribute("aria-expanded", "true");
-      }
-
-      function closeMenu() {
-        dropdownMenu.hidden = true;
-        navButton.setAttribute("aria-expanded", "false");
-      }
-
-      navButton.addEventListener("click", function (event) {
-        event.stopPropagation();
-        if (dropdownMenu.hidden) openMenu();
-        else closeMenu();
-      });
-
-      document.addEventListener("click", function (event) {
-        if (!navButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
-          closeMenu();
-        }
-      });
-
-      document.addEventListener("keydown", function (event) {
-        if (event.key === "Escape") closeMenu();
-      });
-    })();
-  </script>
-
 </body>
 </html>
