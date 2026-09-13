@@ -62,6 +62,9 @@
     .modal-title { font-size:1.8rem; font-weight:900; color:#9d174d; margin-bottom:.5rem; }
     .modal-date { font-size:.82rem; color:#9ca3af; margin-bottom:1.5rem; }
     .modal-body { color:#374151; font-size:1rem; line-height:1.8; white-space:pre-wrap; }
+    .modal-link-wrap { margin-top:1.5rem; }
+    .modal-link-button { display:inline-flex; align-items:center; justify-content:center; background:linear-gradient(90deg,#be185d,#f472b6); color:#fff; padding:.7rem 1.25rem; border-radius:9999px; font-size:.9rem; font-weight:800; text-decoration:none; transition:opacity .2s, transform .2s; }
+    .modal-link-button:hover { opacity:.9; transform:translateY(-1px); }
     .modal-tags { display:flex; flex-wrap:wrap; gap:.4rem; margin-top:1.5rem; }
     .modal-tag { font-size:.75rem; font-weight:700; background:#fce7f3; color:#be185d; padding:.25rem .7rem; border-radius:999px; }
 
@@ -208,6 +211,9 @@
       <div class="modal-title" id="modalTitle"></div>
       <div class="modal-date" id="modalDate"></div>
       <div class="modal-body" id="modalBody"></div>
+      <div id="modalLinkWrap" class="modal-link-wrap" style="display:none;">
+        <a id="modalLinkButton" class="modal-link-button" href="#" target="_blank" rel="noopener noreferrer"></a>
+      </div>
       <div class="modal-tags" id="modalTags"></div>
     </div>
   </div>
@@ -421,6 +427,25 @@
       document.getElementById('modalTitle').textContent = post.title || '';
       document.getElementById('modalDate').textContent = dateLabel;
       document.getElementById('modalBody').textContent = post.body || '';
+
+      const linkWrap = document.getElementById('modalLinkWrap');
+      const linkButton = document.getElementById('modalLinkButton');
+      let safeLinkUrl = '';
+      if (post.linkUrl) {
+        try {
+          const parsedUrl = new URL(post.linkUrl);
+          if (['https:', 'http:'].includes(parsedUrl.protocol)) safeLinkUrl = parsedUrl.href;
+        } catch (_) {}
+      }
+      if (post.linkLabel && safeLinkUrl) {
+        linkButton.textContent = post.linkLabel;
+        linkButton.href = safeLinkUrl;
+        linkWrap.style.display = 'block';
+      } else {
+        linkButton.textContent = '';
+        linkButton.removeAttribute('href');
+        linkWrap.style.display = 'none';
+      }
 
       const tagsEl = document.getElementById('modalTags');
       const tags = post.hashtags || [];
