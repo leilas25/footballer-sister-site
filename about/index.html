@@ -237,19 +237,58 @@
 </head>
 <body class="bg-pink-50 font-sans text-black" style="background:#fdf2f8;">
 
-  <!-- HEADER -->
-  <header class="site-header fixed top-0 w-full z-50">
-    <div style="max-width:1100px;margin:0 auto;" class="flex justify-between items-center px-6 py-4">
-      <div style="color:#be185d;font-weight:800;letter-spacing:.02em;" class="text-lg">Life of a Footballer's Sister</div>
-      <nav class="flex gap-3">
-        <a href="/" class="font-semibold text-rose-600 bg-white px-4 py-2 rounded-md shadow-sm hover:bg-pink-50">Home</a>
-        <a href="/blog" class="font-semibold text-rose-600 bg-white px-4 py-2 rounded-md shadow-sm hover:bg-pink-50">Blog</a>
-        <a href="/contact" class="font-semibold text-rose-600 bg-white px-4 py-2 rounded-md shadow-sm hover:bg-pink-50">Contact</a>
-      </nav>
-    </div>
-  </header>
+<!-- SHARED HEADER -->
+<header class="site-header">
+  <div class="header-container">
 
-  <div class="pt-20"></div>
+    <div class="site-title">
+      THE FOOTBALLER’S SISTER
+    </div>
+
+    <div class="dropdown-wrapper">
+
+      <button
+        id="navButton"
+        class="dropdown-button"
+        type="button"
+        aria-expanded="false"
+        aria-controls="dropdownMenu"
+      >
+        <span id="navTitle">About Me</span>
+
+        <svg
+          class="dropdown-arrow"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.25a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </button>
+
+      <nav id="dropdownMenu" class="dropdown-menu" hidden>
+        <a href="/" class="nav-item">Home</a>
+        <a href="/bts" class="nav-item">Behind the Game</a>
+        <a href="/leila" class="nav-item">Meet Leila</a>
+        <a href="/questions" class="nav-item">Q&amp;A</a>
+        <a href="/support-wall" class="nav-item">Support Wall</a>
+        <a href="/giveaways" class="nav-item">Giveaways</a>
+        <a href="/about" class="nav-item">About</a>
+        <a href="/blog" class="nav-item">Blog</a>
+        <a href="/contact" class="nav-item">Contact</a>
+        <a href="/my-life" class="nav-item">My Life</a>
+      </nav>
+
+    </div>
+  </div>
+</header>
+
+<div class="header-spacer"></div>
 
   <!-- ── PHOTO STRIP ── -->
   <!-- Replace the src attributes below with your own photos -->
@@ -446,6 +485,35 @@
       </div>
     </div>
   </footer>
+
+<script>
+  const navButton = document.getElementById("navButton");
+  const dropdownMenu = document.getElementById("dropdownMenu");
+
+  navButton.addEventListener("click", function () {
+    const isOpen = navButton.getAttribute("aria-expanded") === "true";
+
+    navButton.setAttribute("aria-expanded", String(!isOpen));
+    dropdownMenu.hidden = isOpen;
+  });
+
+  document.addEventListener("click", function (event) {
+    if (
+      !navButton.contains(event.target) &&
+      !dropdownMenu.contains(event.target)
+    ) {
+      navButton.setAttribute("aria-expanded", "false");
+      dropdownMenu.hidden = true;
+    }
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      navButton.setAttribute("aria-expanded", "false");
+      dropdownMenu.hidden = true;
+    }
+  });
+</script>
 
 </body>
 </html>
