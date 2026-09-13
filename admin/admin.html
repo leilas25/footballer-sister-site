@@ -343,6 +343,15 @@
               <label class="small-muted block mb-1">Short Excerpt (shown on the card)</label>
               <input id="blogExcerpt" placeholder="A short teaser for the post card..." class="p-2 rounded border w-full" />
             </div>
+            <div>
+              <label class="small-muted block mb-1">Link Button Heading (optional)</label>
+              <input id="blogLinkLabel" placeholder="e.g. Watch the full video" class="p-2 rounded border w-full" />
+            </div>
+            <div>
+              <label class="small-muted block mb-1">Link URL (optional)</label>
+              <input id="blogLinkUrl" type="url" placeholder="https://..." class="p-2 rounded border w-full" />
+              <p class="text-xs text-gray-400 mt-1">Add both a heading and a complete link to show a button at the end of this post.</p>
+            </div>
             <div class="md:col-span-2">
               <p class="small-muted">Hashtags applied to every post automatically:</p>
               <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem;">
@@ -532,6 +541,8 @@
     const blogDate = document.getElementById('blogDate');
     const blogBody = document.getElementById('blogBody');
     const blogExcerpt = document.getElementById('blogExcerpt');
+    const blogLinkLabel = document.getElementById('blogLinkLabel');
+    const blogLinkUrl = document.getElementById('blogLinkUrl');
     const createBlogBtn = document.getElementById('createBlogBtn');
     const updateBlogBtn = document.getElementById('updateBlogBtn');
     const cancelBlogEditBtn = document.getElementById('cancelBlogEditBtn');
@@ -1861,6 +1872,26 @@
 
     // ── BLOG POSTS ──
 
+    function getBlogLinkFields() {
+      const linkLabel = (blogLinkLabel?.value || '').trim();
+      const linkUrl = (blogLinkUrl?.value || '').trim();
+
+      if ((linkLabel && !linkUrl) || (!linkLabel && linkUrl)) {
+        throw new Error('Please add both the link button heading and the link URL, or leave both blank.');
+      }
+
+      if (linkUrl) {
+        let parsedUrl;
+        try { parsedUrl = new URL(linkUrl); }
+        catch { throw new Error('Please enter a complete link beginning with https:// or http://.'); }
+        if (!['https:', 'http:'].includes(parsedUrl.protocol)) {
+          throw new Error('The link must begin with https:// or http://.');
+        }
+      }
+
+      return { linkLabel, linkUrl };
+    }
+
     if (blogImageFile) {
       blogImageFile.addEventListener('change', () => {
         const file = blogImageFile.files && blogImageFile.files[0];
@@ -1904,6 +1935,7 @@
             <div style="font-weight:800;color:#9d174d;">${escapeHtml(p.title||'(no title)')}</div>
             <div style="color:#6b7280;font-size:.82rem;margin-top:.2rem;">${escapeHtml(dateLabel)}</div>
             <div style="margin-top:.4rem;color:#4b5563;font-size:.88rem;">${escapeHtml((p.excerpt||p.body||'').substring(0,120))}${(p.excerpt||p.body||'').length>120?'...':''}</div>
+            ${p.linkLabel && p.linkUrl ? `<div style="margin-top:.4rem;color:#be185d;font-size:.82rem;font-weight:700;">Link button: ${escapeHtml(p.linkLabel)}</div>` : ''}
             <div style="margin-top:.6rem;display:flex;gap:.5rem;flex-wrap:wrap;">
               <button class="btn bg-white border edit-blog" data-id="${p.id}" style="font-size:.8rem;padding:.3rem .8rem;">Edit</button>
               <button class="btn bg-white border delete-blog" data-id="${p.id}" style="font-size:.8rem;padding:.3rem .8rem;">Delete</button>
@@ -1923,6 +1955,8 @@
           if (blogTitle) blogTitle.value = data.title || '';
           if (blogBody) blogBody.value = data.body || '';
           if (blogExcerpt) blogExcerpt.value = data.excerpt || '';
+          if (blogLinkLabel) blogLinkLabel.value = data.linkLabel || '';
+          if (blogLinkUrl) blogLinkUrl.value = data.linkUrl || '';
           if (blogDate) blogDate.value = data.postDate || '';
           if (data.imageUrl && blogImagePreviewImg) { blogImagePreviewImg.src = data.imageUrl; blogImagePreview.classList.remove('hidden-el'); }
           if (createBlogBtn) createBlogBtn.classList.add('hidden-el');
@@ -1957,6 +1991,12 @@
           if (blogError) { blogError.classList.remove('hidden-el'); blogError.textContent = 'Please add a title and body text.'; }
           return;
         }
+        let linkFields;
+        try { linkFields = getBlogLinkFields(); }
+        catch (err) {
+          if (blogError) { blogError.classList.remove('hidden-el'); blogError.textContent = err.message; }
+          return;
+        }
         if (!file) {
           if (blogError) { blogError.classList.remove('hidden-el'); blogError.textContent = 'Please select an image for this post.'; }
           return;
@@ -1969,6 +2009,8 @@
             excerpt: excerpt || body.substring(0,160) + '...',
             imageUrl: cr.secure_url, publicId: cr.public_id,
             postDate, hashtags: BLOG_HASHTAGS,
+            linkLabel: linkFields.linkLabel,
+            linkUrl: linkFields.linkUrl,
             createdAt: serverTimestamp(),
             author: auth.currentUser?.email || 'admin'
           });
@@ -1992,6 +2034,8 @@
 }         if (blogTitle) blogTitle.value = '';
           if (blogBody) blogBody.value = '';
           if (blogExcerpt) blogExcerpt.value = '';
+          if (blogLinkLabel) blogLinkLabel.value = '';
+          if (blogLinkUrl) blogLinkUrl.value = '';
           if (blogDate) blogDate.value = '';
           if (blogImageFile) blogImageFile.value = '';
           if (blogImagePreview) blogImagePreview.classList.add('hidden-el');
@@ -2014,9 +2058,15 @@
           if (blogError) { blogError.classList.remove('hidden-el'); blogError.textContent = 'Please add a title and body.'; }
           return;
         }
+        let linkFields;
+        try { linkFields = getBlogLinkFields(); }
+        catch (err) {
+          if (blogError) { blogError.classList.remove('hidden-el'); blogError.textContent = err.message; }
+          return;
+        }
         updateBlogBtn.disabled = true; updateBlogBtn.textContent = 'Saving...';
         try {
-          const payload = { title, body, excerpt: excerpt || body.substring(0,160)+'...', postDate, hashtags: BLOG_HASHTAGS, updatedAt: serverTimestamp() };
+          const payload = { title, body, excerpt: excerpt || body.substring(0,160)+'...', postDate, hashtags: BLOG_HASHTAGS, linkLabel: linkFields.linkLabel, linkUrl: linkFields.linkUrl, updatedAt: serverTimestamp() };
           const file = blogImageFile?.files && blogImageFile.files[0];
           if (file) { const cr = await uploadToCloudinary(file); payload.imageUrl = cr.secure_url; payload.publicId = cr.public_id; }
           await updateDoc(doc(db, `${BLOG_COLLECTION_PATH}/${currentEditBlogId}`), payload);
@@ -2025,6 +2075,8 @@
           if (blogTitle) blogTitle.value = '';
           if (blogBody) blogBody.value = '';
           if (blogExcerpt) blogExcerpt.value = '';
+          if (blogLinkLabel) blogLinkLabel.value = '';
+          if (blogLinkUrl) blogLinkUrl.value = '';
           if (blogDate) blogDate.value = '';
           if (blogImageFile) blogImageFile.value = '';
           if (blogImagePreview) blogImagePreview.classList.add('hidden-el');
@@ -2043,6 +2095,8 @@
         if (blogTitle) blogTitle.value = '';
         if (blogBody) blogBody.value = '';
         if (blogExcerpt) blogExcerpt.value = '';
+        if (blogLinkLabel) blogLinkLabel.value = '';
+        if (blogLinkUrl) blogLinkUrl.value = '';
         if (blogDate) blogDate.value = '';
         if (blogImageFile) blogImageFile.value = '';
         if (blogImagePreview) blogImagePreview.classList.add('hidden-el');
