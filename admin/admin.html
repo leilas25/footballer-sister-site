@@ -410,8 +410,8 @@
     const APP_ID = firebaseConfig.appId;
 
     // Cloudinary (your values)
-    const CLOUD_NAME = 'dk1df1qmi';                  // <-- your cloud name
-    const UPLOAD_PRESET = 'unsigned_bts_preset';     // <-- your unsigned preset
+    const CLOUD_NAME = 'dk1df1qmi';
+    const UPLOAD_PRESET = 'unsigned_bts_preset';
 
     // collection paths (these must match what your public pages read)
     const GIVEAWAYS_COLLECTION_PATH = `/artifacts/${APP_ID}/public/data/giveaways`;
@@ -428,7 +428,7 @@
       `/artifacts/${APP_ID}/public`,
       `/artifacts/${APP_ID}`,
       `/public/data`,
-      '' // top-level
+      ''
     ];
 
     // ---------- IMPORTS ----------
@@ -525,14 +525,15 @@
     const fxTeamBFile = document.getElementById('fxTeamBFile');
     const fxStream = document.getElementById('fxStream');
     const fxBroadcast = document.getElementById('fxBroadcast');
-    const fxScoreA = document.getElementById('fxScoreA'); // new
-    const fxScoreB = document.getElementById('fxScoreB'); // new
+    const fxScoreA = document.getElementById('fxScoreA');
+    const fxScoreB = document.getElementById('fxScoreB');
     const createFxBtn = document.getElementById('createFxBtn');
     const updateFxBtn = document.getElementById('updateFxBtn');
     const cancelFxEditBtn = document.getElementById('cancelFxEditBtn');
     const fxStatusMsg = document.getElementById('fxStatusMsg');
     const fxError = document.getElementById('fxError');
     const fixturesList = document.getElementById('fixturesList');
+
     // blog elements
     const blogTitle = document.getElementById('blogTitle');
     const blogImageFile = document.getElementById('blogImageFile');
@@ -574,23 +575,22 @@
     // Auth state
     onAuthStateChanged(auth, async (user) => {
 
-    // 🚫 HARD BLOCK anonymous users (fixes multi-device issue)
-    if (user && user.isAnonymous) {
-      await signOut(auth);
-      loginMessage.textContent = 'Admin login required.';
-      loginSection.classList.remove('hidden-el');
-      adminUI.classList.add('hidden-el');
-      hideAllPanes();
-      return;
-    }
+      // 🚫 HARD BLOCK anonymous users (fixes multi-device issue)
+      if (user && user.isAnonymous) {
+        await signOut(auth);
+        loginMessage.textContent = 'Admin login required.';
+        loginSection.classList.remove('hidden-el');
+        adminUI.classList.add('hidden-el');
+        hideAllPanes();
+        return;
+      }
 
-    if (!user) {
-      loginSection.classList.remove('hidden-el');
-      adminUI.classList.add('hidden-el');
-      hideAllPanes();
-      return;
-    }
-
+      if (!user) {
+        loginSection.classList.remove('hidden-el');
+        adminUI.classList.add('hidden-el');
+        hideAllPanes();
+        return;
+      }
 
       // Show signed-in UID + email for debugging
       loginMessage.textContent = 'Signed in UID: ' + (user.uid || '(none)') + ' — Email: ' + (user.email || '(no-email)');
@@ -608,7 +608,6 @@
         hideAllPanes();
         return;
       }
-
 
       // If we reach here the user is allowed admin access
       loginSection.classList.add('hidden-el');
@@ -950,7 +949,7 @@
           const msg = json.error && json.error.message ? json.error.message : JSON.stringify(json);
           throw new Error(msg || 'Cloudinary upload failed');
         }
-        return json; // contains secure_url, public_id, etc.
+        return json;
       } catch (err) {
         throw err;
       }
@@ -1353,51 +1352,50 @@
       createWinBtn.textContent = 'Posting...';
 
       try {
-  let imageUrl = '';
-  let publicId = '';
+        let imageUrl = '';
+        let publicId = '';
 
-  // Upload to Cloudinary if a file was selected
-  if (file) {
-    const cloudResp = await uploadToCloudinary(file);
-    if (!cloudResp || !cloudResp.secure_url) {
-      throw new Error('Cloudinary did not return secure_url');
-    }
-    imageUrl = cloudResp.secure_url;
-    publicId = cloudResp.public_id;
-  }
+        // Upload to Cloudinary if a file was selected
+        if (file) {
+          const cloudResp = await uploadToCloudinary(file);
+          if (!cloudResp || !cloudResp.secure_url) {
+            throw new Error('Cloudinary did not return secure_url');
+          }
+          imageUrl = cloudResp.secure_url;
+          publicId = cloudResp.public_id;
+        }
 
-  // Build the Firestore payload
-  const winnerPayload = {
-    name: nameVal,
-    handle: handleVal || '',
-    prize: prizeVal,
-    imageUrl: imageUrl || '',
-    publicId: publicId || '',
-    createdAt: serverTimestamp(),
-    uploader: auth && auth.currentUser ? (auth.currentUser.email || auth.currentUser.uid) : 'admin',
-    // Add this so the public winners page will include it if it filters by "published"
-    published: true
-  };
+        // Build the Firestore payload
+        const winnerPayload = {
+          name: nameVal,
+          handle: handleVal || '',
+          prize: prizeVal,
+          imageUrl: imageUrl || '',
+          publicId: publicId || '',
+          createdAt: serverTimestamp(),
+          uploader: auth && auth.currentUser ? (auth.currentUser.email || auth.currentUser.uid) : 'admin',
+          // Add this so the public winners page will include it if it filters by "published"
+          published: true
+        };
 
-  // Debug logs
-  console.log('DEBUG: manual winnerPayload about to be saved:', winnerPayload);
-  console.log('DEBUG: WINNERS_COLLECTION_PATH =', WINNERS_COLLECTION_PATH);
+        // Debug logs
+        console.log('DEBUG: manual winnerPayload about to be saved:', winnerPayload);
+        console.log('DEBUG: WINNERS_COLLECTION_PATH =', WINNERS_COLLECTION_PATH);
 
-  // Save to the winners collection
-  const savedRef = await addDoc(collection(db, WINNERS_COLLECTION_PATH), winnerPayload);
-  console.log('DEBUG: manual winner saved id', savedRef.id);
+        // Save to the winners collection
+        const savedRef = await addDoc(collection(db, WINNERS_COLLECTION_PATH), winnerPayload);
+        console.log('DEBUG: manual winner saved id', savedRef.id);
 
-  // Success alert (keep your existing UI flow)
-  alert('Winner saved successfully! (id: ' + savedRef.id + ')');
+        // Success alert (keep your existing UI flow)
+        alert('Winner saved successfully! (id: ' + savedRef.id + ')');
 
-} catch (err) {
-  console.error('ERROR: manual winner save failed', err);
-  alert('Could not save winner: ' + (err && err.message ? err.message : err));
-}
+      } catch (err) {
+        console.error('ERROR: manual winner save failed', err);
+        alert('Could not save winner: ' + (err && err.message ? err.message : err));
+      }
 
-
-    if (winStatus) winStatus.textContent = 'Winner saved.';
-        // clear form
+      if (winStatus) winStatus.textContent = 'Winner saved.';
+      // clear form
       winName.value=''; winHandle.value=''; winPrize.value=''; if (winImageFile) winImageFile.value='';
       console.error('create winner failed', err);
       createWinBtn.disabled = false;
@@ -1415,7 +1413,7 @@
     /**
      * quickPickWinner(giveId, giveTitle)
      *
-     * - Tries the top-level ENTRIES_COLLECTION_PATH (recommended) for documents where
+     * - Tries the top-level ENTRIES_COLLECTION_PATH for documents where
      *   giveawayId == giveId && validated == true
      * - If none found, falls back to subcollection `${GIVEAWAYS_COLLECTION_PATH}/${giveId}/entries`
      * - Picks a random validated entry, shows an admin preview modal with entrant info + screenshot
@@ -1476,109 +1474,109 @@
 
     // helper: create and show preview modal, handle confirm/cancel
     function showQuickPickPreviewModal({ giveawayId, giveawayTitle, entry, name, handle, note, image }) {
-  // create modal backdrop
-  const backdrop = document.createElement('div');
-  backdrop.className = 'qp-backdrop';
-  backdrop.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;z-index:9999;';
+      // create modal backdrop
+      const backdrop = document.createElement('div');
+      backdrop.className = 'qp-backdrop';
+      backdrop.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;z-index:9999;';
 
-  // modal container
-  const modal = document.createElement('div');
-  modal.className = 'qp-modal';
-  modal.style.cssText = 'background:white;padding:20px;border-radius:12px;max-width:760px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,0.15);';
+      // modal container
+      const modal = document.createElement('div');
+      modal.className = 'qp-modal';
+      modal.style.cssText = 'background:white;padding:20px;border-radius:12px;max-width:760px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,0.15);';
 
-  modal.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <div style="font-weight:800;font-size:1.05rem;color:#be185d;">Preview Winner — ${escapeHtml(giveawayTitle || 'Giveaway')}</div>
-      <div style="color:#6b7280;font-size:.95rem;">Entry ID: ${escapeHtml(entry.id || '')}</div>
-    </div>
-
-    <div style="display:flex;gap:20px;">
-      <div style="flex:1;">
-        <div style="font-weight:700;">${escapeHtml(name || '')}</div>
-        <div style="margin-top:6px;color:#6b7280;font-size:.9rem;">Handle: ${escapeHtml(handle || '')}</div>
-        <div style="margin-top:8px;color:#6b7280;font-size:.9rem;">${escapeHtml(note || '')}</div>
-
-        <div style="margin-top:16px;display:flex;gap:10px;">
-          <button id="qpConfirm" class="px-4 py-2 rounded bg-rose-600 text-white font-semibold">Confirm & Save winner</button>
-          <button id="qpCancel" class="px-4 py-2 rounded border">Cancel</button>
+      modal.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div style="font-weight:800;font-size:1.05rem;color:#be185d;">Preview Winner — ${escapeHtml(giveawayTitle || 'Giveaway')}</div>
+          <div style="color:#6b7280;font-size:.95rem;">Entry ID: ${escapeHtml(entry.id || '')}</div>
         </div>
 
-        <div style="margin-top:12px;color:#6b7280;font-size:.85rem;">
-          This will create a winner record and mark the giveaway as <strong>winner</strong>. Screenshot will <strong>NOT</strong> be saved publicly.
+        <div style="display:flex;gap:20px;">
+          <div style="flex:1;">
+            <div style="font-weight:700;">${escapeHtml(name || '')}</div>
+            <div style="margin-top:6px;color:#6b7280;font-size:.9rem;">Handle: ${escapeHtml(handle || '')}</div>
+            <div style="margin-top:8px;color:#6b7280;font-size:.9rem;">${escapeHtml(note || '')}</div>
+
+            <div style="margin-top:16px;display:flex;gap:10px;">
+              <button id="qpConfirm" class="px-4 py-2 rounded bg-rose-600 text-white font-semibold">Confirm & Save winner</button>
+              <button id="qpCancel" class="px-4 py-2 rounded border">Cancel</button>
+            </div>
+
+            <div style="margin-top:12px;color:#6b7280;font-size:.85rem;">
+              This will create a winner record and mark the giveaway as <strong>winner</strong>. Screenshot will <strong>NOT</strong> be saved publicly.
+            </div>
+          </div>
+
+          <div style="width:300px;">
+            ${ image ? `<img src="${escapeHtml(image)}" style="width:100%;border-radius:10px;object-fit:contain;"/>` : `<div style='width:100%;height:260px;background:#f3f4f6;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#9ca3af;'>No Screenshot</div>` }
+          </div>
         </div>
-      </div>
+      `;
 
-      <div style="width:300px;">
-        ${ image ? `<img src="${escapeHtml(image)}" style="width:100%;border-radius:10px;object-fit:contain;"/>` : `<div style='width:100%;height:260px;background:#f3f4f6;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#9ca3af;'>No Screenshot</div>` }
-      </div>
-    </div>
-  `;
+      backdrop.appendChild(modal);
+      document.body.appendChild(backdrop);
 
-  backdrop.appendChild(modal);
-  document.body.appendChild(backdrop);
+      const closeModal = () => { if (backdrop && backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); };
 
-  const closeModal = () => { if (backdrop && backdrop.parentNode) backdrop.parentNode.removeChild(backdrop); };
+      modal.querySelector('#qpCancel').addEventListener('click', closeModal);
 
-  modal.querySelector('#qpCancel').addEventListener('click', closeModal);
+      modal.querySelector('#qpConfirm').addEventListener('click', async () => {
+        const btn = modal.querySelector('#qpConfirm');
+        btn.disabled = true;
+        btn.textContent = 'Saving...';
 
-  modal.querySelector('#qpConfirm').addEventListener('click', async () => {
-    const btn = modal.querySelector('#qpConfirm');
-    btn.disabled = true;
-    btn.textContent = 'Saving...';
+        try {
+          // IMPORTANT: do NOT save the entrant screenshot into the winners collection
+          const winnerPayload = {
+            name: name || '',
+            handle: handle || '',
+            prize: giveawayTitle || '',
+            imageUrl: '',
+            sourceGiveawayId: giveawayId || '',
+            entryId: entry && entry.id ? entry.id : '',
+            createdAt: serverTimestamp(),
+            uploader: auth && auth.currentUser ? (auth.currentUser.email || auth.currentUser.uid) : 'admin'
+          };
 
-    try {
-      // IMPORTANT: do NOT save the entrant screenshot into the winners collection
-      const winnerPayload = {
-        name: name || '',
-        handle: handle || '',
-        prize: giveawayTitle || '',
-        imageUrl: '', // intentionally left blank for quick-picked winners
-        sourceGiveawayId: giveawayId || '',
-        entryId: entry && entry.id ? entry.id : '',
-        createdAt: serverTimestamp(),
-        uploader: auth && auth.currentUser ? (auth.currentUser.email || auth.currentUser.uid) : 'admin'
-      };
+          // save to winners collection (the public winners collection)
+          const winnerRef = await addDoc(collection(db, WINNERS_COLLECTION_PATH), winnerPayload);
 
-      // save to winners collection (the public winners collection)
-      const winnerRef = await addDoc(collection(db, WINNERS_COLLECTION_PATH), winnerPayload);
+          // update giveaway doc to link winnerId & set status (best-effort)
+          try {
+            await updateDoc(doc(db, `${GIVEAWAYS_COLLECTION_PATH}/${giveawayId}`), { winnerId: winnerRef.id, status: 'winner' });
+          } catch (err) {
+            console.warn('Non-fatal: could not update giveaway with winnerId/status', err);
+          }
 
-      // update giveaway doc to link winnerId & set status (best-effort)
-      try {
-        await updateDoc(doc(db, `${GIVEAWAYS_COLLECTION_PATH}/${giveawayId}`), { winnerId: winnerRef.id, status: 'winner' });
-      } catch (err) {
-        console.warn('Non-fatal: could not update giveaway with winnerId/status', err);
-      }
+          // mark entry as used (best-effort)
+          try {
+            const entryPath = entry && entry.__path ? entry.__path : '';
+            if (entryPath) {
+              await updateDoc(doc(db, entryPath), { pickedAsWinnerAt: serverTimestamp(), pickedAsWinnerFor: giveawayId });
+            } else {
+              try { await updateDoc(doc(db, `${GIVEAWAYS_COLLECTION_PATH}/${giveawayId}/entries/${entry.id}`), { pickedAsWinnerAt: serverTimestamp(), pickedAsWinnerFor: giveawayId }); } catch(e) {}
+              try { await updateDoc(doc(db, `${ENTRIES_COLLECTION_PATH}/${entry.id}`), { pickedAsWinnerAt: serverTimestamp(), pickedAsWinnerFor: giveawayId }); } catch(e) {}
+            }
+          } catch (err) {
+            console.warn('Non-fatal: could not mark entry as used', err);
+          }
 
-      // mark entry as used (best-effort)
-      try {
-        const entryPath = entry && entry.__path ? entry.__path : '';
-        if (entryPath) {
-          await updateDoc(doc(db, entryPath), { pickedAsWinnerAt: serverTimestamp(), pickedAsWinnerFor: giveawayId });
-        } else {
-          try { await updateDoc(doc(db, `${GIVEAWAYS_COLLECTION_PATH}/${giveawayId}/entries/${entry.id}`), { pickedAsWinnerAt: serverTimestamp(), pickedAsWinnerFor: giveawayId }); } catch(e) {}
-          try { await updateDoc(doc(db, `${ENTRIES_COLLECTION_PATH}/${entry.id}`), { pickedAsWinnerAt: serverTimestamp(), pickedAsWinnerFor: giveawayId }); } catch(e) {}
+          alert('Winner saved successfully!');
+          closeModal();
+
+          // optional: reload admin lists if those functions exist
+          if (typeof loadWinnersAdmin === 'function') loadWinnersAdmin();
+          if (typeof loadGiveaways === 'function') loadGiveaways();
+
+        } catch (err) {
+          console.error('Failed to save winner', err);
+          alert('Failed to save winner: ' + (err && err.message ? err.message : err));
+          btn.disabled = false;
+          btn.textContent = 'Confirm & Save winner';
         }
-      } catch (err) {
-        console.warn('Non-fatal: could not mark entry as used', err);
-      }
+      });
 
-      alert('Winner saved successfully!');
-      closeModal();
-
-      // optional: reload admin lists if those functions exist
-      if (typeof loadWinnersAdmin === 'function') loadWinnersAdmin();
-      if (typeof loadGiveaways === 'function') loadGiveaways();
-
-    } catch (err) {
-      console.error('Failed to save winner', err);
-      alert('Failed to save winner: ' + (err && err.message ? err.message : err));
-      btn.disabled = false;
-      btn.textContent = 'Confirm & Save winner';
+      backdrop.addEventListener('click', (e) => { if (e.target === backdrop) closeModal(); });
     }
-  });
-
-  backdrop.addEventListener('click', (e) => { if (e.target === backdrop) closeModal(); });
-}
 
     // ---------- FIXTURES admin functions (UPDATED) ----------
     async function loadFixturesAdmin() {
@@ -1726,7 +1724,7 @@
 
         await addDoc(collection(db, FIXTURES_COLLECTION_PATH), {
           ageGroup,
-          kickoffTs: serverTimestamp(), // placeholder; canonical stored as kickoffISO
+          kickoffTs: serverTimestamp(),
           kickoffISO: kickoffVal.toISOString(),
           status,
           teamA,
@@ -1869,7 +1867,6 @@
       fxStatusMsg.textContent = '';
     });
 
-
     // ── BLOG POSTS ──
 
     function getBlogLinkFields() {
@@ -1937,6 +1934,7 @@
             <div style="margin-top:.4rem;color:#4b5563;font-size:.88rem;">${escapeHtml((p.excerpt||p.body||'').substring(0,120))}${(p.excerpt||p.body||'').length>120?'...':''}</div>
             ${p.linkLabel && p.linkUrl ? `<div style="margin-top:.4rem;color:#be185d;font-size:.82rem;font-weight:700;">Link button: ${escapeHtml(p.linkLabel)}</div>` : ''}
             <div style="margin-top:.6rem;display:flex;gap:.5rem;flex-wrap:wrap;">
+              <button type="button" class="btn bg-white border copy-blog-link" data-id="${escapeHtml(p.id)}" style="font-size:.8rem;padding:.3rem .8rem;">Copy link</button>
               <button class="btn bg-white border edit-blog" data-id="${p.id}" style="font-size:.8rem;padding:.3rem .8rem;">Edit</button>
               <button class="btn bg-white border delete-blog" data-id="${p.id}" style="font-size:.8rem;padding:.3rem .8rem;">Delete</button>
             </div>
@@ -1944,6 +1942,20 @@
         `;
         blogPostsList.appendChild(el);
       });
+
+      blogPostsList.querySelectorAll('.copy-blog-link').forEach(button => {
+        button.addEventListener('click', async () => {
+          const url = new URL('/api/blog-share', window.location.origin);
+          url.searchParams.set('id', button.dataset.id);
+          try {
+            if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+            await navigator.clipboard.writeText(url.href);
+            button.textContent = 'Link copied!';
+            setTimeout(() => { button.textContent = 'Copy link'; }, 2000);
+          } catch (_) { window.prompt('Copy this post link:', url.href); }
+        });
+      });
+
       blogPostsList.querySelectorAll('.edit-blog').forEach(b => {
         b.addEventListener('click', async (ev) => {
           const id = ev.currentTarget.getAttribute('data-id');
@@ -1966,6 +1978,7 @@
           if (paneBlog) window.scrollTo({top: paneBlog.offsetTop - 20, behavior: 'smooth'});
         });
       });
+
       blogPostsList.querySelectorAll('.delete-blog').forEach(b => {
         b.addEventListener('click', async (ev) => {
           const id = ev.currentTarget.getAttribute('data-id');
@@ -1987,51 +2000,62 @@
         const excerpt = (blogExcerpt?.value || '').trim();
         const postDate = blogDate?.value || new Date().toISOString().slice(0,10);
         const file = blogImageFile?.files && blogImageFile.files[0];
+
         if (!title || !body) {
           if (blogError) { blogError.classList.remove('hidden-el'); blogError.textContent = 'Please add a title and body text.'; }
           return;
         }
+
         let linkFields;
         try { linkFields = getBlogLinkFields(); }
         catch (err) {
           if (blogError) { blogError.classList.remove('hidden-el'); blogError.textContent = err.message; }
           return;
         }
+
         if (!file) {
           if (blogError) { blogError.classList.remove('hidden-el'); blogError.textContent = 'Please select an image for this post.'; }
           return;
         }
-        createBlogBtn.disabled = true; createBlogBtn.textContent = 'Publishing...';
+
+        createBlogBtn.disabled = true;
+        createBlogBtn.textContent = 'Publishing...';
+
         try {
           const cr = await uploadToCloudinary(file);
           await addDoc(collection(db, BLOG_COLLECTION_PATH), {
             title, body,
             excerpt: excerpt || body.substring(0,160) + '...',
-            imageUrl: cr.secure_url, publicId: cr.public_id,
-            postDate, hashtags: BLOG_HASHTAGS,
+            imageUrl: cr.secure_url,
+            publicId: cr.public_id,
+            postDate,
+            hashtags: BLOG_HASHTAGS,
             linkLabel: linkFields.linkLabel,
             linkUrl: linkFields.linkUrl,
             createdAt: serverTimestamp(),
             author: auth.currentUser?.email || 'admin'
           });
-        if (blogStatusMsg) blogStatusMsg.textContent = 'Notifying subscribers...';
 
-        // Send email notification to all Brevo subscribers
-        try {
-          await fetch('https://f6bad809-706a-4305-9fd8-41d6bb54cf2b-00-17gev7mw1893o.spock.replit.dev/api/notify-blog', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              title: title,
-              url: 'https://thefootballerssister.co.za/blog.html',
-              previewText: excerpt || body.substring(0, 160)
-            })
-          });
-          if (blogStatusMsg) blogStatusMsg.textContent = 'Post published & subscribers notified! 💖';
-        } catch (notifyErr) {
-          console.warn('Email notification failed:', notifyErr);
-          if (blogStatusMsg) blogStatusMsg.textContent = 'Post published! (Email notification failed — check console)';
-}         if (blogTitle) blogTitle.value = '';
+          if (blogStatusMsg) blogStatusMsg.textContent = 'Notifying subscribers...';
+
+          // Send email notification to all Brevo subscribers
+          try {
+            await fetch('https://f6bad809-706a-4305-9fd8-41d6bb54cf2b-00-17gev7mw1893o.spock.replit.dev/api/notify-blog', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                title: title,
+                url: 'https://thefootballerssister.co.za/blog.html',
+                previewText: excerpt || body.substring(0, 160)
+              })
+            });
+            if (blogStatusMsg) blogStatusMsg.textContent = 'Post published & subscribers notified! 💖';
+          } catch (notifyErr) {
+            console.warn('Email notification failed:', notifyErr);
+            if (blogStatusMsg) blogStatusMsg.textContent = 'Post published! (Email notification failed — check console)';
+          }
+
+          if (blogTitle) blogTitle.value = '';
           if (blogBody) blogBody.value = '';
           if (blogExcerpt) blogExcerpt.value = '';
           if (blogLinkLabel) blogLinkLabel.value = '';
@@ -2041,7 +2065,10 @@
           if (blogImagePreview) blogImagePreview.classList.add('hidden-el');
         } catch(err) {
           if (blogError) { blogError.classList.remove('hidden-el'); blogError.textContent = 'Publish failed: ' + (err.message || err); }
-        } finally { createBlogBtn.disabled = false; createBlogBtn.textContent = 'Publish Post'; }
+        } finally {
+          createBlogBtn.disabled = false;
+          createBlogBtn.textContent = 'Publish Post';
+        }
       });
     }
 
@@ -2054,22 +2081,42 @@
         const body  = (blogBody?.value || '').trim();
         const excerpt = (blogExcerpt?.value || '').trim();
         const postDate = blogDate?.value || '';
+
         if (!title || !body) {
           if (blogError) { blogError.classList.remove('hidden-el'); blogError.textContent = 'Please add a title and body.'; }
           return;
         }
+
         let linkFields;
         try { linkFields = getBlogLinkFields(); }
         catch (err) {
           if (blogError) { blogError.classList.remove('hidden-el'); blogError.textContent = err.message; }
           return;
         }
-        updateBlogBtn.disabled = true; updateBlogBtn.textContent = 'Saving...';
+
+        updateBlogBtn.disabled = true;
+        updateBlogBtn.textContent = 'Saving...';
+
         try {
-          const payload = { title, body, excerpt: excerpt || body.substring(0,160)+'...', postDate, hashtags: BLOG_HASHTAGS, linkLabel: linkFields.linkLabel, linkUrl: linkFields.linkUrl, updatedAt: serverTimestamp() };
+          const payload = {
+            title,
+            body,
+            excerpt: excerpt || body.substring(0,160)+'...',
+            postDate,
+            hashtags: BLOG_HASHTAGS,
+            linkLabel: linkFields.linkLabel,
+            linkUrl: linkFields.linkUrl,
+            updatedAt: serverTimestamp()
+          };
           const file = blogImageFile?.files && blogImageFile.files[0];
-          if (file) { const cr = await uploadToCloudinary(file); payload.imageUrl = cr.secure_url; payload.publicId = cr.public_id; }
+          if (file) {
+            const cr = await uploadToCloudinary(file);
+            payload.imageUrl = cr.secure_url;
+            payload.publicId = cr.public_id;
+          }
+
           await updateDoc(doc(db, `${BLOG_COLLECTION_PATH}/${currentEditBlogId}`), payload);
+
           if (blogStatusMsg) blogStatusMsg.textContent = 'Post updated.';
           currentEditBlogId = null;
           if (blogTitle) blogTitle.value = '';
@@ -2085,7 +2132,10 @@
           if (cancelBlogEditBtn) cancelBlogEditBtn.classList.add('hidden-el');
         } catch(err) {
           if (blogError) { blogError.classList.remove('hidden-el'); blogError.textContent = 'Save failed: ' + (err.message || err); }
-        } finally { updateBlogBtn.disabled = false; updateBlogBtn.textContent = 'Save Changes'; }
+        } finally {
+          updateBlogBtn.disabled = false;
+          updateBlogBtn.textContent = 'Save Changes';
+        }
       });
     }
 

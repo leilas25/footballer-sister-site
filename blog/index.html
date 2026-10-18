@@ -43,6 +43,8 @@
     .post-foot { display:flex; align-items:center; justify-content:space-between; margin-top:.8rem; border-top:1px solid #fce7f3; padding-top:.7rem; }
     .read-more { font-size:.82rem; font-weight:700; color:#be185d; }
 
+    .copy-post-link { background:#fce7f3; color:#be185d; border:1px solid #f9a8d4; border-radius:999px; padding:.35rem .75rem; font-size:.8rem; font-weight:700; cursor:pointer; }
+
     /* Full post modal */
     .post-modal-backdrop {
       position:fixed; inset:0; background:rgba(0,0,0,0.5);
@@ -215,6 +217,7 @@
         <a id="modalLinkButton" class="modal-link-button" href="#" target="_blank" rel="noopener noreferrer"></a>
       </div>
       <div class="modal-tags" id="modalTags"></div>
+      <button type="button" id="modalCopyLink" class="copy-post-link" style="margin-top:1rem;">Copy link</button>
     </div>
   </div>
 
@@ -350,12 +353,25 @@
 
     function esc(s){ if(!s&&s!==0)return''; return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+    let loadedPosts = [];
+    function openLinkedPost() {
+      const id = new URL(location.href).searchParams.get('post');
+      const post = loadedPosts.find(p => p.id === id);
+      if (post) window.openPost(post);
+      else if (id) window.alert('This post is no longer available.');
+    }
+    window.addEventListener('popstate', () => {
+      if (new URL(location.href).searchParams.has('post')) openLinkedPost();
+      else closeModal();
+    });
+    let firstLoad = true;
     onSnapshot(collection(db, BLOG_PATH), snap => {
       loading.style.display = 'none';
       const posts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      loadedPosts = posts;
       posts.sort((a,b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0));
 
-      if (!posts.length) { noMsg.style.display = 'block'; grid.innerHTML = ''; return; }
+      if (!posts.length) { noMsg.style.display = 'block'; grid.innerHTML = ''; if (firstLoad) { firstLoad = false; openLinkedPost(); } return; }
       noMsg.style.display = 'none';
       grid.innerHTML = '';
 
@@ -391,6 +407,7 @@
             </div>
             <div class="post-foot">
               <span style="font-size:.8rem;color:#be185d;">&#x2764;&#xFE0F;</span>
+              <button type="button" class="copy-post-link">Copy link</button>
               <span class="read-more">Read full post &#x2192;</span>
             </div>
           </div>
@@ -398,9 +415,14 @@
 
         const openFn = () => window.openPost(post);
         card.addEventListener('click', openFn);
-        card.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' ') openFn(); });
+        card.addEventListener('keydown', e => { if (e.target === card && (e.key==='Enter'||e.key===' ')) { e.preventDefault(); openFn(); } });
+        card.querySelector('.copy-post-link').addEventListener('click', e => {
+          e.stopPropagation();
+          window.copyPostLink(post.id, e.currentTarget);
+        });
         grid.appendChild(card);
       });
+      if (firstLoad) { firstLoad = false; openLinkedPost(); }
 
     }, err => {
       loading.style.display = 'none';
@@ -410,7 +432,30 @@
   </script>
 
   <script>
+    window.postShareUrl = function(id) {
+      const url = new URL('/api/blog-share', location.origin);
+      url.searchParams.set('id', id);
+      return url.href;
+    };
+    window.copyPostLink = async function(id, button) {
+      const url = window.postShareUrl(id);
+      try {
+        if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+        await navigator.clipboard.writeText(url);
+        const label = button.textContent;
+        button.textContent = 'Link copied!';
+        setTimeout(() => { button.textContent = label; }, 2000);
+      } catch (_) {
+        window.prompt('Copy this post link:', url);
+      }
+    };
     window.openPost = function(post) {
+      if (new URL(location.href).searchParams.get('post') !== post.id) {
+        const postUrl = new URL(location.href);
+        postUrl.searchParams.set('post', post.id);
+        history.pushState(null, '', postUrl.href);
+      }
+      document.getElementById('modalCopyLink').onclick = e => window.copyPostLink(post.id, e.currentTarget);
       const dateLabel = post.postDate
         ? new Date(post.postDate + 'T00:00:00').toLocaleDateString('en-ZA', {day:'numeric', month:'long', year:'numeric'})
         : (post.createdAt?.seconds ? new Date(post.createdAt.seconds * 1000).toLocaleDateString('en-ZA', {day:'numeric', month:'long', year:'numeric'}) : '');
@@ -456,6 +501,11 @@
     };
 
     function closeModal() {
+      const url = new URL(location.href);
+      if (url.searchParams.has('post')) {
+        url.searchParams.delete('post');
+        history.replaceState(null, '', url.href);
+      }
       document.getElementById('postModal').style.display = 'none';
       document.body.style.overflow = '';
     }
